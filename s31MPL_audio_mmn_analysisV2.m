@@ -13,8 +13,8 @@ close all;
 
 ops.processed_data_tag = 'processed_data';
 ops.OA_output_tag = 'results_sort';
-addpath('C:\Users\ys2605\Desktop\AC_data\AC_analysis\s3_mpl_functions');
-addpath('C:\Users\ys2605\Desktop\AC_data\AC_analysis\general_functions');
+addpath([pwd '\s3_mpl_functions']);
+addpath([pwd '\general_functions']);
 %% List of files to load
 
 %which files to analyze
@@ -24,7 +24,7 @@ ops.blah = 1;
 %AC_files_OA_10_27_19
 %AC_files_MPL_files_12_11_19
 %AC_files_OA_3_16_20;
-AC_files_OA_5_23_20
+AC_files_OA_5_23_20_lab
 
 fprintf('Analyzing %s\n', ops.paradigm_type);
 
