@@ -1,4 +1,6 @@
 %% run this after data is preprocessed with s31MPL
+close all
+
 
 %% analysis params
 % ----------------------- plot extra stuff --------------------------
