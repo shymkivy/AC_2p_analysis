@@ -8,8 +8,10 @@ method1 = 'ward';
 f1 = figure;
 [~, ~, dend_order] = dendrogram(linkage(data,method1), 1000,'ColorThreshold',dend_thresh,'Orientation','left');
 
+cluster(linkage(data,method1), 'Cutoff', 1.15)
+
 f2 = figure;
-Z = pdist(data(dend_order,:), 'cosine');
+Z = pdist(data(dend_order,:), 'squaredeuclidean');
 imagesc(1-squareform(Z));
 axis image;
 title('How many clusters?');
