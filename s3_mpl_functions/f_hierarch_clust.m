@@ -6,20 +6,15 @@ end
 method1 = 'ward';
 
 f1 = figure;
-[~, ~, dend_order] = dendrogram(linkage(data,method1), 1000,'ColorThreshold',dend_thresh,'Orientation','left');
+[~, ~, dend_order_si] = dendrogram(linkage(1-squareform(pdist(data,'cosine'))), 1000,'ColorThreshold',dend_thresh,'Orientation','left');
+[~, ~, dend_order] = dendrogram(linkage(data,'ward'), 1000,'ColorThreshold',dend_thresh,'Orientation','left');
 
-f2 = figure;
-Z = pdist(data(dend_order,:), 'cosine');
-imagesc(1-squareform(Z));
-axis image;
-title('How many clusters?');
+f2 = if_plot_trial_trial_image(1-squareform(pdist(data(dend_order,:), 'cosine')), 'cosine');
+if_plot_trial_trial_image(squareform(pdist(data(dend_order,:), 'euclidean')), 'euclidean');
+%if_plot_trial_trial_image(squareform(pdist(data(dend_order,:), 'minkowski',1)), 'minkowski 1');
+%if_plot_trial_trial_image(squareform(pdist(data(dend_order,:), 'minkowski',2)), 'minkowski 2');
+
 num_clust = input('How many clusters?');
-title(['Trial to Trial similarity sorted ' method1]);
-%caxis([-.2 .8]);
-axis equal tight;
-xlabel('Trials');
-ylabel('Trials');
-colorbar;
 
 if num_clust > 1
     figure(f1);
@@ -35,5 +30,20 @@ for n_clust = 1:num_clust
     temp_list = find(ord1 == n_clust);
     rectangle('Position',[temp_list(1) temp_list(1) numel(temp_list)-1 numel(temp_list)-1], 'EdgeColor', 'r','LineWidth',2)
 end
+
+end
+
+function fhandle = if_plot_trial_trial_image(image_Z, metric)
+
+
+fhandle = figure;
+imagesc(image_Z);
+axis image;
+title(sprintf('tr-tr similarity ward sorted, %s', metric));
+%caxis([-.2 .8]);
+axis equal tight;
+xlabel('Trials');
+ylabel('Trials');
+colorbar;
 
 end

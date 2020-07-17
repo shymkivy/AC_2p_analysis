@@ -69,11 +69,12 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         if 1
             [trial_data_sort_pr,trial_types_pr] =  f_add_red_pool_trials(trial_data, trial_types, ops);
             trials_idx_dred = logical(sum(trial_types_pr == tt_to_dred' ,2));
-            if sum(trials_idx_dred) > 40
+            if strcmpi(cond_name, 'DF') && (sum(trials_idx_dred) > 40)
+                disp(1)
                 x = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag(resp_cells,trials_idx_dred);
 
                 [dend_order, clust_ident] = f_hierarch_clust(x', 40);
-                title(sprintf('Trial-Trial similarity, sorted, ward, %s %s %s', cond_name, ops.paradigm_type, ops.file_names{n_dset}));
+                title(sprintf('Trial-Trial similarity, sorted, ward, %s %s %s', cond_name, ops.paradigm_type, ops.file_names.(cond_name){n_dset}));
 
                 Y = tsne(x');
                 figure;
