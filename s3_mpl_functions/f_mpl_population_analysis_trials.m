@@ -70,25 +70,31 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             [trial_data_sort_pr,trial_types_pr] =  f_add_red_pool_trials(trial_data, trial_types, ops);
             trials_idx_dred_pr1 = logical(sum(trial_types_pr == ops.context_types_all(20) ,2));
             trials_idx_dred_pr2 = logical(sum(trial_types_pr == ops.context_types_all(30) ,2));
-            if (sum(trials_idx_dred_pr1) > 40)
+            if (sum(trials_idx_dred_pr1) > 15)
+                f1 = figure;
+                sp{1} = subplot(2,3,1);
+                sp{2} = subplot(2,3,4);
                 x = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag(resp_cells,trials_idx_dred_pr1);
-                [dend_order, clust_ident] = f_hierarch_clust(x', 40);
-                title(sprintf('Trial-Trial similarity, sorted, ward, %s %s %s', cond_name, ops.paradigm_type, ops.file_names.(cond_name){n_dset}), 'interpreter', 'none');
+                [dend_order, clust_ident] = f_hierarch_clust(x', 5, sp);
 
                 Y = tsne(x');
-                figure;
+                subplot(2,3,3);
                 gscatter(Y(:,1),Y(:,2),clust_ident);
-                title(sprintf('%s dset %d, T-SNE', cond_name, n_dset), 'interpreter', 'none');
+                axis equal tight;
+                title('T-SNE');
                 
+                figure(f1);
+                sp{1} = subplot(2,3,2);
+                sp{2} = subplot(2,3,5);
                 x = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag(resp_cells,trials_idx_dred_pr2);
-                [dend_order, clust_ident] = f_hierarch_clust(x', 40);
-                title(sprintf('Trial-Trial similarity, sorted, ward, %s %s %s', cond_name, ops.paradigm_type, ops.file_names.(cond_name){n_dset}), 'interpreter', 'none');
+                [dend_order, clust_ident] = f_hierarch_clust(x', 5, sp);
 
                 Y = tsne(x');
-                figure;
+                subplot(2,3,6);
                 gscatter(Y(:,1),Y(:,2),clust_ident);
-                title(sprintf('%s dset %d, T-SNE', cond_name, n_dset), 'interpreter', 'none');
-                
+                axis equal tight;
+                title('T-SNE');
+                suptitle(sprintf('%s dset %d', cond_name, n_dset));
             end
         end
         

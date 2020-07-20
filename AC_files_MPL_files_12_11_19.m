@@ -7,7 +7,7 @@ if ops.blah == 1
     files_ammn.A1 = {};
     files_ammn.A2 = {};
     files_ammn.AAF = {};
-    files_ammn.DAM = {'_2_dplanes1_10_14_19', '_2_dplanes2_10_14_19'};
+    files_ammn.DF = {'_2_dplanes1_10_14_19', '_2_dplanes2_10_14_19'};
      
     ops.file_names = files_ammn;
     clear files_ammn;
@@ -18,7 +18,7 @@ elseif ops.blah == 2
     files_freq_grating.A1 = {};
     files_freq_grating.A2 = {};
     files_freq_grating.AAF = {};
-    files_freq_grating.DAM = {};
+    files_freq_grating.DF = {};
     
     ops.file_names = files_freq_grating;
     clear files_freq_grating;
