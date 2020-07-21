@@ -9,6 +9,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     num_planes = max(cdata.num_planes);
     
     cdata.num_cells = zeros(num_dsets, num_planes);
+    cdata.num_cells_pl = zeros(num_dsets, num_planes);
+    cdata.cell_plane_indx = cell(num_dsets,1);
     cdata.traces_raw = cell(num_dsets, num_planes);
     cdata.firing_rate = cell(num_dsets, num_planes);
     cdata.firing_rate_smooth = cell(num_dsets, num_planes);
@@ -44,6 +46,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         cdata.resp_window_t{n_dset} = cdata.trial_window_t{n_dset}(cdata.resp_window_frames{n_dset});
         cdata.onset_window_frames{n_dset} = and(cdata.trial_window_t{n_dset}>ops.onset_window(1),cdata.trial_window_t{n_dset}<ops.onset_window(2)); 
         cdata.offset_window_frames{n_dset} = and(cdata.trial_window_t{n_dset}>ops.offset_window(1),cdata.trial_window_t{n_dset}<ops.offset_window(2)); 
+        
+        cell_plane_indx_pl = cell(cdata.num_planes(n_dset),1);
         
          % pull out data
         for n_pl = 1:cdata.num_planes(n_dset)
@@ -97,11 +101,14 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             cdata.traces_raw{n_dset,n_pl} = if_fill_cuts(traces_raw_cut, cuts_trace);
             cdata.firing_rate{n_dset,n_pl} = if_fill_cuts(firing_rate_cut, cuts_trace);
             cdata.firing_rate_smooth{n_dset,n_pl} = if_fill_cuts(firing_rate_cut_smooth, cuts_trace);
-            cdata.num_cells(n_dset,n_pl) = size(cdata.firing_rate{n_dset,n_pl},1);
+            cdata.num_cells_pl(n_dset,n_pl) = size(cdata.firing_rate{n_dset,n_pl},1);
             cdata.stim_frame_index{n_dset,n_pl} = cdata.proc_data{n_dset}.stim_frame_index{n_pl};
-            
+            cell_plane_indx_pl{n_pl} = ones(cdata.num_cells_pl(n_dset,n_pl),1)*n_pl;
         end
+        cdata.cell_plane_indx{n_dset} = cat(1, cell_plane_indx_pl{:});
     end
+    
+    cdata.num_cells = sum(cdata.num_cells_pl,2);
     
     % check if datasets are equivalent
     stim_duration = zeros(num_dsets, 1);
@@ -202,7 +209,7 @@ function if_check_parameter_stability(parameter, tag)
 if ~prod(mode(parameter) == parameter)
     figure;
     plot(parameter, 'o-');
-    title(['Warning: ' tag ' varies across datasets']);
+    title(['Warning: ' tag ' varies across datasets'], 'interpreter', 'none');
     ylabel('Stim duration');
     xlabel('Dataset number');
 end

@@ -24,7 +24,7 @@ ops.blah = 1;
 %AC_files_OA_10_27_19
 %AC_files_MPL_files_12_11_19
 %AC_files_OA_3_16_20;
-AC_files_OA_5_23_20
+AC_files_OA_5_23_20_lab
 
 fprintf('Analyzing %s\n', ops.paradigm_type);
 
@@ -85,12 +85,7 @@ ops.stim.num_freqs = 10;
 ops.stim.start_freq = 2000;
 ops.stim.increase_factor = 1.5;
 
-%%
-ops.dred_params.saved_data_dir = 's3_saved_dred_data';
-ops.dred_params.run_idx = 2;    % for saving different runs
-ops.dred_params.dred_mmn = 1; % Options: 0 - trial types; 1 - mmn1;  2 - mmn2; 3 - mmn12
-ops.dred_params.trial_types_to_dred = 1:28; % If dred_mmmn=0: [], [1:10]
-ops.dred_params.use_responsive_cells = 1;
+
 %%
 ops = f_mpl_process_ops(ops);
 

@@ -1,4 +1,4 @@
-function f_mpl_population_analysis_trials(data, ops)
+function f_mpl_population_analysis_trials2(data, ops)
 cv_data = struct();
 dim_est_st = struct('cond_name', [], 'n_dset', [], 'num_cells', [],...
     'num_cells_samp', [], 'num_comp_est', [], 'n_rep', []);
@@ -9,20 +9,12 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     for n_dset = 1:cdata.num_dsets
         disp([cond_name, ' dset ' num2str(n_dset)]);
         
-        stim_frame_index = cell(1,cdata.num_planes(n_dset));
-        firing_rate = cell(1,cdata.num_planes(n_dset));
-        trial_data = cell(1,cdata.num_planes(n_dset));
-        for n_pl = 1:cdata.num_planes(n_dset)
-            % plane specific params
-            stim_frame_index{n_pl}= cdata.stim_frame_index{n_dset,n_pl};
-            firing_rate{n_pl} = cdata.firing_rate{n_dset,n_pl};
-            trial_data{n_pl} = f_get_stim_trig_resp(firing_rate{n_pl}, stim_frame_index{n_pl}, cdata.trial_num_baseline_resp_frames{n_dset});
-        end
-        firing_rate = cat(1,firing_rate{:});  
-        trial_data = cat(1,trial_data{:});
+        trial_data_sort = cdata.trial_data_sort_pr{n_dset};
+        trial_types = cdata.trial_types_pr{n_dset};
+        trial_peaks = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag;
+        
         
         %% select trials
-        trial_types = cdata.trial_types{n_dset};
         if ops.dred_params.dred_mmn
             if ops.dred_params.dred_mmn == 1
                 tn_to_dred = cdata.ctx_mmn{n_dset}(1:3);
@@ -34,64 +26,42 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         else
             tn_to_dred = ops.dred_params.trial_types_to_dred;
         end
-        %%
-        
-        %%
+
         tt_to_dred = ops.context_types_all(tn_to_dred);
         
         if strcmpi(ops.dred_params.trace_to_use, 'trials_specified')
             trials_idx_dred = logical(sum(trial_types == tt_to_dred' ,2));
-            trial_data_dred = trial_data(:,:,trials_idx_dred);
+            trial_data_dred = trial_data_sort(:,:,trials_idx_dred);
+            trial_peaks_dred = trial_peaks(:,trials_idx_dred);
             trial_types_dred = trial_types(trials_idx_dred);
         else
-            trial_data_dred = trial_data;
+            trial_data_dred = trial_data_sort;
             trial_types_dred = trial_types;
         end
 %trial_data_2d = reshape(trial_data,num_cells,[]);
         
-
-
         %% select responsive cells
         if ops.dred_params.use_responsive_cells
             %resp_cells = logical(cdata.resp_cells_all_offset{n_dset}+cdata.resp_cells_all_onset{n_dset});
             resp_cells = cdata.peak_tuned_trials_combined{n_dset};
             resp_cells = logical(sum(resp_cells(:,tn_to_dred),2));
             trial_data_dred = trial_data_dred(resp_cells,:,:);
+            trial_peaks_dred = trial_peaks_dred(resp_cells,:);
         end
         [num_cells, ~, num_trials] = size(trial_data_dred);
         
+        %%
+        dr_params.cond_name = cond_name;
+        dr_params.n_dset = n_dset;
+        dr_params.volume_period = cdata.proc_data{n_dset}.frame_data.volume_period;
+        dr_params.tn_to_dred = tn_to_dred;
+        dr_params.tt_to_dred = tt_to_dred;
+        dr_params.trial_t = cdata.trial_window_t{n_dset};
+        dr_params.ctx_mmn = ops.context_types_all(cdata.ctx_mmn{n_dset});
         
         %%
         if 1
-            [trial_data_sort_pr,trial_types_pr] =  f_add_red_pool_trials(trial_data, trial_types, ops);
-            trials_idx_dred_pr1 = logical(sum(trial_types_pr == ops.context_types_all(20) ,2));
-            trials_idx_dred_pr2 = logical(sum(trial_types_pr == ops.context_types_all(30) ,2));
-            if (sum(trials_idx_dred_pr1) > 15)
-                f1 = figure;
-                sp{1} = subplot(2,3,1);
-                sp{2} = subplot(2,3,4);
-                x = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag(resp_cells,trials_idx_dred_pr1);
-                [dend_order, clust_ident] = f_hierarch_clust(x', 5, sp);
-
-                Y = tsne(x');
-                subplot(2,3,3);
-                gscatter(Y(:,1),Y(:,2),clust_ident);
-                axis equal tight;
-                title('T-SNE');
-                
-                figure(f1);
-                sp{1} = subplot(2,3,2);
-                sp{2} = subplot(2,3,5);
-                x = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag(resp_cells,trials_idx_dred_pr2);
-                [dend_order, clust_ident] = f_hierarch_clust(x', 5, sp);
-
-                Y = tsne(x');
-                subplot(2,3,6);
-                gscatter(Y(:,1),Y(:,2),clust_ident);
-                axis equal tight;
-                title('T-SNE');
-                suptitle(sprintf('%s dset %d', cond_name, n_dset));
-            end
+            f_cluster_trial(trial_peaks_dred, trial_types_dred, dr_params);
         end
         
         %%
@@ -103,14 +73,11 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         
         
         %%
-        dr_params.cond_name = cond_name;
-        dr_params.n_dset = n_dset;
-        dr_params.volume_period = cdata.proc_data{n_dset}.frame_data.volume_period;
-        dr_params.tn_to_dred = tn_to_dred;
-        dr_params.tt_to_dred = tt_to_dred;
-        dr_params.trial_t = cdata.trial_window_t{n_dset};
-        dr_params.ctx_mmn = ops.context_types_all(cdata.ctx_mmn{n_dset});
+        
         if ops.dred_params.do_cv
+            
+            f_make_dred_dir(ops);
+            
             dred_data_list = f_dim_red_cv(trial_data_trand, ops, dr_params);
             if ~numel(fields(cv_data))
                 cv_data = rmfield(dred_data_list,'dred_factors');

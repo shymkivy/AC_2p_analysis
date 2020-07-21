@@ -2,8 +2,6 @@ function [dend_order, clust_ident] = f_hierarch_clust(data, num_clust, fig_hand)
 
 dend_thresh = 50;
 
-
-
 if ~exist('fig_hand', 'var')
     fig_hand{1} = figure;
     fig_hand{2} = figure;
@@ -54,7 +52,8 @@ imagesc(image_Z);
 %axis image;
 title(sprintf('tr-tr similarity ward sorted, %s', metric));
 %caxis([-.2 .8]);
-axis equal tight;
+axis tight;
+axis equal;
 xlabel('Trials');
 ylabel('Trials');
 colorbar;
