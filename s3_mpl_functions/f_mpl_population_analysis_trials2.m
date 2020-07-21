@@ -38,6 +38,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             %%
             dr_params.cond_name = cond_name;
             dr_params.n_dset = n_dset;
+            dr_params.tt_to_dred_pre = ops.dred_params.trial_types_to_dred{n_tt};
             dr_params.volume_period = cdata.proc_data{n_dset}.frame_data.volume_period;
             dr_params.tn_to_dred = tn_to_dred;
             dr_params.tt_to_dred = tt_to_dred;
@@ -61,7 +62,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 trial_data_trand = trial_data_dred(:,:,rand_trial_indx);
                 %trial_types_dred_rand = trial_types_dred(rand_trial_indx);
 
-                f_make_dred_dir(ops);
+                dr_params = f_make_dred_dir(dr_params, ops);
 
                 dred_data_list = f_dim_red_cv(trial_data_trand, ops, dr_params);
                 if ~numel(fields(cv_data))
@@ -72,15 +73,15 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             end
             
             %% estimate of dimensionality
-            if ops.dred_params.dim_estimate
-                trial_data_dred_sm = f_smooth_gauss(trial_data_dred, ops.ensemb.smooth_kernSD/cdata.proc_data{n_dset}.frame_data.volume_period);
+            if ops.dred_params.do_dim_estimate
+                %trial_data_dred_sm = f_smooth_gauss(trial_data_dred, ops.ensemb.smooth_kernSD/cdata.proc_data{n_dset}.frame_data.volume_period);
                 interval1 = 10;
                 num_repeats = 10;
                 dd_cells_range = [10:interval1:num_cells num_cells];
                 for n_cellr = 1:numel(dd_cells_range)
                     for n_rep = 1:num_repeats
                         samp_idx = randsample(num_cells, dd_cells_range(n_cellr));
-                        data_dim_est = f_ensemble_comp_data_dim(trial_data_dred_sm(samp_idx,:,:));
+                        data_dim_est = f_ensemble_comp_data_dim(trial_data_dred(samp_idx,:,:));
 
                         %data_dim_est = f_ensemble_analysis_YS2(trial_data_sort_sm,trial_types_dred);
                         dim_est_st(dd_idx).cond_name = cond_name;
@@ -98,11 +99,11 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             end
             
             %% ensemble analysis
-        
-            dr_params.trial_win_t = cdata.trial_window_t{n_dset};
-            [~, dr_params.on_bin] = min(abs(ops.ensemb.onset_time-dr_params.trial_win_t));
-            [~, dr_params.off_bin] = min(abs(ops.ensemb.offset_time-dr_params.trial_win_t));
-
+            if ops.dred_params.do_ensamble_analysis
+                dr_params.trial_win_t = cdata.trial_window_t{n_dset};
+                [~, dr_params.on_bin] = min(abs(ops.ensemb.onset_time-dr_params.trial_win_t));
+                [~, dr_params.off_bin] = min(abs(ops.ensemb.offset_time-dr_params.trial_win_t));
+            end
             %if cdata.num_cells(n_dset) == max(cdata.num_cells) % strcmpi(cond_name, 'A2') %
                 %[~] = f_ensemble_analysis_YS2(trial_data_dred_sm,trial_types_dred, dr_params, ops);
             %end

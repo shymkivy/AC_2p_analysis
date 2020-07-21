@@ -50,7 +50,7 @@ for n_met = 1:numel(ops.dred_params.method_list)
 end
 
 %%
-save_path = [ops.file_dir ops.dred_params.save_path.(cond_name){n_dset} '\'];
+save_path = [ops.file_dir cv_params.save_path '\'];
 file_list = dir([save_path '*.mat']);
 file_list_names = {file_list.name};
 

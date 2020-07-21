@@ -4,30 +4,54 @@ if isempty(num_clust)
     num_clust = 1;
 end
 
+figure; 
+E = evalclusters(trial_peaks','linkage','silhouette','klist',1:10, 'Distance', 'cosine');
+subplot(2,2,1); plot(E);
+E = evalclusters(trial_peaks','linkage','CalinskiHarabasz','klist',1:10);
+subplot(2,2,2); plot(E);
+E = evalclusters(trial_peaks','linkage','DaviesBouldin','klist',1:10);
+subplot(2,2,3); plot(E);
+E = evalclusters(trial_peaks','linkage','gap','klist',1:10, 'Distance', 'cosine');
+subplot(2,2,4); plot(E);
+suptitle(sprintf('%s dset %d; %s most likely clust num; trials:[%s]', params.cond_name, params.n_dset, method, num2str(params.tt_to_dred(:)')));
+
 
 [dend_order, clust_ident] = f_hcluster(trial_peaks', method, num_clust);
 num_trials = numel(trial_types);
 
-trial_types_ord = trial_types(dend_order);
+trial_order = 1:num_trials;
+trial_types_sort = trial_types(dend_order);
+trial_order_sort = trial_order(dend_order);
+gray_cmap = repmat(linspace(0.2,1,num_trials),3,1);
 
-color_seq = zeros(1,numel(trial_types),3);
+color_seq_tt = zeros(1,numel(trial_types),3);
+color_seq_temporal = zeros(1,numel(trial_types),3);
 for n_tr = 1:num_trials
-    color_seq(1,n_tr,:) = ops.context_types_all_colors(trial_types_ord(n_tr) == ops.context_types_all,:,:);
+    color_seq_tt(1,n_tr,:) = ops.context_types_all_colors(trial_types_sort(n_tr) == ops.context_types_all,:,:);
+    color_seq_temporal(1,n_tr,:) = gray_cmap(:,trial_order_sort(n_tr));
 end
 col_width = ceil(num_trials/50);
 
+%figure; imagesc(color_seq_temporal)
 
 figure;
 sp{1} = subplot(1,3,1); hold on;
 if_plot_trial_trial_image(1-squareform(pdist(trial_peaks(:,dend_order)', 'cosine')), 'cosine');
-imagesc(1:num_trials,num_trials+(1:col_width),repmat(color_seq,col_width,1,1));
-imagesc(num_trials+(1:col_width),1:num_trials,permute(repmat(color_seq,col_width,1,1),[2,1,3]));
 sp{1}.YDir = 'reverse';
+imagesc(1:num_trials,num_trials+(1:col_width),repmat(color_seq_tt,col_width,1,1));
+imagesc(1:num_trials,num_trials+col_width+(1:col_width),repmat(color_seq_temporal,col_width,1,1));
+%imagesc(num_trials+(1:col_width),1:num_trials,permute(repmat(color_seq_tt,col_width,1,1),[2,1,3]));
+%imagesc(num_trials+col_width+(1:col_width),1:num_trials,permute(repmat(color_seq_temporal,col_width,1,1),[2,1,3]));
+
+
 sp{2} = subplot(1,3,2); hold on;
 if_plot_trial_trial_image(1-squareform(pdist(trial_peaks(:,dend_order)', 'euclidean')), 'euclidean');
-imagesc(1:num_trials,num_trials+(1:col_width),repmat(color_seq,col_width,1,1));
-imagesc(num_trials+(1:col_width),1:num_trials,permute(repmat(color_seq,col_width,1,1),[2,1,3]));
 sp{2}.YDir = 'reverse';
+imagesc(1:num_trials,num_trials+(1:col_width),repmat(color_seq_tt,col_width,1,1));
+imagesc(1:num_trials,num_trials+col_width+(1:col_width),repmat(color_seq_temporal,col_width,1,1));
+%imagesc(num_trials+(1:col_width),1:num_trials,permute(repmat(color_seq_tt,col_width,1,1),[2,1,3]));
+%imagesc(num_trials+col_width+(1:col_width),1:num_trials,permute(repmat(color_seq_temporal,col_width,1,1),[2,1,3]));
+
 %if_plot_trial_trial_image(squareform(pdist(data(dend_order,:), 'minkowski',1)), 'minkowski 1');
 %if_plot_trial_trial_image(squareform(pdist(data(dend_order,:), 'minkowski',2)), 'minkowski 2');
 
@@ -59,7 +83,7 @@ title('T-SNE');
 if num_clust > 1
     legend(leg1);
 end
-suptitle(sprintf('%s dset %d; %s clust=%d; trials:[%s], %d cluster', params.cond_name, params.n_dset, method, num_clust, num2str(params.tt_to_dred(:)')));
+suptitle(sprintf('%s dset %d; %s clust=%d; trials:[%s]', params.cond_name, params.n_dset, method, num_clust, num2str(params.tt_to_dred(:)')));
 
 end
 
