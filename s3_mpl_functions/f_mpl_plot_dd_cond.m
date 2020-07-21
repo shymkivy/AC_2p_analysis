@@ -64,7 +64,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         for n_cntxt = 1:3
             % converting to z-scores is tricky, I dont do it here yet
             %patch([0 0 ops.stim_duration ops.stim_duration],[y_min y_max y_max y_min] ,[224, 243, 255]/256, 'LineStyle', 'none', 'FaceAlpha', 0.5);
-            shadedErrorBar_YS(trial_window_t, traces_ave(:,n_cntxt), traces_SEM(:,n_cntxt), ops.context_colors2{n_cntxt});
+            shadedErrorBar_YS(trial_window_t, traces_ave(:,n_cntxt), traces_SEM(:,n_cntxt), ops.context_colors{n_cntxt});
 
         end
         axis tight;

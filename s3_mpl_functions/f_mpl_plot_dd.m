@@ -36,7 +36,7 @@ for n_flip = 1:m_pl
         temp_trace = traces2(:,:,n_ctx);
         temp_trace_mean = mean(temp_trace);
         temp_trace_sem = std(temp_trace)/sqrt(num_cells-1);
-        shadedErrorBar_YS(trial_t, temp_trace_mean, temp_trace_sem, ops.context_colors2{n_ctx});
+        shadedErrorBar_YS(trial_t, temp_trace_mean, temp_trace_sem, ops.context_colors{n_ctx});
         ymin = min([ymin (temp_trace_mean-temp_trace_sem)]);
         ymax = max([ymax (temp_trace_mean+temp_trace_sem)]);
     end

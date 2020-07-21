@@ -42,14 +42,13 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             dr_params.tt_to_dred = tt_to_dred;
             dr_params.trial_t = cdata.trial_window_t{n_dset};
             dr_params.ctx_mmn = ops.context_types_all(cdata.ctx_mmn{n_dset});
-            dr_params.colors_clust = cat(2,ops.colors_list,ops.colors_list,ops.colors_list);
-            dr_params.colots_trials_all = ops.context_types_all_colors;
+            dr_params.colors = cat(2,ops.colors_list,ops.colors_list,ops.colors_list);
             
-            num_clust = ops.dred_params.hclust_num_clust{n_tt};
+            num_clust = [];
             
             if ops.dred_params.do_hclust
-                f_hcluster_trial(trial_peaks_dred, trial_types_dred, 'cosine', num_clust, dr_params);
-                f_hcluster_trial(trial_peaks_dred, trial_types_dred, 'ward', num_clust, dr_params);
+                f_hcluster_trial(trial_peaks_dred, 'cosine', num_clust, dr_params);
+                f_hcluster_trial(trial_peaks_dred, 'ward', num_clust, dr_params);
             end
             
         end

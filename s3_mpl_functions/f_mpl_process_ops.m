@@ -74,12 +74,29 @@ ops.plot_params.reg_sn = sn;
 
 %% other
 % ----------------------------figure legends----------------------------
-ops.context_colors = {'k', 'b', 'r'};
+%ops.context_colors = {'k', 'b', 'r'};
 %ops.context_colors = {'k', 'c', 'm'};
 %ops.context_colors = ['k', 'b', 'r'];
-ops.context_colors2 = {[0 0 0], [0 1 0], [1 0 1]};
+ops.context_colors = {[0 0 0], [0 1 0], [1 0 1]};
+%ops.context_colors = {[0 0 0], [0 0 1], [1 0 0]};
+ops.context_types_all_colors = zeros(30,1,3);
+ops.context_types_all_colors(1:10,:,:) = jet(10);
+%ops.context_types_all_colors(1:10,:,:) = reshape(parula(10),10,1,3);
+ops.context_types_all_colors(11:18,:,:) = ops.context_colors{2}.*(linspace(0.4,0.8,8))';
+%ops.context_types_all_colors(11:18,:,:) = parula(8);
+ops.context_types_all_colors(19,:,:) = ops.context_colors{2};
+ops.context_types_all_colors(20,:,:) = ops.context_colors{3};
+ops.context_types_all_colors(21:28,:,:) = ops.context_colors{2}.*(linspace(0.4,0.8,8))';
+ops.context_types_all_colors(29,:,:) = ops.context_colors{2};
+ops.context_types_all_colors(30,:,:) = ops.context_colors{3};
+%figure; imagesc(ops.context_types_all_colors);
+
 ops.context_name = {'Control', 'Redundant', 'Deviant'};
 ops.context_name_full = {'Cont', 'RedF', 'Dev', 'Cont2', 'Red', 'DevF'};
+
+ops.colors_list = {[0, .447, .741], [.85, .325, .098], [.929, .694, .125]...
+                   [.4940, .184, .556], [.466, .674, .188]...
+                   [.3010, .745, .933], [.635, .078, .184]};
 
 %ops.fig_title_exp = {'A1 Tones', 'A1 Frequency Grating', 'Combined'};
 % MMN order is control, deviant, redundant

@@ -7,7 +7,7 @@ else
 end
 
 [num_cells, num_bins, ~] = size(trial_ave);
-col_list = [ops.context_colors2{1}; repmat(ops.context_colors2{2}, 8, 1); ops.context_colors2{3}];
+col_list = [ops.context_colors{1}; repmat(ops.context_colors{2}, 8, 1); ops.context_colors{3}];
 resp_cells1 = reshape(resp_cells, [], 3,2);
 leg_list = cat(1,sprintf('cont %d', ctx_mmn(1)), ops.context_types_labels(11:18), ops.context_types_labels(20),...
             sprintf('cont %d', ctx_mmn(4)), ops.context_types_labels(21:28), ops.context_types_labels(30));
