@@ -39,46 +39,43 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             dr_params.cond_name = cond_name;
             dr_params.n_dset = n_dset;
             dr_params.volume_period = cdata.proc_data{n_dset}.frame_data.volume_period;
+            dr_params.tn_to_dred = tn_to_dred;
             dr_params.tt_to_dred = tt_to_dred;
             dr_params.trial_t = cdata.trial_window_t{n_dset};
             dr_params.ctx_mmn = ops.context_types_all(cdata.ctx_mmn{n_dset});
-            dr_params.colors = cat(2,ops.colors_list,ops.colors_list,ops.colors_list);
+            dr_params.colors_clust = cat(2,ops.colors_list,ops.colors_list,ops.colors_list);
             
-            num_clust = [];
+            num_clust = ops.dred_params.hclust_num_clust{n_tt};
             
             if ops.dred_params.do_hclust
-                f_hcluster_trial(trial_peaks_dred, 'cosine', num_clust, dr_params);
-                f_hcluster_trial(trial_peaks_dred, 'ward', num_clust, dr_params);
+                f_hcluster_trial(trial_peaks_dred, trial_types_dred, 'cosine', num_clust, dr_params, ops);
+                f_hcluster_trial(trial_peaks_dred, trial_types_dred, 'ward', num_clust, dr_params, ops);
             end
             
+            %% estimate dim with cross validation 
+            if ops.dred_params.do_cv
+
+                % randomize trial order but keep cell correlations
+                rand_trial_indx = randperm(num_trials);     
+                trial_data_trand = trial_data_dred(:,:,rand_trial_indx);
+                %trial_types_dred_rand = trial_types_dred(rand_trial_indx);
+
+                f_make_dred_dir(ops);
+
+                dred_data_list = f_dim_red_cv(trial_data_trand, ops, dr_params);
+                if ~numel(fields(cv_data))
+                    cv_data = rmfield(dred_data_list,'dred_factors');
+                else
+                    cv_data = [cv_data rmfield(dred_data_list,'dred_factors')];
+                end
+            end
         end
         
 
         
         %%
 
-        
-        %%
-        %%
-        % randomize trial order but keep cell correlations
-        rand_trial_indx = randperm(num_trials);     
-        trial_data_trand = trial_data_dred(:,:,rand_trial_indx);
-        %trial_types_dred_rand = trial_types_dred(rand_trial_indx);
-        
-        
-        %%
-        
-        if ops.dred_params.do_cv
-            
-            f_make_dred_dir(ops);
-            
-            dred_data_list = f_dim_red_cv(trial_data_trand, ops, dr_params);
-            if ~numel(fields(cv_data))
-                cv_data = rmfield(dred_data_list,'dred_factors');
-            else
-                cv_data = [cv_data rmfield(dred_data_list,'dred_factors')];
-            end
-        end
+
         
         %% estimate of dimensionality
         

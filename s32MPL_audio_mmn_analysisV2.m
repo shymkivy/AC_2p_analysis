@@ -43,8 +43,8 @@ ops.dred_params.dred_mmn = 0; % Options: 0 - trial types; 1 - mmn1;  2 - mmn2; 3
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd12', 'red12'};
-ops.dred_params.hclust_num_clust = {2, 2};
+ops.dred_params.trial_types_to_dred = {'dd1', 'mmn12'};
+ops.dred_params.hclust_num_clust = {2, 6};
 ops.dred_params.use_responsive_cells = 1;
 ops.dred_params.do_hclust = 1;
 % cross validation method to compute dimensionality

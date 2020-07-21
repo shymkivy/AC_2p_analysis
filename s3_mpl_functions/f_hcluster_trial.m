@@ -1,4 +1,4 @@
-function f_hcluster_trial(trial_peaks, trial_types, method, num_clust, params)
+function f_hcluster_trial(trial_peaks, trial_types, method, num_clust, params, ops)
 
 if isempty(num_clust)
     num_clust = 1;
@@ -6,12 +6,28 @@ end
 
 
 [dend_order, clust_ident] = f_hcluster(trial_peaks', method, num_clust);
+num_trials = numel(trial_types);
+
+trial_types_ord = trial_types(dend_order);
+
+color_seq = zeros(1,numel(trial_types),3);
+for n_tr = 1:num_trials
+    color_seq(1,n_tr,:) = ops.context_types_all_colors(trial_types_ord(n_tr) == ops.context_types_all,:,:);
+end
+col_width = ceil(num_trials/50);
+
 
 figure;
-sp{1} = subplot(1,3,1);
+sp{1} = subplot(1,3,1); hold on;
 if_plot_trial_trial_image(1-squareform(pdist(trial_peaks(:,dend_order)', 'cosine')), 'cosine');
-sp{2} = subplot(1,3,2);
+imagesc(1:num_trials,num_trials+(1:col_width),repmat(color_seq,col_width,1,1));
+imagesc(num_trials+(1:col_width),1:num_trials,permute(repmat(color_seq,col_width,1,1),[2,1,3]));
+sp{1}.YDir = 'reverse';
+sp{2} = subplot(1,3,2); hold on;
 if_plot_trial_trial_image(1-squareform(pdist(trial_peaks(:,dend_order)', 'euclidean')), 'euclidean');
+imagesc(1:num_trials,num_trials+(1:col_width),repmat(color_seq,col_width,1,1));
+imagesc(num_trials+(1:col_width),1:num_trials,permute(repmat(color_seq,col_width,1,1),[2,1,3]));
+sp{2}.YDir = 'reverse';
 %if_plot_trial_trial_image(squareform(pdist(data(dend_order,:), 'minkowski',1)), 'minkowski 1');
 %if_plot_trial_trial_image(squareform(pdist(data(dend_order,:), 'minkowski',2)), 'minkowski 2');
 
