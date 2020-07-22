@@ -5,5 +5,6 @@ analysis of AC 2p data
 Dependencies:
   For GPFA and FA:
     https://users.ece.cmu.edu/~byronyu/software.shtml
+    
   For TCA:
     https://www.tensortoolbox.org/
