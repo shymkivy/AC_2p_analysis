@@ -159,8 +159,8 @@ end
 % end
 %ensamble_method = 'spca';
 
-%[dred_factors1, ~] = f_dred_train2(firing_rate_norm, num_comps, num_trials, 'method', ensamble_method);
-%[dred_factors_shuff, ~] = f_dred_train2(firing_rate_shuff, num_comps, num_trials, 'method', ensamble_method);
+%[dred_factors1, ~] = f_dred_train2(firing_rate_norm, num_comps, num_trials, ensamble_method);
+%[dred_factors_shuff, ~] = f_dred_train2(firing_rate_shuff, num_comps, num_trials, ensamble_method);
 
 %f_dred_plot_factors(dred_data_list3,trial_types_dred, test_data_ind);
 

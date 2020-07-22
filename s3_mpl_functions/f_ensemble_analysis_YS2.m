@@ -74,7 +74,7 @@ if strcmpi(ensamble_method, 'nmf')
 end
 
 
-[dred_factors1, ~] = f_dred_train2(firing_rate_LR, num_ens_comps, num_trials, 'method', ensamble_method);
+[dred_factors1, ~] = f_dred_train2(firing_rate_LR, num_ens_comps, num_trials, ensamble_method);
 
 [coeffs, scores] = f_dred_get_coeffs(dred_factors1);
 
@@ -209,7 +209,7 @@ for n_rep = 1:shuff_rep
     train_done = 0;
     while ~train_done
         try
-            [dred_factors_shuff, ~] = f_dred_train2(firing_rate_LR_shuff, num_ens_comps, num_trials, 'method', ensamble_method);
+            [dred_factors_shuff, ~] = f_dred_train2(firing_rate_LR_shuff, num_ens_comps, num_trials, ensamble_method);
             train_done = 1;
         catch
             disp('Error train, will repeat');

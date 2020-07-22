@@ -10,7 +10,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         disp([cond_name, ' dset ' num2str(n_dset)]);
         
         trial_data_sort = cdata.trial_data_sort_pr{n_dset};
-        %trial_data_sort_sm = cdata.trial_data_sort_sm_pr{n_dset};
+        trial_data_sort_sm = cdata.trial_data_sort_sm_pr{n_dset};
         trial_types = cdata.trial_types_pr{n_dset};
         trial_peaks = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag;
         
@@ -198,10 +198,10 @@ if ops.dred_params.do_dim_estimate
         subplot(s1)
         xlabel('Number of cells');
         ylabel('Estimated rank');
-        %xlim([0 300]);
-        %ylim([0 25]);
+        xlim([0 300]);
+        ylim([0 25]);
         legend([pl1{1} pl1{2} pl1{3}], ops.regions_to_analyze,'Location','southeast');
-        title('Dimensionality of correlations', 'Interpreter', 'none');
+        title(['Dimensionality of correlations'], 'Interpreter', 'none');
         subplot(s2)
         xlabel('Data Rank');
         ylabel('Variance explained (%)');

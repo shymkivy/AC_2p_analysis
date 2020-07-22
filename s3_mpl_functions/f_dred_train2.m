@@ -1,10 +1,10 @@
-function [out, dred_data] = f_dred_train2(data, num_comp, num_trials, varargin)
+function [out, dred_data] = f_dred_train2(data, num_comp, num_trials, method)
 % data in data(cell, time, trial)
 
-method = 'SVD';
+if ~exist('method', 'var') || isempty(method)
+    method = 'SVD';
+end
 
-
-assignopts(who, varargin);
 
 if ndims(data) == 3
     [num_cells, num_bins, num_trials] = size(data);

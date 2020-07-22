@@ -46,9 +46,10 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 ops.dred_params.trial_types_to_dred = {'dd1', 'dd12', 'mmn12'};
 ops.dred_params.hclust_num_clust = {2, 2, 6};
 ops.dred_params.use_responsive_cells = 1;
-ops.dred_params.do_hclust = 1;
-% cross validation method to compute dimensionality
-ops.dred_params.do_cv = 0;
+%--------------
+ops.dred_params.do_hclust = 0;
+%-----------------
+ops.dred_params.do_cv = 1;
 ops.dred_params.do_dim_estimate = 0;
 ops.dred_params.randomize_trials = 1;
 ops.dred_params.method_list = {'svd','nmf','tca'}; %  ,'gpfa','fa', 'spca'
@@ -56,7 +57,7 @@ ops.dred_params.num_comp = 1:5:50; %
 ops.dred_params.kernSD = 200;    % ms
 ops.dred_params.cv_num_folds = 4; % for train test
 ops.dred_params.sort_trial_before = false;
-
+%-----------------
 ops.dred_params.do_ensamble_analysis = 0;
 
 % k-means param 
@@ -115,7 +116,6 @@ end
 
 %f_mpl_cluster_analysis2(data, ops);
 
-f_mpl_deviant_trials(data, ops);
 
 % 
 %     

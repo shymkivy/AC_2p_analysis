@@ -191,8 +191,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
 %         end
 %         trial_data_sm1_shuff = reshape(trial_data_sm1_2d_shuff,num_cells_act,[],num_trials);
 %         
-%         [dred_factors1, ~] = f_dred_train(trial_data_sm1, plot_num_comp, 'method', plot_method);
-%         [dred_factors_shuff, ~] = f_dred_train(trial_data_sm1_tshuff, plot_num_comp, 'method', plot_method);
+%         [dred_factors1, ~] = f_dred_train(trial_data_sm1, plot_num_comp, plot_method);
+%         [dred_factors_shuff, ~] = f_dred_train(trial_data_sm1_tshuff, plot_num_comp, plot_method);
 %         
 %         
         

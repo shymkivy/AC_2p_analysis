@@ -74,7 +74,7 @@ for n_dt = 1:numel(dred_data_list)
     end
 
     if isempty(file_list_names) || ~sum(strcmpi([dred_save_name '.mat'], file_list_names))
-        [dred_factors, ydred_data] = f_dred_train(yTrain_3ds, dred_data_list(n_dt).n_comp, 'method', dred_data_list(n_dt).method);
+        [dred_factors, ydred_data] = f_dred_train(yTrain_3ds, dred_data_list(n_dt).n_comp, dred_data_list(n_dt).method);
         dred_factors.train_err = norm(yTrain_3d(:) - ydred_data(:))/norm(yTrain_3d(:));
         dred_params = dred_data_list(n_dt);
         save([save_path dred_save_name], 'dred_factors', 'dred_params');

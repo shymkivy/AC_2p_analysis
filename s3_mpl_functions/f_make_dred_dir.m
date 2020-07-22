@@ -2,12 +2,6 @@ function dr_params = f_make_dred_dir(dr_params, ops)
 
 %% dim red data saving
 
-if isnumeric(dr_params.tt_to_dred_pre)
-    trial_type_tag = ['trials_' numel(dr_params.tt_to_dred_pre)];
-else
-    trial_type_tag = dr_params.tt_to_dred_pre;
-end
-
 % 
 % if ops.dred_params.dred_mmn == 1
 %     trial_type_tag = 'mmn1_C_fR_D';       
@@ -28,7 +22,7 @@ end
 %     end
 %     trial_type_tag = ['trials' trial_type_tag 'to' num2str(tt_to_dred(end))];
 % end
-dr_params.trial_type_tag = trial_type_tag;
+
 
 if ops.dred_params.use_responsive_cells
     resp_tag = 'resp';
@@ -41,7 +35,7 @@ dr_params.resp_tag = resp_tag;
 % for n_cond = 1:numel(ops.regions_to_analyze)
 %     cond_name = ops.regions_to_analyze{n_cond};
 %     for n_dset = 1:numel(ops.file_names.(cond_name))
-save_dred_dir = sprintf('\\%s\\run%.3d_%s_%s\\%s\\%s%s', ops.dred_params.saved_data_dir,ops.dred_params.run_idx, trial_type_tag,resp_tag, dr_params.cond_name,ops.paradigm_type,ops.file_names.(dr_params.cond_name){dr_params.n_dset});
+save_dred_dir = sprintf('\\%s\\run%.3d_%s_%s\\%s\\%s%s', ops.dred_params.saved_data_dir,ops.dred_params.run_idx, dr_params.trial_type_tag,resp_tag, dr_params.cond_name,ops.paradigm_type,ops.file_names.(dr_params.cond_name){dr_params.n_dset});
 if ~isfolder([ops.file_dir save_dred_dir])           % 
     mkdir([ops.file_dir save_dred_dir])
 end
