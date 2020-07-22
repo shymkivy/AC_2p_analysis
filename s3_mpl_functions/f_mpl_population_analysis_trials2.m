@@ -1,5 +1,5 @@
 function f_mpl_population_analysis_trials2(data, ops)
-cv_data = struct();
+cv_data = cell(numel(ops.dred_params.trial_types_to_dred,1));
 dim_est_st = struct('cond_name', [], 'n_dset', [], 'num_cells', [],...
     'num_cells_samp', [], 'num_comp_est', [], 'n_rep', []);
 dd_idx = 1;
@@ -60,7 +60,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             
             %% estimate dim with cross validation 
             if ops.dred_params.do_cv
-
+                
                 % randomize trial order but keep cell correlations
                 rand_trial_indx = randperm(num_trials);     
                 trial_data_trand = trial_data_dred(:,:,rand_trial_indx);
@@ -69,10 +69,11 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 dr_params = f_make_dred_dir(dr_params, ops);
 
                 dred_data_list = f_dim_red_cv(trial_data_trand, ops, dr_params);
-                if ~numel(fields(cv_data))
-                    cv_data = rmfield(dred_data_list,'dred_factors');
+                if isempty(cv_data{n_tt})
+                    cv_data{n_tt} = struct();
+                    cv_data{n_tt} = rmfield(dred_data_list,'dred_factors');
                 else
-                    cv_data = [cv_data rmfield(dred_data_list,'dred_factors')];
+                    cv_data{n_tt} = [cv_data{n_tt} rmfield(dred_data_list,'dred_factors')];
                 end
             end
             
@@ -120,33 +121,33 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     end
 end
 
-if ops.dred_params.do_cv
-    
-    cv_data = cv_data(strcmpi({cv_data.method}, 'svd'));
-    for n_cond = 1:numel(ops.regions_to_analyze)
-        cond_name = ops.regions_to_analyze(n_cond);
-        ccv_data = cv_data(strcmpi({cv_data.cond_name}, cond_name));
-        min_comp1 = zeros(max([ccv_data.n_dset]),1);
-        num_cells1 = zeros(max([ccv_data.n_dset]),1);
-        for n_dset = 1:max([ccv_data.n_dset])
-            dccv_data = ccv_data([ccv_data.n_dset] == n_dset);
-            num_fold = max([dccv_data.n_cv]);
-            data1 = [[dccv_data.n_comp]', [dccv_data.train_err_sm]', [dccv_data.test_err_sm]'];
-            data1 = reshape(data1,num_fold,[],3);
-            mean_data = squeeze(mean(data1,1));
-            [~, c_idx] = min(mean_data(:,3));
-            min_comp1(n_dset) = mean_data(c_idx,1);
-            num_cells1(n_dset) = dccv_data(1).num_cells;
-            %figure; hold on;
-            %plot(mean_data(:,1), mean_data(:,2))
-            %plot(mean_data(:,1), mean_data(:,3))
-        end
-        %figure; plot(num_cells1, min_comp1, 'o')
-        
-    end
-    
-    %save('cv_data_4_12_20', 'cv_data')
-end
+% if ops.dred_params.do_cv
+%     for n_tt = 1:numel(ops.dred_params.trial_types_to_dred)
+%         cv_data2 = cv_data{n_tt}(strcmpi({cv_data{n_tt}.method}, 'svd'));
+%         for n_cond = 1:numel(ops.regions_to_analyze)
+%             cond_name = ops.regions_to_analyze{n_cond};
+%             ccv_data = cv_data2(strcmpi({cv_data2.cond_name}, cond_name));
+%             min_comp1 = zeros(max([ccv_data.n_dset]),1);
+%             num_cells1 = zeros(max([ccv_data.n_dset]),1);
+%             for n_dset = 1:max([ccv_data.n_dset])
+%                 dccv_data = ccv_data([ccv_data.n_dset] == n_dset);
+%                 num_fold = max([dccv_data.n_cv]);
+%                 data1 = [[dccv_data.n_comp]', [dccv_data.train_err_sm]', [dccv_data.test_err_sm]'];
+%                 data1 = reshape(data1,num_fold,[],3);
+%                 mean_data = squeeze(mean(data1,1));
+%                 [~, c_idx] = min(mean_data(:,3));
+%                 min_comp1(n_dset) = mean_data(c_idx,1);
+%                 num_cells1(n_dset) = dccv_data(1).num_cells;
+%                 figure; hold on;
+%                 plot(mean_data(:,1), mean_data(:,2))
+%                 plot(mean_data(:,1), mean_data(:,3))
+%             end
+%             figure; plot(num_cells1, min_comp1, 'o')
+% 
+%         end
+%     end
+%     %save('cv_data_4_12_20', 'cv_data')
+% end
 
 if ops.dred_params.do_dim_estimate
     for n_tt = 1:numel(ops.dred_params.trial_types_to_dred)

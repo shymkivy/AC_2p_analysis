@@ -2,7 +2,7 @@ function fig1 = f_plot_dred(dred_data)
 
 sm = 0;
 
-fig1 = cell(2,1);
+fig1 = {};
 
 method_list = unique({dred_data.method});
 num_comp = unique([dred_data.n_comp]);
@@ -11,11 +11,13 @@ kernSD = unique([dred_data.kernSD]);
 kernSD(kernSD == 0) = [];
 method_list_kern = method_list;
 method_list_kern(strcmpi(method_list_kern, 'gpfa')) = [];
+fin_num = 1;
 
-fig1{1} = figure;
-subplot(1,2,1); hold on; axis tight;
-plot_n_comp = 5;
 if numel(kernSD)>1
+    fig1{fin_num} = figure;
+    fin_num = fin_num + 1;
+    subplot(1,2,1); hold on; axis tight;
+    plot_n_comp = 5;
     hold on; axis tight;
     [~, ind2] = min(abs(plot_n_comp-num_comp));
     for n_met = 1:numel(method_list_kern)
@@ -36,8 +38,9 @@ if numel(kernSD)>1
     legend(method_list_kern);
 end
 
-subplot(1,2,2); hold on; axis tight;
+
 if numel(kernSD)>1
+    subplot(1,2,2); hold on; axis tight;
     [~, ind2] = min(abs(plot_n_comp-num_comp));
     for n_met = 1:numel(method_list_kern)
         ind1 = logical(([dred_data.n_comp] == num_comp(ind2)) .* strcmpi({dred_data.method}, method_list_kern(n_met)));
@@ -57,10 +60,11 @@ if numel(kernSD)>1
     legend(method_list_kern);
 end
 
-fig1{2} = figure;
-subplot(1,2,1); hold on; axis tight;
-plot_sm_kernelSD = 200;
+
 if numel(num_comp)>1
+    fig1{fin_num} = figure;
+    subplot(1,2,1); hold on; axis tight;
+    plot_sm_kernelSD = 200;
     [~, ind2] = min(abs(plot_sm_kernelSD-kernSD));
     for n_met = 1:numel(method_list)
         if sum(strcmpi(method_list(n_met), 'gpfa'))
@@ -85,8 +89,9 @@ if numel(num_comp)>1
     legend(method_list);
 end
 
-subplot(1,2,2); hold on; axis tight;
+
 if numel(num_comp)>1
+    subplot(1,2,2); hold on; axis tight;
     [~, ind2] = min(abs(plot_sm_kernelSD-kernSD));
     for n_met = 1:numel(method_list)
         if strcmpi(method_list(n_met), 'gpfa')

@@ -32,18 +32,20 @@ for n_met = 1:numel(ops.dred_params.method_list)
     for n_kern = 1:numel(kern1)
         for n_comp = 1:numel(ops.dred_params.num_comp)
             for n_cv = 1:ops.dred_params.cv_num_folds
-                dred_data_list(dred_idx).method = ops.dred_params.method_list{n_met};
-                dred_data_list(dred_idx).kernSD = kern1(n_kern);
-                dred_data_list(dred_idx).n_comp = ops.dred_params.num_comp(n_comp);
-                dred_data_list(dred_idx).n_cv = n_cv;
-                dred_data_list(dred_idx).cv_num_folds = ops.dred_params.cv_num_folds;
-                dred_data_list(dred_idx).file_name = [cond_name '_' ops.paradigm_type ops.file_names.(cond_name){n_dset}];
-                dred_data_list(dred_idx).vol_period = volume_period;
-                dred_data_list(dred_idx).trial_types = tt_to_dred;
-                dred_data_list(dred_idx).num_cells = num_cells;
-                dred_data_list(dred_idx).cond_name = cond_name;
-                dred_data_list(dred_idx).n_dset = n_dset;
-                dred_idx = dred_idx + 1;
+                if num_cells>=ops.dred_params.num_comp(n_comp)
+                    dred_data_list(dred_idx).method = ops.dred_params.method_list{n_met};
+                    dred_data_list(dred_idx).kernSD = kern1(n_kern);
+                    dred_data_list(dred_idx).n_comp = ops.dred_params.num_comp(n_comp);
+                    dred_data_list(dred_idx).n_cv = n_cv;
+                    dred_data_list(dred_idx).cv_num_folds = ops.dred_params.cv_num_folds;
+                    dred_data_list(dred_idx).file_name = [cond_name '_' ops.paradigm_type ops.file_names.(cond_name){n_dset}];
+                    dred_data_list(dred_idx).vol_period = volume_period;
+                    dred_data_list(dred_idx).trial_types = tt_to_dred;
+                    dred_data_list(dred_idx).num_cells = num_cells;
+                    dred_data_list(dred_idx).cond_name = cond_name;
+                    dred_data_list(dred_idx).n_dset = n_dset;
+                    dred_idx = dred_idx + 1;
+                end
             end
         end
     end
@@ -96,8 +98,8 @@ for n_dt = 1:numel(dred_data_list)
 end
 
 fig1 = f_plot_dred(dred_data_list);
-figure(fig1{1});
-suptitle([cond_name 'dset ' num2str(n_dset) ' n = ' num2str(sum(active_cells))]);
-figure(fig1{2});
-suptitle([cond_name 'dset ' num2str(n_dset) ' n = ' num2str(sum(active_cells))]);
+for n_fig = 1:numel(fig1)
+    figure(fig1{n_fig})
+    suptitle([cond_name 'dset ' num2str(n_dset) ' n = ' num2str(sum(active_cells))]);
+end
 end
