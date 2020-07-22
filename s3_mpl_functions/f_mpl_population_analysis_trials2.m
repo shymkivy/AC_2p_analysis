@@ -78,14 +78,14 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             
             %% estimate of dimensionality
             if ops.dred_params.do_dim_estimate
-                %trial_data_dred_sm = f_smooth_gauss(trial_data_dred, ops.ensemb.smooth_kernSD/cdata.proc_data{n_dset}.frame_data.volume_period);
+                trial_data_dred_sm = f_smooth_gauss(trial_data_dred, ops.ensemb.smooth_kernSD/cdata.proc_data{n_dset}.frame_data.volume_period);
                 interval1 = 10;
                 num_repeats = 10;
                 dd_cells_range = [10:interval1:num_cells num_cells];
                 for n_cellr = 1:numel(dd_cells_range)
                     for n_rep = 1:num_repeats
                         samp_idx = randsample(num_cells, dd_cells_range(n_cellr));
-                        data_dim_est = f_ensemble_comp_data_dim(trial_data_dred(samp_idx,:,:));
+                        data_dim_est = f_ensemble_comp_data_dim(trial_data_dred_sm(samp_idx,:,:));
 
                         %data_dim_est = f_ensemble_analysis_YS2(trial_data_sort_sm,trial_types_dred);
                         dim_est_st(dd_idx).cond_name = cond_name;

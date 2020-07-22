@@ -43,8 +43,8 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd1', 'dd12', 'mmn12'};
-ops.dred_params.hclust_num_clust = {2, 2, 6};
+ops.dred_params.trial_types_to_dred = {'dd1'};
+ops.dred_params.hclust_num_clust = {2};
 ops.dred_params.use_responsive_cells = 1;
 %--------------
 ops.dred_params.do_hclust = 0;
@@ -53,7 +53,7 @@ ops.dred_params.do_cv = 1;
 ops.dred_params.do_dim_estimate = 0;
 ops.dred_params.randomize_trials = 1;
 ops.dred_params.method_list = {'svd','nmf','tca'}; %  ,'gpfa','fa', 'spca'
-ops.dred_params.num_comp = 1:5:50; %
+ops.dred_params.num_comp = 1:10; %
 ops.dred_params.kernSD = 200;    % ms
 ops.dred_params.cv_num_folds = 4; % for train test
 ops.dred_params.sort_trial_before = false;
