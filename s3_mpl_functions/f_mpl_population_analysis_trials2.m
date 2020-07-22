@@ -10,6 +10,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         disp([cond_name, ' dset ' num2str(n_dset)]);
         
         trial_data_sort = cdata.trial_data_sort_pr{n_dset};
+        trial_data_sort_sm = cdata.trial_data_sort_sm_pr{n_dset};
         trial_types = cdata.trial_types_pr{n_dset};
         trial_peaks = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag;
         
@@ -22,6 +23,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
 
             trials_idx_dred = logical(sum(trial_types == tt_to_dred(:)' ,2));
             trial_data_dred = trial_data_sort(:,:,trials_idx_dred);
+            %trial_data_sm_dred = trial_data_sort_sm(:,:,trials_idx_dred);
             trial_peaks_dred = trial_peaks(:,trials_idx_dred);
             trial_types_dred = trial_types(trials_idx_dred);
             
@@ -31,6 +33,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 resp_cells = cdata.peak_tuned_trials_combined{n_dset};
                 resp_cells = logical(sum(resp_cells(:,tn_to_dred),2));
                 trial_data_dred = trial_data_dred(resp_cells,:,:);
+                %trial_data_sm_dred = trial_data_sm_dred(resp_cells,:,:);
                 trial_peaks_dred = trial_peaks_dred(resp_cells,:);
             end
             [num_cells, ~, num_trials] = size(trial_data_dred);
@@ -92,7 +95,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                         dim_est_st(dd_idx).d_explained = data_dim_est.d_explained;
                         dim_est_st(dd_idx).n_rep = n_rep;
                         dim_est_st(dd_idx).var_thresh_prc = data_dim_est.var_thresh_prc;
-                        dim_est_st(dd_idx).trial_type_tag = ops.dred_params.trial_type_tag;
+                        dim_est_st(dd_idx).trial_type_tag = dr_params.trial_type_tag;
                         dd_idx = dd_idx+1;
                     end
                 end
@@ -103,9 +106,10 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 dr_params.trial_win_t = cdata.trial_window_t{n_dset};
                 [~, dr_params.on_bin] = min(abs(ops.ensemb.onset_time-dr_params.trial_win_t));
                 [~, dr_params.off_bin] = min(abs(ops.ensemb.offset_time-dr_params.trial_win_t));
+                [~] = f_ensemble_analysis_YS2(trial_data_dred,trial_types_dred, dr_params, ops);
             end
             %if cdata.num_cells(n_dset) == max(cdata.num_cells) % strcmpi(cond_name, 'A2') %
-                %[~] = f_ensemble_analysis_YS2(trial_data_dred_sm,trial_types_dred, dr_params, ops);
+                
             %end
             
         end

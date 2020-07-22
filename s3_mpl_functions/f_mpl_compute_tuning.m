@@ -20,13 +20,17 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         cdata = data.(cond_name);
         
         trial_data_sort = cell(1,cdata.num_planes(n_dset));
+        trial_data_sort_sm = cell(1,cdata.num_planes(n_dset));
         trial_num_baseline_resp_frames = cdata.trial_num_baseline_resp_frames{n_dset};
         for n_pl = 1:cdata.num_planes(n_dset)
             stim_frame_index = cdata.stim_frame_index{n_dset,n_pl};
-            firing_rate = cdata.firing_rate_smooth{n_dset,n_pl};
-            trial_data_sort{n_pl} = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_num_baseline_resp_frames); 
+            firing_rate = cdata.firing_rate{n_dset,n_pl};
+            firing_rate_sm = cdata.firing_rate_smooth{n_dset,n_pl};
+            trial_data_sort{n_pl} = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_num_baseline_resp_frames);
+            trial_data_sort_sm{n_pl} = f_get_stim_trig_resp(firing_rate_sm, stim_frame_index, trial_num_baseline_resp_frames); 
         end
         trial_data_sort = cat(1,trial_data_sort{:});
+        trial_data_sort_sm = cat(1,trial_data_sort_sm{:});
         trial_types = cdata.trial_types{n_dset};
         
         if ops.remove_early_dev
@@ -46,7 +50,9 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         end
 
         [trial_data_sort_pr,trial_types_pr] =  f_add_red_pool_trials(trial_data_sort, trial_types, ops);
+        [trial_data_sort_sm_pr, ~] =  f_add_red_pool_trials(trial_data_sort_sm, trial_types, ops);
         data.(cond_name).trial_data_sort_pr{n_dset,1} = trial_data_sort_pr;
+        data.(cond_name).trial_data_sort_sm_pr{n_dset,1} = trial_data_sort_sm_pr;
         data.(cond_name).trial_types_pr{n_dset,1} = trial_types_pr;
         
         MMN_freq = cdata.MMN_freq{n_dset};
@@ -76,13 +82,13 @@ for n_cond = 1:numel(ops.regions_to_analyze)
 %             end
 %         end        
 
-        tuning_all = f_get_tuning_dset(trial_data_sort_pr, ops.context_types_all, sig_thresh, dset_params, ops);
+        tuning_all = f_get_tuning_dset(trial_data_sort_sm_pr, ops.context_types_all, sig_thresh, dset_params, ops);
         data.(cond_name).tuning_all{n_dset,1} = tuning_all;
 
         %%
         z_thresh_all = max(mean(tuning_all.trace_tuning.stat_trace.z_factors,3),[],2);
         
-        trial_ave = f_mpl_trial_average(trial_data_sort_pr,trial_types_pr, ops.context_types_all, 'none');
+        trial_ave = f_mpl_trial_average(trial_data_sort_sm_pr,trial_types_pr, ops.context_types_all, 'none');
         trial_ave_z = trial_ave./z_thresh_all;
         %trial_ave = (trial_ave-means_all)./z_thresh_all;
 
