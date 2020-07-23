@@ -38,7 +38,7 @@ ops.dev_cells_ctx = 'ctx_tuned';      % options: 'all', 'ctx_tuned', 'tuned_all'
 ops.remove_early_dev = 1;
 
 % A1 A2 AAF DM/DA
-ops.regions_to_analyze = {'A1','A2','DF'}; %,'AAF',, ,,     % choose from fieldnames above 
+ops.regions_to_analyze = {'A1','A2','DF','AAF'}; %,, ,,     % choose from fieldnames above 
 % reg, flip, combined
 ops.flip_to_analyze = [1 2 3];
 

@@ -35,13 +35,13 @@ clear;
 close all;
 
 %% file path
-addpath('C:\Users\ys2605\Desktop\AC_data\AC_analysis\s1_functions')
+addpath([ pwd '\s1_functions'])
 
-ops.exp_date = '5_15_20';
+ops.exp_date = '5_31_20';
 %ops.file_core=['DAM_ammn_2_dplanes1_'  ops.exp_date ''];
-ops.file_core=['A2_ammn4_'  ops.exp_date ''];
+ops.file_core=['DF_ammn2_'  ops.exp_date ''];
 %ops.file_dir = 'L:\data\Auditory\caiman_out_multiplane';
-ops.file_dir = 'C:\Users\ys2605\Desktop\AC_data\AC_data_OA_3_16_20\preprocessing';
+ops.file_dir = 'F:\data\Auditory\caiman_out\preprocessing_data';
 %ops.exp_date = '';
 %ops.file_core=['rfp-asap3-grat-008'  ops.exp_date ''];
 %ops.file_dir = 'C:\Users\ys2605\Desktop\victor crap data\with_pulses\rfp-asap3-grat-008';
