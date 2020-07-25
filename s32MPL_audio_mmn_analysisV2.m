@@ -47,9 +47,9 @@ ops.dred_params.trial_types_to_dred = {'dd1'};
 ops.dred_params.hclust_num_clust = {2};
 ops.dred_params.use_responsive_cells = 1;
 %--------------
-ops.dred_params.do_hclust = 0;
+ops.dred_params.do_hclust = 1;
 %-----------------
-ops.dred_params.do_cv = 1;
+ops.dred_params.do_cv = 0;
 ops.dred_params.do_dim_estimate = 0;
 ops.dred_params.randomize_trials = 1;
 ops.dred_params.method_list = {'svd','nmf','tca'}; %  ,'gpfa','fa', 'spca'

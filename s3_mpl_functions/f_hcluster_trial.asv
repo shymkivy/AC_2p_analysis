@@ -7,8 +7,10 @@ end
 if size(trial_peaks,1) > 9
     k_list = 1:10;
 else
-    k_list = 1:size(trial_peaks,1);
+    k_list = 1:(size(trial_peaks,1)-1);
 end
+
+trial_peaks(trial_peaks<0.1) = 0
 
 figure; 
 E = evalclusters(trial_peaks','linkage','silhouette','klist',k_list, 'Distance', 'cosine');
