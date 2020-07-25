@@ -3,6 +3,7 @@ function hclust_out = f_hcluster_trial2(trial_peaks, trial_types, sp, params, op
 num_clust = params.num_clust;
 method = ops.dred_params.hclust.method;
 metric = ops.dred_params.hclust.plot_metric;
+num_cells = size(trial_peaks,1);
 
 if isempty(num_clust)
     num_clust = 1;
@@ -32,7 +33,7 @@ subplot(sp); hold on;
 
 imagesc(image_Z);
 %axis image;
-title(sprintf('dset %d', params.n_dset));
+title(sprintf('d%d, %d cells', params.n_dset,num_cells));
 caxis([0 1]);
 axis tight;
 axis equal;

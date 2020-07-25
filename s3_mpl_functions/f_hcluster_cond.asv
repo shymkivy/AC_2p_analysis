@@ -55,11 +55,9 @@ for n_dset = 1:cdata.num_dsets
     %%
     figure(fig_ras);
     sp_ras{n_dset} = subplot(3,5,n_dset);
-    f_hclust_raster(trial_data_sort_sm_pr, sp_ras{n_dset}, dr_params);
+    f_hclust_raster(trial_data_sort_sm_pr, sp_ras{n_dset});
 end
 figure(fig_h);
-suptitle(sprintf('%s; %s clust=%d; trials:[%s]', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, num2str(tt_to_dred(:)')));
-figure(fig_ras);
 suptitle(sprintf('%s; %s clust=%d; trials:[%s]', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, num2str(tt_to_dred(:)')));
 
 
