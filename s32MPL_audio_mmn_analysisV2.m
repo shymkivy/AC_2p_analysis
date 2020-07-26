@@ -22,7 +22,7 @@ ops.centroid_plots = 0;
 % under construction
 ops.cluster_analysis = 0;
 ops.population_analysis = 0;
-ops.population_analysis_trials = 1;
+ops.population_analysis_trials = 0;
 ops.more_analysis = 0;
 
 %% --------------------------- analysis params -------------------------
@@ -43,7 +43,7 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'red1'};
+ops.dred_params.trial_types_to_dred = {'red2'};
 
 ops.dred_params.use_responsive_cells = 1;
 %--------------
@@ -97,7 +97,7 @@ ops.norm_after_method = 2;
 %f_mpl_plot_dset_details(data, ops);
 
 %%
-%f_mpl_plot_cond_details(data, ops);
+f_mpl_plot_cond_details(data, ops);
 
 
 %% ---------------------------population analysis--------------------------

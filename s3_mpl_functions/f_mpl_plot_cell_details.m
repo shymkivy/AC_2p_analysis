@@ -28,11 +28,11 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             tuning_all = cdata.tuning_all{n_dset};
             
             [pk_resp_mag_full,pk_resp_trial_ind_full] = max(tuning_all.peak_tuning_full_resp.fr_peak_mag_ave_z(n_cell,ctx_mmn));
-            pk_resp_sens_full = tuning_all.peak_tuning_full_resp.fr_peak_sensetivity(n_cell,ctx_mmn);
+            pk_resp_rel_full = tuning_all.peak_tuning_full_resp.fr_peak_reliability(n_cell,ctx_mmn);
             [pk_resp_mag_on,pk_resp_trial_ind_on] = max(tuning_all.peak_tuning_onset.fr_peak_mag_ave_z(n_cell,ctx_mmn));
-            pk_resp_sens_on = tuning_all.peak_tuning_onset.fr_peak_sensetivity(n_cell,ctx_mmn);
+            pk_resp_rel_on = tuning_all.peak_tuning_onset.fr_peak_reliability(n_cell,ctx_mmn);
             [pk_resp_mag_off,pk_resp_trial_ind_off] = max(tuning_all.peak_tuning_offset.fr_peak_mag_ave_z(n_cell,ctx_mmn));
-            pk_resp_sens_off = tuning_all.peak_tuning_offset.fr_peak_sensetivity(n_cell,ctx_mmn);
+            pk_resp_rel_off = tuning_all.peak_tuning_offset.fr_peak_reliability(n_cell,ctx_mmn);
             
             max_onset_resp = squeeze(max(tuning_all.trace_tuning.trial_ave(n_cell,cdata.onset_window_frames{n_dset},:),[],2));
             max_onset_thresh = squeeze(max(tuning_all.trace_tuning.stat_trace.sig_thresh(n_cell,cdata.onset_window_frames{n_dset},:),[],2));
@@ -50,7 +50,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 scatter(n_tr+(1:num_tr)/num_tr/2-0.25,tuning_all.peak_tuning_full_resp.fr_peak_mag(n_cell, trial_types == ops.context_types_all(n_tr)));
             end
             legend('trial ave', 'sig thresh');
-            title(sprintf('Cell %d, full resp peaks, tr=%d, zmag=%.2f, sens=%.2f', n_cell, ctx_mmn(pk_resp_trial_ind_full), pk_resp_mag_full, pk_resp_sens_full(pk_resp_trial_ind_full)));
+            title(sprintf('Cell %d, full resp peaks, tr=%d, zmag=%.2f, sens=%.2f', n_cell, ctx_mmn(pk_resp_trial_ind_full), pk_resp_mag_full, pk_resp_rel_full(pk_resp_trial_ind_full)));
             subplot(3,1,2); hold on; axis tight;
             plot(tuning_all.peak_tuning_onset.fr_peak_mag_ave(n_cell,:));
             plot(tuning_all.peak_tuning_onset.stat_pk.sig_thresh(n_cell,:), '--');
@@ -58,7 +58,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 num_tr = sum(trial_types == ops.context_types_all(n_tr));
                 scatter(n_tr+(1:num_tr)/num_tr/2-0.25, tuning_all.peak_tuning_onset.fr_peak_mag(n_cell, trial_types == ops.context_types_all(n_tr)));
             end
-            title(sprintf('Onset resp peaks, tr=%d, zmag=%.2f, sens=%.2f', ctx_mmn(pk_resp_trial_ind_on), pk_resp_mag_on, pk_resp_sens_on(pk_resp_trial_ind_on)));
+            title(sprintf('Onset resp peaks, tr=%d, zmag=%.2f, sens=%.2f', ctx_mmn(pk_resp_trial_ind_on), pk_resp_mag_on, pk_resp_rel_on(pk_resp_trial_ind_on)));
             subplot(3,1,3); hold on; axis tight;
             plot(tuning_all.peak_tuning_offset.fr_peak_mag_ave(n_cell,:));
             plot(tuning_all.peak_tuning_offset.stat_pk.sig_thresh(n_cell,:), '--');
@@ -66,7 +66,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 num_tr = sum(trial_types == ops.context_types_all(n_tr));
                 scatter(n_tr+(1:num_tr)/num_tr/2-0.25, tuning_all.peak_tuning_offset.fr_peak_mag(n_cell, trial_types == ops.context_types_all(n_tr)));
             end
-            title(sprintf('Offset resp peaks, tr=%d, zmag=%.2f, sens=%.2f', ctx_mmn(pk_resp_trial_ind_off), pk_resp_mag_off, pk_resp_sens_off(pk_resp_trial_ind_off)));
+            title(sprintf('Offset resp peaks, tr=%d, zmag=%.2f, sens=%.2f', ctx_mmn(pk_resp_trial_ind_off), pk_resp_mag_off, pk_resp_rel_off(pk_resp_trial_ind_off)));
 
 
             figure; 

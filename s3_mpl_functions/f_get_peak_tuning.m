@@ -47,17 +47,17 @@ fr_peak_mag_tuned_trials = fr_peak_mag_ave_z>=ops.stat.z_scores_thresh;
 
 
 
-%% compute sensetivity
-fr_peak_sensetivity = zeros(num_cells, n_tr_type);
+%% compute reliability
+fr_peak_reliability = zeros(num_cells, n_tr_type);
 for n_tr = 1:n_tr_type
     for n_cell = 1:num_cells
         temp_trials = fr_peak_mag(n_cell,trial_types == trials_to_analyze(n_tr));
-        fr_peak_sensetivity(n_cell, n_tr) = sum(temp_trials>(stat_pk.means(n_cell, n_tr)+ops.stat.z_scores_thresh*stat_pk.z_factors(n_cell,n_tr)))/numel(temp_trials);
+        fr_peak_reliability(n_cell, n_tr) = sum(temp_trials>(stat_pk.means(n_cell, n_tr)+ops.stat.z_scores_thresh*stat_pk.z_factors(n_cell,n_tr)))/numel(temp_trials);
     end
 end
 
 %% remove trials
-fr_peak_mag_tuned_trials = fr_peak_mag_tuned_trials.*(fr_peak_sensetivity>=ops.stat.sensetivity_thresh);
+fr_peak_mag_tuned_trials = fr_peak_mag_tuned_trials.*(fr_peak_reliability>=ops.stat.reliability_thresh);
 
 %%
 %fr_peak_mag_tuned_trials = fr_peak_mag_ave>stat_pk.sig_thresh;
@@ -80,7 +80,7 @@ peak_tuning_out.fr_peak_mag_ave = fr_peak_mag_ave;
 peak_tuning_out.fr_peak_mag_ave_z = fr_peak_mag_ave_z;
 peak_tuning_out.fr_peak_mag_tuned_trials = fr_peak_mag_tuned_trials;
 peak_tuning_out.fr_peak_mag_tuned_cells_freq = fr_peak_mag_tuned_cells_freq;
-peak_tuning_out.fr_peak_sensetivity = fr_peak_sensetivity;
+peak_tuning_out.fr_peak_reliability = fr_peak_reliability;
 peak_tuning_out.fr_peak_resp_cells_freq_sort_mag = fr_peak_resp_cells_freq_sort_mag;
 peak_tuning_out.fr_peak_resp_cells_freq_sort_ind = fr_peak_resp_cells_freq_sort_ind;
 peak_tuning_out.num_freq_tuned_cells = sum(fr_peak_mag_tuned_cells_freq);

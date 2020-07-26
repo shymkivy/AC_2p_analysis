@@ -1,0 +1,21 @@
+function f_plot_cond_reliability(data, ops)
+
+figure; hold on;
+for n_cond = 1:numel(ops.regions_to_analyze)
+    cond_name = ops.regions_to_analyze{n_cond};
+    cdata = data.(cond_name);
+    
+    resp_cells = logical(cat(1,cdata.peak_tuned_trials_full{:}));
+    cell_reliab = cat(1,cdata.peak_tuned_trials_full_reliab{:});
+    
+    trial_num = 30;
+    
+    dd_resp_reliab = cell_reliab(resp_cells(:,trial_num),trial_num);
+    
+    [f, x] = ksdensity(dd_resp_reliab, 'Bandwidth',.07);
+    plot(x,f)
+end
+legend(ops.regions_to_analyze)
+
+
+end
