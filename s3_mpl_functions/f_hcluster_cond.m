@@ -38,24 +38,27 @@ for n_dset = 1:cdata.num_dsets
         resp_cells = cdata.peak_tuned_trials_combined{n_dset};
         resp_cells = logical(sum(resp_cells(:,tn_to_dred),2));
         trial_peaks_dred = trial_peaks_dred(resp_cells,:);
-        trial_data_sort_sm_pr = trial_data_sort_sm_pr(resp_cells,:,:)
+        trial_data_sort_sm_pr = trial_data_sort_sm_pr(resp_cells,:,:);
     end
     
-    %%
-    %f_hclust_estimate_num_clust(trial_peaks_dred, dr_params, ops)
-    
-    %% hclustering
-    figure(fig_h);
-    sp_h{n_dset} = subplot(3,5,n_dset);
-    hclust_out{n_dset} = f_hcluster_trial2(trial_peaks_dred, trial_types_dred, sp_h{n_dset}, dr_params, ops);
+    if sum(resp_cells)>1
+        %%
+        %f_hclust_estimate_num_clust(trial_peaks_dred, dr_params, ops)
 
-    %%
-    %f_tsne(trial_peaks)
+        %% hclustering
+        figure(fig_h);
+        sp_h{n_dset} = subplot(3,5,n_dset);
+        hclust_out{n_dset} = f_hcluster_trial2(trial_peaks_dred, trial_types_dred, sp_h{n_dset}, dr_params, ops);
 
-    %%
-    figure(fig_ras);
-    sp_ras{n_dset} = subplot(3,5,n_dset);
-    f_hclust_raster(trial_data_sort_sm_pr, sp_ras{n_dset}, dr_params);
+        %%
+        %f_tsne(trial_peaks)
+
+        %%
+        figure(fig_ras);
+        sp_ras{n_dset} = subplot(3,5,n_dset);
+        f_hclust_raster(trial_data_sort_sm_pr, trial_peaks_dred, sp_ras{n_dset}, dr_params, ops);
+
+    end
 end
 figure(fig_h);
 suptitle(sprintf('%s; %s clust=%d; trials:[%s]', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, num2str(tt_to_dred(:)')));
