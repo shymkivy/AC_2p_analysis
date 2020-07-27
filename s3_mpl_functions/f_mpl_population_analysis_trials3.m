@@ -11,6 +11,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         dr_params.tt_to_dred_input = ops.dred_params.trial_types_to_dred{n_tt};
         dr_params.num_clust = ops.dred_params.hclust.num_clust{n_tt};
         
+        
+        
         if ops.dred_params.do_hclust
             f_hcluster_cond(cdata, dr_params, ops);      
         end

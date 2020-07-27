@@ -38,7 +38,6 @@ if ops.tuning_plots
     f_mpl_plot_tuning(data, ops);
 end
 
-%% plot reliability of all cells
-f_plot_cond_reliability(data, ops);
+
 
 end
