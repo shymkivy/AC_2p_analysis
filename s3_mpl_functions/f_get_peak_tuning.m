@@ -43,9 +43,6 @@ else
 end
 fr_peak_mag_ave_z(remove_cells,:) = min(fr_peak_mag_ave_z(:));
 fr_peak_mag_ave(remove_cells,:) = min(fr_peak_mag_ave(:));
-fr_peak_mag_tuned_trials = fr_peak_mag_ave_z>=ops.stat.z_scores_thresh;
-
-
 
 %% compute reliability
 fr_peak_reliability = zeros(num_cells, n_tr_type);
@@ -56,37 +53,39 @@ for n_tr = 1:n_tr_type
     end
 end
 
+%%
+fr_peak_mag_tuned_trials = fr_peak_mag_ave_z>=ops.stat.z_scores_thresh;
+
 %% remove trials
 fr_peak_mag_tuned_trials = fr_peak_mag_tuned_trials.*(fr_peak_reliability>=ops.stat.reliability_thresh);
 
 %%
 %fr_peak_mag_tuned_trials = fr_peak_mag_ave>stat_pk.sig_thresh;
-fr_peak_mag_tuned_cells_freq = logical(sum(fr_peak_mag_tuned_trials(:,1:10),2));
-[fr_peak_resp_cells_freq_sort_mag, fr_peak_resp_cells_freq_sort_ind] = sort(max(fr_peak_mag_ave_z(:,1:10),[],2), 'descend');
-
-
-
-ctx_tuned_num_cells = zeros(numel(dset_params.ctx_mmn),1);
-ctx_tuned_cells_sort_mag = zeros(num_cells, numel(dset_params.ctx_mmn));
-ctx_tuned_cells_sort_ind = zeros(num_cells, numel(dset_params.ctx_mmn));
-for n_ctx = 1:numel(dset_params.ctx_mmn)
-    ctx_tuned_num_cells(n_ctx) = sum(fr_peak_mag_tuned_trials(:,dset_params.ctx_mmn(n_ctx)));
-    [ctx_tuned_cells_sort_mag(:,n_ctx), ctx_tuned_cells_sort_ind(:,n_ctx)] = sort(fr_peak_mag_ave_z(:,dset_params.ctx_mmn(n_ctx)), 'descend');
-end
+% fr_peak_mag_tuned_cells_freq = logical(sum(fr_peak_mag_tuned_trials(:,1:10),2));
+% [fr_peak_resp_cells_freq_sort_mag, fr_peak_resp_cells_freq_sort_ind] = sort(max(fr_peak_mag_ave_z(:,1:10),[],2), 'descend');
+% 
+% 
+% ctx_tuned_num_cells = zeros(numel(dset_params.ctx_mmn),1);
+% ctx_tuned_cells_sort_mag = zeros(num_cells, numel(dset_params.ctx_mmn));
+% ctx_tuned_cells_sort_ind = zeros(num_cells, numel(dset_params.ctx_mmn));
+% for n_ctx = 1:numel(dset_params.ctx_mmn)
+%     ctx_tuned_num_cells(n_ctx) = sum(fr_peak_mag_tuned_trials(:,dset_params.ctx_mmn(n_ctx)));
+%     [ctx_tuned_cells_sort_mag(:,n_ctx), ctx_tuned_cells_sort_ind(:,n_ctx)] = sort(fr_peak_mag_ave_z(:,dset_params.ctx_mmn(n_ctx)), 'descend');
+% end
 
 
 peak_tuning_out.fr_peak_mag = fr_peak_mag;
 peak_tuning_out.fr_peak_mag_ave = fr_peak_mag_ave;
 peak_tuning_out.fr_peak_mag_ave_z = fr_peak_mag_ave_z;
 peak_tuning_out.fr_peak_mag_tuned_trials = fr_peak_mag_tuned_trials;
-peak_tuning_out.fr_peak_mag_tuned_cells_freq = fr_peak_mag_tuned_cells_freq;
+% peak_tuning_out.fr_peak_mag_tuned_cells_freq = fr_peak_mag_tuned_cells_freq;
 peak_tuning_out.fr_peak_reliability = fr_peak_reliability;
-peak_tuning_out.fr_peak_resp_cells_freq_sort_mag = fr_peak_resp_cells_freq_sort_mag;
-peak_tuning_out.fr_peak_resp_cells_freq_sort_ind = fr_peak_resp_cells_freq_sort_ind;
-peak_tuning_out.num_freq_tuned_cells = sum(fr_peak_mag_tuned_cells_freq);
-peak_tuning_out.ctx_tuned_num_cells = ctx_tuned_num_cells;
-peak_tuning_out.ctx_tuned_cells_sort_mag = ctx_tuned_cells_sort_mag;
-peak_tuning_out.ctx_tuned_cells_sort_ind = ctx_tuned_cells_sort_ind;
+% peak_tuning_out.fr_peak_resp_cells_freq_sort_mag = fr_peak_resp_cells_freq_sort_mag;
+% peak_tuning_out.fr_peak_resp_cells_freq_sort_ind = fr_peak_resp_cells_freq_sort_ind;
+% peak_tuning_out.num_freq_tuned_cells = sum(fr_peak_mag_tuned_cells_freq);
+% peak_tuning_out.ctx_tuned_num_cells = ctx_tuned_num_cells;
+% peak_tuning_out.ctx_tuned_cells_sort_mag = ctx_tuned_cells_sort_mag;
+% peak_tuning_out.ctx_tuned_cells_sort_ind = ctx_tuned_cells_sort_ind;
 peak_tuning_out.fr_peak_latency_sec = fr_peak_latency_sec;
 peak_tuning_out.fr_peak_latency_ave = fr_peak_latency_sec_ave;
 peak_tuning_out.stat_pk = stat_pk;

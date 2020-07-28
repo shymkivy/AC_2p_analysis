@@ -99,4 +99,8 @@ data = f_mpl_preprocess_data(data, ops);
 %% compute tunning
 data = f_mpl_compute_tuning(data, ops);
 
+%%
+data = f_process_tuned_data(data, ops);
+
+%%
 disp('Done preprocesing');

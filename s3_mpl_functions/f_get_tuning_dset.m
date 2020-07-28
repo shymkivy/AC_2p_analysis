@@ -16,30 +16,26 @@ peak_tuning_offset = f_get_peak_tuning(trial_data_sort, trial_types, trials_to_a
 % figure;histogram(fr_peak_mag(1,fr_peak_mag(1,:)>0))
 % figure;histogram(fr_peak_latency(:,fr_peak_latency(:,:)>1))
 
-
-
 %% traces
 
 trace_tuning = f_get_trace_tuning(trial_data_sort,trial_types, trials_to_analyze,dset_params, ops);
-
-%%
-
-fr_pk_tuned_trials_combined = logical(peak_tuning_full_resp.fr_peak_mag_tuned_trials+peak_tuning_onset.fr_peak_mag_tuned_trials+peak_tuning_offset.fr_peak_mag_tuned_trials);
-fr_pk_tuned_trials_combined_ctx = fr_pk_tuned_trials_combined(:,dset_params.ctx_mmn);
 
 %% save
 tuning_out.peak_tuning_full_resp = peak_tuning_full_resp;
 tuning_out.peak_tuning_onset = peak_tuning_onset;
 tuning_out.peak_tuning_offset = peak_tuning_offset;
-tuning_out.peak_tuned_trials_onset = peak_tuning_onset.fr_peak_mag_tuned_trials;
-tuning_out.peak_tuned_trials_onset_ctx = peak_tuning_onset.fr_peak_mag_tuned_trials(:,dset_params.ctx_mmn);
-tuning_out.peak_tuned_trials_offset = peak_tuning_offset.fr_peak_mag_tuned_trials;
-tuning_out.peak_tuned_trials_offset_ctx = peak_tuning_offset.fr_peak_mag_tuned_trials(:,dset_params.ctx_mmn);
-tuning_out.peak_tuned_trials_full = peak_tuning_full_resp.fr_peak_mag_tuned_trials;
-tuning_out.peak_tuned_trials_full_ctx = peak_tuning_full_resp.fr_peak_mag_tuned_trials(:,dset_params.ctx_mmn);
-tuning_out.peak_tuned_trials_combined = fr_pk_tuned_trials_combined;
-tuning_out.peak_tuned_trials_combined_ctx = fr_pk_tuned_trials_combined_ctx;
 tuning_out.trace_tuning = trace_tuning;
+
+% 
+% tuning_out.peak_tuned_trials_onset = peak_tuning_onset.fr_peak_mag_tuned_trials;
+% tuning_out.peak_tuned_trials_onset_ctx = peak_tuning_onset.fr_peak_mag_tuned_trials(:,dset_params.ctx_mmn);
+% tuning_out.peak_tuned_trials_offset = peak_tuning_offset.fr_peak_mag_tuned_trials;
+% tuning_out.peak_tuned_trials_offset_ctx = peak_tuning_offset.fr_peak_mag_tuned_trials(:,dset_params.ctx_mmn);
+% tuning_out.peak_tuned_trials_full = peak_tuning_full_resp.fr_peak_mag_tuned_trials;
+% tuning_out.peak_tuned_trials_full_ctx = peak_tuning_full_resp.fr_peak_mag_tuned_trials(:,dset_params.ctx_mmn);
+% tuning_out.peak_tuned_trials_combined = fr_pk_tuned_trials_combined;
+% tuning_out.peak_tuned_trials_combined_ctx = fr_pk_tuned_trials_combined_ctx;
+% 
 
 %%
 %if isempty(sig_thresh)

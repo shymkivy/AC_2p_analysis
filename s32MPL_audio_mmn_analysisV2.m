@@ -22,7 +22,7 @@ ops.centroid_plots = 0;
 % under construction
 ops.cluster_analysis = 0;
 ops.population_analysis = 0;
-ops.population_analysis_trials = 0;
+ops.population_analysis_trials = 1;
 ops.more_analysis = 0;
 
 %% --------------------------- analysis params -------------------------
@@ -43,12 +43,12 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd12', 'dd2'};
+ops.dred_params.trial_types_to_dred = {'all'};
 
 ops.dred_params.use_responsive_cells = 1;
 %--------------
 ops.dred_params.do_hclust = 1;
-ops.dred_params.hclust.num_clust = {2, 2};
+ops.dred_params.hclust.num_clust = {2, 2, 2};
 ops.dred_params.hclust.method = 'cosine';       % 'cosine', 'ward'
 ops.dred_params.hclust.plot_metric = 'cosine';  % 'cosine', 'euclidean'
 %-----------------

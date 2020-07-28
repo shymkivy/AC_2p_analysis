@@ -3,7 +3,7 @@ function [tn_to_dred, trial_type_tag] = f_select_trial_type(trial_types_to_dred,
 if isnumeric(trial_types_to_dred)
     tn_to_dred = trial_types_to_dred;
 elseif strcmpi(trial_types_to_dred, 'all')
-    tn_to_dred = ops.context_types_all;
+    tn_to_dred = 1:numel(ops.context_types_all);
 elseif strcmpi(trial_types_to_dred, 'mmn1')
     tn_to_dred = cdata.ctx_mmn{n_dset}(1:3);
 elseif strcmpi(trial_types_to_dred, 'mmn2')

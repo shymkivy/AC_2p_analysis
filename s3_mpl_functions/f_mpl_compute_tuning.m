@@ -17,7 +17,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
 %         %stat_save.(cond_name).onset_thresh = cell(data.(cond_name).num_dsets,1);
 %         %stat_save.(cond_name).offset = cell(data.(cond_name).num_dsets,1);
 %     end
-    for n_dset = 1:cdata.num_dsets        
+    for n_dset = 1:cdata.num_dsets      
+  
         fprintf('%s, dset %d\n', cond_name, n_dset);
         trial_data_sort = cell(1,cdata.num_planes(n_dset));
         trial_data_sort_sm = cell(1,cdata.num_planes(n_dset));
@@ -75,7 +76,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         dset_params.ctx_mmn = ctx_mmn;
 
         %% get trial averages compute tunning
-         sig_thresh = [];        
+        sig_thresh = [];        
 %         if load_file
 %             if isfield(stat_save.(cond_name), 'sig_thresh_all')
 %                 sig_thresh_all = stat_save.(cond_name).sig_thresh_all{n_dset};
@@ -92,7 +93,6 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         trial_ave_z = trial_ave./z_thresh_all;
         %trial_ave = (trial_ave-means_all)./z_thresh_all;
 
-
         cdata.trial_ave{n_dset,1} = trial_ave;
         cdata.trial_ave_z{n_dset,1} = trial_ave_z;
         cdata.trial_ave_mmn{n_dset,1} = trial_ave(:,:,ctx_mmn);
@@ -100,56 +100,10 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         %cdata.resp_cells_mmn_onset{n_dset} = data.(cond_name).resp_cells_all_onset{n_dset}(:,ctx_mmn);
         %cdata.resp_cells_mmn_offset{n_dset} = data.(cond_name).resp_cells_all_offset{n_dset}(:,ctx_mmn);
         cdata.ctx_mmn{n_dset,1} = ctx_mmn;
-        cdata.peak_tuned_trials_onset{n_dset,1} = tuning_all.peak_tuned_trials_onset;
-        cdata.peak_tuned_trials_onset_ctx{n_dset,1} = tuning_all.peak_tuned_trials_onset_ctx;
-        cdata.peak_tuned_trials_onset_reliab{n_dset,1} = tuning_all.peak_tuning_onset.fr_peak_reliability;
-        cdata.peak_tuned_trials_offset{n_dset,1} = tuning_all.peak_tuned_trials_offset;
-        cdata.peak_tuned_trials_offset_ctx{n_dset,1} = tuning_all.peak_tuned_trials_offset_ctx;
-        cdata.peak_tuned_trials_offset_reliab{n_dset,1} = tuning_all.peak_tuning_offset.fr_peak_reliability;
-        cdata.peak_tuned_trials_full{n_dset,1} = tuning_all.peak_tuned_trials_full;
-        cdata.peak_tuned_trials_full_ctx{n_dset,1} = tuning_all.peak_tuned_trials_full_ctx;
-        cdata.peak_tuned_trials_full_reliab{n_dset,1} = tuning_all.peak_tuning_full_resp.fr_peak_reliability;
-        cdata.peak_tuned_trials_combined{n_dset,1} = tuning_all.peak_tuned_trials_combined;
-        cdata.peak_tuned_trials_combined_ctx{n_dset,1} = tuning_all.peak_tuned_trials_combined_ctx;
             
-        data.(cond_name) = cdata;
-        
-%% deviance trial responses
-
-%         trial_ave_freq_long = f_mpl_trial_average(trial_data_sort_long,trial_types, [170, 270], 'none');
-%     
-%         figure; hold on;
-%         plot(trial_window_t_long,squeeze(mean(trial_ave_freq_long(:,:,1))))
-%         plot(trial_window_t_long,squeeze(mean(trial_ave_freq_long(:,:,2))))
-%         legend('MMN 170', 'flip MMN 270')
-%         axis tight;
-        
-%         if ops.stat.plot_examples
-%             for n_cell_ind = 1:numel(plot_cells)%900:910
-%                 n_cell = plot_cells(n_cell_ind);
-%                 
-%                 figure;
-%                 plot(trial_ave_freq_long(n_cell,:,1))
-%                 title(sprintf('Cell %d', n_cell));
-%             end
-%         end
-%     
-%         num_cells = size(firing_rates,1);
-%         resp_cells_zmag = data.(cond_name).resp_cells_zmag{n_dset};
-%         resp_cells_zmag2 = resp_cells_zmag(:,1:10);
-%         
-%         resp_indx = zeros(num_cells,1);
-%         for n_cell = 1:num_cells
-%             temp_trace = resp_cells_zmag2(n_cell,:);
-%             [~, temp_indx] = find(max(temp_trace) == temp_trace);
-%             resp_indx(n_cell) = temp_indx(1);
-%         end
-%         
-%         [~, resp_indx_sorted] = sort(resp_indx);
-%         
-%         figure; imagesc(resp_cells_zmag2(resp_indx_sorted,:))
         
     end
+    data.(cond_name) = cdata;
 end
 
 % if sum(ops.stat.save_est_samp)
