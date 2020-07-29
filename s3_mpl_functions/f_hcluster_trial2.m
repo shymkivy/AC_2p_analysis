@@ -16,7 +16,6 @@ trial_order = 1:num_trials;
 trial_types_sort = trial_types(dend_order);
 trial_order_sort = trial_order(dend_order);
 gray_cmap = repmat(linspace(0.2,1,num_trials),3,1);
-
 color_seq_tt = zeros(1,numel(trial_types),3);
 color_seq_temporal = zeros(1,numel(trial_types),3);
 for n_tr = 1:num_trials
@@ -41,8 +40,9 @@ xlabel('Trials');
 ylabel('Trials');
 %colorbar;
 clim1 = caxis;
-
 sp.YDir = 'reverse';
+
+
 imagesc(1:num_trials,num_trials+(1:col_width),repmat(color_seq_tt,col_width,1,1));
 imagesc(1:num_trials,num_trials+col_width+(1:col_width),repmat(color_seq_temporal,col_width,1,1));
 %imagesc(num_trials+(1:col_width),1:num_trials,permute(repmat(color_seq_tt,col_width,1,1),[2,1,3]));

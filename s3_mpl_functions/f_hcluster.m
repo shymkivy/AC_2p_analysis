@@ -14,7 +14,7 @@ elseif strcmpi(method, 'cosine')
 end
 
 f1 = figure;
-[~, ~, dend_order] = dendrogram(Z, 1000,'ColorThreshold',dend_thresh,'Orientation','left');
+[~, ~, dend_order] = dendrogram(Z, 3000,'ColorThreshold',dend_thresh,'Orientation','left');
 close(f1);
 
 

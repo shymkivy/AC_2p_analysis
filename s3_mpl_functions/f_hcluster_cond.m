@@ -49,7 +49,7 @@ for n_dset = 1:cdata.num_dsets
         figure(fig_h);
         sp_h{n_dset} = subplot(3,5,n_dset);
         hclust_out{n_dset} = f_hcluster_trial2(trial_peaks_dred, trial_types_dred, sp_h{n_dset}, dr_params, ops);
-
+        dr_params.hclust_out = hclust_out{n_dset};
         %%
         %f_tsne(trial_peaks)
 

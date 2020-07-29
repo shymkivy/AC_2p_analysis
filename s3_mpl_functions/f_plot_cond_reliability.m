@@ -7,6 +7,7 @@ e_colors = {'b', 'r', 'g', 'k'};
 for n_tt = 1:numel(ops.dred_params.trial_types_to_dred)
     figure; hold on;
     full_list = cell(numel(ops.regions_to_analyze),1);
+    all_trials = cell(numel(ops.regions_to_analyze),1);
     num_cell_cond = zeros(numel(ops.regions_to_analyze),1);
     for n_cond = 1:numel(ops.regions_to_analyze)
         cond_name = ops.regions_to_analyze{n_cond};
@@ -45,28 +46,41 @@ for n_tt = 1:numel(ops.dred_params.trial_types_to_dred)
         
         %[f, x] = ecdf(reliab_list);
         plot(x,f, 'color', e_colors{n_cond}, 'LineWidth', 2);
+
+        all_trials{n_cond} = cat(1,cdata.peak_tuned_trials_full_reliab{:});
     end
     %% make shuff list
     
     full_list = cat(1,full_list{:});
     
-    num_rand = 1000;
+    num_repeats = 1000;
     num_samp = round(mean(num_cell_cond));
     
-    samp_list = zeros(num_rand, num_samp);
-    for n_rand = 1:num_rand
-        samp_list(n_rand,:) = sort(randsample(full_list, num_samp));
-    end
+    samp_list = if_sample_trials(full_list, num_repeats, num_samp);
     
     shadedErrorBar(mean(samp_list,1),(1:num_samp)/num_samp, std(samp_list, [], 1))
     
+    all_trials = cat(1,all_trials{:});
+    samp_list2 = if_sample_trials(all_trials(:), num_repeats, num_samp);
+    shadedErrorBar(mean(samp_list2,1),(1:num_samp)/num_samp, std(samp_list, [], 1))
+    
     %plot(x,f, 'LineStyle', '--', 'LineWidth', 2, 'Color', [.8 .8 .8]);
     
-    legend([ops.regions_to_analyze {'Shuff'}], 'Location', 'southeast');
+    axis tight;
+    legend([ops.regions_to_analyze {'Shuff responsive/all'}], 'Location', 'southeast');
     xlabel('response reliability');
     ylabel('fraction');
     title(sprintf('Cell reliability ecdf, trials %s', trial_type_tag));
 end
 
+
+end
+
+function samp_list = if_sample_trials(full_list, num_repeats, num_samp)
+
+samp_list = zeros(num_repeats, num_samp);
+for n_rand = 1:num_repeats
+    samp_list(n_rand,:) = sort(randsample(full_list, num_samp));
+end
 
 end
