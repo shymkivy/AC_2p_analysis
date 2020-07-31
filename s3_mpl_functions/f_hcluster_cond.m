@@ -1,11 +1,20 @@
 function f_hcluster_cond(cdata, dr_params, ops)
 
 
-hclust_out = cell(cdata.num_dsets,1);
-fig_h = figure;
-sp_h = cell(cdata.num_dsets,1);
+hclust_out_tr = cell(cdata.num_dsets,1);
+fig_h_tr = figure;
+sp_h_tr = cell(cdata.num_dsets,1);
+hclust_out_cell = cell(cdata.num_dsets,1);
+fig_h_cell = figure;
+sp_h_cell = cell(cdata.num_dsets,1);
 fig_ras = figure;
 sp_ras = cell(cdata.num_dsets,1);
+fig_ras2 = figure;
+sp_ras2 = cell(cdata.num_dsets,1);
+
+dim_est_st = struct('cond_name', [], 'n_dset', [], 'num_cells', [],...
+    'num_cells_samp', [], 'num_comp_est', [], 'n_rep', []);
+dd_idx = 1;
 
 for n_dset = 1:cdata.num_dsets
     disp([dr_params.cond_name, ' dset ' num2str(n_dset)]);
@@ -45,25 +54,83 @@ for n_dset = 1:cdata.num_dsets
         %%
         %f_hclust_estimate_num_clust(trial_peaks_dred, dr_params, ops)
 
-        %% hclustering
-        figure(fig_h);
-        sp_h{n_dset} = subplot(3,5,n_dset);
-        hclust_out{n_dset} = f_hcluster_trial2(trial_peaks_dred, trial_types_dred, sp_h{n_dset}, dr_params, ops);
-        dr_params.hclust_out = hclust_out{n_dset};
+        %% hclustering trials
+        figure(fig_h_tr);
+        sp_h_tr{n_dset} = subplot(3,5,n_dset);
+        hclust_out_tr{n_dset} = f_hcluster_trial2(trial_peaks_dred, trial_types_dred, sp_h_tr{n_dset}, dr_params, ops);
+        dr_params.hclust_out_tr = hclust_out_tr{n_dset};
+        
+        %% hclustering cells 
+        figure(fig_h_cell);
+        sp_h_cell{n_dset} = subplot(3,5,n_dset);
+        hclust_out_cell{n_dset} = f_hcluster_cell(trial_peaks_dred, trial_types_dred, sp_h_cell{n_dset}, dr_params, ops);
+        dr_params.hclust_out_cell = hclust_out_cell{n_dset};
         %%
         %f_tsne(trial_peaks)
 
         %%
+        ops.dred_params.hclust.sort_raster = 1;
         figure(fig_ras);
         sp_ras{n_dset} = subplot(3,5,n_dset);
-        f_hclust_raster(trial_data_sort_sm_pr, trial_peaks_dred, sp_ras{n_dset}, dr_params, ops);
+        f_hclust_raster(trial_data_sort_sm_pr, trial_peaks_dred, trial_types_dred, sp_ras{n_dset}, dr_params, ops);
+        
+        ops.dred_params.hclust.sort_raster = 0;
+        figure(fig_ras2);
+        sp_ras2{n_dset} = subplot(3,5,n_dset);
+        f_hclust_raster(trial_data_sort_sm_pr, trial_peaks_dred, trial_types_dred, sp_ras2{n_dset}, dr_params, ops);
+        
+        %% compute data dimensionality with peaks data
+        trial_peaks_dred_sort = trial_peaks_dred(:,hclust_out_tr{n_dset}.dend_order);
+        trial_peaks_dred_sort = trial_peaks_dred(hclust_out_cell{n_dset}.dend_order,:);
+        trial_types_dred_sort = trial_types_dred(hclust_out_tr{n_dset}.dend_order);
+        
+        if ops.dred_params.do_dim_estimate
+            num_cells = size(trial_data_sort_sm_pr,1);
+            interval1 = 5;
+            num_repeats = 5;
+            dd_cells_range = [interval1:interval1:num_cells num_cells];
+            for n_cellr = 1:numel(dd_cells_range)
+                for n_rep = 1:num_repeats
+                    
+                    samp_idx = randsample(num_cells, dd_cells_range(n_cellr));
+                    data_dim_est = f_ensemble_comp_data_dim2(trial_peaks_dred_sort(samp_idx,:), 0);
 
+                    %data_dim_est = f_ensemble_analysis_YS2(trial_data_sort_sm,trial_types_dred);
+                    dim_est_st(dd_idx).cond_name = dr_params.cond_name;
+                    dim_est_st(dd_idx).n_dset = n_dset;
+                    dim_est_st(dd_idx).tt_to_dred = tt_to_dred;
+                    dim_est_st(dd_idx).trial_type_tag = trial_type_tag;
+                    dim_est_st(dd_idx).num_cells = num_cells;
+                    dim_est_st(dd_idx).num_cells_samp = dd_cells_range(n_cellr);
+                    dim_est_st(dd_idx).num_comp_est = data_dim_est.num_comps;
+                    dim_est_st(dd_idx).d_explained = data_dim_est.d_explained;
+                    dim_est_st(dd_idx).n_rep = n_rep;
+                    dim_est_st(dd_idx).var_thresh_prc = data_dim_est.var_thresh_prc;             
+                    dd_idx = dd_idx+1;
+                end
+            end
+        end
+        
+        %%
+        if ops.dred_params.do_ensamble_analysis
+            dr_params.trial_win_t = cdata.trial_window_t{n_dset};
+            [~, dr_params.on_bin] = min(abs(ops.ensemb.onset_time-dr_params.trial_win_t));
+            [~, dr_params.off_bin] = min(abs(ops.ensemb.offset_time-dr_params.trial_win_t));
+            [~] = f_ensemble_analysis_peaks(trial_peaks_dred_sort,trial_types_dred_sort, dr_params, ops);
+        end
+        
+        
+        
     end
 end
-figure(fig_h);
-suptitle(sprintf('%s; %s clust=%d; trials:[%s]', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, num2str(tt_to_dred(:)')));
+figure(fig_h_tr);
+suptitle(sprintf('%s; %s trials clust=%d; trials:%s', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, trial_type_tag));
+figure(fig_h_cell);
+suptitle(sprintf('%s; %s cells clust=%d; trials:%s', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, trial_type_tag));
 figure(fig_ras);
-suptitle(sprintf('%s; %s clust=%d; trials:[%s]', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, num2str(tt_to_dred(:)')));
+suptitle(sprintf('%s; %s clust=%d; trials:%s sort', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, trial_type_tag));
+figure(fig_ras2);
+suptitle(sprintf('%s; %s clust=%d; trials:%s', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, trial_type_tag));
 
 
 end

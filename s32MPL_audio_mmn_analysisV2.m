@@ -27,7 +27,7 @@ ops.more_analysis = 0;
 
 %% --------------------------- analysis params -------------------------
 % ensemble analysis
-ops.ensemb.method = 'tca'; %'tca'
+ops.ensemb.method = 'svd'; %'tca'
 ops.ensemb.pca_var_thresh = .95; % in percent
 ops.ensemb.smooth_kernSD = 200;
 ops.ensemb.select_upstates = false;
@@ -43,15 +43,15 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd12', 'all'};
-
+ops.dred_params.trial_types_to_dred = {'dd12'};
 ops.dred_params.use_responsive_cells = 1;
+
 %--------------
 ops.dred_params.do_hclust = 1;
 ops.dred_params.hclust.num_clust = {2, 2, 2};
 ops.dred_params.hclust.method = 'cosine';       % 'cosine', 'ward'
 ops.dred_params.hclust.plot_metric = 'cosine';  % 'cosine', 'euclidean'
-ops.dred_params.hclust.sort_raster = true;
+ops.dred_params.hclust.sort_raster = 1;
 %-----------------
 ops.dred_params.do_cv = 0;
 ops.dred_params.do_dim_estimate = 0;
@@ -62,7 +62,7 @@ ops.dred_params.kernSD = 200;    % ms
 ops.dred_params.cv_num_folds = 4; % for train test
 ops.dred_params.sort_trial_before = false;
 %-----------------
-ops.dred_params.do_ensamble_analysis = 0;
+ops.dred_params.do_ensamble_analysis = 1;
 
 % k-means param 
 

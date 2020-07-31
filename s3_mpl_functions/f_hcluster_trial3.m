@@ -1,23 +1,36 @@
-function hclust_out = f_hcluster_trial2(trial_peaks, trial_types, sp, params, ops)
-num_clust = params.num_clust;
-method = ops.dred_params.hclust.method;
-metric = ops.dred_params.hclust.plot_metric;
-num_cells = size(trial_peaks,1);
+function hclust_out = f_hcluster_trial3(X, params)
+method = params.method;
+metric = params.metric;
+num_cells = size(X,1);
 
-if isempty(num_clust)
-    num_clust = 1;
+%% estimate num clust
+if ~isfield(params, 'num_clust')
+    
+    if num_cells > 5
+        k_list = 1:6;
+    else
+        k_list = 1:size(X,1);
+    end
+
+    E = evalclusters(X,'linkage','silhouette','klist',k_list, 'Distance', metric);
+    num_clust = E.OptimalK;
+    
+else
+    num_clust = params.num_clust;
 end
 
+
+%%
+
 % warning is because some trial bins are nearly zero
-[dend_order, clust_ident] = f_hcluster(trial_peaks', method, num_clust);
+[dend_order, clust_ident] = f_hcluster(X, method, num_clust);
 
-%figure; imagesc(color_seq_temporal)
 
-image_Z = 1-squareform(pdist(trial_peaks(:,dend_order)', metric));
-subplot(sp); hold on;
+image_Z = 1-squareform(pdist(X(dend_order,:), metric));
+figure;hold on; %subplot(sp); 
 imagesc(image_Z);
 %axis image;
-title(sprintf('d%d, %d cells', params.n_dset,num_cells));
+title(sprintf('h clust %s %s', method, metric));
 caxis([0 1]);
 axis tight;
 axis equal;
@@ -25,11 +38,12 @@ xlabel('Trials');
 ylabel('Trials');
 %colorbar;
 clim1 = caxis;
+sp = gca;
 sp.YDir = 'reverse';
 
 %% add trial indicator
 
-f_plot_trial_indicator(trial_types, dend_order, 1, numel(trial_types), ops);
+%f_plot_trial_indicator(trial_types, dend_order, 1, numel(trial_types), ops);
 
 %imagesc(num_trials+(1:col_width),1:num_trials,permute(repmat(color_seq_tt,col_width,1,1),[2,1,3]));
 %imagesc(num_trials+col_width+(1:col_width),1:num_trials,permute(repmat(color_seq_temporal,col_width,1,1),[2,1,3]));

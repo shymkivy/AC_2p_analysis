@@ -86,7 +86,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 for n_cellr = 1:numel(dd_cells_range)
                     for n_rep = 1:num_repeats
                         samp_idx = randsample(num_cells, dd_cells_range(n_cellr));
-                        data_dim_est = f_ensemble_comp_data_dim(trial_data_dred_sm(samp_idx,:,:));
+                        data_dim_est = f_ensemble_comp_data_dim(trial_data_dred_sm(samp_idx,:,:), 1);
 
                         %data_dim_est = f_ensemble_analysis_YS2(trial_data_sort_sm,trial_types_dred);
                         dim_est_st(dd_idx).cond_name = cond_name;

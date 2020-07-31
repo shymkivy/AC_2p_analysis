@@ -1,6 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%
 %
-%   Updated 11/11/19
 %   V2 used a new struct format of saved data in previous step
 %   
 %   % editing deviance plots

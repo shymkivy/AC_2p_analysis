@@ -1,7 +1,7 @@
-function data_dim_est = f_ensemble_comp_data_dim(firing_rate, normalize)
+function data_dim_est = f_ensemble_comp_data_dim2(firing_rate, normalize)
 % parameters
 normalize_firing_rates = normalize;
-shuffle_method = 'circ_shift'; % 'circ_shift' or 'scramble'
+shuffle_method = 'scramble'; % 'circ_shift' or 'scramble'
 plot_stuff = 0;
 var_thresh_prc = .95; % circular shift thresh (95 or 99; from Detecting cell assemblies in large neuronal populations)
 %num_comp = 100;
@@ -48,15 +48,15 @@ SI_firing_rate_shuff = similarity_index(firing_rate_shuff, firing_rate_shuff);
 
 if plot_stuff
     figure; 
-    ax1 = subplot(3,1,1:2);imagesc(firing_rate_norm);
+    ax1 = subplot(3,1,1:2);imagesc(firing_rate_norm); axis tight;
     title('Firing rates raster');
-    ax2 = subplot(3,1,3);plot(sum(firing_rate_norm));
+    ax2 = subplot(3,1,3);plot(sum(firing_rate_norm)); axis tight;
     linkaxes([ax1,ax2],'x');
 
     figure; 
-    ax1 = subplot(3,1,1:2);imagesc(firing_rate_shuff);
+    ax1 = subplot(3,1,1:2);imagesc(firing_rate_shuff); axis tight;
     title(['Shuffled rates raster (' shuffle_method ')']);
-    ax2 = subplot(3,1,3);plot(sum(firing_rate_shuff));
+    ax2 = subplot(3,1,3);plot(sum(firing_rate_shuff)); axis tight;
     linkaxes([ax1,ax2],'x');
     
     
@@ -113,14 +113,14 @@ if plot_stuff
     legend('data', 'shuff', [num2str(var_thresh_prc*100) '% thresh']);
     
     figure; hold on;
-    for n_comp = 1:num_comp
+    for n_comp = 1:num_comps
         comp_corr = d_coeff(:,n_comp);  
         scatter(n_comp*ones(num_cells,1), comp_corr, '.')
     end
     title('PCA coefficients')
     
     figure; hold on;
-    for n_comp = 1:num_cells
+    for n_comp = 1:num_comps
         comp_corr = s_coeff(:,n_comp);  
         scatter(n_comp*ones(num_cells,1), comp_corr, '.')
     end

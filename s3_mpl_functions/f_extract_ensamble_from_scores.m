@@ -1,7 +1,7 @@
 function ens = f_extract_ensamble_from_scores(dred_factors, ens_thresh)
 
 rectify_ens_score = 1;
-plot_stuff = 0;
+plot_stuff = 1;
 ens_min_size = 2;
 
 method = dred_factors.method;
