@@ -21,7 +21,6 @@ if ndims(trial_data) == 3
 end  
 num_bins = size(trial_data,2)/num_trials;
 
-
 active_cells = sum(trial_data,2) > 0;
 trial_data(~active_cells,:) = [];
 
@@ -33,31 +32,38 @@ else
     firing_rate_norm = trial_data;
 end
 [num_cells, ~] = size(firing_rate_norm);
-firing_rate_norm_3d = reshape(firing_rate_norm, num_cells, num_bins, num_trials);
-
-
-%% random shuffle in time
-firing_rate_shuff = f_shuffle_data(firing_rate_norm, shuffle_method);
-
-SI_firing_rate = similarity_index(firing_rate_norm, firing_rate_norm);
-SI_firing_rate_shuff = similarity_index(firing_rate_shuff, firing_rate_shuff);
+%firing_rate_norm_3d = reshape(firing_rate_norm, num_cells, num_bins, num_trials);
 
 %% dim reduction with PCA to calulate components number
 
 [d_coeff,d_score,~,~,d_explained,d_mu] = pca(firing_rate_norm');
-[s_coeff,s_score,~,~,s_explained,~] = pca(firing_rate_shuff');
+
+
+%% shuff and PCA
+num_reps = 100;
+data_thresh = zeros(num_reps,1);
+for n_rep = 1:num_reps
+    firing_rate_shuff = f_shuffle_data(firing_rate_norm, shuffle_method);
+    [~,~,~,~,s_explained,~] = pca(firing_rate_shuff');
+    data_thresh(n_rep) = prctile(s_explained, var_thresh_prc*100); % ss_explained or s_explained
+end
 
 % eigenvalues below lower bound plus above upper should
 % theoretically equal total number of neurons in all ensembles
-data_thresh = prctile(s_explained, var_thresh_prc*100); % ss_explained or s_explained
-num_comps = sum(d_explained>data_thresh);
 
+dimensionality = sum(sum(d_explained>data_thresh'))/num_reps;
+num_comps = max(ceil(dimensionality),1);
 
+data_dim_est.dimensionality = dimensionality;
 data_dim_est.num_comps = num_comps;
 data_dim_est.d_explained = d_explained(num_comps);
 data_dim_est.var_thresh_prc = var_thresh_prc;
 data_dim_est.num_cells = num_cells;
 data_dim_est.num_trials = num_trials;
+
+%%
+SI_firing_rate = similarity_index(firing_rate_norm, firing_rate_norm);
+SI_firing_rate_shuff = similarity_index(firing_rate_shuff, firing_rate_shuff);
 
 firing_rate_LR = d_coeff(:,1:num_comps)*d_score(:,1:num_comps)' + d_mu';
 SI_firing_rate_LR = similarity_index(firing_rate_LR, firing_rate_LR);
@@ -70,23 +76,19 @@ SI_firing_rate_LR = similarity_index(firing_rate_LR, firing_rate_LR);
 
 %% real data 
 
-
-ensamble_method = 'svd'
+ensamble_method = 'svd';
 
 num_ens_comps = num_comps;
 if strcmpi(ensamble_method, 'nmf')
     num_ens_comps = round(num_comps*1.5);
 end
 
-
 [dred_factors1, ~] = f_dred_train2(firing_rate_LR, num_ens_comps, num_trials, ensamble_method);
-
 [coeffs, scores] = f_dred_get_coeffs(dred_factors1);
 
 %% Visualize traces
 tn_to_dred = params.tn_to_dred;
 tt_to_dred = params.tt_to_dred;
-
 
 X = scores';
 
@@ -111,74 +113,47 @@ end
 
 params2.method = 'ward'; % cosine, ward
 params2.metric = 'euclidean'; % cosine squaredeuclidean
-f_hcluster_trial3(X, params2);
+params2.plot_sm = 0;
+hclust_out = f_hcluster_trial3(X, params2);
+figure;
+gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
+
 
 params3.metric = 'sqEuclidean'; % cosine squaredeuclidean
-f_gmmcluster_trial(X, params3)
-
-dims1 = rem([1 2]-1, num_comps)+1;
-
-d = 500; % Grid length
-x1 = linspace(min(X(:,dims1(1)))-2, max(X(:,dims1(2)))+2, d);
-x2 = linspace(min(X(:,dims1(1)))-2, max(X(:,dims1(2)))+2, d);
-[x1grid,x2grid] = meshgrid(x1,x2);
-X0 = [x1grid(:) x2grid(:)];
-
-threshold = sqrt(chi2inv(0.99,2));
-
-k = 2; % Number of GMM components
-options = statset('MaxIter',1000);
-cov_type = 'full';
-gmfit = fitgmdist(X,k,'CovarianceType',cov_type, ...
-    'SharedCovariance',false,'Options',options); % Fitted GMM
-clusterX = cluster(gmfit,X); % Cluster index 
-mahalDist = mahal(gmfit,X0); % Distance from each grid point to each GMM component
-% Draw ellipsoids over each GMM component and show clustering result.
+params3.RegularizationValue = 0.01;
+gmmclust_out = f_gmmcluster_trial(X, params3);
 figure;
-h1 = gscatter(X(:,1),X(:,2),clusterX);
-hold on
-    for m = 1:k
-        idx = mahalDist(:,m)<=threshold;
-        Color = h1(m).Color*0.75 - 0.5*(h1(m).Color - 1);
-        h2 = plot(X0(idx,1),X0(idx,2),'.','Color',Color,'MarkerSize',1);
-        uistack(h2,'bottom');
-    end    
-plot(gmfit.mu(:,1),gmfit.mu(:,2),'kx','LineWidth',2,'MarkerSize',10)
-title(sprintf('Sigma is %s\nSharedCovariance = %s',cov_type,'false'),'FontSize',8)
-legend(h1,{'1','2','3'})
-hold off
-
+gscatter(X(:,1),X(:,2),gmmclust_out.clust_ident);
 
 
 num_plots = ceil(num_comps/3);
 for n_plt = 1:num_plots
     figure; hold on;
-    lg1 = cell(numel(tt_to_dred),1);
     dims1 = rem([1 2 3]+(n_plt-1)*3-1, num_comps)+1;
     for n_tt = 1:numel(tt_to_dred)
-        plot3(coeffs(trial_types_dred == tt_to_dred(n_tt),dims1(1)), coeffs(trial_types_dred == tt_to_dred(n_tt),dims1(2)),coeffs(trial_types_dred == tt_to_dred(n_tt),dims1(3)), 'Color', ops.colors_list{n_tt},'Marker', 'o', 'LineStyle', 'none'); 
+        plot3(coeffs(:,dims1(1)), coeffs(:,dims1(2)),coeffs(:,dims1(3)), 'Color', ops.colors_list{n_tt},'Marker', 'o', 'LineStyle', 'none'); 
         axis tight;
-        lg1{n_tt} = ops.context_types_labels{ops.context_types_all==tt_to_dred(n_tt)};
     end
     xlabel(sprintf('pc %d', dims1(1)));
     ylabel(sprintf('pc %d', dims1(2)));
     zlabel(sprintf('pc %d', dims1(3)));
-    title(sprintf('%s, dset%d, trial types pcs coeffs(cells)',params.cond_name, params.n_dset));
-    legend(lg1)
+    title(sprintf('%s, dset%d, cell types pcs coeffs(cells)',params.cond_name, params.n_dset));
     % %quiver3 for gradient plotting
 end
 
-figure; imagesc(firing_rate_norm)
-for n_comp = 1:num_comps
-    figure;
-    plot(coeffs(:,n_comp));
-    xlabel('cells')
-    title(sprintf('Coeff %d', n_comp));
-    figure;
-    plot(scores(n_comp,:));
-    title(sprintf('Score %d', n_comp));
-    xlabel('trials')
-end
+
+
+% figure; imagesc(firing_rate_norm)
+% for n_comp = 1:num_comps
+%     figure;
+%     plot(coeffs(:,n_comp));
+%     xlabel('cells')
+%     title(sprintf('Coeff %d', n_comp));
+%     figure;
+%     plot(scores(n_comp,:));
+%     title(sprintf('Score %d', n_comp));
+%     xlabel('trials')
+% end
 
 
 num_rep = 10000;
