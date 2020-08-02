@@ -1,13 +1,12 @@
 function data_dim_est = f_ensemble_comp_data_dim2(firing_rate, normalize)
 % parameters
-normalize_firing_rates = normalize;
 shuffle_method = 'scramble'; % 'circ_shift' or 'scramble'
 plot_stuff = 0;
 var_thresh_prc = .95; % circular shift thresh (95 or 99; from Detecting cell assemblies in large neuronal populations)
 %num_comp = 100;
 %ensamble_method = 'tca'; % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
 %example_plot = 20;
-
+total_dim_thresh = .70;
 %%
 
 if ndims(firing_rate) == 3
@@ -20,7 +19,7 @@ end
 active_cells = sum(firing_rate,2) > 0;
 firing_rate(~active_cells,:) = [];
 
-if normalize_firing_rates
+if normalize
     firing_rate_norm = firing_rate - mean(firing_rate,2);
     firing_rate_norm = firing_rate_norm./std(firing_rate_norm,[],2); 
     %firing_rate_cont(isnan(firing_rate_cont)) = 0;
@@ -28,24 +27,37 @@ else
     firing_rate_norm = firing_rate;
 end
 
+
 %% dim reduction with PCA to calulate components number
 
-[~,~,~,~,d_explained,~] = pca(firing_rate_norm');
+[~,S,~] = svd(firing_rate_norm);
+sing_val_sq = diag(S'*S);
+d_explained = sing_val_sq/sum(sing_val_sq)*100;
+%figure; plot(d_explained)
+dimensionality_total = sum(cumsum(d_explained)<(total_dim_thresh*100));
+%[coeff,score,~,~,d_explained,~] = pca(firing_rate_norm');
 
 
 %% shuff and PCA
+
 num_reps = 20;
 data_thresh = zeros(num_reps,1);
 for n_rep = 1:num_reps
     firing_rate_shuff = f_shuffle_data(firing_rate_norm, shuffle_method);
-    [~,~,~,~,s_explained,~] = pca(firing_rate_shuff');
+    [~,s_S,~] = svd(firing_rate_shuff);
+    s_sing_val_sq = diag(s_S'*s_S);
+    s_explained = s_sing_val_sq/sum(s_sing_val_sq)*100;
+
+    %[~,~,~,~,s_explained,~] = pca(firing_rate_shuff');
     data_thresh(n_rep) = prctile(s_explained, var_thresh_prc*100); % ss_explained or s_explained
 end
 % eigenvalues below lower bound plus above upper should
 % theoretically equal total number of neurons in all ensembles
-dimensionality = sum(sum(d_explained>data_thresh'))/num_reps;
-num_comps = max(ceil(dimensionality),1);
-data_dim_est.dimensionality = dimensionality;
+dimensionality_corr = sum(sum(d_explained>data_thresh'))/num_reps;
+
+num_comps = max(ceil(dimensionality_total),1);
+data_dim_est.dimensionality_total = dimensionality_total;
+data_dim_est.dimensionality_corr = dimensionality_corr;
 data_dim_est.num_comps = num_comps;
 data_dim_est.d_explained = d_explained(1:num_comps);
 data_dim_est.var_thresh_prc = var_thresh_prc;

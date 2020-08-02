@@ -1,4 +1,4 @@
-function f_hcluster_cond(cdata, dr_params, ops)
+function dr_params = f_hcluster_cond(cdata, dr_params, ops)
 
 
 hclust_out_tr = cell(cdata.num_dsets,1);
@@ -11,10 +11,6 @@ fig_ras = figure;
 sp_ras = cell(cdata.num_dsets,1);
 fig_ras2 = figure;
 sp_ras2 = cell(cdata.num_dsets,1);
-
-dim_est_st = struct('cond_name', [], 'n_dset', [], 'num_cells', [],...
-    'num_cells_samp', [], 'num_comp_est', [], 'n_rep', []);
-dd_idx = 1;
 
 for n_dset = 1:cdata.num_dsets
     disp([dr_params.cond_name, ' dset ' num2str(n_dset)]);
@@ -86,6 +82,8 @@ for n_dset = 1:cdata.num_dsets
         
         
         if ops.dred_params.do_dim_estimate
+            dim_est_st = dr_params.dim_est_st;
+            dd_idx = numel([dim_est_st.n_dset])+1;
             num_cells = size(trial_data_sort_sm_pr,1);
             interval1 = 5;
             num_repeats = 10;
@@ -94,7 +92,7 @@ for n_dset = 1:cdata.num_dsets
                 for n_rep = 1:num_repeats
                     
                     samp_idx = randsample(num_cells, dd_cells_range(n_cellr));
-                    data_dim_est = f_ensemble_comp_data_dim2(trial_peaks_dred_sort(samp_idx,:), 0);
+                    data_dim_est = f_ensemble_comp_data_dim2(trial_peaks_dred_sort(:,:), 0);
 
                     %data_dim_est = f_ensemble_analysis_YS2(trial_data_sort_sm,trial_types_dred);
                     dim_est_st(dd_idx).cond_name = dr_params.cond_name;
@@ -111,6 +109,7 @@ for n_dset = 1:cdata.num_dsets
                     dd_idx = dd_idx+1;
                 end
             end
+            dr_params.dim_est_st = dim_est_st;
         end
         
         %%
@@ -134,5 +133,5 @@ suptitle(sprintf('%s; %s clust=%d; trials:%s sort', dr_params.cond_name, ops.dre
 figure(fig_ras2);
 suptitle(sprintf('%s; %s clust=%d; trials:%s', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, trial_type_tag));
 
-1
+
 end
