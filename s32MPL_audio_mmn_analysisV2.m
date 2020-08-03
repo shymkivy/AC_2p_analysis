@@ -101,7 +101,7 @@ ops.norm_after_method = 2;
 %f_mpl_plot_cond_details(data, ops);
 
 %% plot reliability of all cells
-f_plot_cond_reliability(data, ops);
+%f_plot_cond_reliability(data, ops);
 %% ---------------------------population analysis--------------------------
 if ops.population_analysis
     f_mpl_population_analysis(data, ops);

@@ -42,12 +42,15 @@ dimensionality_total = sum(cumsum(d_explained)<(total_dim_thresh*100));
 
 num_reps = 20;
 data_thresh = zeros(num_reps,1);
+dim_total_shuff = zeros(num_reps,1);
 for n_rep = 1:num_reps
     firing_rate_shuff = f_shuffle_data(firing_rate_norm, shuffle_method);
     [~,s_S,~] = svd(firing_rate_shuff);
     s_sing_val_sq = diag(s_S'*s_S);
     s_explained = s_sing_val_sq/sum(s_sing_val_sq)*100;
-
+    
+    dim_total_shuff(n_rep) = sum(cumsum(d_explained)<(total_dim_thresh*100));
+    
     %[~,~,~,~,s_explained,~] = pca(firing_rate_shuff');
     data_thresh(n_rep) = prctile(s_explained, var_thresh_prc*100); % ss_explained or s_explained
 end
@@ -57,6 +60,7 @@ dimensionality_corr = sum(sum(d_explained>data_thresh'))/num_reps;
 
 num_comps = max(ceil(dimensionality_total),1);
 data_dim_est.dimensionality_total = dimensionality_total;
+data_dim_est.dimensionality_total_shuff = mean(dim_total_shuff);
 data_dim_est.dimensionality_corr = dimensionality_corr;
 data_dim_est.num_comps = num_comps;
 data_dim_est.d_explained = d_explained(1:num_comps);

@@ -1,5 +1,6 @@
 function f_plot_dset_dimensionality(data, ops)
 
+%% total
 tt_types = fields(data);
 tt_types_data = cell(numel(tt_types),1);
 for n_tt = 1:numel(tt_types)
@@ -30,6 +31,7 @@ for n_tt = 1:numel(tt_types)
     title(sprintf('data total dimensionality, %s', tt_types{n_tt}));
 end
 
+%% correlations
 tt_types = fields(data);
 tt_types_data = cell(numel(tt_types),1);
 for n_tt = 1:numel(tt_types)
