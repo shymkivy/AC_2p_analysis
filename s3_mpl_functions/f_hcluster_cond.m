@@ -1,5 +1,4 @@
-function dr_params = f_hcluster_cond(cdata, dr_params, ops)
-
+function [dr_params, hdata_out] = f_hcluster_cond(cdata, dr_params, ops)
 
 hclust_out_tr = cell(cdata.num_dsets,1);
 fig_h_tr = figure;
@@ -11,6 +10,8 @@ fig_ras = figure;
 sp_ras = cell(cdata.num_dsets,1);
 fig_ras2 = figure;
 sp_ras2 = cell(cdata.num_dsets,1);
+
+data_dim_est_full = cell(cdata.num_dsets,1);
 
 for n_dset = 1:cdata.num_dsets
     disp([dr_params.cond_name, ' dset ' num2str(n_dset)]);
@@ -75,10 +76,13 @@ for n_dset = 1:cdata.num_dsets
         sp_ras2{n_dset} = subplot(3,5,n_dset);
         f_hclust_raster(trial_data_sort_sm_pr, trial_peaks_dred, trial_types_dred, sp_ras2{n_dset}, dr_params, ops);
         
-        %% compute data dimensionality with peaks data
+        %% compute dimensionality of full dsets
         trial_peaks_dred_sort = trial_peaks_dred(:,hclust_out_tr{n_dset}.dend_order);
-        trial_peaks_dred_sort = trial_peaks_dred(hclust_out_cell{n_dset}.dend_order,:);
-        trial_types_dred_sort = trial_types_dred(hclust_out_tr{n_dset}.dend_order);
+        trial_peaks_dred_sort = trial_peaks_dred_sort(hclust_out_cell{n_dset}.dend_order,:);
+        
+        data_dim_est_full{n_dset} = f_ensemble_comp_data_dim2(trial_peaks_dred_sort, 0);
+        
+        %% compute data dimensionality for cell range
         
         
         if ops.dred_params.do_dim_estimate
@@ -134,5 +138,7 @@ suptitle(sprintf('%s; %s clust=%d; trials:%s sort', dr_params.cond_name, ops.dre
 figure(fig_ras2);
 suptitle(sprintf('%s; %s clust=%d; trials:%s', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, trial_type_tag));
 
-
+hdata_out.hclust_out_tr = hclust_out_tr;
+hdata_out.hclust_out_cell = hclust_out_cell;
+hdata_out.data_dim_est_full = data_dim_est_full;
 end

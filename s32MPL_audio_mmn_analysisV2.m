@@ -43,18 +43,18 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd12'};
+ops.dred_params.trial_types_to_dred = {'dd1', 'dd2', 'dd12'};
 ops.dred_params.use_responsive_cells = 1;
 
 %--------------
 ops.dred_params.do_hclust = 1;
-ops.dred_params.hclust.num_clust = {2, 2, 2};
+ops.dred_params.hclust.num_clust = {1, 1, 1};
 ops.dred_params.hclust.method = 'cosine';       % 'cosine', 'ward'
 ops.dred_params.hclust.plot_metric = 'cosine';  % 'cosine', 'euclidean'
 ops.dred_params.hclust.sort_raster = 1;
 %-----------------
 ops.dred_params.do_cv = 0;
-ops.dred_params.do_dim_estimate = 1;
+ops.dred_params.do_dim_estimate = 0;
 ops.dred_params.randomize_trials = 1;
 ops.dred_params.method_list = {'svd','nmf','tca'}; %  ,'gpfa','fa', 'spca'
 ops.dred_params.num_comp = 1:2:20; %
@@ -101,7 +101,7 @@ ops.norm_after_method = 2;
 %f_mpl_plot_cond_details(data, ops);
 
 %% plot reliability of all cells
-%f_plot_cond_reliability(data, ops);
+f_plot_cond_reliability(data, ops);
 %% ---------------------------population analysis--------------------------
 if ops.population_analysis
     f_mpl_population_analysis(data, ops);

@@ -13,7 +13,9 @@ end
 
 %figure; imagesc(color_seq_temporal)
 
-image_Z = 1-squareform(pdist(trial_peaks(:,dend_order)', metric));
+tt_dist = pdist(trial_peaks(:,dend_order)', metric);
+
+image_Z = 1-squareform(tt_dist);
 subplot(sp); hold on;
 imagesc(image_Z);
 %axis image;
@@ -44,6 +46,7 @@ if num_clust > 1
     end
 end
 
+hclust_out.tt_dist = tt_dist;
 hclust_out.dend_order = dend_order;
 hclust_out.clust_ident = clust_ident;
 hclust_out.clim = clim1;
