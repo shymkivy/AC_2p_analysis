@@ -6,7 +6,7 @@ var_thresh_prc = .95; % circular shift thresh (95 or 99; from Detecting cell ass
 %num_comp = 100;
 %ensamble_method = 'tca'; % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
 %example_plot = 20;
-total_dim_thresh = .70;
+total_dim_thresh = .7;
 %%
 
 if ndims(firing_rate) == 3
@@ -49,18 +49,19 @@ for n_rep = 1:num_reps
     s_sing_val_sq = diag(s_S'*s_S);
     s_explained = s_sing_val_sq/sum(s_sing_val_sq)*100;
     
-    dim_total_shuff(n_rep) = sum(cumsum(d_explained)<(total_dim_thresh*100));
+    dim_total_shuff(n_rep) = sum(cumsum(s_explained)<(total_dim_thresh*100));
     
     %[~,~,~,~,s_explained,~] = pca(firing_rate_shuff');
     data_thresh(n_rep) = prctile(s_explained, var_thresh_prc*100); % ss_explained or s_explained
 end
+dimensionality_total_shuff = mean(dim_total_shuff);
 % eigenvalues below lower bound plus above upper should
 % theoretically equal total number of neurons in all ensembles
 dimensionality_corr = sum(sum(d_explained>data_thresh'))/num_reps;
 
 num_comps = max(ceil(dimensionality_total),1);
 data_dim_est.dimensionality_total = dimensionality_total;
-data_dim_est.dimensionality_total_shuff = mean(dim_total_shuff);
+data_dim_est.dimensionality_total_shuff = dimensionality_total_shuff;
 data_dim_est.dimensionality_corr = dimensionality_corr;
 data_dim_est.num_comps = num_comps;
 data_dim_est.d_explained = d_explained(1:num_comps);
