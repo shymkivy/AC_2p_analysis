@@ -13,12 +13,17 @@ for n_tt = 1:numel(tt_types)
         num_dsets = numel(chdata.hclust_out_tr);
         tt_dim = zeros(num_dsets,1);
         tt_dim_shuff = zeros(num_dsets,1);
+        no_data = false(num_dsets,1);
         for n_dset = 1:num_dsets
-            tt_dim(n_dset) = chdata.data_dim_est_full{n_dset}.dimensionality_total;
-            tt_dim_shuff(n_dset) = chdata.data_dim_est_full{n_dset}.dimensionality_total_shuff;
+            if ~isempty(chdata.hclust_out_tr{n_dset})
+                tt_dim(n_dset) = chdata.data_dim_est_full{n_dset}.dimensionality_total;
+                tt_dim_shuff(n_dset) = chdata.data_dim_est_full{n_dset}.dimensionality_total_shuff;
+            else
+                no_data(n_dset) = true;
+            end
         end
-        tt_dim_cond{n_cond} = tt_dim;
-        tt_dim_cond_shuff{n_cond} = tt_dim_shuff;
+        tt_dim_cond{n_cond} = tt_dim(~no_data);
+        tt_dim_cond_shuff{n_cond} = tt_dim_shuff(~no_data);
     end
     tt_types_data{n_tt,1} = tt_dim_cond;
     tt_types_data{n_tt,2} = tt_dim_cond_shuff;
@@ -50,10 +55,15 @@ for n_tt = 1:numel(tt_types)
         
         num_dsets = numel(chdata.hclust_out_tr);
         tt_dim = zeros(num_dsets,1);
+        no_data = false(num_dsets,1);
         for n_dset = 1:num_dsets
-            tt_dim(n_dset) = chdata.data_dim_est_full{n_dset}.dimensionality_corr;
+            if ~isempty(chdata.hclust_out_tr{n_dset})
+                tt_dim(n_dset) = chdata.data_dim_est_full{n_dset}.dimensionality_corr;
+            else
+                no_data(n_dset) = true;
+            end
         end
-        tt_dim_cond{n_cond} = tt_dim;
+        tt_dim_cond{n_cond} = tt_dim(~no_data);
     end
     tt_types_data{n_tt} = tt_dim_cond;
 end
@@ -80,13 +90,16 @@ for n_tt = 1:numel(tt_types)
         chdata = data.(tt_types{n_tt}).(cond_name);
         
         num_dsets = numel(chdata.hclust_out_tr);
-        tt_dim = zeros(num_dsets,1);
         tt_dim_shuff = zeros(num_dsets,1);
+        no_data = false(num_dsets,1);
         for n_dset = 1:num_dsets
-            tt_dim_shuff(n_dset) = chdata.data_dim_est_full{n_dset}.dimensionality_total_shuff;
+            if ~isempty(chdata.hclust_out_tr{n_dset})
+                tt_dim_shuff(n_dset) = chdata.data_dim_est_full{n_dset}.dimensionality_total_shuff;
+            else
+                no_data(n_dset) = true;
+            end
         end
-        tt_dim_cond{n_cond} = tt_dim;
-        tt_dim_cond_shuff{n_cond} = tt_dim_shuff;
+        tt_dim_cond_shuff{n_cond} = tt_dim_shuff(~no_data);
     end
     tt_types_data{n_tt,1} = tt_dim_cond_shuff;
 end

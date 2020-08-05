@@ -8,8 +8,8 @@ fig_h_cell = figure;
 sp_h_cell = cell(cdata.num_dsets,1);
 fig_ras = figure;
 sp_ras = cell(cdata.num_dsets,1);
-fig_ras2 = figure;
-sp_ras2 = cell(cdata.num_dsets,1);
+% fig_ras2 = figure;
+% sp_ras2 = cell(cdata.num_dsets,1);
 
 data_dim_est_full = cell(cdata.num_dsets,1);
 
@@ -66,16 +66,16 @@ for n_dset = 1:cdata.num_dsets
         %f_tsne(trial_peaks)
 
         %%
-        ops.dred_params.hclust.sort_raster = 1;
+        %ops.dred_params.hclust.sort_raster = 1;
         figure(fig_ras);
         sp_ras{n_dset} = subplot(3,5,n_dset);
         f_hclust_raster(trial_data_sort_sm_pr, trial_peaks_dred, trial_types_dred, sp_ras{n_dset}, dr_params, ops);
         
-        ops.dred_params.hclust.sort_raster = 0;
-        figure(fig_ras2);
-        sp_ras2{n_dset} = subplot(3,5,n_dset);
-        f_hclust_raster(trial_data_sort_sm_pr, trial_peaks_dred, trial_types_dred, sp_ras2{n_dset}, dr_params, ops);
-        
+%         ops.dred_params.hclust.sort_raster = 0;
+%         figure(fig_ras2);
+%         sp_ras2{n_dset} = subplot(3,5,n_dset);
+%         f_hclust_raster(trial_data_sort_sm_pr, trial_peaks_dred, trial_types_dred, sp_ras2{n_dset}, dr_params, ops);
+%         
         %% compute dimensionality of full dsets
         trial_peaks_dred_sort = trial_peaks_dred(:,hclust_out_tr{n_dset}.dend_order);
         trial_peaks_dred_sort = trial_peaks_dred_sort(hclust_out_cell{n_dset}.dend_order,:);
@@ -124,13 +124,9 @@ for n_dset = 1:cdata.num_dsets
             [~, dr_params.off_bin] = min(abs(ops.ensemb.offset_time-dr_params.trial_win_t));
             data_dim_est = f_ensemble_analysis_peaks(trial_peaks_dred_sort,trial_types_dred_sort, dr_params, ops);
         end
-        
-        
-        
+
     end
     
-    
-    1
 end
 figure(fig_h_tr);
 suptitle(sprintf('%s; %s trials clust=%d; trials:%s', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, trial_type_tag));
@@ -138,8 +134,8 @@ figure(fig_h_cell);
 suptitle(sprintf('%s; %s cells clust=%d; trials:%s', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, trial_type_tag));
 figure(fig_ras);
 suptitle(sprintf('%s; %s clust=%d; trials:%s sort', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, trial_type_tag));
-figure(fig_ras2);
-suptitle(sprintf('%s; %s clust=%d; trials:%s', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, trial_type_tag));
+% figure(fig_ras2);
+% suptitle(sprintf('%s; %s clust=%d; trials:%s', dr_params.cond_name, ops.dred_params.hclust.method, dr_params.num_clust, trial_type_tag));
 
 hdata_out.hclust_out_tr = hclust_out_tr;
 hdata_out.hclust_out_cell = hclust_out_cell;

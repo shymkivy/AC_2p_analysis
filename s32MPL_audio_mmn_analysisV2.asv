@@ -1,5 +1,5 @@
 %% run this after data is preprocessed with s31MPL
-%close all
+close all
 
 
 %% analysis params

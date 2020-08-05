@@ -10,13 +10,18 @@ for n_tt = 1:numel(tt_types)
         
         num_dsets = numel(chdata.hclust_out_tr);
         tt_dist = zeros(num_dsets,1);
+        no_data = false(num_dsets,1);
+        num_dsets = numel(chdata.hclust_out_tr);
         for n_dset = 1:num_dsets
-            tt_dist(n_dset) = nanmean(1-chdata.hclust_out_tr{n_dset}.tt_dist);
+            if ~isempty(chdata.hclust_out_tr{n_dset})
+                tt_dist(n_dset) = nanmean(1-chdata.hclust_out_tr{n_dset}.tt_dist);
+            else
+                no_data(n_dset) = true;
+            end
         end
-        tt_dist_cond{n_cond} = tt_dist;
+        tt_dist_cond{n_cond} = tt_dist(~no_data);
     end
     tt_types_data{n_tt} = tt_dist_cond;
-    
 end
 if sum(strcmpi(tt_types, 'dd1')) && sum(strcmpi(tt_types, 'dd2'))
     size1 = numel(tt_types_data)+1;
