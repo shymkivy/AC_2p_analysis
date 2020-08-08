@@ -11,7 +11,7 @@ plot_ens_details = 0;
 var_thresh_prc = ops.ensemb.pca_var_thresh; % circular shift thresh (95 or 99; from Detecting cell assemblies in large neuronal populations)
 ensamble_method = ops.ensemb.method; % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
 % so far NMF and ICA seems to work
-
+total_dim_thresh = .7;
 %%
 
 num_trials = numel(trial_types);
@@ -35,26 +35,47 @@ end
 %firing_rate_norm_3d = reshape(firing_rate_norm, num_cells, num_bins, num_trials);
 
 %% dim reduction with PCA to calulate components number
+[U,S,V] = svd(firing_rate_norm);
+sing_val_sq = diag(S'*S);
+d_explained = sing_val_sq/sum(sing_val_sq)*100;
+dimensionality_total = sum(cumsum(d_explained)<(total_dim_thresh*100));
 
-[d_coeff,d_score,~,~,d_explained,d_mu] = pca(firing_rate_norm');
+%[d_coeff,d_score,~,~,d_explained,d_mu] = pca(firing_rate_norm');
 
 
 %% shuff and PCA
 num_reps = 100;
 data_thresh = zeros(num_reps,1);
+dim_total_shuff = zeros(num_reps,1);
 for n_rep = 1:num_reps
     firing_rate_shuff = f_shuffle_data(firing_rate_norm, shuffle_method);
-    [~,~,~,~,s_explained,~] = pca(firing_rate_shuff');
+    %[~,~,~,~,s_explained,~] = pca(firing_rate_shuff');
+    
+    [s_U,s_S,s_V] = svd(firing_rate_shuff);
+    s_sing_val_sq = diag(s_S'*s_S);
+    s_explained = s_sing_val_sq/sum(s_sing_val_sq)*100;
+    
+    dim_total_shuff(n_rep) = sum(cumsum(s_explained)<(total_dim_thresh*100));
+    
+    %[~,~,~,~,s_explained,~] = pca(firing_rate_shuff');
+    
     data_thresh(n_rep) = prctile(s_explained, var_thresh_prc*100); % ss_explained or s_explained
 end
-
+dimensionality_total_shuff = mean(dim_total_shuff);
 % eigenvalues below lower bound plus above upper should
 % theoretically equal total number of neurons in all ensembles
 
-dimensionality = sum(sum(d_explained>data_thresh'))/num_reps;
-num_comps = max(ceil(dimensionality),1);
+dimensionality_corr = sum(sum(d_explained>data_thresh'))/num_reps;
 
-data_dim_est.dimensionality = dimensionality;
+num_comps = max(ceil(dimensionality_corr),1);
+if ~normalize_firing_rates
+    num_comps = num_comps + 1;
+end
+
+data_dim_est.dimensionality_total = dimensionality_total;
+data_dim_est.dimensionality_total_shuff = dimensionality_total_shuff;
+data_dim_est.dimensionality_corr = dimensionality_corr;
+
 data_dim_est.num_comps = num_comps;
 data_dim_est.d_explained = d_explained(num_comps);
 data_dim_est.var_thresh_prc = var_thresh_prc;
@@ -76,15 +97,69 @@ SI_firing_rate_LR = similarity_index(firing_rate_LR, firing_rate_LR);
 
 %% real data 
 
-ensamble_method = 'svd';
+ensamble_method = 'ica';
 
 num_ens_comps = num_comps;
 if strcmpi(ensamble_method, 'nmf')
     num_ens_comps = round(num_comps*1.5);
 end
 
-[dred_factors1, ~] = f_dred_train2(firing_rate_LR, num_ens_comps, num_trials, ensamble_method);
+[dred_factors1, ~] = f_dred_train2(firing_rate_norm, num_ens_comps, num_trials, ensamble_method);
 [coeffs, scores] = f_dred_get_coeffs(dred_factors1);
+%%
+
+figure; imagesc(firing_rate_norm)
+
+
+for n_pc = 1:4
+    figure;
+    imagesc(coeffs(:,n_pc)*scores(n_pc,:))
+    title(sprintf('n pc = %d', n_pc))
+end
+
+
+figure; plot3(coeffs(:,1),coeffs(:,2),coeffs(:,3),'o')
+figure; plot3(scores(1,:),scores(2,:),scores(3,:),'o')
+
+[dend_order, clust_ident] = f_hcluster(firing_rate_norm, 'cosine', 1)
+
+
+figure; imagesc(firing_rate_norm)
+figure; imagesc(firing_rate_shuff)
+
+n_pc = 1:4;
+figure;
+im1 = U(:,n_pc)*S(n_pc,n_pc)*V(:,n_pc)';
+imagesc(im1)
+
+
+figure;
+im1 = s_U(:,n_pc)*s_S(n_pc,n_pc)*s_V(:,n_pc)';
+imagesc(im1)
+
+
+figure; plot(U(:,n_pc))
+title('U, trials')
+figure; plot(V(:,n_pc)')
+title('V, cells')
+
+figure; plot3(U(:,2), U(:,3), U(:,4), 'o')
+figure; plot3(V(:,1), V(:,2), V(:,3), 'o')
+
+im1 = U(:,1)*S(1,1)*V(:,1)';
+im2 = U(:,2)*S(2,2)*V(:,2)';
+im3 = U(:,3)*S(3,3)*V(:,3)';
+figure; plot3(im1(:), im2(:), im3(:), 'o')
+
+figure; imagesc(U(:,2)*U(:,2)')
+U2 = U(:,2)*U(:,2)';
+U3 = U(:,3)*U(:,3)';
+figure; plot(U2(:), U3(:), 'o');
+
+figure; imagesc(firing_rate_norm*firing_rate_norm')
+figure; imagesc(firing_rate_norm'*firing_rate_norm)
+
+
 
 %% Visualize traces
 tn_to_dred = params.tn_to_dred;

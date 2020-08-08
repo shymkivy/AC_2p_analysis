@@ -79,12 +79,25 @@ for n_dset = 1:cdata.num_dsets
         %% compute dimensionality of full dsets
         trial_peaks_dred_sort = trial_peaks_dred(:,hclust_out_tr{n_dset}.dend_order);
         trial_peaks_dred_sort = trial_peaks_dred_sort(hclust_out_cell{n_dset}.dend_order,:);
+        trial_types_dred_sort = trial_types_dred(hclust_out_tr{n_dset}.dend_order);
         
         data_dim_est_full{n_dset} = f_ensemble_comp_data_dim2(trial_peaks_dred_sort, 0);
+        %% extract ensembles? 
+        if ops.dred_params.do_ensamble_analysis
+            dr_params.trial_win_t = cdata.trial_window_t{n_dset};
+            [~, dr_params.on_bin] = min(abs(ops.ensemb.onset_time-dr_params.trial_win_t));
+            [~, dr_params.off_bin] = min(abs(ops.ensemb.offset_time-dr_params.trial_win_t));
+            [~] = f_ensemble_analysis_peaks(trial_peaks_dred_sort,trial_types_dred_sort, dr_params, ops);
+        end
+
+        %% distance metric
+        num_tt = numel(tn_to_dred);
+        if num_tt == 2
+            tt_index1 = trial_types_dred_sort == tn_to_dred(1);
+            f_ensemble_analysis_peaks(trial_peaks_dred_sort(:,tt_index1), trial_types_dred_sort(tt_index1), dr_params, ops);
+        end
         
         %% compute data dimensionality for cell range
-        
-        
         if ops.dred_params.do_dim_estimate
             dim_est_st = dr_params.dim_est_st;
             dd_idx = numel([dim_est_st.n_dset])+1;
@@ -118,12 +131,7 @@ for n_dset = 1:cdata.num_dsets
         end
         
         %%
-        if ops.dred_params.do_ensamble_analysis
-            dr_params.trial_win_t = cdata.trial_window_t{n_dset};
-            [~, dr_params.on_bin] = min(abs(ops.ensemb.onset_time-dr_params.trial_win_t));
-            [~, dr_params.off_bin] = min(abs(ops.ensemb.offset_time-dr_params.trial_win_t));
-            data_dim_est = f_ensemble_analysis_peaks(trial_peaks_dred_sort,trial_types_dred_sort, dr_params, ops);
-        end
+        
 
     end
     

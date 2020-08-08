@@ -16,7 +16,11 @@ end
 tt_dist = pdist(trial_peaks(:,dend_order)', metric);
 
 image_Z = 1-squareform(tt_dist);
-subplot(sp); hold on;
+if ~isempty(sp)
+    subplot(sp); hold on;
+else
+    figure; hold on;
+end
 imagesc(image_Z);
 %axis image;
 title(sprintf('d%d, %d cells', params.n_dset,num_cells));
