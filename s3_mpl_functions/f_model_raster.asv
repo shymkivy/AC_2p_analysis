@@ -87,7 +87,7 @@ title('model raster sort sort');
 
 reliab_thresh = 0.8;
 ens_size = [10 10 10];
-cell_overlap_fraction = 0;
+cell_overlap_fraction = 0.2;
 
 ens_list = cell(numel(ens_size),1);
 cell_list = find(cell_reliability<=reliab_thresh);
@@ -109,7 +109,7 @@ end
 %% add to raster
 raster_ens = raster;
 
-num_corr_trials = [5 5 5];
+num_corr_trials = [8 8 8];
 available_trials = active_trials;
 ens_trials = cell(numel(ens_size),1);
 for n_ens = 1:numel(ens_size)
@@ -121,7 +121,11 @@ for n_ens = 1:numel(ens_size)
             tr1 = chosen_trials(n_tr);
             if ~raster_ens(n_cell,tr1)
                 if numel(available_trials{n_cell}) > 0
-                    chosen_tr = randsample(available_trials{n_cell}, 1);
+                    if numel(available_trials{n_cell})>1
+                        chosen_tr = randsample(available_trials{n_cell}, 1);
+                    else
+                        chosen_tr = available_trials{n_cell};
+                    end
                     raster_ens(n_cell,tr1) = raster_ens(n_cell,chosen_tr);
                     raster_ens(n_cell,chosen_tr) = 0;
                     available_trials{n_cell}(available_trials{n_cell} == chosen_tr) = [];
@@ -150,17 +154,29 @@ imagesc(raster_ens_sort_ctr);
 title('model raster ens sort sort');
 
 ens_vals = cell(numel(ens_list),1);
-for n_ens = 1:numel(ens_list)
-    ens_vals{n_ens} = cell(ens_size(n_ens),1);
-    for n_cell_ind = 1:ens_size(n_ens)
-        ens_vals{n_ens}{n_cell_ind} = raster_ens(ens_list{n_ens}(n_cell_ind),ens_trials{n_ens});
+for n_ens1 = 1:numel(ens_list)
+    ens_vals{n_ens1} = cell(ens_size(n_ens1),1);
+    for n_cell_ind1 = 1:ens_size(n_ens1)
+        ens_vals{n_ens1}{n_cell_ind1} = raster_ens(ens_list{n_ens1}(n_cell_ind1),ens_trials{n_ens1});
     end
 end
 
+ens_list_sort = cell(numel(ens_size),1);
+ens_trials_sort = cell(numel(ens_size),1);
 for n_ens = 1:numel(ens_list)
     fprintf('ensemble %d cells', n_ens);
-    find(sum(dend_order_cell2 == ens_list{n_ens}))
+    ens_list_sort{n_ens} = find(sum(dend_order_cell2 == ens_list{n_ens}));
+    ens_list_sort{n_ens}
     fprintf('ensemble %d trials', n_ens);
-    find(sum(dend_order_tr2 == ens_trials{n_ens},1))
+    ens_trials_sort{n_ens} = find(sum(dend_order_tr2 == ens_trials{n_ens},1));
+    ens_trials_sort{n_ens}
+end
+
+
+%%
+params.cond_name = 'shuff';
+params.n_dset = 99;
+
+f_ensemble_analysis_peaks2(raster_ens_sort_ctr, 170*ones*num_events, params, ops);
 end
 

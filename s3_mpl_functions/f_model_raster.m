@@ -161,10 +161,22 @@ for n_ens1 = 1:numel(ens_list)
     end
 end
 
+ens_list_sort = cell(numel(ens_size),1);
+ens_trials_sort = cell(numel(ens_size),1);
 for n_ens = 1:numel(ens_list)
     fprintf('ensemble %d cells', n_ens);
-    find(sum(dend_order_cell2 == ens_list{n_ens}))
+    ens_list_sort{n_ens} = find(sum(dend_order_cell2 == ens_list{n_ens}));
+    ens_list_sort{n_ens}
     fprintf('ensemble %d trials', n_ens);
-    find(sum(dend_order_tr2 == ens_trials{n_ens},1))
+    ens_trials_sort{n_ens} = find(sum(dend_order_tr2 == ens_trials{n_ens},1));
+    ens_trials_sort{n_ens}
+end
+
+
+%%
+params.cond_name = 'shuff';
+params.n_dset = 99;
+params.normalize = 0;
+f_ensemble_analysis_peaks2(raster_ens_sort_ctr, 170*ones*num_events, params, ops);
 end
 
