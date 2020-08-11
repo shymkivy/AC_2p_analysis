@@ -1,9 +1,16 @@
-function data_dim_est = f_ensemble_analysis_peaks2(trial_data,trial_types, params, ops)
-% parameters
-cond_name = params.cond_name;
-n_dset = params.n_dset;
+function data_dim_est = f_ensemble_analysis_peaks2(trial_data, params, ops)
+% input either 3D tials data (Cell x Time X Trial)
+%           or 2D trial data (Cell x Trial)
 
-normalize = params.normalize;
+%% parameters
+
+cond_name = f_get_param(params, 'cond_name');
+n_dset = f_get_param(params, 'n_dset');
+ens_list = f_get_param(params, 'mark_cell_types');
+trial_list = f_get_param(params, 'mark_trial_types');
+num_comps = f_get_param(params, 'num_comp');
+normalize = f_get_param(params, 'normalize');
+
 shuffle_method = 'scramble'; % 'circ_shift' or 'scramble'
 plot_stuff = 0;
 plot_stuff_extra = 0;
@@ -12,14 +19,17 @@ var_thresh_prc = ops.ensemb.pca_var_thresh; % circular shift thresh (95 or 99; f
 ensamble_method = ops.ensemb.method; % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
 % so far NMF and ICA seems to work
 
+total_dim_thresh = .7;
 %%
+ndims1 = ndims(trial_data);
 
-num_trials = numel(trial_types);
-if ndims(trial_data) == 3
-    [num_cells, ~, num_trials] = size(trial_data);
+if ndims1 == 3
+    [num_cells, num_bins, num_trials] = size(trial_data);
     trial_data = reshape(trial_data, num_cells,[]);
+elseif ndims1 == 2
+    [~, num_trials] = size(trial_data);
+    num_bins = 1;
 end  
-num_bins = size(trial_data,2)/num_trials;
 
 active_cells = sum(trial_data,2) > 0;
 trial_data(~active_cells,:) = [];
@@ -31,42 +41,89 @@ if normalize
 else
     firing_rate_norm = trial_data;
 end
-[num_cells, ~] = size(firing_rate_norm);
+
+num_cells = size(firing_rate_norm,1);
+
 %firing_rate_norm_3d = reshape(firing_rate_norm, num_cells, num_bins, num_trials);
 
 %% dim reduction with PCA to calulate components number
 
-[d_coeff,d_score,~,~,d_explained,d_mu] = pca(firing_rate_norm');
+[U,S,V] = svd(firing_rate_norm);
+sing_val_sq = diag(S'*S);
+d_explained = sing_val_sq/sum(sing_val_sq)*100;
+%figure; plot(d_explained)
+dimensionality_total = sum(cumsum(d_explained)<(total_dim_thresh*100));
 
-
-%% shuff and PCA
-num_reps = 100;
-data_thresh = zeros(num_reps,1);
-for n_rep = 1:num_reps
-    firing_rate_shuff = f_shuffle_data(firing_rate_norm, shuffle_method);
-    [~,~,~,~,s_explained,~] = pca(firing_rate_shuff');
-    data_thresh(n_rep) = prctile(s_explained, var_thresh_prc*100); % ss_explained or s_explained
+%% plotting
+for n_pc = 1:3
+    im1 = (U(:,n_pc)*S(n_pc,n_pc)*V(:,n_pc)');
+    figure;
+    imagesc(im1);
+    title(sprintf('comp %d', n_pc));
+    f_plot_cell_indicator(im1, ens_list, ops);
+    f_plot_trial_indicator2(im1, trial_list, 1, ops);
 end
 
+pl3_pc = 1:3;
+%figure; plot3(U(:,1),U(:,2),U(:,3), 'o')
+f_plot_comp_scatter(U(:,pl3_pc), ens_list, ops);
+xlabel('pc 1');
+ylabel('pc 2');
+zlabel('pc 3');
+title('U - cells');
+
+
+%figure; plot3(V(:,1),V(:,2),V(:,3), 'o')
+f_plot_comp_scatter(V(:,pl3_pc), trial_list, ops);
+xlabel('pc 1');
+ylabel('pc 2');
+zlabel('pc 3');
+title('V - trials')
+
+%% shuff and PCA
+
+num_reps = 20;
+data_thresh = zeros(num_reps,1);
+dim_total_shuff = zeros(num_reps,1);
+for n_rep = 1:num_reps
+    firing_rate_shuff = f_shuffle_data(firing_rate_norm, shuffle_method);
+    [~,s_S,~] = svd(firing_rate_shuff);
+    s_sing_val_sq = diag(s_S'*s_S);
+    s_explained = s_sing_val_sq/sum(s_sing_val_sq)*100;
+    
+    dim_total_shuff(n_rep) = sum(cumsum(s_explained)<(total_dim_thresh*100));
+    
+    %[~,~,~,~,s_explained,~] = pca(firing_rate_shuff');
+    data_thresh(n_rep) = prctile(s_explained, var_thresh_prc*100); % ss_explained or s_explained
+end
+dimensionality_total_shuff = mean(dim_total_shuff);
 % eigenvalues below lower bound plus above upper should
 % theoretically equal total number of neurons in all ensembles
+dimensionality_corr = sum(sum(d_explained>data_thresh'))/num_reps;
 
-dimensionality = sum(sum(d_explained>data_thresh'))/num_reps;
-num_comps = max(ceil(dimensionality),1);
-
-data_dim_est.dimensionality = dimensionality;
+if isempty(num_comps)
+    num_comps = max(ceil(dimensionality_corr),1);
+end
+data_dim_est.dimensionality_total = dimensionality_total;
+data_dim_est.dimensionality_total_shuff = dimensionality_total_shuff;
+data_dim_est.dimensionality_corr = dimensionality_corr;
 data_dim_est.num_comps = num_comps;
-data_dim_est.d_explained = d_explained(num_comps);
+data_dim_est.d_explained = d_explained(1:num_comps);
 data_dim_est.var_thresh_prc = var_thresh_prc;
 data_dim_est.num_cells = num_cells;
 data_dim_est.num_trials = num_trials;
 
 %%
+
 SI_firing_rate = similarity_index(firing_rate_norm, firing_rate_norm);
 SI_firing_rate_shuff = similarity_index(firing_rate_shuff, firing_rate_shuff);
 
-firing_rate_LR = d_coeff(:,1:num_comps)*d_score(:,1:num_comps)' + d_mu';
+firing_rate_LR = U(:,1:num_comps)*S(1:num_comps,1:num_comps)*V(:,1:num_comps)';
 SI_firing_rate_LR = similarity_index(firing_rate_LR, firing_rate_LR);
+
+%%
+clust_est = f_hclust_estimate_num_clust(firing_rate_LR);
+
 
 %%
 %use_projection_mat = 1;
@@ -76,113 +133,77 @@ SI_firing_rate_LR = similarity_index(firing_rate_LR, firing_rate_LR);
 
 %% real data 
 
-ensamble_method = 'svd';
+ensamble_method = 'ica';
 
-num_ens_comps = num_comps;
+num_LR_comps = num_comps;
 if strcmpi(ensamble_method, 'nmf')
-    num_ens_comps = round(num_comps*1.5);
+    num_LR_comps = round(num_comps*1.5);
 end
 
-[dred_factors1, ~] = f_dred_train2(firing_rate_LR, num_ens_comps, num_trials, ensamble_method);
+[dred_factors1, ~] = f_dred_train2(firing_rate_LR, num_LR_comps, num_trials, ensamble_method);
 [coeffs, scores] = f_dred_get_coeffs(dred_factors1);
 
 %% Visualize traces
-tn_to_dred = params.tn_to_dred;
-tt_to_dred = params.tt_to_dred;
+%tn_to_dred = params.tn_to_dred;
+%tt_to_dred = params.tt_to_dred;
 
+trial_types = trial_list;
+tt_to_dred = unique (trial_types);
+
+%% can either use the low rank trace or the scores (trial comps * singular vals)
+%X = firing_rate_LR'
 X = scores';
 
-num_plots = ceil(num_comps/3);
+num_plots = ceil(num_LR_comps/3);
 for n_plt = 1:num_plots
-    figure; hold on;
-    lg1 = cell(numel(tt_to_dred),1);
-    dims1 = rem([1 2 3]+(n_plt-1)*3-1, num_comps)+1;
-    for n_tt = 1:numel(tt_to_dred)
-        plot3(X(trial_types == tt_to_dred(n_tt),dims1(1)), X(trial_types == tt_to_dred(n_tt),dims1(2)),X(trial_types == tt_to_dred(n_tt),dims1(3)), 'Color', ops.colors_list{n_tt},'Marker', 'o', 'LineStyle', 'none'); 
-        axis tight;
-        lg1{n_tt} = ops.context_types_labels{ops.context_types_all==tt_to_dred(n_tt)};
-    end
+    dims1 = rem([1 2 3]+(n_plt-1)*3-1, num_LR_comps)+1;
+    f_plot_comp_scatter(X(:,dims1), trial_types, ops);
     xlabel(sprintf('pc %d', dims1(1)));
     ylabel(sprintf('pc %d', dims1(2)));
     zlabel(sprintf('pc %d', dims1(3)));
-    title(sprintf('%s, dset%d, trial types pcs scores(trials)',params.cond_name, params.n_dset));
-    legend(lg1)
-    % %quiver3 for gradient plotting
+    title(sprintf('%s, dset%d, trial type pcs scores(trials)',params.cond_name, params.n_dset));
 end
 
+%% cluster with hclust
+params2.method = 'cosine'; % cosine, ward
+params2.metric = 'cosine'; % cosine squaredeuclidean
+params2.plot_sm = 1;
+params2.num_clust = num_comps+1;
+hclust_out = f_hcluster_trial3(firing_rate_LR', params2);
+f_plot_comp_scatter(X(:,1:3), hclust_out.clust_ident, ops);
+title('Identified ensambles hclust');
+%gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
+eval_hclust = f_evaluate_ens_result(hclust_out.clust_ident, trial_list);
+suptitle(sprintf('hclust sorting, mean acc = %.2f', mean(eval_hclust.accuracy)));
 
-params2.method = 'ward'; % cosine, ward
-params2.metric = 'euclidean'; % cosine squaredeuclidean
-params2.plot_sm = 0;
-hclust_out = f_hcluster_trial3(X, params2);
-figure;
-gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
-
-
-params3.metric = 'sqEuclidean'; % cosine squaredeuclidean
-params3.RegularizationValue = 0.01;
-gmmclust_out = f_gmmcluster_trial(X, params3);
-figure;
-gscatter(X(:,1),X(:,2),gmmclust_out.clust_ident);
-
-
-num_plots = ceil(num_comps/3);
-for n_plt = 1:num_plots
-    figure; hold on;
-    dims1 = rem([1 2 3]+(n_plt-1)*3-1, num_comps)+1;
-    for n_tt = 1:numel(tt_to_dred)
-        plot3(coeffs(:,dims1(1)), coeffs(:,dims1(2)),coeffs(:,dims1(3)), 'Color', ops.colors_list{n_tt},'Marker', 'o', 'LineStyle', 'none'); 
-        axis tight;
+%% clust with gmm, can find best regularizer
+if 0
+    num_reps = 50;
+    mean_acc = zeros(num_reps,1);
+    %rg_list = logspace(-1, -2, num_reps);
+    rg_list = 0.01;
+    for n_rg = 1:numel(rg_list)
+        params3.metric = 'cosine'; % cosine squaredeuclidean
+        params3.RegularizationValue = rg_list(n_rg);
+        params3.num_clust = num_comps+1;
+        gmmclust_out = f_gmmcluster_trial(X, params3);
+        f_plot_comp_scatter(X(:,1:3), gmmclust_out.clust_ident, ops);
+        title('Identified ensambles gmm');
+        %gscatter(X(:,1),X(:,2),gmmclust_out.clust_ident);
+        eval_gmm = f_evaluate_ens_result(gmmclust_out.clust_ident, trial_list);
+        mean_acc(n_rg) = mean(eval_gmm.accuracy);
+        suptitle(sprintf('gmm sorting, mean acc = %.2f, rg = %.2f', mean(eval_gmm.accuracy),rg_list(n_rg)));
     end
-    xlabel(sprintf('pc %d', dims1(1)));
-    ylabel(sprintf('pc %d', dims1(2)));
-    zlabel(sprintf('pc %d', dims1(3)));
-    title(sprintf('%s, dset%d, cell types pcs coeffs(cells)',params.cond_name, params.n_dset));
-    % %quiver3 for gradient plotting
-end
-
-
-
-% figure; imagesc(firing_rate_norm)
-% for n_comp = 1:num_comps
-%     figure;
-%     plot(coeffs(:,n_comp));
-%     xlabel('cells')
-%     title(sprintf('Coeff %d', n_comp));
-%     figure;
-%     plot(scores(n_comp,:));
-%     title(sprintf('Score %d', n_comp));
-%     xlabel('trials')
-% end
-
-
-num_rep = 10000;
-figure; hold on;
-for n_tt = 1:numel(tt_to_dred)
-    tt_list = find(trial_types == tt_to_dred(n_tt));
-    dist1 = zeros((numel(tt_list)-1),1);
-    for n_rep = 1:(numel(tt_list)-1)
-        dist1(n_rep) = (scores(:,tt_list(n_rep))/norm(scores(:,tt_list(n_rep))))'*(scores(:,tt_list(n_rep+1))/norm(scores(:,tt_list(n_rep+1))));
+    if numel(rg_list)>1
+        figure;
+        plot(rg_list, mean_acc);
+        title('accurace vs lambda');
     end
-    [f, x] = ecdf(dist1);
-    plot(x, f, 'color', ops.colors_list{n_tt}, 'lineWidth', 2);
 end
-for n_tt = 1:numel(tt_to_dred)
-    dist1 = zeros(num_rep,3);
-    tt_list = find(trial_types == tt_to_dred(n_tt));
-    for n_rep = 1:num_rep
-        samp_tr = randsample(tt_list,2);
-        dist1(n_rep,n_tt) = (scores(:,samp_tr(1))/norm(scores(:,samp_tr(1))))'*(scores(:,samp_tr(2))/norm(scores(:,samp_tr(2))));
-    end
-    [f, x] = ecdf(dist1(:,n_tt));
-    plot(x, f, 'color', ops.colors_list{n_tt}, 'LineStyle', '--', 'lineWidth', 2);
-end
-title(sprintf('%s, dset%d, Onset population trajectory structure ECDF',params.cond_name, params.n_dset));
-legend('cont', 'red', 'dev', 'rand', 'Location', 'northwest');
-xlabel('cosine similarity betweeen trials');
-ylabel('Fraction');
+%% measure similarity between sequential trials vs shuffled order
+%f_measure_temp_similarity(scores, trial_types, tt_to_dred);
 
-
+%%
 if strcmpi(ensamble_method, 'tca')
     tn_seq = sum((trial_types == tt_to_dred').*tn_to_dred,2);
     [~, tt_idx] = sort(tn_seq, 'ascend');
@@ -224,7 +245,7 @@ if strcmpi(ensamble_method, 'tca')
     %title([cond_name ' dset' num2str(n_dset) ' TCA lambda']);
 end
 
-
+disp('Rafa I love your mustache')
 %% use shuffle data to get thresholds for ensemble acception
 
 

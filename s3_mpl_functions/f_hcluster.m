@@ -10,7 +10,7 @@ dend_thresh = 50;
 if strcmpi(method, 'ward')
     Z = linkage(data,'ward');
 elseif strcmpi(method, 'cosine')
-    Z = linkage(pdist(data,'cosine'),'average');
+    Z = linkage(pdist(data,'cosine'),'average'); % weighted
 end
 
 f1 = figure;

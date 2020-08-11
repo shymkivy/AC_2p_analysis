@@ -68,8 +68,8 @@ for n_cell = 1:num_cells
     raster(n_cell,chosen_events) = randsample(peak_mag_list, num_events);
     active_trials{n_cell} = chosen_events;
 end
-
-figure;
+f1 = figure;
+subplot(2,2,1);
 imagesc(raster)
 title('model raster');
 
@@ -79,44 +79,47 @@ title('model raster');
 
 raster_sort_cell = raster(dend_order_cell,:);
 raster_sort_ctr = raster_sort_cell(:,dend_order_tr);
-figure;
+
+figure(f1);
+subplot(2,2,2);
 imagesc(raster_sort_ctr);
 title('model raster sort sort');
 
-%% compute ensemble cells 
-
+%% ensemble params
 reliab_thresh = 0.8;
-ens_size = [10 10 10];
-cell_overlap_fraction = 0.2;
+ens_size = [8 8 8];
+cell_overlap_fraction = 0;
+num_corr_trials = [8 8 8];
 
-ens_list = cell(numel(ens_size),1);
+%% compute ensemble cells 
+ens_list_cell = cell(numel(ens_size),1);
 cell_list = find(cell_reliability<=reliab_thresh);
 for n_ens = 1:(numel(ens_size)-1)
     num_corr_cells = round(ens_size(n_ens)*cell_overlap_fraction);
     for n_ens2 = (n_ens+1):(numel(ens_size))
         chosen_cells = randsample(cell_list, num_corr_cells);
-        ens_list{n_ens} = cat(1, ens_list{n_ens}, chosen_cells);
-        ens_list{n_ens2} = cat(1, ens_list{n_ens2}, chosen_cells);
+        ens_list_cell{n_ens} = cat(1, ens_list_cell{n_ens}, chosen_cells);
+        ens_list_cell{n_ens2} = cat(1, ens_list_cell{n_ens2}, chosen_cells);
         cell_list(logical(sum(cell_list==chosen_cells',2))) = [];
     end
 end
 for n_ens = 1:numel(ens_size)
-    chosen_cells = randsample(cell_list,ens_size(n_ens) - numel(ens_list{n_ens}));
-    ens_list{n_ens} = cat(1, ens_list{n_ens}, chosen_cells);
+    chosen_cells = randsample(cell_list,ens_size(n_ens) - numel(ens_list_cell{n_ens}));
+    ens_list_cell{n_ens} = cat(1, ens_list_cell{n_ens}, chosen_cells);
     cell_list(logical(sum(cell_list==chosen_cells',2))) = [];
 end
 
 %% add to raster
 raster_ens = raster;
 
-num_corr_trials = [8 8 8];
+
 available_trials = active_trials;
-ens_trials = cell(numel(ens_size),1);
+ens_trials_cell = cell(numel(ens_size),1);
 for n_ens = 1:numel(ens_size)
     chosen_trials = randsample(num_trials, num_corr_trials(n_ens));
-    ens_trials{n_ens} = chosen_trials;
+    ens_trials_cell{n_ens} = chosen_trials;
     for n_cell_ind = 1:ens_size(n_ens)
-        n_cell = ens_list{n_ens}(n_cell_ind);
+        n_cell = ens_list_cell{n_ens}(n_cell_ind);
         for n_tr = 1:numel(chosen_trials)
             tr1 = chosen_trials(n_tr);
             if ~raster_ens(n_cell,tr1)
@@ -140,43 +143,78 @@ for n_ens = 1:numel(ens_size)
 end
 
 %% analysis
-figure;
+ens_trials1 = zeros(num_trials,1);
+for n_tr = 1:numel(ens_trials_cell)
+    ens_trials1(ens_trials_cell{n_tr}) = n_tr;
+end
+ens_cells1 = zeros(num_cells,1);
+for n_cell = 1:numel(ens_list_cell)
+    ens_cells1(ens_list_cell{n_cell}) = n_cell;
+end
+
+
+figure(f1);
+subplot(2,2,3);
 imagesc(raster_ens)
 title('model raster ens');
+f_plot_cell_indicator(raster_ens, ens_cells1, ops);
+f_plot_trial_indicator2(raster, ens_trials1, 1, ops);
 
-[dend_order_cell2, ~] = f_hcluster(raster_ens, 'cosine', 1);
-[dend_order_tr2, ~] = f_hcluster(raster_ens', 'cosine', 1);
+
+norm1 = 1;
+if norm1
+    raster_clust = raster_ens-mean(raster_ens,2);
+else
+    raster_clust = raster_ens;
+end
+[dend_order_cell2, ~] = f_hcluster(raster_clust, 'cosine', 1);
+[dend_order_tr2, ~] = f_hcluster(raster_clust', 'cosine', 1);
 
 raster_ens_sort_cell = raster_ens(dend_order_cell2,:);
 raster_ens_sort_ctr = raster_ens_sort_cell(:,dend_order_tr2);
-figure;
-imagesc(raster_ens_sort_ctr);
-title('model raster ens sort sort');
 
-ens_vals = cell(numel(ens_list),1);
-for n_ens1 = 1:numel(ens_list)
+ens_vals = cell(numel(ens_list_cell),1);
+for n_ens1 = 1:numel(ens_list_cell)
     ens_vals{n_ens1} = cell(ens_size(n_ens1),1);
     for n_cell_ind1 = 1:ens_size(n_ens1)
-        ens_vals{n_ens1}{n_cell_ind1} = raster_ens(ens_list{n_ens1}(n_cell_ind1),ens_trials{n_ens1});
+        ens_vals{n_ens1}{n_cell_ind1} = raster_ens(ens_list_cell{n_ens1}(n_cell_ind1),ens_trials_cell{n_ens1});
     end
 end
 
-ens_list_sort = cell(numel(ens_size),1);
-ens_trials_sort = cell(numel(ens_size),1);
-for n_ens = 1:numel(ens_list)
+ens_cells_sort1 = ens_cells1(dend_order_cell2);
+ens_trials_sort1 = ens_trials1(dend_order_tr2);
+
+ens_list_sort_cell = cell(numel(ens_size),1);
+ens_trials_sort_cell = cell(numel(ens_size),1);
+for n_ens = 1:numel(ens_list_cell)
     fprintf('ensemble %d cells', n_ens);
-    ens_list_sort{n_ens} = find(sum(dend_order_cell2 == ens_list{n_ens}));
-    ens_list_sort{n_ens}
+    ens_list_sort_cell{n_ens} = find(ens_cells_sort1 == n_ens);
+    %ens_list_sort{n_ens}
     fprintf('ensemble %d trials', n_ens);
-    ens_trials_sort{n_ens} = find(sum(dend_order_tr2 == ens_trials{n_ens},1));
-    ens_trials_sort{n_ens}
+    ens_trials_sort_cell{n_ens} = find(ens_trials_sort1 == n_ens);
+    %ens_trials_sort{n_ens}
 end
 
 
-%%
-params.cond_name = 'shuff';
-params.n_dset = 99;
+figure(f1);
+subplot(2,2,4);
+imagesc(raster_ens_sort_ctr);
+title('model raster ens sort sort');
+f_plot_cell_indicator(raster_ens, ens_cells_sort1, ops);
+f_plot_trial_indicator2(raster, ens_trials_sort1, 1, ops);
 
-f_ensemble_analysis_peaks2(raster_ens_sort_ctr, 170*ones*num_events, params, ops);
+%%
+
+
+
+params.cond_name = 'fake data';
+params.n_dset = 99;
+params.normalize = 1;
+params.mark_trial_types = ens_trials_sort1;
+params.mark_cell_types = ens_cells_sort1;
+params.num_comp = 4;
+
+f_ensemble_analysis_peaks2(raster_ens_sort_ctr, params, ops);
+
 end
 

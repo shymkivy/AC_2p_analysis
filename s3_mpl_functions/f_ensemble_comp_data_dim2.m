@@ -69,6 +69,8 @@ data_dim_est.var_thresh_prc = var_thresh_prc;
 data_dim_est.num_cells = num_cells;
 data_dim_est.num_trials = num_trials;
 
+
+
 %%
 if plot_stuff
     SI_firing_rate = similarity_index(firing_rate_norm, firing_rate_norm);
