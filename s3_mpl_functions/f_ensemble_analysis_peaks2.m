@@ -8,10 +8,11 @@ cond_name = f_get_param(params, 'cond_name');
 n_dset = f_get_param(params, 'n_dset');
 ens_list = f_get_param(params, 'mark_cell_types');
 trial_list = f_get_param(params, 'mark_trial_types');
-num_comps = f_get_param(params, 'num_comp');
+num_comps = f_get_param(params, 'num_comps');
 normalize = f_get_param(params, 'normalize');
 
 shuffle_method = 'scramble'; % 'circ_shift' or 'scramble'
+cluster_method = 'hclust'; % 'hclust' or 'gmm'
 plot_stuff = 0;
 plot_stuff_extra = 0;
 plot_ens_details = 0;
@@ -55,31 +56,32 @@ d_explained = sing_val_sq/sum(sing_val_sq)*100;
 dimensionality_total = sum(cumsum(d_explained)<(total_dim_thresh*100));
 
 %% plotting
-for n_pc = 1:3
-    im1 = (U(:,n_pc)*S(n_pc,n_pc)*V(:,n_pc)');
-    figure;
-    imagesc(im1);
-    title(sprintf('comp %d', n_pc));
-    f_plot_cell_indicator(im1, ens_list, ops);
-    f_plot_trial_indicator2(im1, trial_list, 1, ops);
+if plot_stuff
+    for n_pc = 1:3
+        im1 = (U(:,n_pc)*S(n_pc,n_pc)*V(:,n_pc)');
+        figure;
+        imagesc(im1);
+        title(sprintf('comp %d', n_pc));
+        f_plot_cell_indicator(im1, ens_list, ops);
+        f_plot_trial_indicator2(im1, trial_list, 1, ops);
+    end
+
+    pl3_pc = 1:3;
+    %figure; plot3(U(:,1),U(:,2),U(:,3), 'o')
+    f_plot_comp_scatter(U(:,pl3_pc), ens_list, ops);
+    xlabel('pc 1');
+    ylabel('pc 2');
+    zlabel('pc 3');
+    title('U - cells');
+
+
+    %figure; plot3(V(:,1),V(:,2),V(:,3), 'o')
+    f_plot_comp_scatter(V(:,pl3_pc), trial_list, ops);
+    xlabel('pc 1');
+    ylabel('pc 2');
+    zlabel('pc 3');
+    title('V - trials')
 end
-
-pl3_pc = 1:3;
-%figure; plot3(U(:,1),U(:,2),U(:,3), 'o')
-f_plot_comp_scatter(U(:,pl3_pc), ens_list, ops);
-xlabel('pc 1');
-ylabel('pc 2');
-zlabel('pc 3');
-title('U - cells');
-
-
-%figure; plot3(V(:,1),V(:,2),V(:,3), 'o')
-f_plot_comp_scatter(V(:,pl3_pc), trial_list, ops);
-xlabel('pc 1');
-ylabel('pc 2');
-zlabel('pc 3');
-title('V - trials')
-
 %% shuff and PCA
 
 num_reps = 20;
@@ -164,20 +166,22 @@ for n_plt = 1:num_plots
     title(sprintf('%s, dset%d, trial type pcs scores(trials)',params.cond_name, params.n_dset));
 end
 
-%% cluster with hclust
-params2.method = 'cosine'; % cosine, ward
-params2.metric = 'cosine'; % cosine squaredeuclidean
-params2.plot_sm = 1;
-params2.num_clust = num_comps+1;
-hclust_out = f_hcluster_trial3(firing_rate_LR', params2);
-f_plot_comp_scatter(X(:,1:3), hclust_out.clust_ident, ops);
-title('Identified ensambles hclust');
-%gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
-eval_hclust = f_evaluate_ens_result(hclust_out.clust_ident, trial_list);
-suptitle(sprintf('hclust sorting, mean acc = %.2f', mean(eval_hclust.accuracy)));
 
-%% clust with gmm, can find best regularizer
-if 0
+
+if strcmpi(cluster_method, 'hclust')
+    %% cluster with hclust
+    params2.method = 'cosine'; % cosine, ward
+    params2.metric = 'cosine'; % cosine squaredeuclidean
+    params2.plot_sm = 1;
+    params2.num_clust = num_comps+1;
+    hclust_out = f_hcluster_trial3(firing_rate_LR', params2);
+    f_plot_comp_scatter(X(:,1:3), hclust_out.clust_ident, ops);
+    title('Identified ensambles hclust');
+    %gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
+    eval_hclust = f_evaluate_ens_result(hclust_out.clust_ident, trial_list);
+    suptitle(sprintf('hclust sorting, mean acc = %.2f', mean(eval_hclust.accuracy)));
+elseif strcmpi(cluster_method, 'gmm')
+    %% clust with gmm, can find best regularizer
     num_reps = 50;
     mean_acc = zeros(num_reps,1);
     %rg_list = logspace(-1, -2, num_reps);

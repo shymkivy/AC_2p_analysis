@@ -1,18 +1,18 @@
-function data_out = f_evaluate_ens_result(ens_output, ground_truth)
+function data_out = f_evaluate_ens_result(ens_output, ground_truth, plot_stuff)
 
 [gt_mat, gt_list] = if_list_2_mat(ground_truth, []);
 [data_ens_mat, ens_list] = if_list_2_mat(ens_output, []);
 
-
 SI_gt_data = similarity_index(gt_mat, data_ens_mat);
 
-figure;
-subplot(2,2,1);
-imagesc(SI_gt_data)
-ylabel('ground truth ens');
-xlabel('data ens');
-title('clust pre');
-
+if plot_stuff
+    figure;
+    subplot(2,2,1);
+    imagesc(SI_gt_data)
+    ylabel('ground truth ens');
+    xlabel('data ens');
+    title('clust pre');
+end
 %[~, prem_ind] = max(SI_gt_data);
 
 %SI_gt_data2 = SI_gt_data;
@@ -40,25 +40,27 @@ data_ens_mat_sort = data_ens_mat(best_perm,:);
 
 SI_gt_data3 = similarity_index(gt_mat, data_ens_mat_sort);
 
-subplot(2,2,2);
-imagesc(SI_gt_data3);
-ylabel('ground truth ens');
-xlabel('data ens');
-title('clust aligned');
+if plot_stuff
+    subplot(2,2,2);
+    imagesc(SI_gt_data3);
+    ylabel('ground truth ens');
+    xlabel('data ens');
+    title('clust aligned');
 
-subplot(2,2,3);
-bar(diag(SI_gt_data3)); axis tight;
-ylim([0 1]);
-xlabel('cluster num');
-ylabel('overlap accuracy');
-title('detection accuracy');
+    subplot(2,2,3);
+    bar(diag(SI_gt_data3)); axis tight;
+    ylim([0 1]);
+    xlabel('cluster num');
+    ylabel('overlap accuracy');
+    title('detection accuracy');
 
-subplot(2,2,4);
-bar([sum(gt_mat,2), sum(data_ens_mat_sort,2)]); axis tight;
-xlabel('cluster num');
-ylabel('num cells');
-title('ens size');
-
+    subplot(2,2,4);
+    bar([sum(gt_mat,2), sum(data_ens_mat_sort,2)]); axis tight;
+    xlabel('cluster num');
+    ylabel('num cells');
+    title('ens size');
+end
+    
 data_out.ens_perm_ind = best_perm;
 data_out.accuracy = diag(SI_gt_data3);
 data_out.ground_truth_cat_order = gt_list;

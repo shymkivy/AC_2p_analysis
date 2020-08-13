@@ -187,10 +187,10 @@ ens_trials_sort1 = ens_trials1(dend_order_tr2);
 ens_list_sort_cell = cell(numel(ens_size),1);
 ens_trials_sort_cell = cell(numel(ens_size),1);
 for n_ens = 1:numel(ens_list_cell)
-    fprintf('ensemble %d cells', n_ens);
+    %fprintf('ensemble %d cells\n', n_ens);
     ens_list_sort_cell{n_ens} = find(ens_cells_sort1 == n_ens);
     %ens_list_sort{n_ens}
-    fprintf('ensemble %d trials', n_ens);
+    %fprintf('ensemble %d trials\n', n_ens);
     ens_trials_sort_cell{n_ens} = find(ens_trials_sort1 == n_ens);
     %ens_trials_sort{n_ens}
 end
@@ -210,9 +210,10 @@ params.n_dset = 99;
 params.normalize = 1;
 params.mark_trial_types = ens_trials_sort1;
 params.mark_cell_types = ens_cells_sort1;
-params.num_comp = 3;
+params.num_comps = 3;
+params.plot_stuff = 1;
 
-f_ensemble_analysis_peaks2(raster_ens_sort_ctr, params, ops);
+f_ensemble_analysis_peaks3(raster_ens_sort_ctr, params, ops);
 
 end
 
