@@ -27,7 +27,7 @@ ops.more_analysis = 0;
 
 %% --------------------------- analysis params -------------------------
 % ensemble analysis
-ops.ensemb.method = 'svd'; %'tca'
+ops.ensemb.method = 'ica'; %'tca'
 ops.ensemb.pca_var_thresh = .95; % in percent
 ops.ensemb.smooth_kernSD = 200;
 ops.ensemb.select_upstates = false;
@@ -43,7 +43,7 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd1', 'dd2', 'dd12'};
+ops.dred_params.trial_types_to_dred = {'cont12'};
 ops.dred_params.use_responsive_cells = 1;
 
 %--------------
@@ -62,7 +62,7 @@ ops.dred_params.kernSD = 200;    % ms
 ops.dred_params.cv_num_folds = 4; % for train test
 ops.dred_params.sort_trial_before = false;
 %-----------------
-ops.dred_params.do_ensamble_analysis = 0;
+ops.dred_params.do_ensamble_analysis = 1;
 %
 ops.dred_params.do_trial_dist = 0;
 ops.dred_params.trial_types_for_dist = {'dd1', 'dd2'};
@@ -106,7 +106,7 @@ ops.norm_after_method = 2;
 %f_plot_cond_reliability(data, ops);
 
 %%
-f_model_raster(data, ops);
+%f_model_raster(data, ops);
 %% ---------------------------population analysis--------------------------
 if ops.population_analysis
     f_mpl_population_analysis(data, ops);

@@ -1,4 +1,4 @@
-function f_plot_trial_indicator(trial_types, dend_order, num_bins, plot_y_end, ops)
+function col_width = f_plot_trial_indicator(trial_types, dend_order, num_bins, plot_y_end, ops)
 hold on;
 [num_trials, ~] = size(trial_types);
 

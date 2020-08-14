@@ -15,7 +15,7 @@ if ~isfield(params, 'num_clust')
         k_list = 1:size(X,1);
     end
 
-    E = evalclusters(X,'gmdistribution','silhouette','klist',k_list, 'Distance', metric);
+    E = evalclusters(X,'gmdistribution','silhouette','klist',k_list, 'Distance', 'sqEuclidean');
     num_clust = E.OptimalK;
     
 else
@@ -34,7 +34,7 @@ cov_type = 'full';
 gmfit = fitgmdist(X,k,'RegularizationValue',params.RegularizationValue,'CovarianceType',cov_type, ...
     'SharedCovariance',false,'Options',options); % Fitted GMM
 clusterX = cluster(gmfit,X); % Cluster index 
-if num_clust == 2
+if num_comps == 2
     d = 500; % Grid length
     x1 = linspace(min(X(:,1))-2, max(X(:,2))+2, d);
     x2 = linspace(min(X(:,1))-2, max(X(:,2))+2, d);

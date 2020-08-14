@@ -1,26 +1,32 @@
-function f_hclust_raster(trial_data_sort, trial_peaks, trial_types, sp, params, ops)
-
-method = ops.dred_params.hclust.method;
+function f_hclust_raster(trial_data_sort, trial_types, sp, params, ops)
 
 [num_cells, num_bins, num_trials] = size(trial_data_sort);
 
 if ops.dred_params.hclust.sort_raster
-    dend_order1 = params.hclust_out_tr.dend_order;
+    dend_order_trials = params.dend_order_trials;
 else
-    dend_order1 = 1:num_trials;
+    dend_order_trials = 1:num_trials;
 end
-trial_data_sort2 = trial_data_sort(:,:,dend_order1);
 
-trial_data_sort2 = reshape(trial_data_sort2, num_cells, []);
+trial_data_sort2 = trial_data_sort(:,:,dend_order_trials);
 
-dend_order2 = params.hclust_out_cell.dend_order;
+trial_data_sort3 = reshape(trial_data_sort2, num_cells, []);
+
+dend_order_cells = params.dend_order_cells;
 
 %[dend_order2, ~] = f_hcluster(trial_peaks, method);
 
-subplot(sp)
-imagesc(reshape(trial_data_sort2(dend_order2,:,:), num_cells, []));
-title(sprintf('d%d', params.n_dset));
+raster2 = reshape(trial_data_sort3(dend_order_cells,:,:), num_cells, []);
 
-f_plot_trial_indicator(trial_types, dend_order1, num_bins, num_cells, ops)
+subplot(sp)
+imagesc(raster2);
+title(sprintf('d%d', params.n_dset));
+added_width = f_plot_trial_indicator(trial_types, dend_order_trials, num_bins, num_cells, ops);
+
+raster3 = zeros(size(raster2)+[added_width*2 0]);
+clust_ident_trials = reshape(repmat(params.clust_ident_trials(dend_order_trials)',num_bins,1),[],1);
+
+f_plot_cell_indicator(raster3, params.clust_ident_cells(dend_order_cells), ops);
+f_plot_trial_indicator2(raster3, clust_ident_trials, 1, ops);
 
 end
