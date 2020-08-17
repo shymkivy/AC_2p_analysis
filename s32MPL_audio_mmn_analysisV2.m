@@ -43,7 +43,7 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'cont12'};
+ops.dred_params.trial_types_to_dred = {'dd1', 'dd2'};
 ops.dred_params.use_responsive_cells = 1;
 
 %--------------
@@ -114,23 +114,23 @@ end
 
 
 %% editing
-if ops.population_analysis_trials
-    f_mpl_population_analysis_trials3(data, ops);
-end
+% if ops.population_analysis_trials
+%     f_mpl_population_analysis_trials3(data, ops);
+% end
 % 
 
 %%
 
-f_mpl_trial_trial_dist(data, ops);
+%f_mpl_trial_trial_dist(data, ops);
 
 
 %%
 % ---------------------------clustering kmeans---------------------------
-if ops.cluster_analysis
-    f_mpl_cluster_analysis(data, ops);
-end
+% if ops.cluster_analysis
+%     f_mpl_cluster_analysis(data, ops);
+% end
 
-%f_mpl_cluster_analysis2(data, ops);
+f_mpl_cluster_analysis2(data, ops);
 
 
 % 

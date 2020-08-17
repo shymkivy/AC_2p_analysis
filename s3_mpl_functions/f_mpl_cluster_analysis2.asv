@@ -80,9 +80,9 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             
             
             
-            hc_params.num_clust = [];
-            hc_params.method = 'cosine';%'cosine', 'ward'
-            hc_params.metric = 'cosine';% 'cosine', 'euclidean, 'squaredeuclidean'
+            hc_params.num_clust = 4;
+            hc_params.method = 'ward';%'cosine', 'ward'
+            hc_params.metric = 'squaredeuclidean';% 'cosine', 'euclidean, 'squaredeuclidean'
             hc_params.plot_dist_mat = 1;
             hclust_out = f_hcluster_cell(pk_mag_norm, [], hc_params, ops);
             title(sprintf('%s flip%d, hclust', cond_name, n_flip));

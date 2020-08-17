@@ -1,6 +1,12 @@
 function f_hclust_raster(trial_data_sort, trial_types, sp, params, ops)
 
-[num_cells, num_bins, num_trials] = size(trial_data_sort);
+ndims1 = ndims(trial_data_sort);
+if ndims1 == 2
+    [num_cells, num_trials] = size(trial_data_sort);
+    num_bins = 1;
+elseif ndims1 == 3
+    [num_cells, num_bins, num_trials] = size(trial_data_sort);
+end
 
 if ops.dred_params.hclust.sort_raster
     dend_order_trials = params.dend_order_trials;
@@ -8,9 +14,12 @@ else
     dend_order_trials = 1:num_trials;
 end
 
-trial_data_sort2 = trial_data_sort(:,:,dend_order_trials);
-
-trial_data_sort3 = reshape(trial_data_sort2, num_cells, []);
+if ndims1 == 2
+    trial_data_sort3 = trial_data_sort(:,dend_order_trials);
+elseif ndims1 == 3
+    trial_data_sort2 = trial_data_sort(:,:,dend_order_trials);
+    trial_data_sort3 = reshape(trial_data_sort2, num_cells, []);
+end
 
 dend_order_cells = params.dend_order_cells;
 

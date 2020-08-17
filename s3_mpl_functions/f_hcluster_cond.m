@@ -55,24 +55,29 @@ for n_dset = 1:cdata.num_dsets
         %% hclustering trials
         figure(fig_h_tr);
         sp_h_tr{n_dset} = subplot(3,5,n_dset);
-        hclust_out_tr{n_dset} = f_hcluster_trial2(trial_peaks_dred, trial_types_dred, sp_h_tr{n_dset}, dr_params, ops);
+        hc_params = dr_params;
+        hc_params.subplot_ptr = sp_h_tr{n_dset};
+        hc_params.method = ops.dred_params.hclust.method;
+        hc_params.metric = ops.dred_params.hclust.plot_metric;
+        hclust_out_tr{n_dset} = f_hcluster_trial2(trial_peaks_dred, trial_types_dred , hc_params, ops);
         dr_params.hclust_out_tr = hclust_out_tr{n_dset};
         
         %% hclustering cells 
         figure(fig_h_cell);
         sp_h_cell{n_dset} = subplot(3,5,n_dset);
-        hclust_out_cell{n_dset} = f_hcluster_cell(trial_peaks_dred, trial_types_dred, sp_h_cell{n_dset}, dr_params, ops);
+        hc_params.subplot_ptr = sp_h_cell{n_dset};
+        hclust_out_cell{n_dset} = f_hcluster_cell(trial_peaks_dred, trial_types_dred, hc_params, ops);
         dr_params.hclust_out_cell = hclust_out_cell{n_dset};
         %%
         %f_tsne(trial_peaks)
 
 
         %% compute dimensionality of full dsets
-        trial_peaks_dred_sort = trial_peaks_dred(:,hclust_out_tr{n_dset}.dend_order);
-        trial_peaks_dred_sort = trial_peaks_dred_sort(hclust_out_cell{n_dset}.dend_order,:);
-        trial_types_dred_sort = trial_types_dred(hclust_out_tr{n_dset}.dend_order);
+%         trial_peaks_dred_sort = trial_peaks_dred(:,hclust_out_tr{n_dset}.dend_order);
+%         trial_peaks_dred_sort = trial_peaks_dred_sort(hclust_out_cell{n_dset}.dend_order,:);
+%         trial_types_dred_sort = trial_types_dred(hclust_out_tr{n_dset}.dend_order);
         
-        data_dim_est_full{n_dset} = f_ensemble_comp_data_dim2(trial_peaks_dred_sort, 0);
+        data_dim_est_full{n_dset} = f_ensemble_comp_data_dim2(trial_peaks_dred, 0);
         %% extract ensembles? 
         if ops.dred_params.do_ensamble_analysis
             params.cond_name = dr_params.cond_name;
@@ -87,13 +92,15 @@ for n_dset = 1:cdata.num_dsets
         end
         %%
         %ops.dred_params.hclust.sort_raster = 1;
+        %raster_intput1 = trial_data_sort_sm_pr;
+        raster_intput1 = trial_peaks_dred;
         dr_params.dend_order_cells = ens_out_full{n_dset}.cell_clust.dend_order;
         dr_params.clust_ident_cells = ens_out_full{n_dset}.cell_clust.clust_ident;
         dr_params.dend_order_trials = ens_out_full{n_dset}.trial_clust.dend_order;
         dr_params.clust_ident_trials = ens_out_full{n_dset}.trial_clust.clust_ident;
         figure(fig_ras);
         sp_ras{n_dset} = subplot(3,5,n_dset);
-        f_hclust_raster(trial_data_sort_sm_pr, trial_types_dred, sp_ras{n_dset}, dr_params, ops);
+        f_hclust_raster(raster_intput1, trial_types_dred, sp_ras{n_dset}, dr_params, ops);
         
 %         ops.dred_params.hclust.sort_raster = 0;
 %         figure(fig_ras2);

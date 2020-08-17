@@ -1,8 +1,10 @@
-function hclust_out = f_hcluster_trial2(trial_peaks, trial_types, sp, params, ops)
-num_clust = params.num_clust;
-method = ops.dred_params.hclust.method;
-metric = ops.dred_params.hclust.plot_metric;
-num_cells = size(trial_peaks,1);
+function hclust_out = f_hcluster_trial2(trial_peaks, trial_types, params, ops)
+n_dset = f_get_param(params, 'n_dset', 0);
+num_clust = f_get_param(params, 'num_clust');
+method = f_get_param(params, 'method', 'cosine');
+metric = f_get_param(params, 'metric', 'cosine');
+sp = f_get_param(params, 'subplot_ptr');
+plot_clusters = f_get_param(params, 'plot_clusters', 1);
 
 if isempty(num_clust)
     num_clust = 1;
@@ -13,13 +15,14 @@ end
 
 %figure; imagesc(color_seq_temporal)
 
-tt_dist = pdist(trial_peaks(:,dend_order)', metric);
+dist1 = pdist(trial_peaks(:,dend_order)', metric);
 
-image_Z = 1-squareform(tt_dist);
-if ~isempty(sp)
-    subplot(sp); hold on;
+image_Z = 1-squareform(dist1);
+if isempty(sp)
+    figure;
+    sp = gca;
 else
-    figure; hold on;
+    subplot(sp);
 end
 imagesc(image_Z);
 %axis image;
@@ -35,13 +38,14 @@ sp.YDir = 'reverse';
 
 %% add trial indicator
 
-f_plot_trial_indicator(trial_types, dend_order, 1, numel(trial_types), ops);
-
+if ~isempty(trial_types)
+    f_plot_trial_indicator(trial_types, dend_order, 1, numel(trial_types), ops);
+end
 %imagesc(num_trials+(1:col_width),1:num_trials,permute(repmat(color_seq_tt,col_width,1,1),[2,1,3]));
 %imagesc(num_trials+col_width+(1:col_width),1:num_trials,permute(repmat(color_seq_temporal,col_width,1,1),[2,1,3]));
 
 %% plot clusters
-if num_clust > 1
+if plot_clusters
     ord1 = clust_ident(dend_order);
     for n_clust = 1:num_clust
         temp_list = find(ord1 == n_clust);
@@ -50,7 +54,7 @@ if num_clust > 1
     end
 end
 
-hclust_out.tt_dist = tt_dist;
+hclust_out.dist = dist1;
 hclust_out.dend_order = dend_order;
 hclust_out.clust_ident = clust_ident;
 hclust_out.clim = clim1;

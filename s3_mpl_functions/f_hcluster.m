@@ -1,4 +1,4 @@
-function [dend_order, clust_ident] = f_hcluster(data, method, num_clust)
+function [dend_order, clust_ident, Z] = f_hcluster(data, method, num_clust)
 
 dend_thresh = 50;
 
