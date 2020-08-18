@@ -106,7 +106,7 @@ ops.norm_after_method = 2;
 %f_plot_cond_reliability(data, ops);
 
 %%
-%f_model_raster(data, ops);
+f_model_raster(data, ops);
 %% ---------------------------population analysis--------------------------
 if ops.population_analysis
     %f_mpl_population_analysis(data, ops);

@@ -1,5 +1,9 @@
 function f_plot_comp_scatter(score, ens_list, params, ops)
 
+if isempty(params)
+    params = struct;
+end
+
 marker_type = f_get_param(params, 'marker_type', 'o');
 marker_size = f_get_param(params, 'marker_size', 5);
 mean_marker_type = f_get_param(params, 'mean_marker_type', '*');
