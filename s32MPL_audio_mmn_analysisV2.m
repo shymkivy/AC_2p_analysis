@@ -43,7 +43,7 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd12'};
+ops.dred_params.trial_types_to_dred = {'dd1'};
 ops.dred_params.use_responsive_cells = 1;
 
 %--------------
@@ -65,7 +65,7 @@ ops.dred_params.sort_trial_before = false;
 ops.dred_params.do_ensamble_analysis = 1;
 %
 ops.dred_params.do_trial_dist = 0;
-ops.dred_params.trial_types_for_dist = {'dd12'};
+ops.dred_params.trial_types_for_dist = {'dd1'};
 % k-means param 
 
 % how many clusters to use 

@@ -85,7 +85,7 @@ for n_dset = 1:cdata.num_dsets
             params.n_dset = dr_params.n_dset;
             params.normalize = 1;
             %params.num_comps = [];
-            params.plot_stuff = 1;
+            params.plot_stuff = 0;
             params.ensamble_method = ops.ensemb.method;
 
             ens_out_full{n_dset} = f_ensemble_analysis_peaks3(trial_peaks_dred, params, ops);

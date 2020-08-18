@@ -1,4 +1,4 @@
-function hclust_out = f_hcluster_cell(trial_peaks, trial_types, params, ops)
+function hclust_out = f_hcluster_cell(trial_peaks, cell_types, params, ops)
 n_dset = f_get_param(params, 'n_dset', 0);
 num_clust = f_get_param(params, 'num_clust');
 method = f_get_param(params, 'method', 'cosine');
@@ -46,8 +46,8 @@ if plot_dist_mat
     sp.YDir = 'reverse';
 
     %% add trial indicator
-    if ~isempty(trial_types)
-        f_plot_trial_indicator(trial_types, dend_order, 1, numel(trial_types), ops);
+    if ~isempty(cell_types)
+        f_plot_trial_indicator(cell_types, dend_order, 1, numel(cell_types), ops);
     end
 
     %imagesc(num_trials+(1:col_width),1:num_trials,permute(repmat(color_seq_tt,col_width,1,1),[2,1,3]));
@@ -65,7 +65,5 @@ if plot_dist_mat
     end
     hclust_out.clim = clim1;
 end
-
-
 
 end
