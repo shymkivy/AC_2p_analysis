@@ -26,7 +26,7 @@ else
 end
 imagesc(image_Z);
 %axis image;
-title(sprintf('d%d, %d cells', params.n_dset,num_cells));
+title(sprintf('d%d', params.n_dset));
 caxis([0 1]);
 axis tight;
 axis equal;

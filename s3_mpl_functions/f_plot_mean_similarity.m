@@ -9,17 +9,17 @@ for n_tt = 1:numel(tt_types)
         chdata = data.(tt_types{n_tt}).(cond_name);
         
         num_dsets = numel(chdata.hclust_out_tr);
-        tt_dist = zeros(num_dsets,1);
+        dist = zeros(num_dsets,1);
         no_data = false(num_dsets,1);
         num_dsets = numel(chdata.hclust_out_tr);
         for n_dset = 1:num_dsets
             if ~isempty(chdata.hclust_out_tr{n_dset})
-                tt_dist(n_dset) = nanmean(1-chdata.hclust_out_tr{n_dset}.tt_dist);
+                dist(n_dset) = nanmean(1-chdata.hclust_out_tr{n_dset}.dist);
             else
                 no_data(n_dset) = true;
             end
         end
-        tt_dist_cond{n_cond} = tt_dist(~no_data);
+        tt_dist_cond{n_cond} = dist(~no_data);
     end
     tt_types_data{n_tt} = tt_dist_cond;
 end
