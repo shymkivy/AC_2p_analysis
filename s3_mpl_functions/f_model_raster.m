@@ -300,11 +300,11 @@ params.cond_name = 'fake data';
 params.n_dset = 99;
 params.normalize = 'norm_mean'; %'norm_full' 'norm_mean' 'none'
 params.num_comps = 2;
-params.plot_stuff = 0;
-params.ensamble_method = 'nmf';
+params.plot_stuff = 1;
+params.ensamble_method = 'ica';
 params.use_LR_proj = 0;
 params.ensamble_extraction = 'thresh'; % 'thresh', 'clust'
-params.ensamble_extraction_thresh = 'shuff';
+params.ensamble_extraction_thresh = 'signal_clust_thresh'; % 'shuff'. 'clust_thresh', 'signal_z'
 ens_out = f_ensemble_analysis_peaks3(raster_ens_an, params, ops);
 
 %% evaluate ens

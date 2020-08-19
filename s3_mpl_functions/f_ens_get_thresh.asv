@@ -69,6 +69,7 @@ if strcmpi(ensamble_extraction_thresh, 'shuff')
 elseif strcmpi(ensamble_extraction_thresh, 'signal_clust_thresh')
     for n_comp = 1:num_ens
         factors1 = coeffs(:,n_comp);
+        %figure; plot(ones(numel(factors1),1),factors1, 'o')
         [~, clust_ident, ~] = f_hcluster(factors1, 'ward', two_sided+2);
         [fac_sort, indx1] = sort(factors1, 'ascend');
         clust_edge = find(abs(diff(clust_ident(indx1))));

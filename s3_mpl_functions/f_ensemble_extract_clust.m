@@ -66,7 +66,7 @@ ens_out.trials = clust_params_tr;
 
 %%
 if plot_stuff
-    f_plot_comp_scatter(X(:,1:min(num_comps,3)), ens_out.trial_clust.clust_ident, [], ops);
+    f_plot_comp_scatter(X(:,1:min(num_comps,3)), ens_out.trials.clust_ident, [], ops);
     title(sprintf('Identified ensamble trials, %s space, %s',ensamble_method, cluster_method));
     xlabel('comp1');
     ylabel('comp2');
@@ -169,7 +169,7 @@ end
 %% align to trial clusts
 
 clust_params_cell = if_get_clust_params(X, clust_out_cell);
-clust_params_cell_al = if_align_clusters(ens_out.trial_clust, clust_params_cell, plot_stuff);
+clust_params_cell_al = if_align_clusters(ens_out.trials, clust_params_cell, plot_stuff);
 
 ens_out.cells = clust_params_cell_al;
 
