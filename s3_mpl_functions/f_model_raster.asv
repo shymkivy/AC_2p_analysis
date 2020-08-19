@@ -93,7 +93,7 @@ axis tight equal
 reliab_thresh = 0.8;
 ens_size = [6 6];
 cell_overlap_fraction = 0;
-num_corr_trials = [6 6];
+num_corr_trials = [8 8];
 
 %% choose ensemble cells 
 ens_cell_cell = cell(numel(ens_size),1);
@@ -209,7 +209,7 @@ raster_ens_sort_cell = raster_ens(dend_order_cell2,:);
 raster_ens_sort_ctr = raster_ens_sort_cell(:,dend_order_tr2);
 
 ens_pattern_rate_sort_cell = ens_pattern_rate(dend_order_cell2,:);
-ens_pattern_rate_sort_ctr = 
+ens_pattern_rate_sort_ctr = ens_pattern_rate_sort_cell(:,dend_order_tr2);
 
 % % spike mags
 % ens_vals = cell(numel(ens_list_cell),1);
@@ -227,9 +227,11 @@ ens_trials_sort1 = ens_trials1(dend_order_tr2);
 % ens_trials_sort_cell = cell(numel(ens_size),1);
 
 %% plot
+
+
 figure(f1);
 subplot(4,3,4);
-imagesc(ens_pattern_rate)
+imagesc(raster_ens)
 title('model raster ens');
 f_plot_cell_indicator(raster_ens, ens_cells1, ops);
 f_plot_trial_indicator2(raster, ens_trials1, 1, ops);
@@ -250,49 +252,43 @@ f_plot_cell_indicator(corr(raster_ens_sort_ctr'), ens_cells_sort1, ops);
 
 figure(f1);
 subplot(4,3,7);
-imagesc(raster_ens)
-title('model raster ens');
+imagesc(ens_pattern_rate)
+title('model ens pattern rate');
 f_plot_cell_indicator(raster_ens, ens_cells1, ops);
 f_plot_trial_indicator2(raster, ens_trials1, 1, ops);
 
 figure(f1);
 subplot(4,3,8);
-imagesc(raster_ens_sort_ctr);
-title('model raster ens sort sort');
+imagesc(ens_pattern_rate_sort_ctr);
+title('model ens pattern rate sort sort');
 f_plot_cell_indicator(raster_ens, ens_cells_sort1, ops);
 f_plot_trial_indicator2(raster, ens_trials_sort1, 1, ops);
 
 figure(f1);
 subplot(4,3,9);
-imagesc(corr(raster_ens_sort_ctr'));
-title('model raster ens sort sort cell corr');
+imagesc(corr(ens_pattern_rate_sort_ctr'));
+title('model ens pattern rate sort sort cell corr');
 axis tight equal
-f_plot_cell_indicator(corr(raster_ens_sort_ctr'), ens_cells_sort1, ops);
-
-figure; imagesc(ens_pattern_rate);
-title('ens pattern rate');
-figure; imagesc(corr(ens_pattern_rate'))
-title('ens pattern rate corr');
-figure; imagesc(raster);
-title('raster');
-figure; imagesc(corr(raster'))
-title('raster corr');
-figure; imagesc(raster_ens)
-title('raster ens');
-figure; imagesc(corr(raster_ens'))
-title('raster ens corr');
+f_plot_cell_indicator(corr(ens_pattern_rate_sort_ctr'), ens_cells_sort1, ops);
 
 %% run real ens analysis 
-raster_ens_an = raster_ens_sort_ctr;
+% raster_ens_an = raster_ens_sort_ctr;
+% ens_cells2 = ens_cells_sort1;
+% ens_trials2 = ens_trials_sort1;
+
+raster_ens_an = raster_ens;
+ens_cells2 = ens_cells1;
+ens_trials2 = ens_trials1;
+
 for n_ens = 1:numel(ens_cell_cell)
     fprintf('ensemble %d cells:  ', n_ens);
-    cells1 = find(ens_cells_sort1 == n_ens);
+    cells1 = find(ens_cells2 == n_ens);
     for ii = 1:numel(cells1)
         fprintf('%d ', cells1(ii));
     end
     fprintf('\n');
     fprintf('ensemble %d trials: ', n_ens);
-    trials1 = find(ens_trials_sort1 == n_ens);
+    trials1 = find(ens_trials2 == n_ens);
     for ii = 1:numel(trials1)
         fprintf('%d ', trials1(ii));
     end
@@ -302,39 +298,45 @@ end
 
 params.cond_name = 'fake data';
 params.n_dset = 99;
-params.normalize = 'norm_full';
-params.num_comps = [];
-params.plot_stuff = 1;
-params.ensamble_method = 'ica';
+params.normalize = 'norm_mean'; %'norm_full' 'norm_mean' 'none'
+params.num_comps = 2;
+params.plot_stuff = 0;
+params.ensamble_method = 'nmf';
 params.use_LR_proj = 0;
 ens_out = f_ensemble_analysis_peaks3(raster_ens_an, params, ops);
 
 %% evaluate ens
 params2.plot_stuff = 1;
-eval_out = f_evaluate_ens(ens_out, ens_trials1, ens_cells1, params2);
+eval_out = f_evaluate_ens(ens_out, ens_trials2, ens_cells2, params2);
 
 %% plot 
 
 raster_ens_sort_cell2 = raster_ens_an(ens_out.cell_clust.dend_order,:);
 raster_ens_sort_ctr2 = raster_ens_sort_cell2(:,ens_out.trial_clust.dend_order);
 
-figure(f1);
-subplot(3,2,5);
-imagesc(raster_ens_sort_ctr2)
-title('Post ens analysis ground truth label');
-f_plot_cell_indicator(raster_ens, ens_cells1(ens_out.cell_clust.dend_order), ops);
-f_plot_trial_indicator2(raster, ens_trials1(ens_out.trial_clust.dend_order), 1, ops);
-
-
 clust_ident_cell_align = eval_out.clust_eval_cell.aligned_seq(ens_out.cell_clust.clust_ident+1,1);
 clust_ident_trial_align = eval_out.clust_eval_tr.aligned_seq(ens_out.trial_clust.clust_ident+1,1);
 
 figure(f1);
-subplot(3,2,6);
+subplot(4,3,10);
+imagesc(raster_ens_sort_ctr2)
+title('Post ens analysis ground truth label');
+f_plot_cell_indicator(raster_ens, ens_cells2(ens_out.cell_clust.dend_order), ops);
+f_plot_trial_indicator2(raster, ens_trials2(ens_out.trial_clust.dend_order), 1, ops);
+
+figure(f1);
+subplot(4,3,11);
 imagesc(raster_ens_sort_ctr2);
 title('Post ens analysis discovered label');
 f_plot_cell_indicator(raster_ens, clust_ident_cell_align(ens_out.cell_clust.dend_order), ops);
 f_plot_trial_indicator2(raster, clust_ident_trial_align(ens_out.trial_clust.dend_order), 1, ops);
+
+figure(f1);
+subplot(4,3,12);
+imagesc(corr(raster_ens_sort_ctr2'));
+title('Post ens analysis cell corr');
+axis tight equal
+f_plot_cell_indicator(corr(raster_ens_sort_ctr'), clust_ident_cell_align(ens_out.cell_clust.dend_order), ops);
 
 %%
 disp('Done')

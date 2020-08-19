@@ -8,6 +8,19 @@ num_comps = size(scores,1);
 
 %% first detect cells
 
+
+figure;
+for n_cm = 1:(num_clust-1)
+    subplot((num_clust-1),1,n_cm);
+    stem(scores(n_cm,:))
+end
+
+figure;
+for n_cm = 1:(num_clust-1)
+    subplot((num_clust-1),1,n_cm);
+    stem(coeffs(:,n_cm))
+end
+
 figure;
 stem(coeffs(:,1))
 

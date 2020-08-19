@@ -12,8 +12,8 @@ X = scores';
 
 if strcmpi(cluster_method, 'hclust')
     %% cluster with hclust
-    params2.method = 'cosine'; % cosine, ward
-    params2.metric = 'cosine'; % cosine squaredeuclidean
+    params2.method = 'ward'; % cosine, ward
+    params2.metric = 'squaredeuclidean'; % cosine squaredeuclidean
     params2.plot_dist_mat = plot_stuff;
     params2.plot_clusters = plot_stuff;
     params2.num_clust = num_clust;

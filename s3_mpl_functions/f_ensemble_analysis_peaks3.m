@@ -40,7 +40,7 @@ if strcmpi(normalize, 'norm_full')
     %firing_rate_cont(isnan(firing_rate_cont)) = 0;
 elseif strcmpi(normalize, 'norm_mean')
     firing_rate_norm = trial_data - mean(trial_data,2);
-else
+elseif strcmpi(normalize, 'none')
     firing_rate_norm = trial_data;
 end
 
@@ -174,29 +174,19 @@ end
 
 %%
 num_clust = num_comps+1;
-% 
-% 
-% figure; imagesc(corr(firing_rate_ensemb))
-% 
-% figure; imagesc(trial_data)
-% figure; imagesc(firing_rate_ensemb)
-% 
+
 % AssemblyTemplates=fast_ica(firing_rate_ensemb',num_LR_comps,500);
 % figure;
 % for n_cm = 1:num_comps
 %     subplot(num_comps,1,n_cm);
 %     stem(AssemblyTemplates(:,n_cm))
 % end
-% 
-% figure;
-% for n_cm = 1:num_comps
-%     subplot(num_comps,1,n_cm);
-%     stem(scores(n_cm,:))
-% end
 
-ens_out = f_ensemble_extract_clust(coeffs, scores, num_clust, params, ops);
 
-%ens_out = f_ensemble_extract_thresh(coeffs, scores, num_clust, params, ops);
+
+%ens_out = f_ensemble_extract_clust(coeffs, scores, num_clust, params, ops);
+
+ens_out = f_ensemble_extract_thresh(coeffs, scores, num_clust, params, ops);
 
 
 ens_out.data_dim_est = data_dim_est;

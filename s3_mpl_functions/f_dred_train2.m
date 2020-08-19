@@ -21,7 +21,7 @@ end
 
 %% dim reduction
 
-data_means = mean(data_2d,2);
+data_means = zeros(size(data_2d,1),1);%mean(data_2d,2);
 data_n2d = data_2d - data_means;
 
 if strcmpi(method, 'svd')
