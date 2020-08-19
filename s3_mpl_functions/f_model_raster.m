@@ -303,6 +303,8 @@ params.num_comps = 2;
 params.plot_stuff = 0;
 params.ensamble_method = 'nmf';
 params.use_LR_proj = 0;
+params.ensamble_extraction = 'thresh'; % 'thresh', 'clust'
+params.ensamble_extraction_thresh = 'shuff';
 ens_out = f_ensemble_analysis_peaks3(raster_ens_an, params, ops);
 
 %% evaluate ens

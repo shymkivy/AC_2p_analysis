@@ -12,6 +12,8 @@ shuffle_method = f_get_param(params, 'shuffle_method', 'scramble');     % 'circ_
 var_thresh_prc = f_get_param(params, 'pca_var_thresh', .95);
 use_LR_proj = f_get_param(params, 'use_LR_proj', 1);
 ensamble_method = f_get_param(params, 'ensamble_method', 'nmf'); % 'svd', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
+ensamble_extraction = f_get_param(params, 'ensamble_extraction', 'thresh');
+ensamble_extraction_thesh = 'shuff_95'; % 'signal_z' 'shuff_95'
 % nmf seems best, then ica, then svd, then idk
 
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
@@ -149,7 +151,7 @@ if strcmpi(ensamble_method, 'nmf')
     num_LR_comps = round(num_comps*1.5);
 end
 
-[dred_factors1, ~] = f_dred_train2(firing_rate_ensemb, num_LR_comps, num_trials, ensamble_method);
+[dred_factors1, ~] = f_dred_train2(firing_rate_ensemb, num_LR_comps, ensamble_method, 0);
 [coeffs, scores] = f_dred_get_coeffs(dred_factors1);
 
 %% Visualize traces
@@ -173,31 +175,20 @@ if plot_stuff
 end
 
 %%
-num_clust = num_comps+1;
+num_ens = num_comps;
 
-
-figure; imagesc(corr(firing_rate_ensemb))
-
-figure; imagesc(trial_data)
-figure; imagesc(firing_rate_ensemb)
-
-% AssemblyTemplates=fast_ica(firing_rate_ensemb',num_LR_comps,500);
-% figure;
-% for n_cm = 1:num_comps
-%     subplot(num_comps,1,n_cm);
-%     stem(AssemblyTemplates(:,n_cm))
-% end
-
-figure;
-for n_cm = 1:num_comps
-    subplot(num_comps,1,n_cm);
-    stem(scores(n_cm,:))
+if strcmpi(ensamble_extraction_thesh, 'shuff_95')
+    ens_thresh = f_get_comp_thresh_shuff(firing_rate_ensemb, num_ens, params);
+elseif strcmpi(ensamble_extraction_thesh, 'shuff_95')
+    
 end
+%%
 
-ens_out = f_ensemble_extract_clust(coeffs, scores, num_clust, params, ops);
-
-%ens_out = f_ensemble_extract_thresh(coeffs, scores, num_clust, params, ops);
-
+if strcmpi(ensamble_extraction, 'clust')
+	ens_out = f_ensemble_extract_clust(coeffs, scores, num_ens, params, ops);
+elseif strcmpi(ensamble_extraction, 'thresh')
+    ens_out = f_ensemble_extract_thresh(coeffs, scores, num_ens, params);
+end
 
 ens_out.data_dim_est = data_dim_est;
 

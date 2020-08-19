@@ -12,6 +12,8 @@ shuffle_method = f_get_param(params, 'shuffle_method', 'scramble');     % 'circ_
 var_thresh_prc = f_get_param(params, 'pca_var_thresh', .95);
 use_LR_proj = f_get_param(params, 'use_LR_proj', 1);
 ensamble_method = f_get_param(params, 'ensamble_method', 'nmf'); % 'svd', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
+ensamble_extraction = f_get_param(params, 'ensamble_extraction', 'thresh');
+
 % nmf seems best, then ica, then svd, then idk
 
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
@@ -149,7 +151,7 @@ if strcmpi(ensamble_method, 'nmf')
     num_LR_comps = round(num_comps*1.5);
 end
 
-[dred_factors1, ~] = f_dred_train2(firing_rate_ensemb, num_LR_comps, num_trials, ensamble_method);
+[dred_factors1, ~] = f_dred_train2(firing_rate_ensemb, num_LR_comps, ensamble_method, 0);
 [coeffs, scores] = f_dred_get_coeffs(dred_factors1);
 
 %% Visualize traces
@@ -173,21 +175,17 @@ if plot_stuff
 end
 
 %%
-num_clust = num_comps+1;
-
-% AssemblyTemplates=fast_ica(firing_rate_ensemb',num_LR_comps,500);
-% figure;
-% for n_cm = 1:num_comps
-%     subplot(num_comps,1,n_cm);
-%     stem(AssemblyTemplates(:,n_cm))
-% end
+num_ens = num_comps;
 
 
+%%
 
-%ens_out = f_ensemble_extract_clust(coeffs, scores, num_clust, params, ops);
-
-ens_out = f_ensemble_extract_thresh(coeffs, scores, num_clust, params, ops);
-
+if strcmpi(ensamble_extraction, 'clust')
+	ens_out = f_ensemble_extract_clust(coeffs, scores, num_ens, params, ops);
+elseif strcmpi(ensamble_extraction, 'thresh')
+    [thresh_coeffs, thresh_scores] = f_ens_get_thresh(firing_rate_ensemb, coeffs, scores, num_ens, params);
+    ens_out = f_ensemble_apply_thresh(coeffs, scores, thresh_coeffs, thresh_scores, num_ens, params);
+end
 
 ens_out.data_dim_est = data_dim_est;
 

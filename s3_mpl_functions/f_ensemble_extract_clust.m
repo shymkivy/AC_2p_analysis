@@ -1,10 +1,11 @@
-function ens_out = f_ensemble_extract_clust(coeffs, scores, num_clust, params, ops)
+function ens_out = f_ensemble_extract_clust(coeffs, scores, num_ens, params, ops)
 ensamble_method = f_get_param(params, 'ensamble_method', 'nmf');
 cluster_method = f_get_param(params, 'cluster_method', 'hclust');    % 'hclust' or 'gmm'
 cluster_method_cell = f_get_param(params, 'cluster_method_cell', 'hclust');
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
 
 num_comps = size(scores,1);
+num_clust = num_ens + 1;
 
 %% cluster trials from scores
 
@@ -60,7 +61,7 @@ end
 %% reoder to make core ens first
 
 clust_params_tr = if_get_clust_params(X, clust_out_tr);
-ens_out.trial_clust = clust_params_tr;
+ens_out.trials = clust_params_tr;
 
 
 %%
@@ -170,7 +171,7 @@ end
 clust_params_cell = if_get_clust_params(X, clust_out_cell);
 clust_params_cell_al = if_align_clusters(ens_out.trial_clust, clust_params_cell, plot_stuff);
 
-ens_out.cell_clust = clust_params_cell_al;
+ens_out.cells = clust_params_cell_al;
 
 %%
 if plot_stuff
