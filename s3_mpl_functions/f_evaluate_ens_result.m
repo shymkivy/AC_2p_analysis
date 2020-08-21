@@ -119,9 +119,14 @@ if plot_stuff
     ylabel('num cells');
     title('ens size');
 end
-    
+
+if core_size > 1
+    accuracy1 = diag(SI_gt_data3);
+else
+    accuracy1 = SI_gt_data3(1);
+end
 data_out.ens_perm_ind = best_perm;
-data_out.accuracy = diag(SI_gt_data3);
+data_out.accuracy = accuracy1;
 data_out.ground_truth_cat_order = gt_list;
 data_out.data_cat_order = ens_list;
 data_out.aligned_seq = aligned_seq;

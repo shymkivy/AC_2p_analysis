@@ -1,9 +1,9 @@
-function eval_out = f_run_model_raster(model_params, ens_params, ops)
+function params_out = f_run_model_raster(model_params, source_data, ens_params, ops, plot_stuff)
 num_cells = model_params.num_cells;
 num_trials = model_params.num_trials;
 
-peak_mag_list = model_params.peak_mag_list;
-reliab_list = model_params.reliab_list;
+peak_mag_list = source_data.peak_mag_list;
+reliab_list = source_data.reliab_list;
 reliab_thresh = model_params.reliab_thresh;
 ens_size = model_params.ens_size;
 cell_overlap_fraction = model_params.cell_overlap_fraction;
@@ -30,7 +30,7 @@ end
 raster_sort_cell = raster(dend_order_cell,:);
 raster_sort_ctr = raster_sort_cell(:,dend_order_tr);
 
-if model_params.plot_stuff
+if plot_stuff
     f1 = figure;
     subplot(4,3,1);
     imagesc(raster)
@@ -183,7 +183,7 @@ ens_trials_sort1 = ens_trials1(dend_order_tr2);
 
 %% plot
 
-if model_params.plot_stuff
+if plot_stuff
     figure(f1);
     subplot(4,3,4);
     imagesc(raster_ens)
@@ -256,15 +256,19 @@ for n_ens = 1:numel(ens_cell_cell)
     table_data{n_ens,2} = num2str(find(ens_trials2 == n_ens)');
 end
 
-if model_params.plot_stuff
+if plot_stuff
     figure;
     uitable('Data', table_data , 'ColumnName', {'Ensemble cells', 'trials'}, 'Position', [20 20 500 350], 'ColumnWidth', {200});
 end
 ens_out = f_ensemble_analysis_peaks3(raster_ens_an, ens_params, ops);
 
 %% evaluate ens
-params2.plot_stuff = model_params.plot_stuff;
+params2.plot_stuff = plot_stuff;
 eval_out = f_evaluate_ens(ens_out, ens_trials_cell_core, ens_cells_cell_core, params2);
+
+params_out.eval_num_clust = ens_out.data_dim_est.num_comps+1;
+params_out.cell_eval_accuracy = eval_out.clust_eval_cell.accuracy;
+params_out.trial_eval_accuracy = eval_out.clust_eval_tr.accuracy;
 
 %% plot 
 
@@ -274,7 +278,7 @@ raster_ens_sort_ctr2 = raster_ens_sort_cell2(:,ens_out.trials.dend_order);
 clust_ident_cell_align = eval_out.clust_eval_cell.aligned_seq(ens_out.cells.clust_ident+1,1);
 clust_ident_trial_align = eval_out.clust_eval_tr.aligned_seq(ens_out.trials.clust_ident+1,1);
 
-if model_params.plot_stuff
+if plot_stuff
     figure(f1);
     subplot(4,3,10);
     imagesc(raster_ens_sort_ctr2)

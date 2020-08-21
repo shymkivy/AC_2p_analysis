@@ -96,9 +96,7 @@ end
 eval_out = input_params;
 for n_rep = 1:numel(input_params)
     x = f_run_model_raster(input_params(n_rep), source_data, ens_params, ops, plot_stuff);
-    eval_out(n_rep).eval_num_clust = x.eval_num_clust;
-    eval_out(n_rep).cell_eval_accuracy = x.cell_eval_accuracy;
-    eval_out(n_rep).trial_eval_accuracy = x.trial_eval_accuracy;
+    eval_out(n_rep).
 end
 %%
 
