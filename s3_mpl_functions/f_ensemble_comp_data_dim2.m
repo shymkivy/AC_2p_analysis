@@ -1,34 +1,45 @@
-function data_dim_est = f_ensemble_comp_data_dim2(firing_rate, normalize)
-% parameters
-shuffle_method = 'scramble'; % 'circ_shift' or 'scramble'
-plot_stuff = 0;
-var_thresh_prc = .95; % circular shift thresh (95 or 99; from Detecting cell assemblies in large neuronal populations)
-%num_comp = 100;
-%ensamble_method = 'tca'; % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
-%example_plot = 20;
-total_dim_thresh = .7;
+function data_dim_est = f_ensemble_comp_data_dim2(firing_rate, params)
+% input either 3D tials data (Cell x Time X Trial)
+%           or 2D trial data (Cell x Trial)
+%% parameters
+if ~exist('params', 'var') || isempty(params)
+    params = struct;
+end
+normalize = f_get_param(params, 'normalize', 'none');  % 'norm_mean' 'norm_full' 'none'
+total_dim_thresh = f_get_param(params, 'total_dim_thresh', .7);
+shuffle_method = f_get_param(params, 'shuffle_method', 'scramble');     % 'circ_shift' or 'scramble'
+corr_comp_thresh = f_get_param(params, 'corr_comp_thresh', .90);
+plot_stuff = f_get_param(params, 'plot_stuff', 0);
+
 %%
 
-if ndims(firing_rate) == 3
+ndims1 = ndims(firing_rate);
+
+if ndims1 == 3
     [num_cells, ~, num_trials] = size(firing_rate);
     firing_rate = reshape(firing_rate, num_cells,[]);
-else
-    [num_cells, num_trials] = size(firing_rate);
-end
+elseif ndims1 == 2
+    [~, num_trials] = size(firing_rate);
+    %num_bins = 1;
+end  
 
 active_cells = sum(firing_rate,2) > 0;
 firing_rate(~active_cells,:) = [];
 
-if normalize
+if strcmpi(normalize, 'norm_full')
     firing_rate_norm = firing_rate - mean(firing_rate,2);
     firing_rate_norm = firing_rate_norm./std(firing_rate_norm,[],2); 
     %firing_rate_cont(isnan(firing_rate_cont)) = 0;
-else
+elseif strcmpi(normalize, 'norm_mean')
+    firing_rate_norm = firing_rate - mean(firing_rate,2);
+elseif strcmpi(normalize, 'none')
     firing_rate_norm = firing_rate;
 end
 
+num_cells = size(firing_rate_norm,1);
 
-%% dim reduction with PCA to calulate components number
+
+%% dim reduction with SVD to calulate components number
 
 [~,S,~] = svd(firing_rate_norm);
 sing_val_sq = diag(S'*S);
@@ -40,8 +51,8 @@ dimensionality_total = sum(cumsum(d_explained)<(total_dim_thresh*100));
 
 %% shuff and PCA
 
-num_reps = 20;
-data_thresh = zeros(num_reps,1);
+num_reps = 200;
+max_lamb_shuff = zeros(num_reps,1);
 dim_total_shuff = zeros(num_reps,1);
 for n_rep = 1:num_reps
     firing_rate_shuff = f_shuffle_data(firing_rate_norm, shuffle_method);
@@ -50,22 +61,19 @@ for n_rep = 1:num_reps
     s_explained = s_sing_val_sq/sum(s_sing_val_sq)*100;
     
     dim_total_shuff(n_rep) = sum(cumsum(s_explained)<(total_dim_thresh*100));
-    
-    %[~,~,~,~,s_explained,~] = pca(firing_rate_shuff');
-    data_thresh(n_rep) = prctile(s_explained, var_thresh_prc*100); % ss_explained or s_explained
+    max_lamb_shuff(n_rep) = max(s_explained);
 end
 dimensionality_total_shuff = mean(dim_total_shuff);
 % eigenvalues below lower bound plus above upper should
 % theoretically equal total number of neurons in all ensembles
-dimensionality_corr = sum(sum(d_explained>data_thresh'))/num_reps;
-
-num_comps = max(ceil(dimensionality_total),1);
+dimensionality_corr = sum(d_explained>prctile(max_lamb_shuff, corr_comp_thresh*100));
+num_comps = ceil(dimensionality_corr);
 data_dim_est.dimensionality_total = dimensionality_total;
 data_dim_est.dimensionality_total_shuff = dimensionality_total_shuff;
 data_dim_est.dimensionality_corr = dimensionality_corr;
 data_dim_est.num_comps = num_comps;
 data_dim_est.d_explained = d_explained(1:num_comps);
-data_dim_est.var_thresh_prc = var_thresh_prc;
+data_dim_est.corr_comp_thresh = corr_comp_thresh;
 data_dim_est.num_cells = num_cells;
 data_dim_est.num_trials = num_trials;
 

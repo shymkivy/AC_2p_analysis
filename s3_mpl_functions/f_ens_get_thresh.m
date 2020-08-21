@@ -38,21 +38,29 @@ end
 if strcmpi(ensamble_extraction_thresh, 'shuff')
     coeffs_shuff_all = cell(shuff_rep,1);
     scores_shuff_all = cell(shuff_rep,1);
+    fprintf('num rep out of %d: ', shuff_rep)
     for n_rep = 1:shuff_rep
         firing_rate_ensemb_shuff = f_shuffle_data(firing_rate_ensemb, 'circ_shift');
         train_done = 0;
+        num_fail = 0;
         while ~train_done
             try
                 [dred_factors_shuff, ~] = f_dred_train2(firing_rate_ensemb_shuff, num_ens, ensamble_method, 0);
                 train_done = 1;
+                fprintf('%d', n_rep);
             catch
-                disp('Error train, will repeat');
+                num_fail = num_fail + 1;
+                %disp('Error train, will repeat');
+            end
+            if num_fail > 5
+                firing_rate_ensemb_shuff = f_shuffle_data(firing_rate_ensemb, 'circ_shift');
             end
         end
         [coeffs_shuff, scores_shuff] = f_dred_get_coeffs(dred_factors_shuff);
         coeffs_shuff_all{n_rep} = coeffs_shuff;
         scores_shuff_all{n_rep} = scores_shuff';
     end
+    fprintf('\n');
     coeffs_shuff_all1 = cat(1,coeffs_shuff_all{:});
     scores_shuff_all1 = cat(1,scores_shuff_all{:});
     if ~two_sided
@@ -69,6 +77,7 @@ if strcmpi(ensamble_extraction_thresh, 'shuff')
 elseif strcmpi(ensamble_extraction_thresh, 'signal_clust_thresh')
     for n_comp = 1:num_ens
         factors1 = coeffs(:,n_comp);
+        %figure; plot(ones(numel(factors1),1),factors1, 'o')
         [~, clust_ident, ~] = f_hcluster(factors1, 'ward', two_sided+2);
         [fac_sort, indx1] = sort(factors1, 'ascend');
         clust_edge = find(abs(diff(clust_ident(indx1))));
@@ -104,20 +113,22 @@ if plot_stuff
     end
     for n_comp = 1:num_ens
         subplot(num_ens,2,n_comp+num_ens); hold on;
-        stem(scores(n_comp,:))
-        plot(ones(numel(scores(n_comp,:)),1)*thresh_scores_z(n_comp,:), '--r');
+        pl1 = stem(scores(n_comp,:));
+        pl2 = plot(ones(numel(scores(n_comp,:)),1)*thresh_scores_z(n_comp,:), '--r');
         if ~strcmpi(ensamble_extraction_thresh, 'signal_z')
-            plot(ones(numel(scores(n_comp,:)),1)*thresh_scores(n_comp,:), '--g');
+            pl3 = plot(ones(numel(scores(n_comp,:)),1)*thresh_scores(n_comp,:), '--g');
         end
         axis tight;
         title(sprintf('Scores, comp %d', n_comp));
         xlabel('Trials')
     end
     if ~strcmpi(ensamble_extraction_thresh, 'signal_z')
-        legend('data', 'z thresh', ensamble_extraction_thresh);
+        legend([pl1 pl2(1) pl3(1)], {'data', 'z thresh', ensamble_extraction_thresh});
     else
-        legend('data', 'z thresh');
+        legend([pl1 pl2(1)], {'data', 'z thresh'});
     end
 end
+
+%figure; ecdf(coeffs_shuff_all1(:,1))
 
 end

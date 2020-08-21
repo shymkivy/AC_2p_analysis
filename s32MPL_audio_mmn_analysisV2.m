@@ -27,8 +27,10 @@ ops.more_analysis = 0;
 
 %% --------------------------- analysis params -------------------------
 % ensemble analysis
-ops.ensemb.method = 'ica'; %'tca'
-ops.ensemb.pca_var_thresh = .95; % in percent
+ops.ensemb.method = 'nmf'; %'tca'
+ops.ensemb.corr_comp_thresh = .90; % in percent
+ops.ensemb.total_dim_thresh = .70;
+
 ops.ensemb.smooth_kernSD = 200;
 ops.ensemb.select_upstates = false;
 ops.ensemb.PCA_dim_reduction = false;
@@ -43,7 +45,7 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd1'};
+ops.dred_params.trial_types_to_dred = {'cont1', 'cont2'};
 ops.dred_params.use_responsive_cells = 1;
 
 %--------------

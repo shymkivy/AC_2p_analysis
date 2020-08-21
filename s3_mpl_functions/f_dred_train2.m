@@ -116,7 +116,7 @@ elseif strcmpi(method, 'ica')
     % W is separating matrix; icasig = W*data
     % A is mixing matriz; data = A*icasig 
     % A = ((W*W')\W)'
-    [icasig, A, W] = fastica(data_n2d,'lastEig', num_comp);
+    [icasig, A, W] = fastica(data_n2d,'lastEig', num_comp, 'verbose', 'off');
     
     dred_factors.icasig = icasig;
     dred_factors.A = A;

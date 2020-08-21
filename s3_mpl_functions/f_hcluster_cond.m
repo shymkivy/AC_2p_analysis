@@ -71,37 +71,44 @@ for n_dset = 1:cdata.num_dsets
         dr_params.hclust_out_cell = hclust_out_cell{n_dset};
         %%
         %f_tsne(trial_peaks)
-
-
-        %% compute dimensionality of full dsets
+        
+        %%
 %         trial_peaks_dred_sort = trial_peaks_dred(:,hclust_out_tr{n_dset}.dend_order);
 %         trial_peaks_dred_sort = trial_peaks_dred_sort(hclust_out_cell{n_dset}.dend_order,:);
 %         trial_types_dred_sort = trial_types_dred(hclust_out_tr{n_dset}.dend_order);
-        
-        data_dim_est_full{n_dset} = f_ensemble_comp_data_dim2(trial_peaks_dred, 0);
+
+        %% compute dimensionality of full dsets
+
+        params_dd.total_dim_thresh = ops.ensemb.total_dim_thresh;
+        params_dd.corr_comp_thresh = ops.ensemb.corr_comp_thresh;
+        params_dd.normalize = 'norm_full'; %'norm_full' 'norm_mean' 'none'
+        data_dim_est_full{n_dset} = f_ensemble_comp_data_dim2(trial_peaks_dred, params_dd);
         %% extract ensembles? 
         if ops.dred_params.do_ensamble_analysis
-            params.cond_name = dr_params.cond_name;
-            params.n_dset = dr_params.n_dset;
-            params.normalize = 1;
-            %params.num_comps = [];
-            params.plot_stuff = 1;
-            params.ensamble_method = ops.ensemb.method;
-
-            ens_out_full{n_dset} = f_ensemble_analysis_peaks3(trial_peaks_dred, params, ops);
-            
+            params_ens.cond_name = dr_params.cond_name;
+            params_ens.n_dset = dr_params.n_dset;
+            params_ens.ensamble_method = ops.ensemb.method;
+            params_ens.corr_comp_thresh = ops.ensemb.corr_comp_thresh;
+            params_ens.normalize = 'norm_full'; %'norm_full' 'norm_mean' 'none'
+            params_ens.num_comps = [];
+            params_ens.plot_stuff = 0;
+            params_ens.use_LR_proj = 0;
+            params_ens.ensamble_extraction = 'thresh'; % 'thresh', 'clust'
+            params_ens.ensamble_extraction_thresh = 'signal_clust_thresh'; % 'shuff'. 'clust_thresh', 'signal_z'
+            ens_out_full{n_dset} = f_ensemble_analysis_peaks3(trial_peaks_dred, params_ens, ops);
         end
         %%
         %ops.dred_params.hclust.sort_raster = 1;
-        %raster_intput1 = trial_data_sort_sm_pr;
-        raster_intput1 = trial_peaks_dred;
-        dr_params.dend_order_cells = ens_out_full{n_dset}.cell_clust.dend_order;
-        dr_params.clust_ident_cells = ens_out_full{n_dset}.cell_clust.clust_ident;
-        dr_params.dend_order_trials = ens_out_full{n_dset}.trial_clust.dend_order;
-        dr_params.clust_ident_trials = ens_out_full{n_dset}.trial_clust.clust_ident;
+        %raster_plot_intput1 = trial_data_sort_sm_pr;
+        raster_plot_intput1 = trial_peaks_dred;
+        trial_types_input1 = trial_types_dred;
+        dr_params.dend_order_cells = ens_out_full{n_dset}.cells.dend_order;
+        dr_params.clust_ident_cells = ens_out_full{n_dset}.cells.clust_ident;
+        dr_params.dend_order_trials = ens_out_full{n_dset}.trials.dend_order;
+        dr_params.clust_ident_trials = ens_out_full{n_dset}.trials.clust_ident;
         figure(fig_ras);
         sp_ras{n_dset} = subplot(3,5,n_dset);
-        f_hclust_raster(raster_intput1, trial_types_dred, sp_ras{n_dset}, dr_params, ops);
+        f_hclust_raster(raster_plot_intput1, trial_types_input1, sp_ras{n_dset}, dr_params, ops);
         
 %         ops.dred_params.hclust.sort_raster = 0;
 %         figure(fig_ras2);
@@ -129,7 +136,7 @@ for n_dset = 1:cdata.num_dsets
                 for n_rep = 1:num_repeats
                     
                     samp_idx = randsample(num_cells, dd_cells_range(n_cellr));
-                    data_dim_est = f_ensemble_comp_data_dim2(trial_peaks_dred_sort(samp_idx,:), 0);
+                    data_dim_est = f_ensemble_comp_data_dim2(trial_peaks_dred(samp_idx,:), params_dd);
 
                     %data_dim_est = f_ensemble_analysis_YS2(trial_data_sort_sm,trial_types_dred);
                     dim_est_st(dd_idx).cond_name = dr_params.cond_name;
