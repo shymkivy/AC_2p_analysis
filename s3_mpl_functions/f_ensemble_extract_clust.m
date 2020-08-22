@@ -115,8 +115,6 @@ if strcmpi(cluster_method_cell, 'hclust')
     params2.num_clust = num_clust;
     params2.XY_label = 'Cells';
     clust_out_cell = f_hcluster_wrap(X, [], params2, ops);
-    xlabel('Cells');
-    ylabel('Cells');
     %gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
     
 elseif strcmpi(cluster_method_cell, 'gmm')
