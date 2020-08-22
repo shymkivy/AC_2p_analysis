@@ -40,7 +40,7 @@ end
 
 %% plot
 for n_tt = 1:numel(tt_types)
-    if sum(tt_types{n_tt} == '+')
+    if sum(tt_types{n_tt} == '+') || sum(sum(tt_types{n_tt} == ['12']'))==2
         f_plot_dset_deets(tt_types_data{n_tt}, ops);
         %f_plot_dset_deets(cat(2,tt_types_data{n_tt,:}), ops);
         title(sprintf('data %s, %s',param_name, tt_types{n_tt}), 'interpreter', 'none');

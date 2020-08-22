@@ -141,9 +141,9 @@ for n_dset = 1:cdata.num_dsets
             dim_est_st = dr_params.dim_est_st;
             dd_idx = numel([dim_est_st.n_dset])+1;
             num_cells = size(trial_data_sort_sm_pr,1);
-            interval1 = 5;
+            interval1 = 3;
             num_repeats = 10;
-            dd_cells_range = [interval1:interval1:num_cells num_cells];
+            dd_cells_range = interval1:interval1:min(num_cells,50);
             for n_cellr = 1:numel(dd_cells_range)
                 for n_rep = 1:num_repeats
                     
@@ -157,11 +157,13 @@ for n_dset = 1:cdata.num_dsets
                     dim_est_st(dd_idx).num_cells = num_cells;
                     dim_est_st(dd_idx).num_cells_samp = dd_cells_range(n_cellr);
                     dim_est_st(dd_idx).dimensionality_total = data_dim_est.dimensionality_total;
+                    dim_est_st(dd_idx).dimensionality_total_norm = data_dim_est.dimensionality_total_norm;
+                    dim_est_st(dd_idx).dimensionality_total_norm_shuff = data_dim_est.dimensionality_total_norm_shuff;
+                    dim_est_st(dd_idx).dimensionality_first_comp_size = data_dim_est.dimensionality_first_comp_size;
                     dim_est_st(dd_idx).dimensionality_corr = data_dim_est.dimensionality_corr;
                     dim_est_st(dd_idx).num_comp_est = data_dim_est.num_comps;
                     dim_est_st(dd_idx).d_explained = data_dim_est.d_explained;
-                    dim_est_st(dd_idx).n_rep = n_rep;
-                    dim_est_st(dd_idx).var_thresh_prc = data_dim_est.var_thresh_prc;             
+                    dim_est_st(dd_idx).n_rep = n_rep;          
                     dd_idx = dd_idx+1;
                 end
             end

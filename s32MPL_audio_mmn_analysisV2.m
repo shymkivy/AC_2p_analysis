@@ -59,7 +59,7 @@ ops.dred_params.hclust.plot_hclust_cells = 0;
 ops.dred_params.hclust.plot_hclust_trials = 0;
 %-----------------
 ops.dred_params.do_cv = 0;
-ops.dred_params.do_dim_estimate = 0;
+ops.dred_params.do_dim_estimate = 1;
 ops.dred_params.randomize_trials = 1;
 ops.dred_params.method_list = {'svd','nmf','tca'}; %  ,'gpfa','fa', 'spca'
 ops.dred_params.num_comp = 1:2:20; %
@@ -69,7 +69,7 @@ ops.dred_params.sort_trial_before = false;
 %-----------------
 ops.dred_params.do_ensamble_analysis = 1;
 %
-ops.dred_params.do_trial_dist = 0;
+ops.dred_params.do_trial_dist = 1;
 ops.dred_params.trial_types_for_dist = {'dd1'};
 % k-means param 
 
