@@ -29,7 +29,7 @@ raster2 = reshape(trial_data_sort3(dend_order_cells,:,:), num_cells, []);
 
 subplot(sp)
 imagesc(raster2);
-title(sprintf('d%d', params.n_dset));
+title(sprintf('d%d, corr=%.2f', params.n_dset, params.dim_corr));
 added_width = f_plot_trial_indicator(trial_types, dend_order_trials, num_bins, num_cells, ops);
 
 raster3 = zeros(size(raster2)+[added_width*2 0]);

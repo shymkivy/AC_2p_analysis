@@ -27,8 +27,11 @@ ops.more_analysis = 0;
 
 %% --------------------------- analysis params -------------------------
 % ensemble analysis
-ops.ensemb.method = 'ica'; %'tca'
-ops.ensemb.pca_var_thresh = .95; % in percent
+ops.ensemb.method = 'nmf'; %'tca'
+ops.ensemb.corr_comp_thresh = .90; % in percent
+ops.ensemb.total_dim_thresh = .70;
+ops.ensemb.normalize = 'norm_full'; %'norm_full' 'norm_mean' 'none'
+
 ops.ensemb.smooth_kernSD = 200;
 ops.ensemb.select_upstates = false;
 ops.ensemb.PCA_dim_reduction = false;
@@ -43,7 +46,7 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd1'};
+ops.dred_params.trial_types_to_dred = {'dd1', 'dd2'};
 ops.dred_params.use_responsive_cells = 1;
 
 %--------------
@@ -52,6 +55,8 @@ ops.dred_params.hclust.num_clust = {1, 1, 1};
 ops.dred_params.hclust.method = 'cosine';       % 'cosine', 'ward'
 ops.dred_params.hclust.plot_metric = 'cosine';  % 'cosine', 'euclidean'
 ops.dred_params.hclust.sort_raster = 1;
+ops.dred_params.hclust.plot_hclust_cells = 0;
+ops.dred_params.hclust.plot_hclust_trials = 0;
 %-----------------
 ops.dred_params.do_cv = 0;
 ops.dred_params.do_dim_estimate = 0;
@@ -64,8 +69,8 @@ ops.dred_params.sort_trial_before = false;
 %-----------------
 ops.dred_params.do_ensamble_analysis = 1;
 %
-ops.dred_params.do_trial_dist = 0;
-ops.dred_params.trial_types_for_dist = {'dd1'};
+ops.dred_params.do_trial_dist = 1;
+ops.dred_params.trial_types_for_dist = {[1:10], 'mmn12'};
 % k-means param 
 
 % how many clusters to use 
@@ -112,6 +117,8 @@ if ops.population_analysis
     %f_mpl_population_analysis(data, ops);
 end
 
+%%
+%f_mpl_trial_trial_dist(data, ops);
 
 %% editing
 if ops.population_analysis_trials
@@ -121,7 +128,11 @@ end
 
 %%
 
+<<<<<<< HEAD
 f_mpl_trial_trial_dist(data, ops);
+=======
+
+>>>>>>> e0e08291378290347ad47622859ac164929c65b7
 
 
 %%

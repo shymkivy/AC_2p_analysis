@@ -1,27 +1,34 @@
-function [out, dred_data] = f_dred_train2(data, num_comp, num_trials, method)
-% data in data(cell, time, trial)
+function [out, dred_data] = f_dred_train2(data, num_comp, method, normalize)
+% data in 3D array: data(cell x time x trial)
+% or      2D array: data(cell x time)
 
+%%
 if ~exist('method', 'var') || isempty(method)
     method = 'SVD';
 end
-
-
-if ndims(data) == 3
-    [num_cells, num_bins, num_trials] = size(data);
-    data_3d = data;
-    data_2d = reshape(data,num_cells,[]);
-elseif ndims(data) == 2
-    [num_cells, ~] = size(data);
-    data_2d = data;
-    data_3d = reshape(data, num_cells, [], num_trials);
-    num_bins = size(data_3d,2);
+if ~exist('norm', 'var') || isempty(normalize)
+    normalize = 1;
 end
 
+ndims1 = ndims(data);
+
+if ndims1 == 3
+    [num_cells, num_bins, num_trials] = size(data);
+    data_2d = reshape(data,num_cells,[]);
+elseif ndims1 == 2
+    [num_cells, num_bins] = size(data);
+    num_trials = 1;
+    data_2d = data;
+end
 
 
 %% dim reduction
 
-data_means = zeros(size(data_2d,1),1);%mean(data_2d,2);
+if normalize 
+    data_means = mean(data_2d,2);
+else
+    data_means = zeros(size(data_2d,1),1);
+end
 data_n2d = data_2d - data_means;
 
 if strcmpi(method, 'svd')
@@ -109,7 +116,7 @@ elseif strcmpi(method, 'ica')
     % W is separating matrix; icasig = W*data
     % A is mixing matriz; data = A*icasig 
     % A = ((W*W')\W)'
-    [icasig, A, W] = fastica(data_n2d,'lastEig', num_comp);
+    [icasig, A, W] = fastica(data_n2d,'lastEig', num_comp, 'verbose', 'off');
     
     dred_factors.icasig = icasig;
     dred_factors.A = A;

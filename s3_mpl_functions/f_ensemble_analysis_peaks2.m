@@ -142,7 +142,7 @@ if strcmpi(ensamble_method, 'nmf')
     num_LR_comps = round(num_comps*1.5);
 end
 
-[dred_factors1, ~] = f_dred_train2(firing_rate_LR, num_LR_comps, num_trials, ensamble_method);
+[dred_factors1, ~] = f_dred_train2(firing_rate_LR, num_LR_comps, ensamble_method, 0);
 [coeffs, scores] = f_dred_get_coeffs(dred_factors1);
 
 %% Visualize traces
@@ -260,7 +260,7 @@ for n_rep = 1:shuff_rep
     train_done = 0;
     while ~train_done
         try
-            [dred_factors_shuff, ~] = f_dred_train2(firing_rate_LR_shuff, num_ens_comps, num_trials, ensamble_method);
+            [dred_factors_shuff, ~] = f_dred_train2(firing_rate_LR_shuff, num_ens_comps, ensamble_method, 0);
             train_done = 1;
         catch
             disp('Error train, will repeat');

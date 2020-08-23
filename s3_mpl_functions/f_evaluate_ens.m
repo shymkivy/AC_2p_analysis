@@ -3,25 +3,25 @@ plot_stuff = f_get_param(params, 'plot_stuff', 0);
 
 %%
 if ~isempty(gt_trials)
-    clust_tr = ens_out.trial_clust;
-    clust_eval_tr = f_evaluate_ens_result(clust_tr.clust_ident, gt_trials, plot_stuff);
+    clust_tr = ens_out.trials;
+    clust_eval_tr = f_evaluate_ens_result(clust_tr.ens_list, gt_trials, plot_stuff);
     if plot_stuff
         suptitle(sprintf('Ens trial detection, mean acc = %.2f', mean(clust_eval_tr.accuracy)));
     end
     %clust_tr.clust_ident = clust_eval_tr.aligned_seq(clust_tr.clust_ident,2);
-    fprintf('Ens clustering trials with %.2f accuracy, %d clusters\n', mean(clust_eval_tr.accuracy), clust_tr.num_clust);
+    fprintf('Ens clustering trials with %.2f accuracy, %d clusters\n', mean(clust_eval_tr.accuracy), numel(clust_tr.clust_label));
     ens_eval_out.clust_eval_tr = clust_eval_tr;
 end
 
 %%
 if ~isempty(gt_cells)
-    clust_cell = ens_out.cell_clust;
-    clust_eval_cell = f_evaluate_ens_result(clust_cell.clust_ident, gt_cells, plot_stuff);
+    clust_cell = ens_out.cells;
+    clust_eval_cell = f_evaluate_ens_result(clust_cell.ens_list, gt_cells, plot_stuff);
     if plot_stuff
         suptitle(sprintf('Ens cell detection, mean acc = %.2f', mean(clust_eval_cell.accuracy)));
     end
     %clust_out_cell.clust_ident = clust_eval_cell.ens_perm_ind(clust_cell.clust_ident);
-    fprintf('Ens clustering cells with %.2f accuracy, %d clusters\n', mean(clust_eval_cell.accuracy), clust_cell.num_clust);
+    fprintf('Ens clustering cells with %.2f accuracy, %d clusters\n', mean(clust_eval_cell.accuracy), numel(clust_cell.clust_label));
     ens_eval_out.clust_eval_cell = clust_eval_cell;
 end
 

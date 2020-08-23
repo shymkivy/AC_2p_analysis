@@ -1,10 +1,11 @@
-function ens_out = f_ensemble_extract_clust(coeffs, scores, num_clust, params, ops)
+function ens_out = f_ensemble_extract_clust(coeffs, scores, num_ens, params, ops)
 ensamble_method = f_get_param(params, 'ensamble_method', 'nmf');
 cluster_method = f_get_param(params, 'cluster_method', 'hclust');    % 'hclust' or 'gmm'
 cluster_method_cell = f_get_param(params, 'cluster_method_cell', 'hclust');
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
 
 num_comps = size(scores,1);
+num_clust = num_ens + 1;
 
 %% cluster trials from scores
 
@@ -60,17 +61,6 @@ end
 %% reoder to make core ens first
 
 clust_params_tr = if_get_clust_params(X, clust_out_tr);
-ens_out.trial_clust = clust_params_tr;
-
-
-%%
-if plot_stuff
-    f_plot_comp_scatter(X(:,1:min(num_comps,3)), ens_out.trial_clust.clust_ident, [], ops);
-    title(sprintf('Identified ensamble trials, %s space, %s',ensamble_method, cluster_method));
-    xlabel('comp1');
-    ylabel('comp2');
-    zlabel('comp3');
-end
 
 
 %% get the ensemble cells from trials
@@ -125,8 +115,6 @@ if strcmpi(cluster_method_cell, 'hclust')
     params2.num_clust = num_clust;
     params2.XY_label = 'Cells';
     clust_out_cell = f_hcluster_wrap(X, [], params2, ops);
-    xlabel('Cells');
-    ylabel('Cells');
     %gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
     
 elseif strcmpi(cluster_method_cell, 'gmm')
@@ -168,14 +156,20 @@ end
 %% align to trial clusts
 
 clust_params_cell = if_get_clust_params(X, clust_out_cell);
-clust_params_cell_al = if_align_clusters(ens_out.trial_clust, clust_params_cell, plot_stuff);
+clust_params_tr_al = if_align_clusters(coeffs, scores, clust_params_cell, clust_params_tr, plot_stuff);
 
-ens_out.cell_clust = clust_params_cell_al;
+ens_out.cells = clust_params_cell;
+ens_out.trials = clust_params_tr_al;
 
 %%
 if plot_stuff
-    f_plot_comp_scatter(X(:,1:min(num_comps,3)), clust_params_cell_al.clust_ident,[], ops);
+    f_plot_comp_scatter(coeffs(:,1:min(num_comps,3)), ens_out.cells.clust_ident, [], ops);
     title(sprintf('Identified ensamble cells, %s space, %s',ensamble_method, cluster_method));
+    xlabel('comp1');
+    ylabel('comp2');
+    zlabel('comp3');
+    f_plot_comp_scatter(scores(1:min(num_comps,3),:)', ens_out.trials.clust_ident,[], ops);
+    title(sprintf('Identified ensamble trials, %s space, %s',ensamble_method, cluster_method));
     xlabel('comp1');
     ylabel('comp2');
     zlabel('comp3');
@@ -188,9 +182,9 @@ function clust_params = if_get_clust_params(X, clust_out)
 
 num_dred_comps = size(X,2);
 
-num_clust = numel(unique(clust_out.clust_ident));
-
 clust_label = unique(clust_out.clust_ident);
+num_clust = numel(clust_label);
+
 clust_centers = zeros(num_clust,num_dred_comps);
 clust_mag = zeros(num_clust,1);
 cell_num = zeros(num_clust,1);
@@ -203,22 +197,36 @@ end
 
 [~, ens_order] = sort(clust_mag);
 [~, ens_order2] = sort(ens_order);
+clust_ident2 = ens_order2(clust_out.clust_ident)-1;
+
+ens_list = cell(num_clust,1);
+for n_ens = 1:(num_clust)
+    ens_list{n_ens} = find(clust_ident2 == (n_ens-1)');
+end
 
 clust_params.num_clust = num_clust;
 clust_params.clust_label = clust_label - 1;
-clust_params.dend_order = clust_out.dend_order(:);
-clust_ident2 = ens_order2(clust_out.clust_ident)-1;
+clust_params.ens_list = ens_list;
 clust_params.clust_ident = clust_ident2(:);
+clust_params.dend_order = clust_out.dend_order(:);
 clust_params.clust_centers = clust_centers(ens_order,:);
 clust_params.clust_mag = clust_mag(ens_order);
 clust_params.cell_num = cell_num(ens_order);
 end
 
-function align_clust_out = if_align_clusters(temp_clust, align_clust, plot_stuff)
+function align_clust_out = if_align_clusters(coeffs, scores, cells_clust, trials_clust, plot_stuff)
 
-dist_met_pre = temp_clust.clust_centers*align_clust.clust_centers';
+dist_met_pre = zeros(numel(cells_clust.ens_list), numel(trials_clust.ens_list));
+for n_ens = 1:numel(cells_clust.ens_list)
+    for n_ens2 = 1:numel(trials_clust.ens_list)
+        cells1 = cells_clust.ens_list{n_ens};
+        trials1 = trials_clust.ens_list{n_ens2};
+        ens_mat = coeffs(cells1,:)*scores(:,trials1);
+        dist_met_pre(n_ens,n_ens2) = mean(ens_mat(:));
+    end   
+end
 
-all_perms = perms(1:temp_clust.num_clust);
+all_perms = perms(1:cells_clust.num_clust);
 num_perms = size(all_perms,1);
 acc1 = zeros(num_perms,1);
 for n_pr = 1:num_perms
@@ -226,7 +234,8 @@ for n_pr = 1:num_perms
 end
 [~, max_perm_ind] = max(acc1);
 best_perm = all_perms(max_perm_ind,:);
-dist_met_post = temp_clust.clust_centers*align_clust.clust_centers(best_perm,:)';
+
+dist_met_post = dist_met_pre(:,best_perm);
 
 [~, best_perm2] = sort(best_perm);
 
@@ -238,10 +247,12 @@ if plot_stuff
     title('Post cluster alignment'); axis equal tight;
 end
 
-align_clust_out = align_clust;
-clust_ident = best_perm2(align_clust.clust_ident+1)-1;
+align_clust_out = trials_clust;
+clust_ident = best_perm2(trials_clust.clust_ident+1)-1;
+align_clust_out.ens_list = trials_clust.ens_list(best_perm);
 align_clust_out.clust_ident = clust_ident(:);
-align_clust_out.clust_centers = align_clust.clust_centers(best_perm,:);
-align_clust_out.clust_mag = align_clust.clust_mag(best_perm);
-align_clust_out.cell_num = align_clust.cell_num(best_perm);
+align_clust_out.clust_centers = trials_clust.clust_centers(best_perm,:);
+align_clust_out.clust_mag = trials_clust.clust_mag(best_perm);
+align_clust_out.cell_num = trials_clust.cell_num(best_perm);
 end
+
