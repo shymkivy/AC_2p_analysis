@@ -134,10 +134,10 @@ for n_dset = 1:cdata.num_dsets
         
         
         %% distance metric
-        num_tt = numel(tn_to_dred);
-        if num_tt == 2
-            f_dist_metric(trial_peaks_dred, trial_types_dred, dr_params)
-        end
+%         num_tt = numel(tn_to_dred);
+%         if num_tt == 2
+%             f_dist_metric(trial_peaks_dred, trial_types_dred, dr_params)
+%         end
         
         %% compute data dimensionality for cell range
         if ops.dred_params.do_dim_estimate

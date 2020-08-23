@@ -46,7 +46,7 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd12'};
+ops.dred_params.trial_types_to_dred = {'dd1', 'dd2'};
 ops.dred_params.use_responsive_cells = 1;
 
 %--------------
@@ -118,7 +118,7 @@ if ops.population_analysis
 end
 
 %%
-f_mpl_trial_trial_dist(data, ops);
+%f_mpl_trial_trial_dist(data, ops);
 
 %% editing
 if ops.population_analysis_trials

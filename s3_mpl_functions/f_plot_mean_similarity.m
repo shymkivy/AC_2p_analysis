@@ -58,6 +58,9 @@ end
 %% plot
 for n_tt = 1:numel(tt_types)
     if sum(tt_types{n_tt} == '+')
+        p_val_mat = f_get_tt_stats(tt_types_data{n_tt});
+        figure; imagesc(p_val_mat);
+        title(sprintf('trial-trial mean similarity, %s', tt_types{n_tt}));
         f_plot_dset_deets(tt_types_data{n_tt}, ops);
         title(sprintf('trial-trial mean similarity, %s', tt_types{n_tt}));
     end
