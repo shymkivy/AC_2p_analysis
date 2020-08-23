@@ -33,7 +33,7 @@ elseif strcmpi(trial_types_to_dred, 'cont12')
 end
 
 if isnumeric(trial_types_to_dred)
-    trial_type_tag = ['trials_' trial_types_to_dred];
+    trial_type_tag = ['trials ' num2str(trial_types_to_dred)];
 else
     trial_type_tag = trial_types_to_dred;
 end

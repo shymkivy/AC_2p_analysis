@@ -46,7 +46,7 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd1', 'dd2'};
+ops.dred_params.trial_types_to_dred = {'dd12'};
 ops.dred_params.use_responsive_cells = 1;
 
 %--------------
@@ -59,7 +59,7 @@ ops.dred_params.hclust.plot_hclust_cells = 0;
 ops.dred_params.hclust.plot_hclust_trials = 0;
 %-----------------
 ops.dred_params.do_cv = 0;
-ops.dred_params.do_dim_estimate = 1;
+ops.dred_params.do_dim_estimate = 0;
 ops.dred_params.randomize_trials = 1;
 ops.dred_params.method_list = {'svd','nmf','tca'}; %  ,'gpfa','fa', 'spca'
 ops.dred_params.num_comp = 1:2:20; %
@@ -70,7 +70,7 @@ ops.dred_params.sort_trial_before = false;
 ops.dred_params.do_ensamble_analysis = 1;
 %
 ops.dred_params.do_trial_dist = 1;
-ops.dred_params.trial_types_for_dist = {'dd1'};
+ops.dred_params.trial_types_for_dist = {[1:10], 'mmn12'};
 % k-means param 
 
 % how many clusters to use 
@@ -117,6 +117,8 @@ if ops.population_analysis
     %f_mpl_population_analysis(data, ops);
 end
 
+%%
+f_mpl_trial_trial_dist(data, ops);
 
 %% editing
 if ops.population_analysis_trials
@@ -126,7 +128,7 @@ end
 
 %%
 
-%f_mpl_trial_trial_dist(data, ops);
+
 
 
 %%

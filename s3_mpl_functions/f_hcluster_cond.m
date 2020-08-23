@@ -113,10 +113,14 @@ for n_dset = 1:cdata.num_dsets
         %raster_plot_intput1 = trial_data_sort_sm_pr;
         raster_plot_intput1 = trial_peaks_dred;
         trial_types_input1 = trial_types_dred;
-        dr_params.dend_order_cells = ens_out_full{n_dset}.cells.dend_order;
+        
         dr_params.clust_ident_cells = ens_out_full{n_dset}.cells.clust_ident;
-        dr_params.dend_order_trials = ens_out_full{n_dset}.trials.dend_order;
         dr_params.clust_ident_trials = ens_out_full{n_dset}.trials.clust_ident;
+        
+        %dr_params.dend_order_cells = ens_out_full{n_dset}.cells.dend_order;
+        %dr_params.dend_order_trials = ens_out_full{n_dset}.trials.dend_order;
+        dr_params.dend_order_cells = dr_params.hclust_out_cell.dend_order;
+        dr_params.dend_order_trials = dr_params.hclust_out_tr.dend_order;
         dr_params.dim_corr = ens_out_full{n_dset}.data_dim_est.dimensionality_corr;
         figure(fig_ras);
         sp_ras{n_dset} = subplot(3,5,n_dset);
@@ -130,11 +134,10 @@ for n_dset = 1:cdata.num_dsets
         
         
         %% distance metric
-%         num_tt = numel(tn_to_dred);
-%         if num_tt == 2
-%             tt_index1 = trial_types_dred_sort == tn_to_dred(1);
-%             f_ensemble_analysis_peaks(trial_peaks_dred_sort(:,tt_index1), trial_types_dred_sort(tt_index1), dr_params, ops);
-%         end
+        num_tt = numel(tn_to_dred);
+        if num_tt == 2
+            f_dist_metric(trial_peaks_dred, trial_types_dred, dr_params)
+        end
         
         %% compute data dimensionality for cell range
         if ops.dred_params.do_dim_estimate
