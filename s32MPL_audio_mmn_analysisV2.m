@@ -106,7 +106,7 @@ ops.norm_after_method = 2;
 %f_plot_cond_reliability(data, ops);
 
 %%
-f_model_raster(data, ops);
+%f_model_raster(data, ops);
 %% ---------------------------population analysis--------------------------
 if ops.population_analysis
     %f_mpl_population_analysis(data, ops);
@@ -115,13 +115,13 @@ end
 
 %% editing
 if ops.population_analysis_trials
-    f_mpl_population_analysis_trials3(data, ops);
+    %f_mpl_population_analysis_trials3(data, ops);
 end
 % 
 
 %%
 
-%f_mpl_trial_trial_dist(data, ops);
+f_mpl_trial_trial_dist(data, ops);
 
 
 %%
