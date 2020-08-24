@@ -110,17 +110,17 @@ for n_dset = 1:cdata.num_dsets
         end
         %%
         %ops.dred_params.hclust.sort_raster = 1;
-        %raster_plot_intput1 = trial_data_sort_sm_pr;
-        raster_plot_intput1 = trial_peaks_dred;
+        raster_plot_intput1 = trial_data_sort_sm_pr;
+        %raster_plot_intput1 = trial_peaks_dred;
         trial_types_input1 = trial_types_dred;
         
         dr_params.clust_ident_cells = ens_out_full{n_dset}.cells.clust_ident;
         dr_params.clust_ident_trials = ens_out_full{n_dset}.trials.clust_ident;
         
-        %dr_params.dend_order_cells = ens_out_full{n_dset}.cells.dend_order;
-        %dr_params.dend_order_trials = ens_out_full{n_dset}.trials.dend_order;
-        dr_params.dend_order_cells = dr_params.hclust_out_cell.dend_order;
-        dr_params.dend_order_trials = dr_params.hclust_out_tr.dend_order;
+        dr_params.dend_order_cells = ens_out_full{n_dset}.cells.dend_order;
+        dr_params.dend_order_trials = ens_out_full{n_dset}.trials.dend_order;
+        %dr_params.dend_order_cells = dr_params.hclust_out_cell.dend_order;
+        %dr_params.dend_order_trials = dr_params.hclust_out_tr.dend_order;
         dr_params.dim_corr = ens_out_full{n_dset}.data_dim_est.dimensionality_corr;
         figure(fig_ras);
         sp_ras{n_dset} = subplot(3,5,n_dset);
