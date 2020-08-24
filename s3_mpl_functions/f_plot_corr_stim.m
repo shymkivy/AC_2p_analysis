@@ -17,8 +17,15 @@ for n_cond = 1:numel(ops.regions_to_analyze)
 end
 
 p_val_mat = f_get_tt_stats(corr_list);
-figure; imagesc(p_val_mat);
-f_plot_dset_deets(corr_list, ops)
+figure;
+subplot(2,1,2);
+imagesc(p_val_mat);
+caxis([0 1]);
+sp1 = subplot(2,1,1);
+f_plot_dset_deets(corr_list, ops, sp1)
+ylim([.3 1]);
+
+
 
 
 end

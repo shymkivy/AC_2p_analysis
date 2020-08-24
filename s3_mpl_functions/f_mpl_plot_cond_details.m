@@ -18,7 +18,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     resp_cells = cell(cdata.num_dsets,1);
     for n_dset = 1:cdata.num_dsets
         ctx_mmn_full{n_dset} = repmat(cdata.ctx_mmn{n_dset}, cdata.num_cells(n_dset),1);
-        resp_cells{n_dset} = cdata.tuning_all{n_dset}.peak_tuned_trials_combined_ctx;
+        resp_cells{n_dset} = cdata.peak_tuned_trials_combined_ctx{n_dset};
     end
     ctx_mmn_full = cat(1,ctx_mmn_full{:});
     resp_cells = cat(1,resp_cells{:});
