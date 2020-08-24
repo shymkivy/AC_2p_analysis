@@ -23,7 +23,7 @@ ops.blah = 1;
 %AC_files_OA_10_27_19
 %AC_files_MPL_files_12_11_19
 %AC_files_OA_3_16_20;
-AC_files_OA_5_23_20_lab
+AC_files_OA_5_23_20
 
 %% preprocessing parameters
 % ------- Load params -----------

@@ -1,5 +1,10 @@
-function f_plot_dset_deets(plot_y_cell, ops)
-figure; hold on;
+function f_plot_dset_deets(plot_y_cell, ops, sp_pt)
+if ~exist('sp_pt', 'var')
+    figure;
+else
+    subplot(sp_pt)
+end
+ hold on;
 xpts = numel(ops.regions_to_analyze);
 plot_shuff = size(plot_y_cell,2)-1;
 lg1 = cell(xpts,1);

@@ -117,8 +117,6 @@ if ops.population_analysis
     %f_mpl_population_analysis(data, ops);
 end
 
-%%
-%f_mpl_trial_trial_dist(data, ops);
 
 %% editing
 if ops.population_analysis_trials
@@ -127,12 +125,7 @@ end
 % 
 
 %%
-
-<<<<<<< HEAD
 f_mpl_trial_trial_dist(data, ops);
-=======
-
->>>>>>> e0e08291378290347ad47622859ac164929c65b7
 
 
 %%
