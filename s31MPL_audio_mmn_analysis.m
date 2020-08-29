@@ -35,10 +35,9 @@ ops.dev_cells_ctx = 'ctx_tuned';      % options: 'all', 'ctx_tuned', 'tuned_all'
 ops.remove_early_dev = 1;
 ops.waitbar = 1;
 
-% A1 A2 AAF DM/DA
+% A1 A2 AAF DF
 ops.regions_to_analyze = {'A1','A2','DF','AAF'}; %,, ,,     % choose from fieldnames above 
-% reg, flip, combined
-ops.flip_to_analyze = [1 2 3];
+ops.flip_to_analyze = [1 2 3];  % 1 is regular, 2 is flip, 3 is combined
 
 % which type of infered signal you want to use
 ops.signal_inference = 'MCMC'; % options: 'smooth_dfdt', 'MCMC', 'c_foopsi', 'df_f', 'raw'
@@ -58,9 +57,7 @@ ops.stat.z_scores_average_thresh = 1;
 ops.stat.trials_to_sample = [1:10, 19, 20, 29, 30];%[1:18, 20, 21:28, 30]; % 1:10
 ops.stat.reliability_thresh = .15;          % threshold for how many individual responses are required for being responsive
 ops.stat.plot_examples = 0; % how many random examples to plot
-ops.stat.save_est_samp = 'stat_save_4_9_20';
 ops.stat.min_samp_size_z_normalization = 0;
-
 
 % remove locomotion trials
 ops.remove_loco_trials = 0;
@@ -83,7 +80,6 @@ ops.stim.stim_duration = 0.5;
 ops.stim.num_freqs = 10;
 ops.stim.start_freq = 2000;
 ops.stim.increase_factor = 1.5;
-
 
 %%
 ops = f_mpl_process_ops(ops);
