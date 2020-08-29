@@ -87,7 +87,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         cdata.ctx_mmn{n_dset,1} = ctx_mmn;
         
         if ops.waitbar
-            f_waitbar_update(wb, ops.set_index{n_cond}(n_dset)/ops.dset_total_count, sprintf('Computing tuning %s, dset %d', cond_name, n_dset));
+            f_waitbar_update(wb, ops.dset_index{n_cond}(n_dset)/ops.dset_total_count, sprintf('Computing tuning %s, dset %d', cond_name, n_dset));
         end
         
     end

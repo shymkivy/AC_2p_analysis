@@ -4,10 +4,10 @@ f = waitbar(0,'decoding');
 
 dec_data_out = cell(numel(ops.regions_to_analyze),1);
 
-tt = [170 270];
-dec_cell_start = 10;
-dec_cell_int = 10;
-dec_cell_max = 100;
+tt = [3 4 5 6 170 270];
+dec_cell_start = 5;
+dec_cell_int = 3;
+dec_cell_max = 20;
 num_reps = 10;
 
 for n_cond = 1:numel(ops.regions_to_analyze)
@@ -18,10 +18,12 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         
         trial_types = cdata.trial_types_pr{n_dset}(1:800);
         traces = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag(:,1:800);
-        cdata.peak_tuned_trials_full{n_dset}()
+        resp_cells = logical(sum(cdata.peak_tuned_trials_full{n_dset}(:,logical(sum(ops.context_types_all == tt,2))),2));
+        traces = traces(resp_cells,:);
         
         tr_ind = logical(sum(trial_types == tt,2));
         traces2 = traces(:,tr_ind);
+        
         trial_types2 = trial_types(tr_ind);
         num_cells = size(traces,1);
         max_cells1 = min(dec_cell_max, num_cells);
@@ -88,6 +90,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
 %     shadedErrorBar(cell_list, mean(accuracy1,2), std(accuracy1,[],2)./sqrt(num_reps-1))
 end
 
+close(f);
 %% plot crap
 params_dec.dec_cell_start = dec_cell_start;
 params_dec.dec_cell_int = dec_cell_int;
@@ -95,7 +98,7 @@ params_dec.dec_cell_max = dec_cell_max;
 params_dec.num_reps = num_reps;
 
 f_plot_cont_decoding(dec_data_out, params_dec, ops)
-
+title()
 
 disp('Done')
 
