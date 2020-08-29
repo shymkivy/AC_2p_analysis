@@ -6,7 +6,7 @@ onset_window_frames = dset_params.onset_window_frames;
 offset_window_frames = dset_params.offset_window_frames;
 trial_ave_data = f_mpl_trial_average(trial_data_sort,trial_types, trials_to_analyze, 'none');
 
-stat_trace = f_mpl_stat_get_thresholds(trial_data_sort, trial_types, trials_to_analyze, ops);
+stat_trace = f_get_stat_thresholds(trial_data_sort, trial_types, ops.stat.trials_to_sample, trials_to_analyze, ops);
 
 tunning_z_mag = (trial_ave_data - stat_trace.means)./mean(stat_trace.z_factors,3);
 

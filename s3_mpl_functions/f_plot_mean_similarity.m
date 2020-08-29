@@ -58,11 +58,14 @@ end
 %% plot
 for n_tt = 1:numel(tt_types)
     if sum(tt_types{n_tt} == '+')
+        figure;
+        sp1 = subplot(2,1,1);
+        f_plot_dset_deets(tt_types_data{n_tt}, ops, sp1);
+        title(sprintf('trial-trial mean similarity, %s', tt_types{n_tt}));
+        subplot(2,1,2)
         p_val_mat = f_get_tt_stats(tt_types_data{n_tt});
-        figure; imagesc(p_val_mat);
-        title(sprintf('trial-trial mean similarity, %s', tt_types{n_tt}));
-        f_plot_dset_deets(tt_types_data{n_tt}, ops);
-        title(sprintf('trial-trial mean similarity, %s', tt_types{n_tt}));
+        imagesc(p_val_mat);
+        caxis([0 1]);
     end
 end
 

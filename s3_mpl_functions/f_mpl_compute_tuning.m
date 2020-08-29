@@ -2,21 +2,13 @@ function data = f_mpl_compute_tuning(data, ops)
 
 disp('Computing tunning...');
 
-% load_file = 0;
-% stat_save = struct;
-% if exist([ops.file_dir '\' ops.paradigm_type '_' ops.stat.save_est_samp '.mat'], 'file')
-%     load([ops.file_dir '\' ops.paradigm_type '_' ops.stat.save_est_samp '.mat'], 'stat_save');
-%     if numel(fields(stat_save))
-%         load_file = 1;
-%     end
-% end
+if ops.waitbar
+    wb = f_waitbar_initialize([], 'Computing tuning...');
+end
+
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
     cdata = data.(cond_name);
-%     if ~load_file
-%         %stat_save.(cond_name).onset_thresh = cell(data.(cond_name).num_dsets,1);
-%         %stat_save.(cond_name).offset = cell(data.(cond_name).num_dsets,1);
-%     end
     for n_dset = 1:cdata.num_dsets      
   
         fprintf('%s, dset %d\n', cond_name, n_dset);
@@ -75,15 +67,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         
         dset_params.ctx_mmn = ctx_mmn;
 
-        %% get trial averages compute tunning
-        sig_thresh = [];        
-%         if load_file
-%             if isfield(stat_save.(cond_name), 'sig_thresh_all')
-%                 sig_thresh_all = stat_save.(cond_name).sig_thresh_all{n_dset};
-%             end
-%         end        
-
-        tuning_all = f_get_tuning_dset(trial_data_sort_sm_pr, ops.context_types_all, sig_thresh, dset_params, ops);
+        %% get trial averages compute tunning     
+        tuning_all = f_get_tuning_dset(trial_data_sort_sm_pr, ops.context_types_all, dset_params, ops);
         cdata.tuning_all{n_dset,1} = tuning_all;
 
         %%
@@ -100,14 +85,16 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         %cdata.resp_cells_mmn_onset{n_dset} = data.(cond_name).resp_cells_all_onset{n_dset}(:,ctx_mmn);
         %cdata.resp_cells_mmn_offset{n_dset} = data.(cond_name).resp_cells_all_offset{n_dset}(:,ctx_mmn);
         cdata.ctx_mmn{n_dset,1} = ctx_mmn;
-            
+        
+        if ops.waitbar
+            f_waitbar_update(wb, ops.set_index{n_cond}(n_dset)/ops.dset_total_count, sprintf('Computing tuning %s, dset %d', cond_name, n_dset));
+        end
         
     end
     data.(cond_name) = cdata;
 end
+if ops.waitbar
+    f_waitbar_close(wb);
+end
 
-% if sum(ops.stat.save_est_samp)
-%     save([ops.file_dir '\' ops.paradigm_type '_' ops.stat.save_est_samp '.mat'], 'stat_save', 'ops');
-% end
-   
 end

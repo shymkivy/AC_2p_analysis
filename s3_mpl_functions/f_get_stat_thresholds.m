@@ -1,4 +1,4 @@
-function stat_out = f_mpl_stat_get_thresholds2(trial_data, trial_types, trials_to_sample, trials_to_analyze, ops)
+function stat_out = f_get_stat_thresholds(trial_data, trial_types, trials_to_sample, trials_to_analyze, ops)
 %% sampling done only from indicated trials
 %%
 waitbar_on = 0;
@@ -86,7 +86,6 @@ for n_cell = 1:num_cells
     
     % first estimate SEM around mean
     data_mean = mean(trial_data_sample(n_cell,:,:),3);
-    
     for n_trial = 1:num_trial_cat
         data_SEM_est = std(trial_data_sample(n_cell,:,:),[],3)/sqrt(num_trials_per_cat(n_trial)-1);
         

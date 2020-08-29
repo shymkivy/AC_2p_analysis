@@ -22,5 +22,5 @@ col_width = ceil(plot_y_end/50);
 
 imagesc(1:num_trials*num_bins,plot_y_end+(1:col_width),repmat(color_seq_tt,col_width,1,1));
 imagesc(1:num_trials*num_bins,plot_y_end+col_width+(1:col_width),repmat(color_seq_temporal,col_width,1,1));
-axis tight
+axis tight;
 end

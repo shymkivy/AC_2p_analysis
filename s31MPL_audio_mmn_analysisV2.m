@@ -23,7 +23,7 @@ ops.blah = 1;
 %AC_files_OA_10_27_19
 %AC_files_MPL_files_12_11_19
 %AC_files_OA_3_16_20;
-AC_files_OA_5_23_20
+AC_files_OA_5_23_20_lab
 
 %% preprocessing parameters
 % ------- Load params -----------
@@ -33,6 +33,7 @@ ops.redundent_to_analyze = 3;
 ops.redundent_pool_trials = 2:8;
 ops.dev_cells_ctx = 'ctx_tuned';      % options: 'all', 'ctx_tuned', 'tuned_all'
 ops.remove_early_dev = 1;
+ops.waitbar = 1;
 
 % A1 A2 AAF DM/DA
 ops.regions_to_analyze = {'A1','A2','DF','AAF'}; %,, ,,     % choose from fieldnames above 
@@ -48,7 +49,7 @@ ops.signal_extra_smooth_plot_examples = 0;
 % computing threshholds
 % the distribution of trial averaged data looks like cut off normal dist,
 % so using median is better approximation for z score computation but it
-% requires sampling data so it is slow. 
+% requires sampling data so it is slow.
 ops.stat.thresh_method = 'zscore_around_mean'; % options: 'ecdf_percentile', 'zscore_around_mean', 'zscore_around_median'
 ops.stat.ecdf_percentile_thresh = 99;      % 95% 99.7
 ops.stat.num_samples_drawn = 1000;
@@ -59,6 +60,7 @@ ops.stat.reliability_thresh = .15;          % threshold for how many individual 
 ops.stat.plot_examples = 0; % how many random examples to plot
 ops.stat.save_est_samp = 'stat_save_4_9_20';
 ops.stat.min_samp_size_z_normalization = 0;
+
 
 % remove locomotion trials
 ops.remove_loco_trials = 0;

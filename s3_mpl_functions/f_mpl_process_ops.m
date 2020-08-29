@@ -13,7 +13,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         remove_cond(n_cond) = 1;
     end
 end
-ops.regions_to_analyze(remove_cond) = [];  
+ops.regions_to_analyze(remove_cond) = []; 
 
 %% compute frequencies used
 ops.control_carrier_freq = zeros(1, ops.stim.num_freqs);

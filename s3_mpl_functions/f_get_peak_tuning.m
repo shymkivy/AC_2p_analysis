@@ -1,4 +1,4 @@
-function peak_tuning_out = f_get_peak_tuning(trial_data_sort, trial_types, trials_to_analyze, trial_window_t, window_time, dset_params, ops)
+function peak_tuning_out = f_get_peak_tuning(trial_data_sort, trial_types, trials_to_analyze, trial_window_t, window_time, ops)
 
 [num_cells, ~, num_trials] = size(trial_data_sort);
 
@@ -31,7 +31,7 @@ for n_tr_type = 1:numel(trials_to_analyze)
     fr_peak_latency_sec_ave(:, n_tr_type) = nanmean(fr_peak_latency_sec(:,trial_types == n_tr),2);
 end   
 
-stat_pk = f_mpl_stat_get_thresholds2(fr_peak_mag, trial_types, ops.stat.trials_to_sample, trials_to_analyze, ops);
+stat_pk = f_get_stat_thresholds(fr_peak_mag, trial_types, ops.stat.trials_to_sample, trials_to_analyze, ops);
 
 % remove cells that are nonresponsive
 remove_cells = stat_pk.sig_thresh(:,1) == 0;

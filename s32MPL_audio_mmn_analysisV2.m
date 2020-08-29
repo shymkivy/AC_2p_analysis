@@ -102,7 +102,7 @@ ops.norm_after_method = 2;
 %f_mpl_plot_cell_details(data, ops);
 
 %%
-%f_mpl_plot_dset_details(data, ops);
+f_mpl_plot_dset_details(data, ops);
 
 %%
 %f_mpl_plot_cond_details(data, ops);
@@ -124,9 +124,10 @@ if ops.population_analysis_trials
 end
 
 %%
-f_mpl_trial_trial_dist(data, ops);
+%f_mpl_trial_trial_dist(data, ops);
 
-
+%%
+f_mpl_decoder(data, ops)
 
 %%
 % ---------------------------clustering kmeans---------------------------

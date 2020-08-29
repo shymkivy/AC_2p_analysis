@@ -1,17 +1,13 @@
-function tuning_out = f_get_tuning_dset(trial_data_sort, trials_to_analyze, sig_thresh, dset_params, ops)
+function tuning_out = f_get_tuning_dset(trial_data_sort, trials_to_analyze, dset_params, ops)
 
 trial_window_t = dset_params.trial_window_t;
 trial_types = dset_params.trial_types;
 
-
-[num_cells, ~, num_trials] = size(trial_data_sort);
-
 %% extract peaks and lat info
 
-
-peak_tuning_full_resp = f_get_peak_tuning(trial_data_sort, trial_types, trials_to_analyze, trial_window_t, ops.resp_window_time, dset_params, ops);
-peak_tuning_onset = f_get_peak_tuning(trial_data_sort, trial_types, trials_to_analyze, trial_window_t, ops.onset_window, dset_params, ops);
-peak_tuning_offset = f_get_peak_tuning(trial_data_sort, trial_types, trials_to_analyze, trial_window_t, ops.offset_window, dset_params, ops);
+peak_tuning_full_resp = f_get_peak_tuning(trial_data_sort, trial_types, trials_to_analyze, trial_window_t, ops.resp_window_time, ops);
+peak_tuning_onset = f_get_peak_tuning(trial_data_sort, trial_types, trials_to_analyze, trial_window_t, ops.onset_window, ops);
+peak_tuning_offset = f_get_peak_tuning(trial_data_sort, trial_types, trials_to_analyze, trial_window_t, ops.offset_window, ops);
 
 % figure;histogram(fr_peak_mag(1,fr_peak_mag(1,:)>0))
 % figure;histogram(fr_peak_latency(:,fr_peak_latency(:,:)>1))
