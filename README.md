@@ -8,3 +8,6 @@ Dependencies:
     
   For TCA:
     https://www.tensortoolbox.org/
+  
+  For ICA:
+    https://research.ics.aalto.fi/ica/fastica/
