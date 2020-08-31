@@ -4,10 +4,10 @@ f = waitbar(0,'decoding');
 
 dec_data_out = cell(numel(ops.regions_to_analyze),1);
 
-tt = [3 4 5 6 170 270];
+tt = [3 4 5 6];
 dec_cell_start = 5;
-dec_cell_int = 3;
-dec_cell_max = 20;
+dec_cell_int = 5;
+dec_cell_max = 30;
 num_reps = 10;
 
 for n_cond = 1:numel(ops.regions_to_analyze)
@@ -97,8 +97,8 @@ params_dec.dec_cell_int = dec_cell_int;
 params_dec.dec_cell_max = dec_cell_max;
 params_dec.num_reps = num_reps;
 
-f_plot_cont_decoding(dec_data_out, params_dec, ops)
-
+f_plot_cond_decoding(dec_data_out, params_dec, ops)
+title(['conditions ' num2str(tt)])
 
 disp('Done')
 

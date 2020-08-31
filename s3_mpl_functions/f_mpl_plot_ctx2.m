@@ -54,7 +54,7 @@ for n_flip = 1:m_pl
             %ax.XTickLabel = [];
         end
         if n_flip < 3
-        title(leg_list{n_pl});
+            title(leg_list{n_pl});
         end
     end
 end

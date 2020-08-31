@@ -1,4 +1,4 @@
-function f_mpl_plot_tuning(data, ops)
+function f_mpl_plot_tuning_cond(data, ops)
 
 disp('Plotting tuning...')
 

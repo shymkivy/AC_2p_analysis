@@ -8,16 +8,13 @@ ops.use_zscores = 1;
 
 
 % for individual dsets
-ops.plot.ctx_full_each_dset = 0;
-ops.plot.dd_each_dset = 0;
+ops.plot.ctx_full_each_dset = 1;
+ops.plot.dd_each_dset = 1;
 ops.plot_combined = 1;
-ops.plot.spatial_tuning_dset = 0;
-ops.plot.tuning_dset = 1;
 
 ops.tuning_plots = 0;
 ops.ctx_plots = 0;
-
-
+ops.spat_tuning_plot = 0;
 
 ops.extra_clustering_plots = 0;
 ops.centroid_plots = 0;

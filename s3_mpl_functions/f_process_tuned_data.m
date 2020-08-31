@@ -15,7 +15,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         fr_peak_tuned_trials_full = fr_peak_tuned_trials_full.*(tuning_temp.fr_peak_reliability>=ops.stat.reliability_thresh);
         
         cdata.peak_tuned_trials_full{n_dset,1} = fr_peak_tuned_trials_full;
-        cdata.peak_tuned_trials_full_ctx{n_dset,1} = fr_peak_tuned_trials_full;
+        cdata.peak_tuned_trials_full_ctx{n_dset,1} = fr_peak_tuned_trials_full(:,cdata.ctx_mmn{n_dset});
         cdata.peak_tuned_trials_full_reliab{n_dset,1} = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_reliability;
 
         %% onset

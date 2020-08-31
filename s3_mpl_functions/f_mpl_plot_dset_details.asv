@@ -38,11 +38,11 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 ylim1 = [min([ylim1(1), ylim2(1)]) max([ylim1(2), ylim2(2)])];
             end
 
-            if ops.plot.spatial_tuning_dset
+            if ops.spat_tuning_plot
                 f_mpl_plot_spatial_tunning(cdata, ops, cond_name, n_dset);
             end
             
-            if ops.plot.tuning_dset
+            if ops.spat_tuning_plot
                 resp_cells_on = logical(cdata.peak_tuned_trials_onset{n_dset});
                 resp_cells_off = logical(cdata.peak_tuned_trials_offset{n_dset});
                 f_mpl_plot_tuning_dset(resp_cells_on, resp_cells_off, dset_params, ops);
