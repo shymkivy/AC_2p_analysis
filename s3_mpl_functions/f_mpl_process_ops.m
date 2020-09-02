@@ -39,21 +39,23 @@ end
 
 %%
 % added 260 and 160 for red sum
-ops.context_types_all= [1:10, 200+(1:8), 260, 170, 100+(1:8), 160, 270]';
-ops.context_types_labels = cell(28,1);
+ops.context_types_all= [1:10, 200+(1:7),150, 260, 170, 100+(1:7),250, 160, 270]';
+ops.context_types_labels = cell(30,1);
 for ii = 1:10
-    ops.context_types_labels{ii} = sprintf('freq %d', ii);
+    ops.context_types_labels{ii} = sprintf('Freq %d', ii);
 end
-for ii = 1:8
-    ops.context_types_labels{ii+10} = sprintf('redf %d', ii);
+for ii = 1:7
+    ops.context_types_labels{ii+10} = sprintf('Redf %d', ii);
 end
-ops.context_types_labels{19} = 'redf pool';
-ops.context_types_labels{20} = 'dev';
-for ii = 1:8
+ops.context_types_labels{18} = 'Cont';
+ops.context_types_labels{19} = 'RedF pool';
+ops.context_types_labels{20} = 'Dev';
+for ii = 1:7
     ops.context_types_labels{ii+20} = sprintf('red %d', ii);
 end
-ops.context_types_labels{29} = 'red pool';
-ops.context_types_labels{30} = 'devf';
+ops.context_types_labels{28} = 'ContF';
+ops.context_types_labels{29} = 'Red pool';
+ops.context_types_labels{30} = 'DevF';
 
 %% subplots dimensions
 if numel(ops.regions_to_analyze) == 1
@@ -77,31 +79,36 @@ ops.plot_params.reg_sn = sn;
 %ops.context_colors = {'k', 'b', 'r'};
 %ops.context_colors = {'k', 'c', 'm'};
 %ops.context_colors = ['k', 'b', 'r'];
-ops.cond_colors = {[1 0 1], [.2 .8 .2], [0, .6, 1], [1 .6, .2]};
+ops.cond_colors = {[1 0 1], [1 .6, .2], [.2 .8 .2], [0, .6, 1]};
 %ops.context_colors = {[0 0 0], [0 1 0], [1 0 1]};
 ops.context_colors = {[0 0 0], [0 0 1], [1 0 0]};
+
 ops.context_types_all_colors = zeros(30,1,3);
 ops.context_types_all_colors(1:10,:,:) = jet(10);
 %ops.context_types_all_colors(1:10,:,:) = reshape(parula(10),10,1,3);
-ops.context_types_all_colors(11:18,:,:) = ops.context_colors{2}.*(linspace(0.4,0.8,8))'*0.8;
+ops.context_types_all_colors(11:17,:,:) = ops.context_colors{2}.*(linspace(0.4,0.8,7))'*0.8;
 %ops.context_types_all_colors(11:18,:,:) = parula(8);
+ops.context_types_all_colors(18,:,:) = ops.context_colors{1}*0.8;
 ops.context_types_all_colors(19,:,:) = ops.context_colors{2}*0.8;
 ops.context_types_all_colors(20,:,:) = ops.context_colors{3}*0.8;
-ops.context_types_all_colors(21:28,:,:) = ops.context_colors{2}.*(linspace(0.4,0.8,8))';
+ops.context_types_all_colors(21:27,:,:) = ops.context_colors{2}.*(linspace(0.4,0.8,7))';
+ops.context_types_all_colors(28,:,:) = ops.context_colors{1};
 ops.context_types_all_colors(29,:,:) = ops.context_colors{2};
 ops.context_types_all_colors(30,:,:) = ops.context_colors{3};
 %figure; imagesc(ops.context_types_all_colors);
 
 ops.context_name = {'Control', 'Redundant', 'Deviant'};
-ops.context_name_full = {'Cont', 'RedF', 'Dev', 'Cont2', 'Red', 'DevF'};
+ops.context_name_full = {'Cont', 'RedF', 'Dev', 'ContF', 'Red', 'DevF'};
 
 ops.colors_list2 = {[0, .447, .741], [.85, .325, .098], [.929, .694, .125]...
                    [.4940, .184, .556], [.466, .674, .188]...
                    [.3010, .745, .933], [.635, .078, .184]};
-               
+ops.colors_list2 = repmat(ops.colors_list2,1,10);
+
 ops.colors_list = {[1 0 0], [0 1 0], [0 0 1],...
                    [0 1 1], [1 0 1], [1 1 0],...
                    [0 0 0]};
+ops.colors_list = repmat(ops.colors_list,1,10);
 
 %ops.fig_title_exp = {'A1 Tones', 'A1 Frequency Grating', 'Combined'};
 % MMN order is control, deviant, redundant
@@ -109,9 +116,9 @@ ops.colors_list = {[1 0 0], [0 1 0], [0 0 1],...
 ops.fig_title_run = {'MMN', 'flipMMN', 'Combined'};
 ops.errors = {};
 
-ops.plot_params.color_on = [83, 177, 232]/256;
-ops.plot_params.color_off = [83, 0, 232]/256;
-ops.plot_params.color_intersect = [0, 0, 232]/256;
+ops.plot_params.color_on = [.32 .69 .91];
+ops.plot_params.color_off = [.32 0 .91];
+ops.plot_params.color_intersect = [0 0 .91];
 
 
 ops.plot_params.c_map_cont = jet(10);

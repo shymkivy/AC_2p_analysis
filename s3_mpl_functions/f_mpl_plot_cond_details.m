@@ -24,10 +24,10 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     resp_cells = cat(1,resp_cells{:});
     
     %%
-    f_mpl_plot_ctx2(trial_ave, resp_cells, ctx_mmn_full, cdata.trial_window_t{1}, ops);
+    f_mpl_plot_ctx3(trial_ave, resp_cells, cdata.trial_window_t{1}, ops);
     suptitle(sprintf('%s', cond_name));
     
-    
+    %f_mpl_plot_ctx2(trial_ave, resp_cells,ctx_mmn_full, cdata.trial_window_t{1}, ops);
     
 end
 

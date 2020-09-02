@@ -26,7 +26,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             
             %% Plot all ctx
             if ops.plot.ctx_full_each_dset
-                f_mpl_plot_ctx2(trial_ave, resp_cells_ctx, ctx_mmn, cdata.trial_window_t{n_dset}, ops);
+                f_mpl_plot_ctx3(trial_ave, resp_cells_ctx, cdata.trial_window_t{n_dset}, ops);
+                %f_mpl_plot_ctx4(trial_ave, resp_cells_ctx, cdata.trial_window_t{n_dset}, ops);
                 suptitle(sprintf('%s, dset %d', cond_name, n_dset));
             end
 

@@ -41,40 +41,37 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             end
             cdata.trial_types{n_dset} = trial_types;
         end
-
-        [trial_data_sort_pr,trial_types_pr] =  f_add_red_pool_trials(trial_data_sort, trial_types, ops);
-        [trial_data_sort_sm_pr, ~] =  f_add_red_pool_trials(trial_data_sort_sm, trial_types, ops);
-        cdata.trial_data_sort_pr{n_dset,1} = trial_data_sort_pr;
-        cdata.trial_data_sort_sm_pr{n_dset,1} = trial_data_sort_sm_pr;
-        cdata.trial_types_pr{n_dset,1} = trial_types_pr;
-        
+        %%
         MMN_freq = cdata.MMN_freq{n_dset};
+        ctx_mmn = [MMN_freq(2), 19, 20, ...
+                   MMN_freq(1), 29, 30];  
+        
+        dset_params.ctx_mmn = ctx_mmn;
+        
+        %%
+        [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, MMN_freq, ops);
+        [trial_data_sort_sm_wctx, ~] =  f_s3_add_ctx_trials(trial_data_sort_sm, trial_types, MMN_freq, ops);
+        cdata.trial_data_sort_wctx{n_dset,1} = trial_data_sort_wctx;
+        cdata.trial_data_sort_sm_wctx{n_dset,1} = trial_data_sort_sm_wctx;
+        cdata.trial_types_wctx{n_dset,1} = trial_types_wctx;
+        
+        
         dset_params.cond_name = cond_name;
         dset_params.n_dset = n_dset;
         dset_params.trial_window_t = cdata.trial_window_t{n_dset};
         dset_params.onset_window_frames = cdata.onset_window_frames{n_dset};
         dset_params.offset_window_frames = cdata.offset_window_frames{n_dset};
-        dset_params.trial_types = trial_types_pr;
+        dset_params.trial_types = trial_types_wctx;
         dset_params.MMN_freq = MMN_freq;
-        
-%% create MMN sorted files
-        
-        % full set is flipped, no need to adjust this
-        %ctx_mmn = [MMN_freq(2), 10 + ops.redundent_to_analyze, 19, ...
-        %           MMN_freq(1), 19 + ops.redundent_to_analyze, 28];             
-        ctx_mmn = [MMN_freq(2), 19, 20, ...
-                   MMN_freq(1), 29, 30];  
-        
-        dset_params.ctx_mmn = ctx_mmn;
-
+          
         %% get trial averages compute tunning     
-        tuning_all = f_get_tuning_dset(trial_data_sort_sm_pr, ops.context_types_all, dset_params, ops);
+        tuning_all = f_get_tuning_dset(trial_data_sort_sm_wctx, ops.context_types_all, dset_params, ops);
         cdata.tuning_all{n_dset,1} = tuning_all;
 
         %%
         z_thresh_all = max(mean(tuning_all.trace_tuning.stat_trace.z_factors,3),[],2);
         
-        trial_ave = f_mpl_trial_average(trial_data_sort_sm_pr,trial_types_pr, ops.context_types_all, 'none');
+        trial_ave = f_mpl_trial_average(trial_data_sort_sm_wctx,trial_types_wctx, ops.context_types_all, 'none');
         trial_ave_z = trial_ave./z_thresh_all;
         %trial_ave = (trial_ave-means_all)./z_thresh_all;
 

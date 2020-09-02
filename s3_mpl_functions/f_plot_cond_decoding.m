@@ -13,6 +13,7 @@ s1= subplot(2,1,1); hold on;
 dec_data_means = cell(numel(ops.regions_to_analyze),1);
 pl = cell(numel(ops.regions_to_analyze),1);
 for n_cond = 1:numel(ops.regions_to_analyze)
+    %figure; hold on;
     dec_data_means{n_cond} = nan(numel(dec_data_out{n_cond}),max_len);
     for n_dset = 1:numel(dec_data_out{n_cond})
         temp_mean = mean(dec_data_out{n_cond}{n_dset},2);
@@ -25,7 +26,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     pl{n_cond} = plot(cell_range(1:numel(nanmean(dec_data_means{n_cond}))), nanmean(dec_data_means{n_cond}), 'color', ops.cond_colors{n_cond}, 'LineWidth', 2);
 end
 
-
+%figure; hold on;
 subplot(2,1,2); hold on;
 for n_cond = 1:numel(ops.regions_to_analyze)
     means1 = nanmean(dec_data_means{n_cond});

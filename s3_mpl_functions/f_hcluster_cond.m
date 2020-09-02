@@ -23,9 +23,9 @@ ens_out_full = cell(cdata.num_dsets,1);
 for n_dset = 1:cdata.num_dsets
     disp([dr_params.cond_name, ' dset ' num2str(n_dset)]);
 
-    trial_types = cdata.trial_types_pr{n_dset};
+    trial_types = cdata.trial_types_wctx{n_dset};
     trial_peaks = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag;
-    trial_data_sort_sm_pr = cdata.trial_data_sort_sm_pr{n_dset};
+    trial_data_sort_sm_wctx = cdata.trial_data_sort_sm_wctx{n_dset};
     
     %% select trials
     [tn_to_dred, trial_type_tag] = f_select_trial_type(dr_params.tt_to_dred_input, cdata, n_dset, ops);
@@ -34,7 +34,7 @@ for n_dset = 1:cdata.num_dsets
     trials_idx_dred = logical(sum(trial_types == tt_to_dred(:)' ,2));
     trial_peaks_dred = trial_peaks(:,trials_idx_dred);
     trial_types_dred = trial_types(trials_idx_dred);
-    trial_data_sort_sm_pr = trial_data_sort_sm_pr(:,:,trials_idx_dred);
+    trial_data_sort_sm_wctx = trial_data_sort_sm_wctx(:,:,trials_idx_dred);
     
     %% dset specific params
     dr_params.n_dset = n_dset;
@@ -51,7 +51,7 @@ for n_dset = 1:cdata.num_dsets
         resp_cells = cdata.peak_tuned_trials_combined{n_dset};
         resp_cells = logical(sum(resp_cells(:,tn_to_dred),2));
         trial_peaks_dred = trial_peaks_dred(resp_cells,:);
-        trial_data_sort_sm_pr = trial_data_sort_sm_pr(resp_cells,:,:);
+        trial_data_sort_sm_wctx = trial_data_sort_sm_wctx(resp_cells,:,:);
     end
     
     if sum(resp_cells)>5
@@ -110,7 +110,7 @@ for n_dset = 1:cdata.num_dsets
         end
         %%
         %ops.dred_params.hclust.sort_raster = 1;
-        raster_plot_intput1 = trial_data_sort_sm_pr;
+        raster_plot_intput1 = trial_data_sort_sm_wctx;
         %raster_plot_intput1 = trial_peaks_dred;
         trial_types_input1 = trial_types_dred;
         
@@ -129,7 +129,7 @@ for n_dset = 1:cdata.num_dsets
 %         ops.dred_params.hclust.sort_raster = 0;
 %         figure(fig_ras2);
 %         sp_ras2{n_dset} = subplot(3,5,n_dset);
-%         f_hclust_raster(trial_data_sort_sm_pr, trial_peaks_dred, trial_types_dred, sp_ras2{n_dset}, dr_params, ops);
+%         f_hclust_raster(trial_data_sort_sm_wctx, trial_peaks_dred, trial_types_dred, sp_ras2{n_dset}, dr_params, ops);
 %         
         
         
@@ -143,7 +143,7 @@ for n_dset = 1:cdata.num_dsets
         if ops.dred_params.do_dim_estimate
             dim_est_st = dr_params.dim_est_st;
             dd_idx = numel([dim_est_st.n_dset])+1;
-            num_cells = size(trial_data_sort_sm_pr,1);
+            num_cells = size(trial_data_sort_sm_wctx,1);
             interval1 = 3;
             num_repeats = 10;
             dd_cells_range = interval1:interval1:min(num_cells,50);

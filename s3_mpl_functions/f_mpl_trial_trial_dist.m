@@ -14,9 +14,9 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             %%
             dr_params.tt_to_dred_input = ops.dred_params.trial_types_for_dist{n_tt};
             disp([cond_name, ' dset ' num2str(n_dset)]);
-            trial_types = cdata.trial_types_pr{n_dset};
+            trial_types = cdata.trial_types_wctx{n_dset};
             trial_peaks = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag;
-            trial_data_sort_sm_pr = cdata.trial_data_sort_sm_pr{n_dset};
+            trial_data_sort_sm_wctx = cdata.trial_data_sort_sm_wctx{n_dset};
 
             %% select trials
             [tn_to_dred, trial_type_tag] = f_select_trial_type(dr_params.tt_to_dred_input, cdata, n_dset, ops);
@@ -26,7 +26,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             trials_idx_dred = logical(sum(trial_types == tt_to_dred(:)' ,2));
             trial_peaks_dred = trial_peaks(:,trials_idx_dred);
             trial_types_dred = trial_types(trials_idx_dred);
-            trial_data_sort_sm_pr = trial_data_sort_sm_pr(:,:,trials_idx_dred);
+            trial_data_sort_sm_wctx = trial_data_sort_sm_wctx(:,:,trials_idx_dred);
             
             extra_red = logical((trial_types==160)+(trial_types==260));
             trial_peaks_cut = trial_peaks(:, ~extra_red);
@@ -38,7 +38,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 resp_cells = logical(sum(resp_cells,2));
                 trial_peaks_dred = trial_peaks_dred(resp_cells,:);
                 trial_peaks_cut = trial_peaks_cut(resp_cells,:);
-                trial_data_sort_sm_pr = trial_data_sort_sm_pr(resp_cells,:,:);
+                trial_data_sort_sm_wctx = trial_data_sort_sm_wctx(resp_cells,:,:);
             end
             
             

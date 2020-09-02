@@ -30,13 +30,13 @@ AC_files_OA_5_23_20_lab
 ops.normalize_firing_rate = 1;
 ops.extra_SNR_thresh = 0; % 0 = no thresh
 ops.redundent_to_analyze = 3;
-ops.redundent_pool_trials = 2:8;
+ops.redundent_pool_trials = 2:7;
 ops.dev_cells_ctx = 'ctx_tuned';      % options: 'all', 'ctx_tuned', 'tuned_all'
 ops.remove_early_dev = 1;
 ops.waitbar = 1;
 
 % A1 A2 AAF DF
-ops.regions_to_analyze = {'A1','A2','DF','AAF'}; %,, ,,     % choose from fieldnames above 
+ops.regions_to_analyze = {'A1','AAF','A2','DF'}; %,, ,,     % choose from fieldnames above 
 ops.flip_to_analyze = [1 2 3];  % 1 is regular, 2 is flip, 3 is combined
 
 % which type of infered signal you want to use

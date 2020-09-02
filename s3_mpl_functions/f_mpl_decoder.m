@@ -4,11 +4,17 @@ f = waitbar(0,'decoding');
 
 dec_data_out = cell(numel(ops.regions_to_analyze),1);
 
-tt = [3 4 5 6];
-dec_cell_start = 5;
-dec_cell_int = 5;
-dec_cell_max = 30;
-num_reps = 10;
+tn = [18 19 20];
+tt = ops.context_types_all(tn)';
+dec_cell_start = 1;
+dec_cell_int = 1;
+dec_cell_max = 40;
+num_reps = 1;
+
+random_sample = 0; % 0 = sort and sequentially take
+sort_mag = 1; % 0 = reliability
+
+num_tt = numel(tt);
 
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
@@ -16,69 +22,69 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     dec_data1 = cell(cdata.num_dsets,1);
     for n_dset = 1:cdata.num_dsets
         
-        trial_types = cdata.trial_types_pr{n_dset}(1:800);
-        traces = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag(:,1:800);
-        resp_cells = logical(sum(cdata.peak_tuned_trials_full{n_dset}(:,logical(sum(ops.context_types_all == tt,2))),2));
-        traces = traces(resp_cells,:);
+        trial_types = cdata.trial_types_wctx{n_dset};
+        traces = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag;
         
+        
+        if sort_mag
+            traces_ave = cdata.trial_ave_z{n_dset};
+            resp_mag = squeeze(max(traces_ave, [], 2));
+        else
+            resp_mag = cdata.peak_tuned_trials_full_reliab{n_dset};
+        end
+        
+        
+        % select trials
         tr_ind = logical(sum(trial_types == tt,2));
         traces2 = traces(:,tr_ind);
-        
         trial_types2 = trial_types(tr_ind);
-        num_cells = size(traces,1);
+        resp_mag2 = resp_mag(:,tn);
+        
+        
+%         figure; hold on;
+%         for n_c = 1:4
+%             ecdf(resp_mag2(:,n_c));
+%         end
+
+%         % select cells
+%         resp_cells = logical(sum(cdata.peak_tuned_trials_full{n_dset}(:,logical(sum(ops.context_types_all == tt,2))),2));
+%         traces3 = traces2(resp_cells,:);
+
+        num_cells = size(traces2,1);
         max_cells1 = min(dec_cell_max, num_cells);
 
         response = trial_types2;
         % cycle through cell nums
-
         cell_list = dec_cell_start:dec_cell_int:max_cells1;
-        
-
         accuracy1 = zeros(numel(cell_list),num_reps);
 
         for n_celln = 1:numel(cell_list)
             for n_rep = 1:num_reps
-
-                cells1 = randsample(num_cells, cell_list(n_celln));
-
-
-                [~,score,~,~,explained,~] = pca(traces2(cells1,:)');
-                num_comps = max(sum(cumsum(explained)<70),1);
-                predictors = score(:,1:num_comps);
+                if random_sample
+                    % choose cells
+                    cells_pred = randsample(num_cells, cell_list(n_celln));
+                else
+                    list_samp = [(1:num_cells)', resp_mag2];
+                    cells_pred = zeros(cell_list(n_celln),1);
+                    for n_cell_ind = 1:cell_list(n_celln)
+                        curr_tt = rem(n_cell_ind-1,num_tt)+1;
+                        [~, n_cell_ind2]= max(list_samp(:,curr_tt+1));
+                        n_cell = list_samp(n_cell_ind2,1);
+                        list_samp(n_cell_ind2,:) = [];
+                        cells_pred(n_cell_ind) = n_cell;
+                    end
+                end
+                
+                if 0
+                % reduce dim with PCA
+                    [~,score,~,~,explained,~] = pca(traces2(cells_pred,:)');
+                    num_comps = max(sum(cumsum(explained)<70),1);
+                    predictors = score(:,1:num_comps);
+                else
+                    predictors = traces2(cells_pred,:)';
+                end
                 %%
-        %         SVMModel = fitcsvm(...
-        %             predictors, ...
-        %             response, ...
-        %             'KernelFunction', 'gaussian', ...     % 'KernelFunction', 'polynomial' 'gaussian'
-        %             'PolynomialOrder', [], ...               % 2
-        %             'KernelScale', 7.1, ...              % auto fine = 1.8 medium= 7.1 coarse = 28
-        %             'BoxConstraint', 1, ...
-        %             'Standardize', true, ...
-        %             'ClassNames', tt');
-
-                template = templateSVM(...
-                    'KernelFunction', 'gaussian', ...
-                    'PolynomialOrder', [], ...
-                    'KernelScale', 10, ...
-                    'BoxConstraint', 1, ...
-                    'Standardize', true);
-                SVMModel = fitcecoc(...
-                    predictors, ...
-                    response, ...
-                    'Learners', template, ...
-                    'Coding', 'onevsone', ...
-                    'ClassNames', tt');
-
-                %% cross validation 
-                model1 = SVMModel;
-
-                partitionedModel = crossval(model1, 'KFold', 5);
-
-                %[validationPredictions, validationScores] = kfoldPredict(partitionedModel);
-
-                % Compute validation accuracy
-                accuracy1(n_celln, n_rep) = 1 - kfoldLoss(partitionedModel, 'LossFun', 'ClassifError');
-
+                accuracy1(n_celln, n_rep) = f_svm_decoder(predictors, response, tt);              
             end
         end
         dec_data1{n_dset} = accuracy1;

@@ -9,9 +9,9 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     for n_dset = 1:cdata.num_dsets
         disp([cond_name, ' dset ' num2str(n_dset)]);
         
-        trial_data_sort = cdata.trial_data_sort_pr{n_dset};
-        %trial_data_sort_sm = cdata.trial_data_sort_sm_pr{n_dset};
-        trial_types = cdata.trial_types_pr{n_dset};
+        trial_data_sort = cdata.trial_data_sort_wctx{n_dset};
+        %trial_data_sort_sm = cdata.trial_data_sort_sm_wctx{n_dset};
+        trial_types = cdata.trial_types_wctx{n_dset};
         trial_peaks = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag;
         
         
