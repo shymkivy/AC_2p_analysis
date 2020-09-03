@@ -45,7 +45,8 @@ else
     [num_cells, num_bins, num_trials_all] = size(trial_data);
 end
 
-trial_data_sample = trial_data(:,:,logical(sum(trial_types == trials_to_sample,2)));
+tt = ops.context_types_all(trials_to_sample)';
+trial_data_sample = trial_data(:,:,logical(sum(trial_types == tt,2)));
 
 
 if isfield(ops.stat, 'plot_examples')

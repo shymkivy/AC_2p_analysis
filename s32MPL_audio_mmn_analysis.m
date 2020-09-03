@@ -4,8 +4,7 @@ close all
 
 %% analysis params
 % ----------------------- plot extra stuff --------------------------
-ops.use_zscores = 0;
-
+ops.use_zscores = 1;
 
 % for individual dsets
 ops.plot.ctx_full_each_dset = 0;
@@ -16,8 +15,6 @@ ops.plot.tuning_dset = 1;
 
 ops.tuning_plots = 0;
 ops.ctx_plots = 0;
-
-
 
 ops.extra_clustering_plots = 0;
 ops.centroid_plots = 0;
@@ -49,7 +46,7 @@ ops.dred_params.run_idx = 2;    % for saving different runs
 % options: [numeric], 'all', 'cont_all'
 % options: 'mmn1', 'mmn2', 'mmn12', 'dd1', 'dd2', 'dd12'
 % options: 'red1', 'red2', 'red12', 'cont1', 'cont2', cont12'
-ops.dred_params.trial_types_to_dred = {'dd1', 'dd2'};
+ops.dred_params.trial_types_to_dred = {[18 19 20 28 29 30]};
 ops.dred_params.use_responsive_cells = 1;
 
 %--------------

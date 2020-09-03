@@ -45,7 +45,7 @@ for n_tt = 1:numel(ops.dred_params.trial_types_to_dred)
 
         
         %[f, x] = ecdf(reliab_list);
-        plot(x,f, 'color', e_colors{n_cond}, 'LineWidth', 2);
+        plot(x,f, 'color', ops.cond_colors{n_cond}, 'LineWidth', 2);
 
         all_trials{n_cond} = cat(1,cdata.peak_tuned_trials_full_reliab{:});
     end
@@ -62,12 +62,12 @@ for n_tt = 1:numel(ops.dred_params.trial_types_to_dred)
     
     all_trials = cat(1,all_trials{:});
     samp_list2 = if_sample_trials(all_trials(:), num_repeats, num_samp);
-    shadedErrorBar(mean(samp_list2,1),(1:num_samp)/num_samp, std(samp_list, [], 1))
+%   shadedErrorBar(mean(samp_list2,1),(1:num_samp)/num_samp, std(samp_list, [], 1))
     
     %plot(x,f, 'LineStyle', '--', 'LineWidth', 2, 'Color', [.8 .8 .8]);
     
     axis tight;
-    legend([ops.regions_to_analyze {'Shuff responsive/all'}], 'Location', 'southeast');
+    legend([ops.regions_to_analyze {'Shuff'}], 'Location', 'southeast');
     xlabel('response reliability');
     ylabel('fraction');
     title(sprintf('Cell reliability ecdf, trials %s', trial_type_tag));

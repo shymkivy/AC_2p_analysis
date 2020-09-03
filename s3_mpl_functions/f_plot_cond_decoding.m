@@ -1,6 +1,6 @@
 function f_plot_cond_decoding(dec_data_out, params, ops)
 
-cell_range = params.dec_cell_start:params.dec_cell_int:params.dec_cell_max;
+cell_range = params.dec_num_cells;
 max_len = 0;
 for n_cond = 1:numel(ops.regions_to_analyze)
     for n_dset = 1:numel(dec_data_out{n_cond})
