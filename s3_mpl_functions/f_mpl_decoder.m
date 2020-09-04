@@ -6,26 +6,28 @@ dec_data_out = cell(numel(ops.regions_to_analyze),1);
 
 tn = [18 20 28 30];
 tt = ops.context_types_all(tn)';
-dec_num_cells = 70;
 
-num_reps = 10;
-
-random_sample = 0; % 0 = sort and sequentially take
 sort_mag = 1; % 0 = reliability
+random_sample = 0; % 0 = sort and sequentially take
 use_dim_red = 1;
 
+dec_params.n_rep = 1:10;
+dec_params.dec_num_cells = 1:20:80;
 dec_params.KernelFunction = 'gaussian';
-dec_params.KernelScale = 7;
+dec_params.KernelScale = 5.5;
 dec_params.kFold = 5;
 
+
 num_tt = numel(tt);
+
+dec_params_list = f_build_param_list(dec_params, {'dec_num_cells', 'KernelScale', 'kFold', 'n_rep'});
+num_param_el = numel(dec_params_list);
 
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
     cdata = data.(cond_name);
     dec_data1 = cell(cdata.num_dsets,1);
     for n_dset = 1:cdata.num_dsets
-        
         trial_types = cdata.trial_types_wctx{n_dset};
         traces = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag;
         
@@ -36,41 +38,27 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             resp_mag = cdata.peak_tuned_trials_full_reliab{n_dset};
         end
         
-        
         % select trials
         tr_ind = logical(sum(trial_types == tt,2));
         traces2 = traces(:,tr_ind);
         trial_types2 = trial_types(tr_ind);
         resp_mag2 = resp_mag(:,tn);
         
-        
-%         figure; hold on;
-%         for n_c = 1:4
-%             ecdf(resp_mag2(:,n_c));
-%         end
-
-%         % select cells
-%         resp_cells = logical(sum(cdata.peak_tuned_trials_full{n_dset}(:,logical(sum(ops.context_types_all == tt,2))),2));
-%         traces3 = traces2(resp_cells,:);
-        
-
         % check if there are enough cells in dset 
         num_cells = size(traces2,1);
-        dec_num_cells2 = dec_num_cells(dec_num_cells<num_cells);
-        
         response = trial_types2;
-        
-        accuracy1 = zeros(numel(dec_num_cells2),num_reps);
-
-        for n_celln = 1:numel(dec_num_cells2)
-            for n_rep = 1:num_reps
+        temp_params = dec_params_list;
+        for n_param_el = 1:num_param_el
+            temp_params(n_param_el).cond_name = cond_name;
+            temp_params(n_param_el).n_dset = n_dset;
+            if temp_params(n_param_el).dec_num_cells < num_cells
                 if random_sample
                     % choose cells
-                    cells_pred = randsample(num_cells, dec_num_cells2(n_celln));
+                    cells_pred = randsample(num_cells, temp_params(n_param_el).dec_num_cells);
                 else
                     list_samp = [(1:num_cells)', resp_mag2];
-                    cells_pred = zeros(dec_num_cells2(n_celln),1);
-                    for n_cell_ind = 1:dec_num_cells2(n_celln)
+                    cells_pred = zeros(temp_params(n_param_el).dec_num_cells,1);
+                    for n_cell_ind = 1:temp_params(n_param_el).dec_num_cells
                         curr_tt = rem(n_cell_ind-1,num_tt)+1;
                         [~, n_cell_ind2]= max(list_samp(:,curr_tt+1));
                         n_cell = list_samp(n_cell_ind2,1);
@@ -78,9 +66,9 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                         cells_pred(n_cell_ind) = n_cell;
                     end
                 end
-                
+
                 %X1 = [traces2(cells_pred,:)', response]
-                
+
                 if use_dim_red
                 % reduce dim with PCA
                     [~,score,~,~,explained,~] = pca(traces2(cells_pred,:)');
@@ -90,11 +78,12 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                     predictors = traces2(cells_pred,:)';
                 end
                 %%
-                
-                accuracy1(n_celln, n_rep) = f_svm_decoder(predictors, response, tt, dec_params);              
+                temp_params(n_param_el).accuracy = f_svm_decoder(predictors, response, tt, temp_params(n_param_el));
+            else
+                temp_params(n_param_el).accuracy = NaN;
             end
         end
-        dec_data1{n_dset} = accuracy1;
+        dec_data1{n_dset} = temp_params;
         waitbar(n_dset/cdata.num_dsets,f,['Decoder, ' cond_name]);
     end
     dec_data_out{n_cond} = dec_data1;
@@ -105,12 +94,20 @@ end
 
 close(f);
 %% plot crap
-params_dec.dec_num_cells = dec_num_cells;
-params_dec.num_reps = num_reps;
 
-f_plot_cond_decoding(dec_data_out, params_dec, ops)
-title(['Decoder, conditions ' num2str(tt)])
+if numel(dec_params.dec_num_cells) > 1
+    f_plot_cond_decoding(dec_data_out, 'dec_num_cells', dec_params, ops)
+    title(['Decoder, numeber of cells ' num2str(tt)])
+end
+if numel(dec_params.KernelScale) > 1
+    f_plot_cond_decoding(dec_data_out, 'KernelScale', dec_params, ops)
+    title(['Decoder, KernelScale ' num2str(tt)])
+end
 
+if numel(dec_params.kFold) > 1
+    f_plot_cond_decoding(dec_data_out, 'kFold', dec_params, ops)
+    title(['Decoder, kFold ' num2str(tt)])
+end
 disp('Done')
 
 end
