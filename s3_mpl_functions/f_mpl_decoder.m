@@ -9,12 +9,13 @@ tt = ops.context_types_all(tn)';
 
 sort_mag = 1; % 0 = reliability
 random_sample = 0; % 0 = sort and sequentially take
-use_dim_red = 1;
+use_dim_red = 0;
+decoder_type = 'svm'; % 'svm' ''beyes'
 
 dec_params.n_rep = 1:10;
-dec_params.dec_num_cells = 1:20:80;
-dec_params.KernelFunction = 'gaussian';
-dec_params.KernelScale = 5.5;
+dec_params.dec_num_cells = 1:10:80;
+dec_params.KernelFunction = 'cosineKernel';   % 'gaussian'  'cosineKernel'
+dec_params.KernelScale = 5.5;       % 5.5
 dec_params.kFold = 5;
 
 
@@ -78,7 +79,11 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                     predictors = traces2(cells_pred,:)';
                 end
                 %%
-                temp_params(n_param_el).accuracy = f_svm_decoder(predictors, response, tt, temp_params(n_param_el));
+                if strcmpi(decoder_type, 'svm')
+                    temp_prams(n_param_el).accuracy = f_svm_decoder(predictors, response, tt, temp_params(n_param_el));
+                elseif strcmpi(decoder_type, 'beyes')
+                    temp_prams(n_param_el).accuracy = f_beyes_decoder(predictors, response, tt, temp_params(n_param_el));
+                end
             else
                 temp_params(n_param_el).accuracy = NaN;
             end
