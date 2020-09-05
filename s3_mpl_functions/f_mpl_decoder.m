@@ -4,7 +4,7 @@ f = waitbar(0,'decoding');
 
 dec_data_out = cell(numel(ops.regions_to_analyze),1);
 
-tn = [18 20 28 30];
+tn = [28 30];
 %tn = [3 4 5 6 7];
 tt = ops.context_types_all(tn)';
 
@@ -17,7 +17,7 @@ sort_mag = 0; % 0 = reliability
 
 dec_params.n_rep = 1:10;
 dec_params.dec_num_cells = 5:10:80;
-dec_params.KernelFunction = 'cosineKernel';   % 'gaussian'  'cosineKernel'
+dec_params.KernelFunction = 'gaussian';   % 'gaussian'  'cosineKernel'
 dec_params.KernelScale = 5.5;       % 5.5
 dec_params.kFold = 5;
 
