@@ -5,15 +5,18 @@ f = waitbar(0,'decoding');
 dec_data_out = cell(numel(ops.regions_to_analyze),1);
 
 tn = [18 20 28 30];
+%tn = [3 4 5 6 7];
 tt = ops.context_types_all(tn)';
 
-sort_mag = 1; % 0 = reliability
+
 random_sample = 0; % 0 = sort and sequentially take
-use_dim_red = 0;
+use_dim_red = 1;
 decoder_type = 'svm'; % 'svm' ''beyes'
+sort_mag = 0; % 0 = reliability
+
 
 dec_params.n_rep = 1:10;
-dec_params.dec_num_cells = 1:10:80;
+dec_params.dec_num_cells = 5:10:80;
 dec_params.KernelFunction = 'cosineKernel';   % 'gaussian'  'cosineKernel'
 dec_params.KernelScale = 5.5;       % 5.5
 dec_params.kFold = 5;
@@ -32,6 +35,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         trial_types = cdata.trial_types_wctx{n_dset};
         traces = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag;
         
+        
         if sort_mag
             traces_ave = cdata.trial_ave_z{n_dset};
             resp_mag = squeeze(max(traces_ave, [], 2));
@@ -43,10 +47,19 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         tr_ind = logical(sum(trial_types == tt,2));
         traces2 = traces(:,tr_ind);
         trial_types2 = trial_types(tr_ind);
+        
+        %
+        [num_cells, num_trials] = size(traces2);
+        
+        % randomize trial order
+        rand_tr_order = randperm(num_trials);
+        traces2 = traces2(:,rand_tr_order);
+        trial_types2 = trial_types2(rand_tr_order);
+        
+        %
         resp_mag2 = resp_mag(:,tn);
         
-        % check if there are enough cells in dset 
-        num_cells = size(traces2,1);
+        %
         response = trial_types2;
         temp_params = dec_params_list;
         for n_param_el = 1:num_param_el
@@ -73,16 +86,16 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 if use_dim_red
                 % reduce dim with PCA
                     [~,score,~,~,explained,~] = pca(traces2(cells_pred,:)');
-                    num_comps = max(sum(cumsum(explained)<80),1);
+                    num_comps = max(sum(cumsum(explained)<70),1);
                     predictors = score(:,1:num_comps);
                 else
                     predictors = traces2(cells_pred,:)';
                 end
                 %%
                 if strcmpi(decoder_type, 'svm')
-                    temp_prams(n_param_el).accuracy = f_svm_decoder(predictors, response, tt, temp_params(n_param_el));
+                    temp_params(n_param_el).accuracy = f_svm_decoder(predictors, response, tt, temp_params(n_param_el));
                 elseif strcmpi(decoder_type, 'beyes')
-                    temp_prams(n_param_el).accuracy = f_beyes_decoder(predictors, response, tt, temp_params(n_param_el));
+                    temp_params(n_param_el).accuracy = f_beyes_decoder_wrap(predictors, response, tt, temp_params(n_param_el));
                 end
             else
                 temp_params(n_param_el).accuracy = NaN;
