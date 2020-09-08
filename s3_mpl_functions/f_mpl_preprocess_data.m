@@ -57,7 +57,11 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             accept_cell = and(SNR_accept,temp_data.proc.comp_accepted);           
             traces_raw_cut = temp_data.est.C(accept_cell,:)+temp_data.est.YrA(accept_cell,:);
             
-            firing_rate_cut = if_get_deconvolved_data(temp_data,accept_cell, ops,cdata.proc_data{n_dset}.frame_data.volume_period_ave);
+            try
+                firing_rate_cut = if_get_deconvolved_data(temp_data,accept_cell, ops,cdata.proc_data{n_dset}.frame_data.volume_period_ave);
+            catch
+                error([cond_name ' dset' num2str(n_dset) ' deconvolution incomplete'])
+            end
             cuts_trace = cdata.proc_data{n_dset}.file_cuts_params{n_pl}.vid_cuts_trace;
             
             if ops.normalize_firing_rate
@@ -171,10 +175,12 @@ elseif strcmp(ops.signal_inference, 'c_foopsi') || strcmp(ops.signal_inference, 
     
     % adjust for deconvolution lag
     deconv_lags = zeros(num_cells,1);
+
     for n_cell = 1:num_cells
         [r,lags] = xcorr(firing_rate{n_cell},smooth_dfdt(n_cell,:),5);
         deconv_lags(n_cell) = lags(r == max(r));
     end
+
     mean_deconv_lag = round(mean(deconv_lags));
     for n_cell = 1:num_cells
         firing_rate{n_cell} = circshift(firing_rate{n_cell},-1*mean_deconv_lag);

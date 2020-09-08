@@ -105,10 +105,10 @@ ops.norm_after_method = 2;
 %f_mpl_plot_dset_details(data, ops);
 
 %%
-%f_mpl_plot_cond_details(data, ops);
+f_mpl_plot_cond_details(data, ops);
 
 %% plot reliability of all cells
-%f_plot_cond_reliability(data, ops);
+f_plot_cond_reliability(data, ops);
 
 %%
 %f_model_raster(data, ops);

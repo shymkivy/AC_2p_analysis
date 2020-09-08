@@ -70,6 +70,14 @@ function [data, ops] = f_s1_load_stim_params(data, ops)
         if isfield(stim_params, 'grating_angles')
             stim_params.num_freqs = numel(stim_params.grating_angles);
         end
+        
+        if ~isfield(stim_params, 'num_freqs')
+            if isfield(stim_params.ops, 'angs_rad')
+                stim_params.num_freqs = numel(stim_params.ops.angs_rad);
+            else
+                error('Extract num freqs from stim params')
+            end
+        end
     else
     %     stim_params.MMN_orientations = [4, 7];
         stim_params.stim_duration = 0.5;

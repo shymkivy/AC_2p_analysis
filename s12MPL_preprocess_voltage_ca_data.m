@@ -39,7 +39,7 @@ addpath([ pwd '\s1_functions'])
 
 ops.exp_date = '5_31_20';
 %ops.file_core=['DAM_ammn_2_dplanes1_'  ops.exp_date ''];
-ops.file_core=['DF_ammn2_'  ops.exp_date ''];
+ops.file_core=['DF_freq_grating2_'  ops.exp_date ''];
 %ops.file_dir = 'L:\data\Auditory\caiman_out_multiplane';
 ops.file_dir = 'F:\data\Auditory\caiman_out\preprocessing_data';
 %ops.exp_date = '';

@@ -84,7 +84,7 @@ for n_pl = 1:ops.num_planes
     end
     % process the movement channel
     volt_data_binned{n_pl}(:, 3) = abs(gradient(volt_data_binned{n_pl}(:, 3)));
-    data.indexed_volt_data{n_pl} = round(volt_data_binned{n_pl}(:,1)/4*data.stim_params.num_freqs);
+    data.indexed_volt_data{n_pl} = round(volt_data_binned{n_pl}(:,1)/max(volt_data_binned{n_pl}(:,1))*data.stim_params.num_freqs);
 end
 
 % combine over multiplane data
