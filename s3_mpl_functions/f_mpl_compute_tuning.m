@@ -69,7 +69,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         cdata.tuning_all{n_dset,1} = tuning_all;
 
         %%
-        z_thresh_all = max(mean(tuning_all.trace_tuning.stat_trace.z_factors,3),[],2);
+        z_thresh_all = max(nanmean(tuning_all.trace_tuning.stat_trace.z_factors,3),[],2);
         
         trial_ave = f_mpl_trial_average(trial_data_sort_sm_wctx,trial_types_wctx, ops.context_types_all, 'none');
         trial_ave_z = trial_ave./z_thresh_all;

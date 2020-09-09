@@ -43,7 +43,14 @@ tuning_out.trace_tuning = trace_tuning;
 %Specificity = (True Negative)/(True Negative + False Positive)
 
 
+
+
 if ops.stat.plot_examples
+    num_trials_per_cat = zeros(numel(trials_to_analyze),1);
+    for n_tr = 1:numel(trials_to_analyze)
+        num_trials_per_cat(n_tr) = sum(trial_types == trials_to_analyze(n_tr));
+    end
+    
     max_onset_resp = squeeze(max(trace_tuning.trial_ave(:,dset_params.onset_window_frames,:),[],2));
     max_onset_thresh = squeeze(max(trace_tuning.stat_trace.sig_thresh(:,dset_params.onset_window_frames,:),[],2));
     max_offset_resp = squeeze(max(trace_tuning.trial_ave(:,dset_params.offset_window_frames,:),[],2));
@@ -53,7 +60,7 @@ if ops.stat.plot_examples
     tuning_ind = trace_tuning.trial_ave>trace_tuning.stat_trace.sig_thresh;
     %tuned_cells_ind = find(logical(peak_tuning_offset.fr_peak_mag_tuned_cells+peak_tuning_onset.fr_peak_mag_tuned_cells));
 
-    tuned_cell_ind = find(logical(sum(fr_pk_tuned_trials_combined_ctx,2)));
+    tuned_cell_ind = find(logical(sum(peak_tuning_full_resp.fr_peak_mag_tuned_trials,2)));
 
     [pk_resp_mag_full,pk_resp_trial_ind_full] = max(peak_tuning_full_resp.fr_peak_mag_ave_z(:,dset_params.ctx_mmn),[],2);
     pk_resp_rel_full = peak_tuning_full_resp.fr_peak_reliability(:,dset_params.ctx_mmn);
@@ -127,21 +134,23 @@ if ops.stat.plot_examples
         for n_trial = 1:numel(trials_to_analyze)
             subplot(m,n,n_trial)
             hold on;
-            plot(trial_window_t, squeeze(trial_data_sort(n_cell,:,trial_types==trials_to_analyze(n_trial))), 'color', [0.8 0.8 0.8]);
-            plot(trial_window_t, squeeze(trace_tuning.trial_ave(n_cell,:,n_trial)), 'm', 'linewidth', 2);
-            plot(trial_window_t, trace_tuning.stat_trace.sig_thresh(n_cell,:,n_trial), '--g');
-            plot(trial_window_t, y_max*ones(1,numel(trial_window_t)).*tuning_ind(n_cell,:,n_trial), '--r')
-            axis tight;
-            ylim([0 y_max]);
-            text(trial_window_t(2), y_max-y_max/5, sprintf('On resp = %d\nOff resp = %d\nOn mag = %.2f\nOff mag = %.2f\nOn sens = %.2f\nOff sens = %.2f', trace_tuning.onset_tuned_trials(n_cell, n_trial), trace_tuning.offset_tuned_trials(n_cell, n_trial), trace_tuning.onset_tunning_metric(n_cell, n_trial), trace_tuning.offset_tunning_metric(n_cell, n_trial), trace_tuning.onset_sensitivity(n_cell, n_trial), trace_tuning.offset_sensitivity(n_cell, n_trial)), 'FontSize', 8)
-            if n_trial == 1
-                title(sprintf('%s, %s, Cell %d, %s', dset_params.cond_name, ops.file_names.(dset_params.cond_name){dset_params.n_dset}, n_cell,ops.context_types_labels{n_trial}), 'Interpreter', 'none');
-            elseif n_trial == 20
-                title([ops.context_types_labels{n_trial} ' freq ' num2str(dset_params.MMN_freq(2))]);
-            elseif n_trial == 30
-                title([ops.context_types_labels{n_trial} ' freq ' num2str(dset_params.MMN_freq(1))]);
-            else
-                title(ops.context_types_labels{n_trial});
+            if num_trials_per_cat(n_trial)
+                plot(trial_window_t, squeeze(trial_data_sort(n_cell,:,trial_types==trials_to_analyze(n_trial))), 'color', [0.8 0.8 0.8]);
+                plot(trial_window_t, squeeze(trace_tuning.trial_ave(n_cell,:,n_trial)), 'm', 'linewidth', 2);
+                plot(trial_window_t, trace_tuning.stat_trace.sig_thresh(n_cell,:,n_trial), '--g');
+                plot(trial_window_t, y_max*ones(1,numel(trial_window_t)).*tuning_ind(n_cell,:,n_trial), '--r')
+                axis tight;
+                ylim([0 y_max]);
+                text(trial_window_t(2), y_max-y_max/5, sprintf('On resp = %d\nOff resp = %d\nOn mag = %.2f\nOff mag = %.2f\nOn sens = %.2f\nOff sens = %.2f', trace_tuning.onset_tuned_trials(n_cell, n_trial), trace_tuning.offset_tuned_trials(n_cell, n_trial), trace_tuning.onset_tunning_metric(n_cell, n_trial), trace_tuning.offset_tunning_metric(n_cell, n_trial), trace_tuning.onset_sensitivity(n_cell, n_trial), trace_tuning.offset_sensitivity(n_cell, n_trial)), 'FontSize', 8)
+                if n_trial == 1
+                    title(sprintf('%s, %s, Cell %d, %s', dset_params.cond_name, ops.file_names.(dset_params.cond_name){dset_params.n_dset}, n_cell,ops.context_types_labels{n_trial}), 'Interpreter', 'none');
+                elseif n_trial == 20
+                    title([ops.context_types_labels{n_trial} ' freq ' num2str(dset_params.MMN_freq(2))]);
+                elseif n_trial == 30
+                    title([ops.context_types_labels{n_trial} ' freq ' num2str(dset_params.MMN_freq(1))]);
+                else
+                    title(ops.context_types_labels{n_trial});
+                end
             end
         end
         
@@ -158,7 +167,7 @@ if ops.stat.plot_examples
             end
             subplot(1,3,n_tr_ind); hold on;
             plot(trial_window_t, squeeze(trial_data_sort(n_cell,:,trial_types==trials_to_analyze(n_tr))), 'color', [0.8 0.8 0.8]);
-            plot(trial_window_t, squeeze(trace_tuning.trial_ave(n_cell,:,n_tr)), ops.context_colors{n_tr_ind}, 'linewidth', 2);
+            plot(trial_window_t, squeeze(trace_tuning.trial_ave(n_cell,:,n_tr)), 'color', ops.context_colors{n_tr_ind}, 'linewidth', 2);
             plot(trial_window_t, trace_tuning.stat_trace.sig_thresh(n_cell,:,n_tr), '--g');
             axis tight;
             ylim([0 y_max]);
@@ -169,24 +178,6 @@ if ops.stat.plot_examples
                 title(sprintf('On mag=%.2f, Off mag=%.2f\nOn sens=%.2f, Off sens=%.2f', trace_tuning.onset_tunning_metric(n_cell, n_tr), trace_tuning.offset_tunning_metric(n_cell, n_tr), trace_tuning.onset_sensitivity(n_cell, n_tr), trace_tuning.offset_sensitivity(n_cell, n_tr)));
             end
         end
-        
-        
-        %legend('raw trials', 'trial ave', 'ecdf thresh', 'zscore thresh', 'FontSize', 8)
-
-%             figure;
-%             y_max = max(max(trial_raw_data_sort(n_cell,:,1:400)));
-%             y_min = min(min(trial_raw_data_sort(n_cell,:,1:400)));
-%             for n_trial = 1:10
-%                 subplot(2,5,n_trial)
-%                 hold on;
-%                 plot(trial_window_t, squeeze(trial_raw_data_sort(n_cell,:,trial_types==n_trial)), 'color', [0.8 0.8 0.8]);
-%                 plot(trial_window_t, squeeze(trial_ave_freq(n_cell,:,n_trial))*10, 'm', 'linewidth', 2)
-%                 plot(trial_window_t, squeeze(trial_raw_ave_freq(n_cell,:,n_trial)), 'g', 'linewidth', 2)
-%                 axis tight;
-%                 ylim([y_min y_max]);
-%                 title(sprintf('Freq %d', n_trial));
-%             end
-%             suptitle(sprintf('Cell %d freq trial raw vs firing rate', n_cell));
     end
 end
 

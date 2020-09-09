@@ -51,7 +51,7 @@ ops.signal_extra_smooth_plot_examples = 0;
 % requires sampling data so it is slow.
 ops.stat.thresh_method = 'zscore_around_mean'; % options: 'ecdf_percentile', 'zscore_around_mean', 'zscore_around_median'
 ops.stat.ecdf_percentile_thresh = 99;      % 95% 99.7
-ops.stat.num_samples_drawn = 1000;
+ops.stat.num_samples_drawn = 100;
 ops.stat.z_scores_thresh = 3;
 ops.stat.z_scores_average_thresh = 1;
 ops.stat.trials_to_sample = [1:10, 19, 20, 29, 30];%[1:18, 20, 21:28, 30]; % 1:10

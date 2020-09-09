@@ -131,7 +131,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     if_check_parameter_stability(stim_duration, [cond_name 'Stim duration']);
     if_check_parameter_stability(isi, [cond_name 'isi']);
     if_check_parameter_stability(volume_period, [cond_name 'volume_period']);
-    if_check_parameter_stability(num_freqs, [cond_name 'volume_period']);
+    if_check_parameter_stability(num_freqs, [cond_name 'num_freqs']);
 end
 
 end

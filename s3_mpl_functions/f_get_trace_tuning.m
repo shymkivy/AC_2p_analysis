@@ -8,7 +8,7 @@ trial_ave_data = f_mpl_trial_average(trial_data_sort,trial_types, trials_to_anal
 
 stat_trace = f_get_stat_thresholds(trial_data_sort, trial_types, ops.stat.trials_to_sample, trials_to_analyze, ops);
 
-tunning_z_mag = (trial_ave_data - stat_trace.means)./mean(stat_trace.z_factors,3);
+tunning_z_mag = (trial_ave_data - stat_trace.means)./nanmean(stat_trace.z_factors,3);
 
 onset_tunning_z_mag = squeeze(max(tunning_z_mag(:,onset_window_frames,:),[],2));
 onset_tunning_z_mag(isnan(onset_tunning_z_mag(:))) = 0;

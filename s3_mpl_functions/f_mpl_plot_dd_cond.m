@@ -61,11 +61,13 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         sp{plot_ind} = subplot(numel(ops.flip_to_analyze),numel(ops.regions_to_analyze),plot_ind);
         %figure;
         hold on;
-        for n_cntxt = 1:3
-            % converting to z-scores is tricky, I dont do it here yet
-            %patch([0 0 ops.stim_duration ops.stim_duration],[y_min y_max y_max y_min] ,[224, 243, 255]/256, 'LineStyle', 'none', 'FaceAlpha', 0.5);
-            shadedErrorBar_YS(trial_window_t, traces_ave(:,n_cntxt), traces_SEM(:,n_cntxt), ops.context_colors{n_cntxt});
+        if size(plot_traces{n_flip},1)
+            for n_cntxt = 1:3
+                % converting to z-scores is tricky, I dont do it here yet
+                %patch([0 0 ops.stim_duration ops.stim_duration],[y_min y_max y_max y_min] ,[224, 243, 255]/256, 'LineStyle', 'none', 'FaceAlpha', 0.5);
+                shadedErrorBar_YS(trial_window_t, traces_ave(:,n_cntxt), traces_SEM(:,n_cntxt), ops.context_colors{n_cntxt});
 
+            end
         end
         axis tight;
         if n_cond == 1

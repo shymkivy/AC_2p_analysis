@@ -39,7 +39,7 @@ remove_cells = stat_pk.sig_thresh(:,1) == 0;
 if ~ops.stat.z_scores_average_thresh
     fr_peak_mag_ave_z = (fr_peak_mag_ave - stat_pk.means)./stat_pk.z_factors;
 else
-    fr_peak_mag_ave_z = (fr_peak_mag_ave - stat_pk.means)./mean(stat_pk.z_factors,2);
+    fr_peak_mag_ave_z = (fr_peak_mag_ave - stat_pk.means)./nanmean(stat_pk.z_factors,2);
 end
 fr_peak_mag_ave_z(remove_cells,:) = min(fr_peak_mag_ave_z(:));
 fr_peak_mag_ave(remove_cells,:) = min(fr_peak_mag_ave(:));

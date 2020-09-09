@@ -15,7 +15,7 @@ end
 if isfield(ops.stat, 'num_samples_drawn')
     num_samples_drawn = ops.stat.num_samples_drawn;
 else
-    num_samples_drawn = 1000; % default
+    num_samples_drawn = 100; % default
 end
 
 if isfield(ops.stat, 'z_scores_thresh')
@@ -45,16 +45,11 @@ else
     [num_cells, num_bins, num_trials_all] = size(trial_data);
 end
 
-tt = ops.context_types_all(trials_to_sample)';
-trial_data_sample = trial_data(:,:,logical(sum(trial_types == tt,2)));
-
-
 if isfield(ops.stat, 'plot_examples')
     plot_examples = randsample(1:num_cells, ops.stat.plot_examples);
 else
     plot_examples = 0;
 end
-
 
 num_trial_cat =  numel(trials_to_analyze);
 num_trials_per_cat = zeros(num_trial_cat,1);
@@ -65,9 +60,17 @@ for n_trial = 1:num_trial_cat
     num_trials_per_cat(n_trial) = sum(trials_to_analyze(n_trial) == trial_types);
 end
 
+% elimitate empty trials
+trials_to_sample2 = trials_to_sample(num_trials_per_cat(trials_to_sample)>0);
+tt = ops.context_types_all(trials_to_sample2)';
+trial_data_sample = trial_data(:,:,logical(sum(trial_types == tt,2)));
+
 if min_samp_size_z_normalization
     num_trials_per_cat = ones(num_trial_cat,1)*min(num_trials_per_cat);
 end
+
+
+
 
 if waitbar_on
     wb = f_waitbar_initialize([], 'Statistics...');
@@ -76,8 +79,8 @@ end
 % and approximate the location of 2 or 3 std cut off (95 or 99%). can get
 % the cut off empirically, or compute if from the part of the normal curve
 % that is available 
-sig_thresh = zeros(num_cells, num_bins, num_trial_cat);
-z_factors_out = zeros(num_cells, num_bins, num_trial_cat);
+sig_thresh = NaN(num_cells, num_bins, num_trial_cat);
+z_factors_out = NaN(num_cells, num_bins, num_trial_cat);
 means_out = zeros(num_cells, num_bins, num_trial_cat);
 for n_cell = 1:num_cells
     
@@ -88,78 +91,80 @@ for n_cell = 1:num_cells
     % first estimate SEM around mean
     data_mean = mean(trial_data_sample(n_cell,:,:),3);
     for n_trial = 1:num_trial_cat
-        data_SEM_est = std(trial_data_sample(n_cell,:,:),[],3)/sqrt(num_trials_per_cat(n_trial)-1);
+        data_SEM_est = std(trial_data_sample(n_cell,:,:),[],3)/sqrt(max(num_trials_per_cat(n_trial)-1,1));
         
         [~, bin_ind] = max(data_mean+data_SEM_est);
-        
-        if strcmp(thresh_method, 'zscore_around_mean')
-            sig_thresh(n_cell, :, n_trial) = data_mean + z_scores_thresh*data_SEM_est;
-            z_factors_out(n_cell, :, n_trial) = data_SEM_est;
-            means_out(n_cell, :, n_trial) = data_mean;
-        else
-            samp_data = zeros(num_samples_drawn, num_bins);
-            subsamp_trials = zeros(num_trials_per_cat(n_trial),1);
-            for n_samp = 1:num_samples_drawn
-                for n_subsamp = 1:num_trials_per_cat(n_trial)
-                    % because diff num of samples per cat, have to adjust probability per cat
-                    cat_num = ceil(rand(1)*numel(trials_to_sample));
-                    subsamp_trials(n_subsamp) = randsample(sorted_trials{trials_to_sample(cat_num)},1);
+        if num_trials_per_cat(n_trial)
+            if strcmp(thresh_method, 'zscore_around_mean')
+                sig_thresh(n_cell, :, n_trial) = data_mean + z_scores_thresh*data_SEM_est;
+                z_factors_out(n_cell, :, n_trial) = data_SEM_est;
+                means_out(n_cell, :, n_trial) = data_mean;
+            else
+                samp_data = zeros(num_samples_drawn, num_bins);
+                subsamp_trials = zeros(num_trials_per_cat(n_trial),1);
+                for n_samp = 1:num_samples_drawn
+                    for n_subsamp = 1:num_trials_per_cat(n_trial)
+                        % because diff num of samples per cat, have to adjust probability per cat
+                        cat_num = ceil(rand(1)*numel(trials_to_sample2));
+                        subsamp_trials(n_subsamp) = randsample(sorted_trials{trials_to_sample2(cat_num)},1);
+                    end
+                    samp_data(n_samp,:) = mean(trial_data(n_cell,:,subsamp_trials),3);
                 end
-                samp_data(n_samp,:) = mean(trial_data(n_cell,:,subsamp_trials),3);
-            end
-            
-            % compute SEM around median
-            samp_data_median = median(samp_data);
-            samp_data_med_sub = samp_data - samp_data_median;
-            samp_data_SEM_ar_median = sqrt(sum(samp_data_med_sub.^2)./sum(logical(samp_data_med_sub)));
 
-%             ecdf_thresh = zeros(num_bins,1);
-%             for n_bin = 1:num_bins
-%                 [f,x] = ecdf(samp_data(:,n_bin));
-%                 f_thresh_ind = find(f >= ecdf_percentile_thresh/100);
-%                 ecdf_thresh(n_bin) = x(f_thresh_ind(1));
-%             end
-            
-            samp_data_sort = sort(samp_data);
-            ecdf_thresh = samp_data_sort(round(ecdf_percentile_thresh/100*num_samples_drawn),:);
-            
-            if strcmp(thresh_method, 'ecdf_percentile')
-                sig_thresh(n_cell, :, n_trial) = ecdf_thresh;
-                z_factors_out(n_cell, :, n_trial) = (samp_data_sort(round(0.95*num_samples_drawn),:)-samp_data_median)/2;
-                means_out(n_cell, :, n_trial) = samp_data_median;
-            elseif strcmp(thresh_method, 'zscore_around_median')
-                sig_thresh(n_cell, :, n_trial) = samp_data_median + z_scores_thresh*samp_data_SEM_ar_median;
-                z_factors_out(n_cell, :, n_trial) = samp_data_SEM_ar_median;
-                means_out(n_cell, :, n_trial) = samp_data_median;
-            end
-            
-            
-            if sum(n_cell == plot_examples) && ~strcmp(thresh_method, 'zscore_around_mean')
-                % compute SEM around mean
-                samp_data_mean = mean(samp_data);
-                samp_data_mean_sub = samp_data - samp_data_mean;
-                samp_data_SEM_ar_mean = sqrt(sum(samp_data_mean_sub.^2)./sum(logical(samp_data_mean_sub)));
-                ecdf_thresh_95 = samp_data_sort(round(.95*num_samples_drawn),:);
-                ecdf_thresh_99 = samp_data_sort(round(.99*num_samples_drawn),:);
+                % compute SEM around median
+                samp_data_median = median(samp_data);
+                samp_data_med_sub = samp_data - samp_data_median;
+                samp_data_SEM_ar_median = sqrt(sum(samp_data_med_sub.^2)./sum(logical(samp_data_med_sub)));
+
+    %             ecdf_thresh = zeros(num_bins,1);
+    %             for n_bin = 1:num_bins
+    %                 [f,x] = ecdf(samp_data(:,n_bin));
+    %                 f_thresh_ind = find(f >= ecdf_percentile_thresh/100);
+    %                 ecdf_thresh(n_bin) = x(f_thresh_ind(1));
+    %             end
+
+                samp_data_sort = sort(samp_data);
+                ecdf_thresh = samp_data_sort(round(ecdf_percentile_thresh/100*num_samples_drawn),:);
+
+                if strcmp(thresh_method, 'ecdf_percentile')
+                    sig_thresh(n_cell, :, n_trial) = ecdf_thresh;
+                    z_factors_out(n_cell, :, n_trial) = (samp_data_sort(round(0.95*num_samples_drawn),:)-samp_data_median)/2;
+                    means_out(n_cell, :, n_trial) = samp_data_median;
+                elseif strcmp(thresh_method, 'zscore_around_median')
+                    sig_thresh(n_cell, :, n_trial) = samp_data_median + z_scores_thresh*samp_data_SEM_ar_median;
+                    z_factors_out(n_cell, :, n_trial) = samp_data_SEM_ar_median;
+                    means_out(n_cell, :, n_trial) = samp_data_median;
+                end
+
                 
-                subplot(2,5,n_trial); hold on;
-                plot(samp_data_sort(:,bin_ind),1/num_samples_drawn:1/num_samples_drawn:1, 'color', [0 0 1]);
-                x_cdf = min(samp_data(:,bin_ind)):1/num_samples_drawn:max(samp_data(:,bin_ind));
-                plot(x_cdf, cdf('Normal',x_cdf,samp_data_median(bin_ind), samp_data_SEM_ar_median(bin_ind)),'color', [1 0 1]);
-                plot(x_cdf, cdf('Normal',x_cdf,samp_data_mean(bin_ind), samp_data_SEM_ar_mean(bin_ind)), 'color', [0 1 0]);
-                line([samp_data_median(bin_ind) samp_data_median(bin_ind)],[0 1],'color', [1 0.5 1]);
-                line([samp_data_mean(bin_ind) samp_data_mean(bin_ind)],[0 1], 'color',[0.5 1 0.5]);
-                line([ecdf_thresh_95(bin_ind) ecdf_thresh_95(bin_ind)],[0 1],'color', [0.5 0.5 1],'LineStyle','--');
-                line([ecdf_thresh_99(bin_ind) ecdf_thresh_99(bin_ind)],[0 1],'color', [0.5 0.5 1],'LineStyle','-.');
-                line([samp_data_median(bin_ind) samp_data_median(bin_ind)]+2*samp_data_SEM_ar_median(bin_ind),[0 1],'color', [1 0.5 1],'LineStyle','--');
-                line([samp_data_median(bin_ind) samp_data_median(bin_ind)]+3*samp_data_SEM_ar_median(bin_ind),[0 1],'color', [1 0.5 1],'LineStyle','-.');
-                line([samp_data_mean(bin_ind) samp_data_mean(bin_ind)]+2*samp_data_SEM_ar_mean(bin_ind),[0 1],'color', [0.5 1 0.5],'LineStyle','--');
-                line([samp_data_mean(bin_ind) samp_data_mean(bin_ind)]+3*samp_data_SEM_ar_mean(bin_ind),[0 1],'color', [0.5 1 0.5],'LineStyle','-.');
-                line([0 0]+2*data_SEM_est(bin_ind),[0 1],'color', [1 0.5 0.5],'LineStyle','--');
-                line([0 0]+3*data_SEM_est(bin_ind),[0 1],'color', [1 0.5 0.5],'LineStyle','-.');
-                title(sprintf('trial %d, n=%d, bin %d', n_trial, num_trials_per_cat(n_trial),bin_ind));
+                if sum(n_cell == plot_examples) && ~strcmp(thresh_method, 'zscore_around_mean')
+                    if n_trial < 11
+                        % compute SEM around mean
+                        samp_data_mean = mean(samp_data);
+                        samp_data_mean_sub = samp_data - samp_data_mean;
+                        samp_data_SEM_ar_mean = sqrt(sum(samp_data_mean_sub.^2)./sum(logical(samp_data_mean_sub)));
+                        ecdf_thresh_95 = samp_data_sort(round(.95*num_samples_drawn),:);
+                        ecdf_thresh_99 = samp_data_sort(round(.99*num_samples_drawn),:);
+
+                        subplot(2,5,n_trial); hold on;
+                        plot(samp_data_sort(:,bin_ind),1/num_samples_drawn:1/num_samples_drawn:1, 'color', [0 0 1]);
+                        x_cdf = min(samp_data(:,bin_ind)):1/num_samples_drawn:max(samp_data(:,bin_ind));
+                        plot(x_cdf, cdf('Normal',x_cdf,samp_data_median(bin_ind), samp_data_SEM_ar_median(bin_ind)),'color', [1 0 1]);
+                        plot(x_cdf, cdf('Normal',x_cdf,samp_data_mean(bin_ind), samp_data_SEM_ar_mean(bin_ind)), 'color', [0 1 0]);
+                        line([samp_data_median(bin_ind) samp_data_median(bin_ind)],[0 1],'color', [1 0.5 1]);
+                        line([samp_data_mean(bin_ind) samp_data_mean(bin_ind)],[0 1], 'color',[0.5 1 0.5]);
+                        line([ecdf_thresh_95(bin_ind) ecdf_thresh_95(bin_ind)],[0 1],'color', [0.5 0.5 1],'LineStyle','--');
+                        line([ecdf_thresh_99(bin_ind) ecdf_thresh_99(bin_ind)],[0 1],'color', [0.5 0.5 1],'LineStyle','-.');
+                        line([samp_data_median(bin_ind) samp_data_median(bin_ind)]+2*samp_data_SEM_ar_median(bin_ind),[0 1],'color', [1 0.5 1],'LineStyle','--');
+                        line([samp_data_median(bin_ind) samp_data_median(bin_ind)]+3*samp_data_SEM_ar_median(bin_ind),[0 1],'color', [1 0.5 1],'LineStyle','-.');
+                        line([samp_data_mean(bin_ind) samp_data_mean(bin_ind)]+2*samp_data_SEM_ar_mean(bin_ind),[0 1],'color', [0.5 1 0.5],'LineStyle','--');
+                        line([samp_data_mean(bin_ind) samp_data_mean(bin_ind)]+3*samp_data_SEM_ar_mean(bin_ind),[0 1],'color', [0.5 1 0.5],'LineStyle','-.');
+                        line([0 0]+2*data_SEM_est(bin_ind),[0 1],'color', [1 0.5 0.5],'LineStyle','--');
+                        line([0 0]+3*data_SEM_est(bin_ind),[0 1],'color', [1 0.5 0.5],'LineStyle','-.');
+                        title(sprintf('trial %d, n=%d, bin %d', n_trial, num_trials_per_cat(n_trial),bin_ind));
+                    end
+                end
             end
-            
         end
     end
     if sum(n_cell == plot_examples) && ~strcmp(thresh_method, 'zscore_around_mean')
