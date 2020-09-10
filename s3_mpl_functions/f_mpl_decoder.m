@@ -4,7 +4,7 @@ f = waitbar(0,'decoding');
 
 dec_data_out = cell(numel(ops.regions_to_analyze),1);
 
-% tn = [3 4;...
+%tn = [3 4;...
 %       4 5;...
 %       5 6;...
 %       6 7];
@@ -20,7 +20,7 @@ sort_mag = 0; % 0 = reliability
 
 
 dec_params.n_rep = 1:10;
-dec_params.dec_num_cells = 5:10:60;
+dec_params.dec_num_cells = 5:5:100;
 dec_params.KernelFunction = 'cosineKernel';   % 'gaussian'  'cosineKernel'
 dec_params.KernelScale = 5.5;       % 5.5
 dec_params.kFold = 5;
@@ -124,7 +124,7 @@ close(f);
 
 if numel(dec_params.dec_num_cells) > 1
     f_plot_cond_decoding(dec_data_out, 'dec_num_cells', dec_params, ops)
-    title(['Decoder ' decoder_type ', numeber of cells ' num2str(tt(:)')])
+    title(['Decoder ' decoder_type ', number of cells ' num2str(tt(:)')])
 end
 if numel(dec_params.KernelScale) > 1
     f_plot_cond_decoding(dec_data_out, 'KernelScale', dec_params, ops)

@@ -28,7 +28,7 @@ end
 %% plot
 if numel(params.(plot_var))>1
     figure; 
-    s1= subplot(2,1,1); hold on;
+    s1= subplot(2,1,1); hold on; axis tight;
     pl = cell(numel(ops.regions_to_analyze),1);
 end
 dec_data_means = cell(numel(ops.regions_to_analyze),1);
@@ -61,7 +61,7 @@ end
 %figure; hold on;
 
 if numel(params.(plot_var))>1
-    subplot(2,1,2); hold on;
+    subplot(2,1,2); hold on; axis tight;
     for n_cond = 1:numel(ops.regions_to_analyze)
         means1 = nanmean(dec_data_means{n_cond});
         sem1 = nanstd(dec_data_means{n_cond})/sqrt(size(dec_data_means{n_cond},1)-1);

@@ -127,7 +127,7 @@ end
 %f_mpl_trial_trial_dist(data, ops);
 
 %%
-f_mpl_decoder(data, ops)
+f_mpl_decoder(data, ops);
 
 %%
 % ---------------------------clustering kmeans---------------------------
