@@ -15,20 +15,17 @@ tt = ops.context_types_all(tn);
 
 random_sample = 0; % 0 = sort and sequentially take
 use_dim_red = 1;
-decoder_type = 'svm'; % 'svm' ''beyes'
 sort_mag = 0; % 0 = reliability
 
-
+dec_params.decoder_type = {'svm_gaussian', 'svm_cosine', 'svm_linear', 'beyes_cosine'}; % 'svm_gaussian' 'svm_cosine' 'svm_linear' 'beyes_cosine'
 dec_params.n_rep = 1:10;
-dec_params.dec_num_cells = 5:5:100;
-dec_params.KernelFunction = 'cosineKernel';   % 'gaussian'  'cosineKernel'
-dec_params.KernelScale = 5.5;       % 5.5
+dec_params.dec_num_cells = 5:10:80;
 dec_params.kFold = 5;
 
 
 num_tt = numel(tt);
 
-dec_params_list = f_build_param_list(dec_params, {'dec_num_cells', 'KernelScale', 'kFold', 'n_rep'});
+dec_params_list = f_build_param_list(dec_params, {'dec_num_cells', 'n_rep', 'decoder_type'});
 num_param_el = numel(dec_params_list);
 
 for n_cond = 1:numel(ops.regions_to_analyze)
@@ -99,9 +96,18 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                         predictors = traces2(cells_pred,:)';
                     end
                     %%
-                    if strcmpi(decoder_type, 'svm')
+                    if strcmpi(temp_params(n_param_el).decoder_type, 'svm_gaussian')
+                        temp_params(n_param_el).KernelFunction = 'gaussian';
+                        temp_params(n_param_el).KernelScale = 5.5;
                         temp_params(n_param_el).accuracy = f_svm_decoder(predictors, response, tt2, temp_params(n_param_el));
-                    elseif strcmpi(decoder_type, 'beyes')
+                    elseif strcmpi(temp_params(n_param_el).decoder_type, 'svm_cosine')
+                        temp_params(n_param_el).KernelFunction = 'cosineKernel';
+                        temp_params(n_param_el).accuracy = f_svm_decoder(predictors, response, tt2, temp_params(n_param_el));
+                    elseif strcmpi(temp_params(n_param_el).decoder_type, 'svm_linear')
+                        temp_params(n_param_el).KernelFunction = 'linear';
+                        temp_params(n_param_el).accuracy = f_svm_decoder(predictors, response, tt2, temp_params(n_param_el));
+                    elseif strcmpi(temp_params(n_param_el).decoder_type, 'beyes_cosine')
+                        temp_params(n_param_el).KernelFunction = 'cosine';
                         temp_params(n_param_el).accuracy = f_beyes_decoder_wrap(predictors, response, tt2, temp_params(n_param_el));
                     end
                 else
@@ -123,18 +129,19 @@ close(f);
 %% plot crap
 
 if numel(dec_params.dec_num_cells) > 1
-    f_plot_cond_decoding(dec_data_out, 'dec_num_cells', dec_params, ops)
-    title(['Decoder ' decoder_type ', number of cells ' num2str(tt(:)')])
+    f_plot_cond_decoding(dec_data_out, 'dec_num_cells', dec_params, ops);
+    if numel(dec_params.decoder_type) > 1
+        f_plot_decoret_types(dec_data_out, 'dec_num_cells', dec_params, ops);
+    end
 end
 if numel(dec_params.KernelScale) > 1
-    f_plot_cond_decoding(dec_data_out, 'KernelScale', dec_params, ops)
-    title(['Decoder ' decoder_type ', KernelScale ' num2str(tt)])
+    f_plot_cond_decoding(dec_data_out, 'KernelScale', dec_params, ops);
 end
 
 if numel(dec_params.kFold) > 1
-    f_plot_cond_decoding(dec_data_out, 'kFold', dec_params, ops)
-    title(['Decoder ' decoder_type ', kFold ' num2str(tt)])
+    f_plot_cond_decoding(dec_data_out, 'kFold', dec_params, ops);
 end
+
 disp('Done')
 
 end

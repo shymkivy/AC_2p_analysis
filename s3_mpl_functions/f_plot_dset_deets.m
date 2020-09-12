@@ -4,7 +4,7 @@ if ~exist('sp_pt', 'var')
 else
     subplot(sp_pt)
 end
- hold on;
+hold on;
 xpts = numel(ops.regions_to_analyze);
 plot_shuff = size(plot_y_cell,2)-1;
 lg1 = cell(xpts,1);

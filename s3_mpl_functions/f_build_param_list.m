@@ -17,15 +17,15 @@ end
 
 num_el = prod(dims1);
 
-params_list = zeros(num_el, numel(dims1));
-
+params_list = cell(num_el, numel(dims1));
 for n_param = 1:numel(params_to_vary2)
     if n_param == 1
         m_rep = 1;
     else
         m_rep = prod(dims1(1:(n_param-1)));
     end
-    temp1 = repmat(param_struct.(params_to_vary2{n_param})(:)',m_rep,prod(dims1(n_param+1:end)));
+
+    temp1 = repmat(num2cell(param_struct.(params_to_vary2{n_param})(:)'),m_rep,prod(dims1(n_param+1:end)));
     params_list(:,n_param) = temp1(:);
 end
 
@@ -34,7 +34,7 @@ for n_el = 1:num_el
     for n_fl = 1:numel(param_fields)
         edit_field_ind = strcmpi(param_fields{n_fl}, params_to_vary);
         if sum(edit_field_ind)
-            params_list_full(n_el).(param_fields{n_fl}) = params_list(n_el,edit_field_ind);
+            params_list_full(n_el).(param_fields{n_fl}) = params_list{n_el,edit_field_ind};
         else
             params_list_full(n_el).(param_fields{n_fl}) = param_struct.(param_fields{n_fl});
         end

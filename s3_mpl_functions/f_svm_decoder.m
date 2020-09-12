@@ -4,8 +4,12 @@ KernelScale = f_get_param(params, 'KernelScale', 7); % auto fine = 1.8 medium= 7
 PolynomialOrder = f_get_param(params, 'PolynomialOrder');
 kFold = f_get_param(params, 'KFold', 5);
 
-if strcmpi(KernelFunction, 'cosineKernel')
+if ~strcmpi(KernelFunction, 'gaussian')
     KernelScale = [];
+end
+
+if ~strcmpi(KernelFunction, 'polynomial')
+    PolynomialOrder = [];
 end
 
 %%
