@@ -1,4 +1,4 @@
-function f_plot_corr_stim_v_ncell(trial_ave_vec, tt_ind, stim_ind, ops, max_cells)
+function f_plot_stim_vec_dist_v_ncell(trial_ave_vec, tt_ind, stim_ind, ops, max_cells)
 start_range = 1;
 cell_int = 2;
 num_samp = 10;

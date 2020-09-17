@@ -1,4 +1,4 @@
-function f_plot_corr_mat(trial_ave_vec, tt_tag, ops)
+function f_plot_stim_vec_dist_mat(trial_ave_vec, tt_tag, ops)
 
 corr_all = cell(numel(ops.regions_to_analyze), numel(ops.dred_params.trial_types_for_dist));
 for n_tt = 1:numel(ops.dred_params.trial_types_for_dist)

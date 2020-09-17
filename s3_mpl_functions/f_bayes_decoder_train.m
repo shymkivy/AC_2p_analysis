@@ -1,4 +1,4 @@
-function beyes_model_out = f_beyes_decoder_train(predictors, response, tt)
+function bayes_model_out = f_bayes_decoder_train(predictors, response, tt)
 % beyes decoder with cosine similarity kernel
 
 num_cells = size(predictors,2);
@@ -22,9 +22,9 @@ for n_tt = 1:numel(tt)
     vec_dist_std(n_tt) = std(vec_dist(n_tt,tt_ind));
 end
 
-beyes_model_out.vec_means = vec_means;
-beyes_model_out.vec_dist_mean = vec_dist_mean;
-beyes_model_out.vec_dist_std = vec_dist_std;
+bayes_model_out.vec_means = vec_means;
+bayes_model_out.vec_dist_mean = vec_dist_mean;
+bayes_model_out.vec_dist_std = vec_dist_std;
 
 end
 

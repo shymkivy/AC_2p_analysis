@@ -17,7 +17,7 @@ random_sample = 0; % 0 = sort and sequentially take
 use_dim_red = 1;
 sort_mag = 0; % 0 = reliability
 
-dec_params.decoder_type = {'beyes_cosine'}; % 'svm_gaussian' 'svm_cosine' 'svm_linear' 'beyes_cosine'
+dec_params.decoder_type = {'bayes_cosine'}; % 'svm_gaussian' 'svm_cosine' 'svm_linear' 'bayes_cosine'
 dec_params.n_rep = 1:10;
 dec_params.dec_num_cells = 5:10:80;
 dec_params.kFold = 5;
@@ -106,9 +106,9 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                     elseif strcmpi(temp_params(n_param_el).decoder_type, 'svm_linear')
                         temp_params(n_param_el).KernelFunction = 'linear';
                         temp_params(n_param_el).accuracy = f_svm_decoder(predictors, response, tt2, temp_params(n_param_el));
-                    elseif strcmpi(temp_params(n_param_el).decoder_type, 'beyes_cosine')
+                    elseif strcmpi(temp_params(n_param_el).decoder_type, 'bayes_cosine')
                         temp_params(n_param_el).KernelFunction = 'cosine';
-                        temp_params(n_param_el).accuracy = f_beyes_decoder_wrap(predictors, response, tt2, temp_params(n_param_el));
+                        temp_params(n_param_el).accuracy = f_bayes_decoder_wrap(predictors, response, tt2, temp_params(n_param_el));
                     end
                 else
                     temp_params(n_param_el).accuracy = NaN;

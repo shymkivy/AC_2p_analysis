@@ -1,13 +1,14 @@
 function f_mpl_trial_trial_dist(data, ops)
 
 plot_stuff = 0;
-trial_ave_vec = cell(numel(ops.regions_to_analyze),1);
+trial_mean_vec = cell(numel(ops.regions_to_analyze),1);
 tt_tag = cell(numel(ops.dred_params.trial_types_for_dist),1);
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
     cdata = data.(cond_name);
     dr_params.cond_name = cond_name;
-    trial_ave_vec_tt = cell(numel(ops.dred_params.trial_types_for_dist),numel(cdata.num_dsets,1));
+    trial_mean_vec_tt = cell(numel(ops.dred_params.trial_types_for_dist),numel(cdata.num_dsets,1));
+    trial_raster_tt = cell(numel(ops.dred_params.trial_types_for_dist),numel(cdata.num_dsets,1));
     for n_tt = 1:numel(ops.dred_params.trial_types_for_dist)
         
         for n_dset = 1:cdata.num_dsets
@@ -79,77 +80,84 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 f_plot_raster_mean(trial_peaks_cut_sort, [], [], ops, 1,trial_num_cut_sort)
                 title('raster cell trial sorted');
                 
-                trial_num_cred_sort = f_tt_to_tn(trial_types_dred_sort, ops,1);
-                f_plot_raster_mean(trial_peaks_dred_sort, [], [], ops, 1,trial_num_cred_sort)
+                trial_num_dred_sort = f_tt_to_tn(trial_types_dred_sort, ops,1);
+                f_plot_raster_mean(trial_peaks_dred_sort, [], [], ops, 1,trial_num_dred_sort)
                 title('raster cell freq trial sorted');
                 
             end
             
             
-            trial_ave_vec_tt{n_tt,n_dset} = zeros(num_cells, numel(tt_to_dred));
+            trial_mean_vec_tt{n_tt,n_dset} = zeros(num_cells, numel(tt_to_dred));
+            trial_raster_tt{n_tt,n_dset} = cell(numel(tt_to_dred),1);
             
             for n_tr = 1:numel(tt_to_dred)
                 temp_ras = trial_peaks_dred_sort(:,trial_types_dred_sort == tt_to_dred(n_tr));
-                trial_ave_vec_tt{n_tt,n_dset}(:,n_tr) = mean(temp_ras,2);
+                trial_raster_tt{n_tt,n_dset}{n_tr} = temp_ras;
+                temp_mean_vec = mean(temp_ras,2);
+                trial_mean_vec_tt{n_tt,n_dset}(:,n_tr) = temp_mean_vec;
+                
             end
-            scale_fac = .9/max(trial_ave_vec_tt{n_tt,n_dset}(:));
+            
             if plot_stuff
+                scale_fac = .9/max(trial_mean_vec_tt{n_tt,n_dset}(:));
                 f1 = figure; hold on; axis tight;
                 for n_tr = 1:numel(tt_to_dred)
-                    plot(trial_ave_vec_tt{n_tt,n_dset}(:,n_tr)*scale_fac+n_tr, 1:num_cells, 'LineWidth', 2, 'color', ops.context_types_all_colors(n_tr,:));
+                    plot(trial_mean_vec_tt{n_tt,n_dset}(:,n_tr)*scale_fac+n_tr, 1:num_cells, 'LineWidth', 2, 'color', ops.context_types_all_colors(n_tr,:));
                     line([n_tr n_tr], [1 num_cells], 'color', 'k');
                     
                 end
                 title(sprintf('%s, %s, dset%d population vec',trial_type_tag,  cond_name, n_dset));
+                f1.Children.YAxis.Direction = 'reverse';
             end
-            f1.Children.YAxis.Direction = 'reverse';
+            
 %             figure; imagesc(trial_ave_mat)
 %             title(sprintf('%s, %s, dset%d',trial_type_tag,  cond_name, n_dset));
             
             if plot_stuff
-                corr_sim = trial_ave_vec_tt{n_tt,n_dset}' * trial_ave_vec_tt{n_tt,n_dset};
+                corr_sim = trial_mean_vec_tt{n_tt,n_dset}' * trial_mean_vec_tt{n_tt,n_dset};
                 figure; imagesc(corr_sim);
                 title(sprintf('%s, %s, dset%d, prod',trial_type_tag,  cond_name, n_dset));
             end
             if plot_stuff
                 % same as cosine with normalized traces
-                corr_sim = corr(trial_ave_vec_tt{n_tt,n_dset},trial_ave_vec_tt{n_tt,n_dset});
+                corr_sim = corr(trial_mean_vec_tt{n_tt,n_dset},trial_mean_vec_tt{n_tt,n_dset});
                 figure; imagesc(corr_sim);
                 title(sprintf('%s, %s, dset%d, corr',trial_type_tag,  cond_name, n_dset));
             end
 
         end
     end
-    trial_ave_vec{n_cond} = trial_ave_vec_tt;
+    trial_mean_vec{n_cond} = trial_mean_vec_tt;
+    trial_raster{n_cond} =  trial_raster_tt;
 end
 
 %% plot all
-f_plot_corr_mat(trial_ave_vec, tt_tag, ops)
+f_plot_corr_mat(trial_mean_vec, tt_tag, ops)
 
 tt_ind = find(strcmpi(ops.dred_params.trial_types_for_dist, 'mmn12'));
 sim_ind = [1,3; 4,6];
-f_plot_corr_stim(trial_ave_vec, tt_ind, sim_ind, ops);
+f_plot_corr_stim(trial_mean_vec, tt_ind, sim_ind, ops);
 title('cont-dd')
 
 tt_ind = find(strcmpi(ops.dred_params.trial_types_for_dist, 'mmn12'));
 sim_ind = [2,3; 5,6];
-f_plot_corr_stim(trial_ave_vec, tt_ind, sim_ind, ops);
+f_plot_corr_stim(trial_mean_vec, tt_ind, sim_ind, ops);
 title('red-dd')
 
 
 tt_ind = 1;
 sim_ind = [3,4; 4,5; 5,6; 6,7; 7,8];
-f_plot_corr_stim(trial_ave_vec, tt_ind, sim_ind, ops);
+f_plot_corr_stim(trial_mean_vec, tt_ind, sim_ind, ops);
 title('adj freqs')
 
 tt_ind = 1;
 sim_ind = [1,3; 2,4; 3,5; 4,6; 5,7; 6,8; 7,9; 8,10;];
-f_plot_corr_stim(trial_ave_vec, tt_ind, sim_ind, ops);
+f_plot_corr_stim(trial_mean_vec, tt_ind, sim_ind, ops);
 title('adj freqs 2 apart')
 
 tt_ind = find(strcmpi(ops.dred_params.trial_types_for_dist, 'mmn12'));
 sim_ind = [1,3; 4,6];
-f_plot_corr_stim_v_ncell(trial_ave_vec, tt_ind, sim_ind, ops, 99999);
+f_plot_corr_stim_v_ncell(trial_mean_vec, tt_ind, sim_ind, ops, 99999);
 title('cont-dd')
 
 

@@ -17,7 +17,7 @@ addpath([pwd '\general_functions']);
 %% List of files to load
 
 %which files to analyze
-ops.blah = 2;
+ops.blah = 1;
 
 %AC_files_preOA_7_31_19
 %AC_files_OA_10_27_19
