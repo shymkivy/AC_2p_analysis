@@ -4,7 +4,7 @@ f = waitbar(0,'decoding');
 
 dec_data_out = cell(numel(ops.regions_to_analyze),1);
 
-%tn = [3 4;...
+% tn = [3 4;...
 %       4 5;...
 %       5 6;...
 %       6 7];
@@ -17,7 +17,7 @@ random_sample = 0; % 0 = sort and sequentially take
 use_dim_red = 1;
 sort_mag = 0; % 0 = reliability
 
-dec_params.decoder_type = {'svm_gaussian', 'svm_cosine', 'svm_linear', 'beyes_cosine'}; % 'svm_gaussian' 'svm_cosine' 'svm_linear' 'beyes_cosine'
+dec_params.decoder_type = {'beyes_cosine'}; % 'svm_gaussian' 'svm_cosine' 'svm_linear' 'beyes_cosine'
 dec_params.n_rep = 1:10;
 dec_params.dec_num_cells = 5:10:80;
 dec_params.kFold = 5;
@@ -133,9 +133,6 @@ if numel(dec_params.dec_num_cells) > 1
     if numel(dec_params.decoder_type) > 1
         f_plot_decoret_types(dec_data_out, 'dec_num_cells', dec_params, ops);
     end
-end
-if numel(dec_params.KernelScale) > 1
-    f_plot_cond_decoding(dec_data_out, 'KernelScale', dec_params, ops);
 end
 
 if numel(dec_params.kFold) > 1

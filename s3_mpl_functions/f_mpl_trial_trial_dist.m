@@ -138,7 +138,7 @@ title('red-dd')
 
 
 tt_ind = 1;
-sim_ind = [1,2; 2,3; 3,4; 4,5; 5,6; 6,7; 7,8; 8,9; 9,10];
+sim_ind = [3,4; 4,5; 5,6; 6,7; 7,8];
 f_plot_corr_stim(trial_ave_vec, tt_ind, sim_ind, ops);
 title('adj freqs')
 

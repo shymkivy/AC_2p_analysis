@@ -37,7 +37,7 @@ end
 % 
 %     pl3_pc = 1:3;
 %     %figure; plot3(U(:,1),U(:,2),U(:,3), 'o')
-%     f_plot_comp_scatter(U(:,pl3_pc), ens_list_gt, ops);
+%     f_plot_comp_scatter(U(:,pl3_pc), ens_list_gt);
 %     xlabel('pc 1');
 %     ylabel('pc 2');
 %     zlabel('pc 3');
@@ -45,7 +45,7 @@ end
 % 
 % 
 %     %figure; plot3(V(:,1),V(:,2),V(:,3), 'o')
-%     f_plot_comp_scatter(V(:,pl3_pc), trial_list_gt, ops);
+%     f_plot_comp_scatter(V(:,pl3_pc), trial_list_gt);
 %     xlabel('pc 1');
 %     ylabel('pc 2');
 %     zlabel('pc 3');
@@ -56,7 +56,7 @@ end
 %     num_plots = ceil(num_LR_comps/3);
 %     for n_plt = 1:num_plots
 %         dims1 = rem([1 2 3]+(n_plt-1)*3-1, num_LR_comps)+1;
-%         f_plot_comp_scatter(X(:,dims1), trial_list_gt, ops);
+%         f_plot_comp_scatter(X(:,dims1), trial_list_gt);
 %         xlabel(sprintf('pc %d', dims1(1)));
 %         ylabel(sprintf('pc %d', dims1(2)));
 %         zlabel(sprintf('pc %d', dims1(3)));

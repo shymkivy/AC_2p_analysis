@@ -95,6 +95,23 @@ ops.context_types_all_colors(21:27,:,:) = ops.context_colors{2}.*(linspace(0.4,0
 ops.context_types_all_colors(28,:,:) = ops.context_colors{1};
 ops.context_types_all_colors(29,:,:) = ops.context_colors{2};
 ops.context_types_all_colors(30,:,:) = ops.context_colors{3};
+
+ops.context_types_all_colors2 = cell(30,1);
+for n_cl = 1:10
+    ops.context_types_all_colors2{n_cl} = squeeze(ops.context_types_all_colors(n_cl,:,:));
+end
+for n_cl = 11:17
+    ops.context_types_all_colors2{n_cl} = ops.context_colors{2};
+end
+ops.context_types_all_colors2{18} = ops.context_colors{1};
+ops.context_types_all_colors2{19} = ops.context_colors{2};
+ops.context_types_all_colors2{20} = ops.context_colors{3};
+for n_cl = 21:27
+    ops.context_types_all_colors2{n_cl} = ops.context_colors{2};
+end
+ops.context_types_all_colors2{28} = ops.context_colors{1};
+ops.context_types_all_colors2{29} = ops.context_colors{2};  
+ops.context_types_all_colors2{30} = ops.context_colors{3};
 %figure; imagesc(ops.context_types_all_colors);
 
 ops.context_name = {'Control', 'Redundant', 'Deviant'};

@@ -163,12 +163,12 @@ ens_out.trials = clust_params_tr_al;
 
 %%
 if plot_stuff
-    f_plot_comp_scatter(coeffs(:,1:min(num_comps,3)), ens_out.cells.clust_ident, [], ops);
+    f_plot_comp_scatter(coeffs(:,1:min(num_comps,3)), ens_out.cells.clust_ident);
     title(sprintf('Identified ensamble cells, %s space, %s',ensamble_method, cluster_method));
     xlabel('comp1');
     ylabel('comp2');
     zlabel('comp3');
-    f_plot_comp_scatter(scores(1:min(num_comps,3),:)', ens_out.trials.clust_ident,[], ops);
+    f_plot_comp_scatter(scores(1:min(num_comps,3),:)', ens_out.trials.clust_ident);
     title(sprintf('Identified ensamble trials, %s space, %s',ensamble_method, cluster_method));
     xlabel('comp1');
     ylabel('comp2');

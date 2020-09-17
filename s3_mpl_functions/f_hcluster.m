@@ -11,7 +11,13 @@ if strcmpi(method, 'ward')
     Z = linkage(data,'ward');
 elseif strcmpi(method, 'cosine')
     Z = linkage(pdist(data,'cosine'),'average'); % weighted
+elseif strcmpi(method, 'hammilarity')
+    [~, SI_hamm] = similarity_index(data,data);
+    zero_diag_mat = 1 - diag(ones(size(SI_hamm,1),1));
+    dist = squareform((1 - SI_hamm).*zero_diag_mat);
+    Z = linkage(dist,'average'); % weighted
 end
+
 
 f1 = figure;
 [~, ~, dend_order] = dendrogram(Z, 5000,'ColorThreshold',dend_thresh,'Orientation','left');

@@ -172,7 +172,7 @@ ens_out.data_dim_est = data_dim_est;
 % 
 %     pl3_pc = 1:3;
 %     %figure; plot3(U(:,1),U(:,2),U(:,3), 'o')
-%     f_plot_comp_scatter(U(:,pl3_pc), [], ops);
+%     f_plot_comp_scatter(U(:,pl3_pc));
 %     xlabel('pc 1');
 %     ylabel('pc 2');
 %     zlabel('pc 3');
@@ -180,7 +180,7 @@ ens_out.data_dim_est = data_dim_est;
 % 
 % 
 %     %figure; plot3(V(:,1),V(:,2),V(:,3), 'o')
-%     f_plot_comp_scatter(V(:,pl3_pc), [], ops);
+%     f_plot_comp_scatter(V(:,pl3_pc));
 %     xlabel('pc 1');
 %     ylabel('pc 2');
 %     zlabel('pc 3');
@@ -195,7 +195,7 @@ ens_out.data_dim_est = data_dim_est;
 %     num_plots = ceil(num_LR_comps/3);
 %     for n_plt = 1:num_plots
 %         dims1 = rem([1 2 3]+(n_plt-1)*3-1, num_LR_comps)+1;
-%         f_plot_comp_scatter(X(:,dims1), [], ops);
+%         f_plot_comp_scatter(X(:,dims1));
 %         xlabel(sprintf('comp %d', dims1(1)));
 %         ylabel(sprintf('comp %d', dims1(2)));
 %         zlabel(sprintf('comp %d', dims1(3)));

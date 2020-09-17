@@ -68,7 +68,7 @@ if plot_stuff
 
     pl3_pc = 1:3;
     %figure; plot3(U(:,1),U(:,2),U(:,3), 'o')
-    f_plot_comp_scatter(U(:,pl3_pc), ens_list, ops);
+    f_plot_comp_scatter(U(:,pl3_pc), ens_list);
     xlabel('pc 1');
     ylabel('pc 2');
     zlabel('pc 3');
@@ -76,7 +76,7 @@ if plot_stuff
 
 
     %figure; plot3(V(:,1),V(:,2),V(:,3), 'o')
-    f_plot_comp_scatter(V(:,pl3_pc), trial_list, ops);
+    f_plot_comp_scatter(V(:,pl3_pc), trial_list);
     xlabel('pc 1');
     ylabel('pc 2');
     zlabel('pc 3');
@@ -159,7 +159,7 @@ X = scores';
 num_plots = ceil(num_LR_comps/3);
 for n_plt = 1:num_plots
     dims1 = rem([1 2 3]+(n_plt-1)*3-1, num_LR_comps)+1;
-    f_plot_comp_scatter(X(:,dims1), trial_types, ops);
+    f_plot_comp_scatter(X(:,dims1), trial_types);
     xlabel(sprintf('pc %d', dims1(1)));
     ylabel(sprintf('pc %d', dims1(2)));
     zlabel(sprintf('pc %d', dims1(3)));
@@ -175,7 +175,7 @@ if strcmpi(cluster_method, 'hclust')
     params2.plot_sm = 1;
     params2.num_clust = num_comps+1;
     hclust_out = f_hcluster_trial3(firing_rate_LR', params2);
-    f_plot_comp_scatter(X(:,1:3), hclust_out.clust_ident, ops);
+    f_plot_comp_scatter(X(:,1:3), hclust_out.clust_ident);
     title('Identified ensambles hclust');
     %gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
     eval_hclust = f_evaluate_ens_result(hclust_out.clust_ident, trial_list);
@@ -191,7 +191,7 @@ elseif strcmpi(cluster_method, 'gmm')
         params3.RegularizationValue = rg_list(n_rg);
         params3.num_clust = num_comps+1;
         gmmclust_out = f_gmmcluster_trial(X, params3);
-        f_plot_comp_scatter(X(:,1:3), gmmclust_out.clust_ident, ops);
+        f_plot_comp_scatter(X(:,1:3), gmmclust_out.clust_ident);
         title('Identified ensambles gmm');
         %gscatter(X(:,1),X(:,2),gmmclust_out.clust_ident);
         eval_gmm = f_evaluate_ens_result(gmmclust_out.clust_ident, trial_list);

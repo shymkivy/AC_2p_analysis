@@ -1,17 +1,23 @@
 function f_mpl_cluster_analysis2(data, ops)
 
+tn = [18 19 20; 28 29 30];
+tt = ops.context_types_all(tn);
+
 do_clust = 1;
 
 pk_mag_all = cell(numel(ops.regions_to_analyze), numel(ops.flip_to_analyze));
 pk_lat_all = cell(numel(ops.regions_to_analyze), numel(ops.flip_to_analyze));
 for n_cond = 1:numel(ops.regions_to_analyze)
-    for n_flip1 = 3:numel(ops.flip_to_analyze) 
+    for n_flip1 = 1:numel(ops.flip_to_analyze) 
         n_flip = ops.flip_to_analyze(n_flip1);
         cond_name = ops.regions_to_analyze{n_cond};
         cdata = data.(cond_name);
         ctx_cells_mmn = cat(1,cdata.peak_tuned_trials_combined_ctx{:});
         ctx_traces = cat(1,cdata.trial_ave_mmn{:});
-        % extract data
+        trial_window_t = cdata.trial_window_t{1};
+        
+        
+        %% extract data
         if n_flip == 1
             ctx_col = [1 2 3];
             ctx_cells_mmn = logical(sum(ctx_cells_mmn(:,ctx_col),2));
@@ -34,14 +40,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             ctx_traces = cat(1, ctx_traces1, ctx_traces2);
         end
         
-        
-        %%
-        trial_window_t = cdata.trial_window_t{1};
-        
-        %%
-        
-        
-        
+
+        %%        
         [pk_mag, pk_latency] = max(ctx_traces,[],2);
         
         num_cells = size(pk_mag,1);
@@ -49,8 +49,9 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         pk_mag = squeeze(pk_mag);
         pk_mag_all{n_cond, n_flip} = pk_mag;
         pk_mag2 = (pk_mag);
-        pk_mag_norm = (pk_mag2 - mean(pk_mag2(:)))./std(pk_mag2(:));
+        %pk_mag_norm = (pk_mag2 - mean(pk_mag2(:)))./std(pk_mag2(:));
         %pk_mag_norm = (pk_mag2 - mean(pk_mag2))./std(pk_mag2);
+        pk_mag_norm = (pk_mag2)./std(pk_mag2);
         
         pk_latency = squeeze(pk_latency);
         pk_lat_all{n_cond, n_flip} = pk_latency;
@@ -63,11 +64,11 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         title(sprintf('%s, flip%d', cond_name, n_flip));
         grid on;
         axis tight;
-%         ax1 = gca;
-%         lims1 = max([ax1.XLim; ax1.XLim; ax1.XLim]);
-%         xlim(lims1);
-%         ylim(lims1);
-%         zlim(lims1);
+        ax1 = gca;
+        lims1 = max([ax1.XLim; ax1.XLim; ax1.XLim]);
+        xlim(lims1);
+        ylim(lims1);
+        zlim(lims1);
         
         
         %figure; plot(pk_mag(:,1), pk_mag(:,2), '.')
@@ -77,14 +78,15 @@ for n_cond = 1:numel(ops.regions_to_analyze)
 %         histogram(log(pk_mag(:,3)))
         
         if do_clust
-            
-            
-            
-            hc_params.num_clust = 4;
-            hc_params.method = 'ward';%'cosine', 'ward'
-            hc_params.metric = 'squaredeuclidean';% 'cosine', 'euclidean, 'squaredeuclidean'
+
+            hc_params.num_clust = 1;
+            hc_params.method = 'cosine';%'cosine', 'ward'
+            hc_params.metric = 'cosine';% 'cosine', 'euclidean, 'squaredeuclidean'
             hc_params.plot_dist_mat = 1;
-            hclust_out = f_hcluster_cell(pk_mag_norm, [], hc_params, ops);
+            hc_params.plot_clusters = 0;
+            hc_params.XY_label = 'Cells';
+            hclust_out = f_hcluster_wrap(pk_mag_norm, [], hc_params, ops);
+            
             title(sprintf('%s flip%d, hclust', cond_name, n_flip));
             
             %% measure clust centers and distances to centers
@@ -147,7 +149,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             plt_params.plot_mean = 0;
             plt_params.marker_type = '.';
             %plt_params.marker_size = 10;
-            f_plot_comp_scatter(Y, hclust_out.clust_ident, plt_params, ops);
+            f_plot_comp_scatter(Y, hclust_out.clust_ident, plt_params);
             title(sprintf('%s flip%d, T-SNE', cond_name, n_flip));
             
             
