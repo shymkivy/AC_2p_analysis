@@ -1,4 +1,9 @@
 function f_mpl_population_analysis(data, ops) 
+
+sort_cells = 1;
+estimate_smooth = 1;
+plot_stuff = 1;
+
 disp('Ensemble analysis...');
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
@@ -8,18 +13,28 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         firing_rate_smooth = cat(1,cdata.firing_rate_smooth{n_dset,:});
         mmn_phase_mpl = cdata.proc_data{n_dset}.mmn_phase_mpl{1};
         firing_rate_cont = firing_rate_smooth(:,mmn_phase_mpl == 1);
-        stim_frame_index = cdata.proc_data{n_dset}.stim_frame_index{1};
+%         stim_frame_index = cdata.proc_data{n_dset}.stim_frame_index{1};
+        %yTrain_3ds = f_smooth_gauss(yTrain_3d, dred_data_list(n_dt).kernSD/volume_period);
         
+        
+        %firing_rate = firing_rate_smooth(:,sum(firing_rate_smooth) >0);
+        firing_rate = firing_rate_cont;
+        
+        %% remove inactive cells
+        
+        active_cells = sum(firing_rate,2) > 0;
+        firing_rate(~active_cells,:) = [];
+        
+        num_cells = size(firing_rate,1);
+        
+        firing_rate = firing_rate(randperm(num_cells),:);
 
-        %% my analysis
-        % remove inactive cells
         
-        active_cells = sum(firing_rate_cont,2) > 0;
-        disp([num2str(sum(active_cells)) ' active cells']);
-        
-        firing_rate_cont(~active_cells,:) = [];
-        
-        out = f_ensemble_analysis_PCA_YS(firing_rate_cont);
+        %%
+        ens_params.plot_stuff = 1;
+        ens_params.estimate_smooth = 0;
+        ens_params.sort_cells = 1;
+        out = f_ensemble_analysis_YS_raster(firing_rate, ens_params);
         
         %%
         %%
@@ -189,7 +204,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         
         %% ensemble analysis with Luis method
         
-        binary_firing_rate_smooth = double(firing_rate_cont>3*std(firing_rate_smooth,[],2));
+        binary_firing_rate_smooth = double(firing_rate>3*std(firing_rate_smooth,[],2));
         bin_no_act = sum(binary_firing_rate_smooth,2) == 0;
         binary_firing_rate_smooth(bin_no_act,:) = [];
         
@@ -203,7 +218,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         figure; hold on;
         temp_trace = core_svd{3};
         for n_cell = 1
-            plot(sum(firing_rate_cont(temp_trace,:)))
+            plot(sum(firing_rate(temp_trace,:)))
         end
 %         figure; hold on;
 %         plot(firing_rate_smooth(10,:)*5)
@@ -220,8 +235,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
 
         if ops.ensemb.PCA_dim_reduction
             % center data for PCA
-            c_mu = mean(firing_rate_cont,2);
-            firing_rate_cont_cent = firing_rate_cont - c_mu;
+            c_mu = mean(firing_rate,2);
+            firing_rate_cont_cent = firing_rate - c_mu;
 
             c_mu_shuff = mean(firing_rate_cont_shuffcirc,2);
             firing_rate_cont_cent_shuff = firing_rate_cont_shuffcirc - c_mu_shuff;

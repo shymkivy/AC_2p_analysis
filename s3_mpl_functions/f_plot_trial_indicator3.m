@@ -1,4 +1,4 @@
-function f_plot_trial_indicator3(raster, trial_list, num_bins, ops)
+function f_plot_trial_indicator3(raster, trial_list, num_bins, colors1)
 hold on;
 [num_cells, num_row] = size(raster);
 
@@ -8,6 +8,13 @@ trial_types(trial_types == 0) = [];
 num_tt = numel(trial_types);
 num_trials = round(num_row/num_bins);
 
+if ~exist('colors1', 'var') || isempty(colors1)
+    colors = jet(num_tt);
+    for n_tt = 1:num_tt
+        colors1{n_tt} = colors(n_tt,:);
+    end
+end
+
 color_seq_tt = zeros(1,num_trials,3);
 for n_tt = 1:num_tt
     trials1 = find(trial_list == trial_types(n_tt));
@@ -15,7 +22,7 @@ for n_tt = 1:num_tt
     for n_tr_ind = 1:num_tr
         n_tr = trials1(n_tr_ind);
         if trial_list(n_tr)
-            color_seq_tt(:,n_tr,:) = ops.context_types_all_colors(trial_list(n_tr),:);
+            color_seq_tt(:,n_tr,:) = colors1{trial_list(n_tr)};
         else
             color_seq_tt(:,n_tr,:) = [0 0 0];
         end

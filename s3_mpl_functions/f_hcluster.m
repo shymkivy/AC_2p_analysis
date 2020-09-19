@@ -19,9 +19,10 @@ elseif strcmpi(method, 'hammilarity')
 end
 
 
-f1 = figure;
-[~, ~, dend_order] = dendrogram(Z, 5000,'ColorThreshold',dend_thresh,'Orientation','left');
-close(f1);
+dend_order =  binOrd(Z);
+% f1 = figure;
+% [~, ~, dend_order] = dendrogram(Z, size(data,1),'ColorThreshold',dend_thresh,'Orientation','left');
+% close(f1);
 
 
 if exist('num_clust', 'var')
@@ -32,5 +33,29 @@ end
 
 
 
+
+
 end
 
+function c = binOrd(tree)
+      p = size(tree,1);
+      c = zeros(1,p+1);
+      k = 0;
+      recBin(p);
+      
+      function recBin(r)
+          x = tree(r,1:2)-p-1;
+          if x(1)<=0
+              c(k+1) = tree(r,1);
+              k = k+1;
+          else
+              recBin(x(1));
+          end
+          if x(2)<=0
+              c(k+1) = tree(r,2);
+              k = k+1;
+          else
+              recBin(x(2));
+          end
+      end
+end

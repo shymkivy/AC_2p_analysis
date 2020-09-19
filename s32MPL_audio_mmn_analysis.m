@@ -1,5 +1,5 @@
 %% run this after data is preprocessed with s31MPL
-%close all
+close all
 
 
 %% analysis params
@@ -15,15 +15,6 @@ ops.plot.tuning_dset = 1;
 
 ops.tuning_plots = 0;
 ops.ctx_plots = 0;
-
-ops.extra_clustering_plots = 0;
-ops.centroid_plots = 0;
-
-% under construction
-ops.cluster_analysis = 0;
-ops.population_analysis = 0;
-ops.population_analysis_trials = 1;
-ops.more_analysis = 0;
 
 %% --------------------------- analysis params -------------------------
 % ensemble analysis
@@ -110,33 +101,28 @@ ops.norm_after_method = 2;
 %% plot reliability of all cells
 %f_plot_cond_reliability(data, ops);
 
-%%
+%% make model of fake ensembles
 %f_model_raster(data, ops);
-%% ---------------------------population analysis--------------------------
-if ops.population_analysis
-    %f_mpl_population_analysis(data, ops);
-end
 
+%% ensemble analysis of full raster
+f_mpl_population_analysis(data, ops);
 
-%% editing
-if ops.population_analysis_trials
-    %f_mpl_population_analysis_trials3(data, ops);
-end
+%% ensemble analysis of trials
+%f_mpl_population_analysis_trials2(data, ops);
+
+%f_mpl_population_analysis_trials3(data, ops);
 
 %%
-f_mpl_trial_trial_dist(data, ops);
+%f_mpl_trial_trial_dist(data, ops);
 
 %%
 %f_mpl_decoder(data, ops);
 
 %% ---------------------------clustering trial aves---------------------------
-
 %f_mpl_trial_ave_clustering(data, ops);
 
-     
-%% ------------------------------more analysis----------------------------
-% if ops.more_analysis
-%     f_more_analysis(data, ops);
-% end
+%% -----------------------------more analysis----------------------------
+%f_more_analysis(data, ops);
+
 
 %%

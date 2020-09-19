@@ -2,6 +2,7 @@ function f_mpl_trial_trial_dist(data, ops)
 
 plot_stuff = 0;
 trial_mean_vec = cell(numel(ops.regions_to_analyze),1);
+trial_raster = cell(numel(ops.regions_to_analyze),1);
 tt_tag = cell(numel(ops.dred_params.trial_types_for_dist),1);
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
@@ -70,18 +71,18 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 
                 rand_seq = randsample(num_cells, num_cells);
                 trial_num_cut = f_tt_to_tn(trial_types_cut, ops,1);
-                f_plot_raster_mean(trial_peaks_cut(rand_seq,:), [], [], ops, 1,trial_num_cut)
+                f_plot_raster_mean(trial_peaks_cut(rand_seq,:), 1,trial_num_cut, ops)
                 title('raster');
 
-                f_plot_raster_mean(trial_peaks_cut_sort_cell, [], [], ops, 1,trial_num_cut)
+                f_plot_raster_mean(trial_peaks_cut_sort_cell, 1,trial_num_cut, ops)
                 title('raster cell sorted');
                 
                 trial_num_cut_sort = f_tt_to_tn(trial_types_cut_sort, ops,1);
-                f_plot_raster_mean(trial_peaks_cut_sort, [], [], ops, 1,trial_num_cut_sort)
+                f_plot_raster_mean(trial_peaks_cut_sort,trial_num_cut_sort, ops, 1)
                 title('raster cell trial sorted');
                 
                 trial_num_dred_sort = f_tt_to_tn(trial_types_dred_sort, ops,1);
-                f_plot_raster_mean(trial_peaks_dred_sort, [], [], ops, 1,trial_num_dred_sort)
+                f_plot_raster_mean(trial_peaks_dred_sort, 1,trial_num_dred_sort, ops)
                 title('raster cell freq trial sorted');
                 
             end
@@ -132,33 +133,40 @@ for n_cond = 1:numel(ops.regions_to_analyze)
 end
 
 %% plot all
-f_plot_corr_mat(trial_mean_vec, tt_tag, ops)
+f_plot_stim_vec_dist_mat(trial_mean_vec, tt_tag, ops)
 
-tt_ind = find(strcmpi(ops.dred_params.trial_types_for_dist, 'mmn12'));
-sim_ind = [1,3; 4,6];
-f_plot_corr_stim(trial_mean_vec, tt_ind, sim_ind, ops);
-title('cont-dd')
+%% mmn plots
+if sum(strcmpi(ops.dred_params.trial_types_for_dist, 'mmn12'))
+    tt_ind = find(strcmpi(ops.dred_params.trial_types_for_dist, 'mmn12'));
+    sim_ind = [1,3; 4,6];
+    f_plot_stim_vec_dist(trial_mean_vec, tt_ind, sim_ind, ops, 'cosine'); %cosineSI, cosine, euclidean
+    title('cont-dd')
+    %ylim([0 .6]);
+    
+    f_plot_stim_vec_trial_dist(trial_mean_vec, trial_raster, ops, 'cosine'); %cosineSI, cosine, euclidean
+    
 
-tt_ind = find(strcmpi(ops.dred_params.trial_types_for_dist, 'mmn12'));
-sim_ind = [2,3; 5,6];
-f_plot_corr_stim(trial_mean_vec, tt_ind, sim_ind, ops);
-title('red-dd')
+    sim_ind = [2,3; 5,6];
+    f_plot_stim_vec_dist(trial_mean_vec, tt_ind, sim_ind, ops, 'cosine');
+    title('red-dd')
 
+    sim_ind = [1,3; 4,6];
+    f_plot_stim_vec_dist_v_ncell(trial_mean_vec, tt_ind, sim_ind, ops, 99999);
+    title('cont-dd')
+end
 
+%% freq plots
 tt_ind = 1;
 sim_ind = [3,4; 4,5; 5,6; 6,7; 7,8];
-f_plot_corr_stim(trial_mean_vec, tt_ind, sim_ind, ops);
+%sim_ind = [1,3; 2,4; 3,5; 4,6; 5,7; 6,8; 7,9; 8,10];
+
+f_plot_stim_vec_dist(trial_mean_vec, tt_ind, sim_ind, ops);
 title('adj freqs')
 
-tt_ind = 1;
-sim_ind = [1,3; 2,4; 3,5; 4,6; 5,7; 6,8; 7,9; 8,10;];
-f_plot_corr_stim(trial_mean_vec, tt_ind, sim_ind, ops);
+f_plot_stim_vec_dist(trial_mean_vec, tt_ind, sim_ind, ops);
 title('adj freqs 2 apart')
 
-tt_ind = find(strcmpi(ops.dred_params.trial_types_for_dist, 'mmn12'));
-sim_ind = [1,3; 4,6];
-f_plot_corr_stim_v_ncell(trial_mean_vec, tt_ind, sim_ind, ops, 99999);
-title('cont-dd')
+
 
 
 end
