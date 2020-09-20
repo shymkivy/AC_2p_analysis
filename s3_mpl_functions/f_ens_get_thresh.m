@@ -38,7 +38,7 @@ end
 if strcmpi(ensamble_extraction_thresh, 'shuff')
     coeffs_shuff_all = cell(shuff_rep,1);
     scores_shuff_all = cell(shuff_rep,1);
-    fprintf('num rep out of %d: ', shuff_rep)
+    fprintf('shuffing rep of n/%d: ', shuff_rep)
     for n_rep = 1:shuff_rep
         firing_rate_ensemb_shuff = f_shuffle_data(firing_rate_ensemb, 'circ_shift');
         train_done = 0;
@@ -47,7 +47,7 @@ if strcmpi(ensamble_extraction_thresh, 'shuff')
             try
                 [dred_factors_shuff, ~] = f_dred_train2(firing_rate_ensemb_shuff, num_ens, ensamble_method, 0);
                 train_done = 1;
-                fprintf('%d', n_rep);
+                fprintf('%d..', n_rep);
             catch
                 num_fail = num_fail + 1;
                 %disp('Error train, will repeat');
@@ -60,7 +60,7 @@ if strcmpi(ensamble_extraction_thresh, 'shuff')
         coeffs_shuff_all{n_rep} = coeffs_shuff;
         scores_shuff_all{n_rep} = scores_shuff';
     end
-    fprintf('\n');
+    fprintf('\nDone\n');
     coeffs_shuff_all1 = cat(1,coeffs_shuff_all{:});
     scores_shuff_all1 = cat(1,scores_shuff_all{:});
     if ~two_sided

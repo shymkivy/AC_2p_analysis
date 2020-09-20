@@ -5,10 +5,7 @@ if ~exist('params', 'var') || ~isstruct(params)
     params = struct;
 end
 
-estimate_smooth = f_get_param(params, 'estimate_smooth', 0);
 normalize1 = f_get_param(params, 'normalize', 'norm_mean'); % 'norm_full', 'norm_mean' 'none'
-sort_cells = f_get_param(params, 'sort_cells', 1);
-
 shuffle_method = f_get_param(params, 'shuffle_method', 'circ_shift');     % 'circ_shift' or 'scramble'
 total_dim_thresh = f_get_param(params, 'total_dim_thresh', .7);
 ensamble_method = f_get_param(params, 'ensamble_method', 'nmf'); % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
@@ -95,23 +92,21 @@ ens_out.num_cells = num_cells;
 %firing_rate_LR = U(:,1:num_comps)*S(1:num_comps,1:num_comps)*V(:,1:num_comps)';
 %SI_firing_rate_LR = similarity_index(firing_rate_LR, firing_rate_LR);
 
-n_comp = 1;
+n_comp = 1:num_comps;
 firing_rate_LR = (d_coeff(:,n_comp)*d_score(:,n_comp)'+d_mu')';
 
 d_score_norm = d_score(:,n_comp)./vecnorm(d_score(:,n_comp));
 
 
 %% sort cells and trials
-if sort_cells
-    hc_params.method = 'cosine';
-    hc_params.metric = 'cosine';
-    hc_params.plot_dist_mat = plot_stuff;
-    hc_params.plot_clusters = 0;
-    hclust_out_cell = f_hcluster_wrap(d_score_norm, hc_params);
-    hclust_out_tr = f_hcluster_wrap(d_coeff(:,n_comp), hc_params);
-    ord_cell = hclust_out_cell.dend_order;
-    ord_tr = hclust_out_tr.dend_order;
-end
+hc_params.method = 'cosine';
+hc_params.metric = 'cosine';
+hc_params.plot_dist_mat = plot_stuff;
+hc_params.plot_clusters = 0;
+hclust_out_cell = f_hcluster_wrap(d_score_norm, hc_params);
+hclust_out_tr = f_hcluster_wrap(d_coeff(:,n_comp), hc_params);
+ord_cell = hclust_out_cell.dend_order;
+ord_tr = hclust_out_tr.dend_order;
 
 %% real data 
 if num_comps > 0
@@ -125,13 +120,20 @@ if num_comps > 0
     [dred_factors1, ~] = f_dred_train2(firing_rate_ensemb, num_ens_comps, ensamble_method, 0);
     [coeffs, scores] = f_dred_get_coeffs(dred_factors1);
 
+    ens_out.ensamble_method = ensamble_method;
+    ens_out.num_ens_comps = num_ens_comps;
+    ens_out.dred_factors = dred_factors1;
+    ens_out.coeffs = coeffs;
+    ens_out.scores = scores;
     %%
 
     if strcmpi(ensamble_extraction, 'clust')
-        ens_out = f_ensemble_extract_clust(coeffs, scores, num_comps, params);
+        ens_out1 = f_ensemble_extract_clust(coeffs, scores, num_ens_comps, params);
     elseif strcmpi(ensamble_extraction, 'thresh')
-        [thresh_coeffs, thresh_scores] = f_ens_get_thresh(firing_rate_ensemb, coeffs, scores, num_comps, params);
-        ens_out = f_ensemble_apply_thresh(coeffs, scores, thresh_coeffs, thresh_scores, num_comps);
+        [thresh_coeffs, thresh_scores] = f_ens_get_thresh(firing_rate_ensemb, coeffs, scores, num_ens_comps, params);
+        ens_out1 = f_ensemble_apply_thresh(coeffs, scores, thresh_coeffs, thresh_scores, num_ens_comps);
+        ens_out.cells = ens_out1.cells;
+        ens_out.trials = ens_out1.trials;
     end
 else
     ens_out.cells.clust_label = 0;
@@ -155,12 +157,12 @@ if plot_stuff
     title('raster cell trial sort')
     
     f_plot_raster_mean(firing_rate_LR(ord_cell,ord_tr), 1)
-    title('raster LR cell trial sort')
+    title('raster SVD LR cell trial sort')
     
-    n_comp = 15;
+    n_comp = 1:num_ens_comps;
     firing_rate_LR2 = coeffs(:,n_comp)*scores(n_comp,:);
     f_plot_raster_mean(firing_rate_LR2(ord_cell,ord_tr), 1)
-    title('raster LR2 cell trial sort')
+    title(['raster ' ensamble_method ' LR2 cell trial sort'])
 end
 
 

@@ -105,7 +105,7 @@ ops.norm_after_method = 2;
 %f_model_raster(data, ops);
 
 %% ensemble analysis of full raster
-f_mpl_population_analysis(data, ops);
+f_mpl_population_analysis_raster(data, ops);
 
 %% ensemble analysis of trials
 %f_mpl_population_analysis_trials2(data, ops);
