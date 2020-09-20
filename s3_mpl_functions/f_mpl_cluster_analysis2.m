@@ -85,7 +85,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             hc_params.plot_dist_mat = 1;
             hc_params.plot_clusters = 0;
             hc_params.XY_label = 'Cells';
-            hclust_out = f_hcluster_wrap(pk_mag_norm, [], hc_params, ops);
+            hclust_out = f_hcluster_wrap(pk_mag_norm, hc_params);
             
             title(sprintf('%s flip%d, hclust', cond_name, n_flip));
             

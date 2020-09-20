@@ -1,5 +1,7 @@
-function hclust_out = f_hcluster_wrap(trial_peaks, var_types, params, ops)
-%n_dset = f_get_param(params, 'n_dset', 0);
+function hclust_out = f_hcluster_wrap(X, params)
+% input X (samples x features)
+% clusters into types of samples
+
 num_clust = f_get_param(params, 'num_clust');
 estimate_clust_num = f_get_param(params, 'estimate_clust_num', 0);
 method = f_get_param(params, 'method', 'cosine');
@@ -9,19 +11,21 @@ plot_dist_mat = f_get_param(params, 'plot_dist_mat', 1);
 plot_clusters = f_get_param(params, 'plot_clusters', 1);
 XY_label = f_get_param(params, 'XY_label');
 title_tag = f_get_param(params, 'title_tag');
+sample_types = f_get_param(params, 'sample_types');
+sample_types_colors = f_get_param(params, 'sample_types_colors');
 
 if isempty(num_clust)
     num_clust = 1;
 end
 
 % warning is because some trial bins are nearly zero
-[dend_order, clust_ident, Z] = f_hcluster(trial_peaks, method, num_clust);
+[dend_order, clust_ident, Z] = f_hcluster(X, method, num_clust);
 
 %f_plot_comp_scatter(trial_peaks, clust_ident)
 
 %figure; imagesc(color_seq_temporal)
 
-dist1 = f_pdist_YS(trial_peaks(dend_order,:), metric);
+dist1 = f_pdist_YS(X(dend_order,:), metric);
 
 if estimate_clust_num
     est_params.num_shuff = 5;
@@ -31,7 +35,7 @@ if estimate_clust_num
     est_params.manual_cluster_input = 0;
     est_params.plot_stuff = 1;
     est_params.title_tag = title_tag;
-    f_estimate_clust_num(trial_peaks, est_params);
+    f_estimate_clust_num(X, est_params);
 end
 
 hclust_out.dist = dist1;
@@ -63,8 +67,8 @@ if plot_dist_mat
 
     %% add variable type indicator
 
-    if ~isempty(var_types)
-        f_plot_trial_indicator(var_types, dend_order, 1, numel(var_types), ops);
+    if ~isempty(sample_types)
+        f_plot_trial_indicator(sample_types, dend_order, 1, numel(sample_types), sample_types_colors);
     end
     %imagesc(num_trials+(1:col_width),1:num_trials,permute(repmat(color_seq_tt,col_width,1,1),[2,1,3]));
     %imagesc(num_trials+col_width+(1:col_width),1:num_trials,permute(repmat(color_seq_temporal,col_width,1,1),[2,1,3]));

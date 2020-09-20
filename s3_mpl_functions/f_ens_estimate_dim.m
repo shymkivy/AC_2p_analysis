@@ -1,4 +1,4 @@
-function dim_corr = f_ens_smooth_v_dim(raster, num_shuff_reps)
+function dim_corr = f_ens_estimate_dim(raster, num_shuff_reps)
 
 % [d1,d2] = size(raster);
 % d_min = min(d1,d2);
@@ -13,7 +13,6 @@ end
 % S = S(1:d_min,1:d_min);
 % sing_val_sq = diag(S).^2;
 % d_explained = sing_val_sq/sum(sing_val_sq(:))*100;
-
 
 max_lamb_shuff = zeros(num_shuff_reps,1);
 for n_rep = 1:num_shuff_reps
@@ -30,6 +29,6 @@ for n_rep = 1:num_shuff_reps
 end
 
 comp_num_data = sum(d_explained>max_lamb_shuff');
-dim_corr = mean(sum(d_explained>max_lamb_shuff'))+2*std(comp_num_data);
+dim_corr = mean(comp_num_data);
 
 end

@@ -1,8 +1,8 @@
 function f_mpl_population_analysis(data, ops) 
-
-sort_cells = 1;
 estimate_smooth = 1;
-plot_stuff = 1;
+estimate_smooth_list = 50:50:500;
+
+norm_method = 'norm_full';
 
 disp('Ensemble analysis...');
 for n_cond = 1:numel(ops.regions_to_analyze)
@@ -28,13 +28,27 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         num_cells = size(firing_rate,1);
         
         firing_rate = firing_rate(randperm(num_cells),:);
+        %% estimate best smoothing window
+        %% estimate smooth
+        if estimate_smooth
+            fr = 1
+            dim_corr = zeros(numel(estimate_smooth_list),1);
+            for n_sm = estimate_smooth_list
+                raster_sm = f_smooth_gauss(firing_rate, smoothSDbinRatio);
+                
+                firing_rate_sm = f_normalize(raster_sm, 'norm_full');
+                
+                dim_corr(n_sm) = f_ens_estimate_dim(firing_rate_sm, num_shuff_reps);
+            end
+        end
 
-        
         %%
         ens_params.plot_stuff = 1;
-        ens_params.estimate_smooth = 0;
         ens_params.sort_cells = 1;
-        out = f_ensemble_analysis_YS_raster(firing_rate, ens_params);
+        ens_params.normalize = 'norm_full'; % 'norm_full', 'norm_mean' 'none'
+        ens_params.ensamble_extraction = 'thresh'; % clust 'thresh'
+        ens_params.ensamble_extraction_thresh = 'shuff'; % 'signal_z' 'shuff' 'signal_clust_thresh'
+        ens_out = f_ensemble_analysis_YS_raster(firing_rate, ens_params);
         
         %%
         %%

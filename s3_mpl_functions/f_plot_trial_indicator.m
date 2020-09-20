@@ -1,4 +1,4 @@
-function col_width = f_plot_trial_indicator(trial_types, dend_order, num_bins, plot_y_end, ops)
+function col_width = f_plot_trial_indicator(trial_types, dend_order, num_bins, plot_y_end, sample_types_colors)
 hold on;
 [num_trials, ~] = size(trial_types);
 
@@ -11,7 +11,7 @@ gray_cmap = repmat(linspace(1,0.2,num_trials),3,1);
 color_seq_tt = zeros(1,numel(trial_types),3);
 color_seq_temporal = zeros(1,numel(trial_types),3);
 for n_tr = 1:num_trials
-    color_seq_tt(:,n_tr,:) = ops.context_types_all_colors(trial_types_sort(n_tr) == ops.context_types_all,:,:);
+    color_seq_tt(:,n_tr,:) = sample_types_colors{trial_types_sort(n_tr)}; %ops.context_types_all_colors(trial_types_sort(n_tr) == ops.context_types_all,:,:)
     color_seq_temporal(:,n_tr,:) = gray_cmap(:,trial_order_sort(n_tr));
 end
 color_seq_tt = repmat(color_seq_tt, num_bins ,1, 1);

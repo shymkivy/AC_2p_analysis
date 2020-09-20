@@ -1,4 +1,4 @@
-function ens_out = f_ensemble_analysis_peaks3(firing_rate, params, ops)
+function ens_out = f_ensemble_analysis_peaks3(firing_rate, params)
 % input either 3D tials data (Cell x Time X Trial)
 %           or 2D trial data (Cell x Trial)
 %% parameters
@@ -15,7 +15,7 @@ shuffle_method = f_get_param(params, 'shuffle_method', 'scramble');     % 'circ_
 %corr_comp_thresh = f_get_param(params, 'corr_comp_thresh', .90);
 use_LR_proj = f_get_param(params, 'use_LR_proj', 0);
 ensamble_method = f_get_param(params, 'ensamble_method', 'nmf'); % 'svd', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
-ensamble_extraction = f_get_param(params, 'ensamble_extraction', 'clust'); % clust 'thresh'
+ensamble_extraction = f_get_param(params, 'ensamble_extraction', 'thresh'); % clust 'thresh'
 % NMF is best with thresh extration or clustering may be ok too
 % ICA or SVD extraction best with clustering
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
@@ -135,7 +135,7 @@ if num_comps > 0
 
     %%
     if strcmpi(ensamble_extraction, 'clust')
-        ens_out = f_ensemble_extract_clust(coeffs, scores, num_comps, params, ops);
+        ens_out = f_ensemble_extract_clust(coeffs, scores, num_comps, params);
     elseif strcmpi(ensamble_extraction, 'thresh')
         [thresh_coeffs, thresh_scores] = f_ens_get_thresh(firing_rate_ensemb, coeffs, scores, num_comps, params);
         ens_out = f_ensemble_apply_thresh(coeffs, scores, thresh_coeffs, thresh_scores, num_comps);

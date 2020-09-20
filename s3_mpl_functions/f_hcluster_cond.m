@@ -106,7 +106,7 @@ for n_dset = 1:cdata.num_dsets
             params_ens.use_LR_proj = 0;
             params_ens.ensamble_extraction = 'thresh'; % 'thresh', 'clust'
             params_ens.ensamble_extraction_thresh = 'signal_clust_thresh'; % 'shuff'. 'clust_thresh', 'signal_z'
-            ens_out_full{n_dset} = f_ensemble_analysis_peaks3(trial_peaks_dred, params_ens, ops);
+            ens_out_full{n_dset} = f_ensemble_analysis_peaks3(trial_peaks_dred, params_ens);
         end
         %%
         %ops.dred_params.hclust.sort_raster = 1;

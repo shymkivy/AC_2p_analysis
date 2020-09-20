@@ -172,7 +172,7 @@ end
 if dim_est_only
     ens_out.data_dim_est = f_ensemble_comp_data_dim2(raster_ens_an, ens_params);
 else
-    ens_out = f_ensemble_analysis_peaks3(raster_ens_an, ens_params, ops);
+    ens_out = f_ensemble_analysis_peaks3(raster_ens_an, ens_params);
 end
 params_out.dimensionality_corr = ens_out.data_dim_est.dimensionality_corr;
 

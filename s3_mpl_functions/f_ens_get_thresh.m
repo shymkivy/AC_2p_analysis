@@ -3,8 +3,8 @@ ensamble_method = f_get_param(params, 'ensamble_method', 'nmf');
 ensamble_extraction_thresh = f_get_param(params, 'ensamble_extraction_thresh', 'shuff'); % 'signal_z' 'shuff' 'signal_clust_thresh'
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
 
-thresh_percent = 95;
-shuff_rep = 50;
+thresh_percent = 99;
+shuff_rep = 50; 
 z_thresh = 2;
 
 two_sided = logical(sum(coeffs(:)<0));
@@ -99,9 +99,14 @@ else
 end
 
 if plot_stuff
-    figure;
+    max_num_plots = 10;
+    width_ratio = 5; 
     for n_comp = 1:num_ens
-        subplot(num_ens,2,n_comp); hold on;
+        plot_ind = rem(n_comp-1,max_num_plots)+1;
+        if plot_ind == 1
+            figure;
+        end
+        ax1 = subplot(ceil(max_num_plots/2),2*(width_ratio+1),((plot_ind-1)*(width_ratio+1)+1):((plot_ind-1)*(width_ratio+1)+width_ratio-1)); hold on;
         stem(coeffs(:,n_comp))
         plot(ones(numel(coeffs(:,n_comp)),1)*thresh_coeffs_z(n_comp,:), '--r');
         if ~strcmpi(ensamble_extraction_thresh, 'signal_z')
@@ -110,10 +115,20 @@ if plot_stuff
         axis tight;
         title(sprintf('Coeffs, comp %d', n_comp));
         xlabel('Cells')
+        ax2 = subplot(ceil(max_num_plots/2),2*(width_ratio+1),((plot_ind-1)*(width_ratio+1)+width_ratio)); hold on;
+        [f, x] = ksdensity(coeffs(coeffs(:,n_comp)>0,n_comp),'Bandwidth',0.5);
+        plot(f, x)
+        ax2.YLim = ax1.YLim;
+        linkaxes([ax1,ax2],'y')
     end
+    
     for n_comp = 1:num_ens
-        subplot(num_ens,2,n_comp+num_ens); hold on;
-        pl1 = stem(scores(n_comp,:));
+        plot_ind = rem(n_comp-1,max_num_plots)+1;
+        if plot_ind == 1
+            figure;
+        end
+        subplot(ceil(max_num_plots/2),2,plot_ind); hold on;
+        pl1 = plot(scores(n_comp,:));
         pl2 = plot(ones(numel(scores(n_comp,:)),1)*thresh_scores_z(n_comp,:), '--r');
         if ~strcmpi(ensamble_extraction_thresh, 'signal_z')
             pl3 = plot(ones(numel(scores(n_comp,:)),1)*thresh_scores(n_comp,:), '--g');

@@ -1,4 +1,4 @@
-function ens_out = f_ensemble_extract_clust(coeffs, scores, num_ens, params, ops)
+function ens_out = f_ensemble_extract_clust(coeffs, scores, num_ens, params)
 ensamble_method = f_get_param(params, 'ensamble_method', 'nmf');
 cluster_method = f_get_param(params, 'cluster_method', 'hclust');    % 'hclust' or 'gmm'
 cluster_method_cell = f_get_param(params, 'cluster_method_cell', 'hclust');
@@ -19,7 +19,7 @@ if strcmpi(cluster_method, 'hclust')
     params2.plot_clusters = plot_stuff;
     params2.num_clust = num_clust;
     params2.XY_label = 'Trials';
-    clust_out_tr = f_hcluster_wrap(X, [], params2, ops);
+    clust_out_tr = f_hcluster_wrap(X, params2);
     %gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
     
 elseif strcmpi(cluster_method, 'gmm')
@@ -114,7 +114,7 @@ if strcmpi(cluster_method_cell, 'hclust')
     params2.plot_clusters = plot_stuff;
     params2.num_clust = num_clust;
     params2.XY_label = 'Cells';
-    clust_out_cell = f_hcluster_wrap(X, [], params2, ops);
+    clust_out_cell = f_hcluster_wrap(X, params2);
     %gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
     
 elseif strcmpi(cluster_method_cell, 'gmm')

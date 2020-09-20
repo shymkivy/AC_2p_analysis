@@ -103,7 +103,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         hc_params.plot_clusters = 1;
         hc_params.XY_label = 'Cells';
         hc_params.title_tag = title_tag;
-        hclust_out = f_hcluster_wrap(pk_mag_norm, [], hc_params, ops);
+        hclust_out = f_hcluster_wrap(pk_mag_norm, hc_params);
 
 
         %% rearange the clust number for better coloring
