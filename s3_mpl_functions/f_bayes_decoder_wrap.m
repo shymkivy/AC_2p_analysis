@@ -1,4 +1,8 @@
 function accuracy = f_bayes_decoder_wrap(predictors, response, tt, params)
+if ~exist('params', 'var') || ~isstruct(params)
+    params = struct;
+end
+
 KernelFunction = f_get_param(params, 'KernelFunction', 'gaussian');
 KernelScale = f_get_param(params, 'KernelScale', 7); % auto fine = 1.8 medium= 7.1 coarse = 28
 PolynomialOrder = f_get_param(params, 'PolynomialOrder');

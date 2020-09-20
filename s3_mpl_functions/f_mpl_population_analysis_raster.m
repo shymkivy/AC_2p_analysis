@@ -1,12 +1,20 @@
 function f_mpl_population_analysis_raster(data, ops) 
-estimate_smooth = 0;
-estimate_smooth_list = 0:50:500;
+estimate_params = 1;
+est_params.method = 'svd';
+est_params.randomize_trials = 1;
+
+est_params.smooth_SD = 0:50:500;
+est_params.num_comp = 5:5:30;
+est_params.n_rep = 1;
 % 100 best with none or norm_mean
 % 0 > 35 > 50 with norm_full
-smooth_sd = 100;
 
+
+smooth_sd = 100;
 norm_method = 'norm_full'; % 'norm_full', 'norm_mean' 'none'
 
+
+est_params_list = f_build_param_list(est_params, {'smooth_SD', 'num_comp', 'n_rep'});
 disp('Ensemble analysis...');
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
@@ -31,23 +39,30 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         firing_rate = firing_rate(randperm(num_cells),:);
         %% estimate best smoothing window
         %% estimate smooth
-        if estimate_smooth
-            fprintf('Estimating smooth SD n/%d reps: ',numel(estimate_smooth_list));
-            dim_corr = zeros(numel(estimate_smooth_list),1);
-            for n_sm = 1:numel(estimate_smooth_list)
-                fprintf('%d..',n_sm);
-                if estimate_smooth_list(n_sm)>0
-                    raster_sm = f_smooth_gauss(firing_rate, estimate_smooth_list(n_sm)/vol_period);
-                else
-                    raster_sm = firing_rate;
-                end
-                firing_rate_sm = f_normalize(raster_sm, norm_method);
+        if estimate_params
+            fprintf('Estimating params n/%d reps: ',numel(est_params_list));
+            %dim_corr = zeros(numel(estimate_smooth_list),1);
+            for n_par = 1:numel(est_params_list)
+                fprintf('%d..',n_par);
                 
-                dim_corr(n_sm) = f_ens_estimate_dim(firing_rate_sm);
+                firing_rate_norm = f_normalize(firing_rate, norm_method);
+                
+                params1 = est_params_list(n_par);
+                params1.vol_period = vol_period;
+                accuracy = f_ens_estimate_corr_dim_cv(firing_rate_norm, params1);
+                
+                est_params_list(n_par).train_err = accuracy.train_err;
+                est_params_list(n_par).train_err_sm = accuracy.train_err_sm;
+                est_params_list(n_par).test_err = accuracy.test_err;
+                est_params_list(n_par).test_err_sm = accuracy.test_err_sm;
+                %firing_rate_sm = f_smooth_gauss(firing_rate_norm, estimate_smooth_list(n_sm)/vol_period);
+                %dim_corr(n_sm) = f_ens_estimate_dim(firing_rate_sm);
             end
+            f_plot_cv_error(est_params_list, 'test_err');
+            
             figure; plot(estimate_smooth_list, dim_corr);
             xlabel('Smooth SD'); ylabel('Dimensionality of corr');
-            title(sprintf('%s smooth', norm_method));
+            title(sprintf('%s smooth', norm_method), 'interpreter', 'none');
             fprintf(' Done\n');
         end
 
