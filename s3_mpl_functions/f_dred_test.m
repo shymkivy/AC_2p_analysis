@@ -18,7 +18,6 @@ if strcmpi(method, 'svd')
     end
 elseif strcmpi(method, 'nmf')
     d_W = dred_factors.d_W;
-    
     for n_cell = 1:num_cells  
         % Indices 1:yDim with i removed
         mi = [1:(n_cell-1) (n_cell+1):num_cells];

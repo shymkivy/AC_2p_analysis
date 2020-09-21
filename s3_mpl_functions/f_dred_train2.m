@@ -40,7 +40,7 @@ if strcmpi(method, 'svd')
     dred_factors.coeffs = coeffs;
 elseif strcmpi(method, 'nmf')
     data_means = zeros(num_cells,1);
-    [d_W,d_H] = nnmf(data_2d,num_comp);
+    [d_W,d_H] = nnmf(data_2d,num_comp,'options',statset('Display','off'),'replicates',1,'algorithm','als');
     dred_data = d_W * d_H+data_means;
     dred_factors.d_W = d_W;
     dred_factors.d_H = d_H;

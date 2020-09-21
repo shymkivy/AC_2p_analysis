@@ -10,7 +10,7 @@ end
 %% dim reduction
 
 data_2d = reshape(data, num_cells, []);
-data_means = mean(data_2d,2);
+data_means = zeros(num_cells,1);%mean(data_2d,2);
 data_n2d = data_2d - data_means;
 
 
@@ -23,7 +23,7 @@ if strcmpi(method, 'svd')
     dred_factors.coeffs = coeffs;
 elseif strcmpi(method, 'nmf')
     data_means = zeros(num_cells,1);
-    [d_W,d_H] = nnmf(data_2d,num_comp);
+    [d_W,d_H] = nnmf(data_2d,num_comp,'options',statset('Display','off'),'replicates',1,'algorithm','als');
     dred_data = d_W * d_H+data_means;
     dred_factors.d_W = d_W;
     dred_factors.d_H = d_H;
@@ -95,7 +95,8 @@ elseif strcmpi(method, 'gpfa')
     dred_factors.estParams = estParams;
 end
 
-train_err = norm(data_2d(:) - dred_data(:))/norm(data_2d(:));
+%train_err = norm(data_2d(:) - dred_data(:))/norm(data_2d(:));
+train_err = norm(data_2d(:) - dred_data(:))/numel(data_2d);
 % if strcmpi(method, 'nmf')
 %     err_norm = norm(data_s2d(:) - dimRdata(:))/norm(data_s2d(:));
 % else

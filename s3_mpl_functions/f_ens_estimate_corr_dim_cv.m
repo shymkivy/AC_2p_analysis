@@ -31,24 +31,42 @@ train_err = zeros(kFold,1);
 train_err_sm = zeros(kFold,1);
 test_err = zeros(kFold,1);
 test_err_sm = zeros(kFold,1);
+fac = zeros(kFold,1);
+fac_sm = zeros(kFold,1);
 for n_cv = 1:kFold
     test_gr = cv_groups.test_trial_bool(test_order,n_cv);
     
     yTrain = firing_rate(:,~test_gr);
     yTrain_sm = firing_rate_sm(:,~test_gr);
-    [dred_factors, ydred_data] = f_dred_train(yTrain_sm, num_comp, method);
-    train_err(n_cv) = norm(yTrain(:) - ydred_data(:))/norm(yTrain(:));
-    train_err_sm(n_cv) = norm(yTrain_sm(:) - ydred_data(:))/norm(yTrain_sm(:));
+    [dred_factors, ydred_data] = f_dred_train2(yTrain_sm, num_comp, method, 0);
+    %train_err(n_cv) = norm(yTrain(:) - ydred_data(:))/norm(yTrain(:));
+    %train_err_sm(n_cv) = norm(yTrain_sm(:) - ydred_data(:))/norm(yTrain_sm(:));
+    train_err(n_cv) = norm(yTrain(:) - ydred_data(:))/numel(yTrain);
+    train_err_sm(n_cv) = norm(yTrain_sm(:) - ydred_data(:))/numel(yTrain_sm);
     
     yTest = firing_rate(:,test_gr);
     yTest_sm = firing_rate_sm(:,test_gr);
-    Ycs = f_dred_test(yTest, dred_factors.dred_factors, method);
+    Ycs = f_dred_test(yTest_sm, dred_factors.dred_factors, method);
+    %test_err(n_cv) = norm(yTest(:) - Ycs(:))/norm(yTest(:));
+    %test_err_sm(n_cv) = norm(yTest_sm(:) - Ycs(:))/norm(yTest_sm(:));
+     
+%     yTest_base = yTest - mean(yTest,2);
+%     yTest_sm_base = yTest_sm - mean(yTest_sm,2);
+%     Ycs_base = Ycs - mean(Ycs,2);
+    
+    %fac1 = sum(yTest_base(:) .* Ycs_base(:)/norm(Ycs_base(:)))/norm(Ycs_base(:));
     test_err(n_cv) = norm(yTest(:) - Ycs(:))/norm(yTest(:));
-    test_err_sm(n_cv) = norm(yTest_sm(:) - Ycs(:))/norm(yTest_sm(:));
+    %fac(n_cv) = fac1;
+    
+    %fac1 = sum(yTest_sm_base(:) .* Ycs_base(:)/norm(Ycs_base(:)))/norm(Ycs_base(:));
+    test_err_sm(n_cv) = norm(yTest_sm(:) - Ycs(:))/numel(yTest_sm);
+    %fac_sm(n_cv) = fac1;
 end
 
 accuracy.train_err = mean(train_err);
 accuracy.train_err_sm = mean(train_err_sm);
 accuracy.test_err = mean(test_err);
 accuracy.test_err_sm = mean(test_err_sm);
+accuracy.fac_sm = mean(fac_sm);
+accuracy.fac = mean(fac);
 end

@@ -1,20 +1,31 @@
 function f_mpl_population_analysis_raster(data, ops) 
-estimate_params = 1;
-est_params.method = 'svd';
-est_params.randomize_trials = 1;
-
-est_params.smooth_SD = 0:50:500;
-est_params.num_comp = 5:5:30;
+%%
+estimate_params = 0;
+est_params.method = 'svd'; % options: svd, nmf, ica
+est_params.normalize = 'norm_rms'; % 'norm_mean_std', 'norm_mean' 'none'
+est_params.smooth_SD = 100:100:500;   % range of values to estimate across
+est_params.num_comp = 14;       % range of values to estimate across
+est_params.randomize_trials = 0;
 est_params.n_rep = 1;
 % 100 best with none or norm_mean
 % 0 > 35 > 50 with norm_full
-
-
-smooth_sd = 100;
-norm_method = 'norm_full'; % 'norm_full', 'norm_mean' 'none'
-
-
 est_params_list = f_build_param_list(est_params, {'smooth_SD', 'num_comp', 'n_rep'});
+
+%%
+% NMF ensemble detection is best
+% for NMF best to use norm_rms(keep values positive), otherwise can also use norm_mean_std
+% NMF 14 comp
+% SVD 11-14 comp?
+ens_params.method = 'NMF'; % options: svd, nmf, ica
+ens_params.num_comp = 14;
+ens_params.smooth_SD = 100; % 110 is better?
+ens_params.normalize = 'norm_rms'; % 'norm_mean_std', 'norm_mean' 'none'
+ens_params.ensamble_extraction = 'thresh'; % 'clust'(for svd) 'thresh'(for nmf)
+ens_params.ensamble_extraction_thresh = 'shuff'; % 'signal_z' 'shuff' 'signal_clust_thresh'
+ens_params.plot_stuff = 1;
+
+%%
+
 disp('Ensemble analysis...');
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
@@ -45,7 +56,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             for n_par = 1:numel(est_params_list)
                 fprintf('%d..',n_par);
                 
-                firing_rate_norm = f_normalize(firing_rate, norm_method);
+                firing_rate_norm = f_normalize(firing_rate, ens_params.normalize);
                 
                 params1 = est_params_list(n_par);
                 params1.vol_period = vol_period;
@@ -55,31 +66,25 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 est_params_list(n_par).train_err_sm = accuracy.train_err_sm;
                 est_params_list(n_par).test_err = accuracy.test_err;
                 est_params_list(n_par).test_err_sm = accuracy.test_err_sm;
-                %firing_rate_sm = f_smooth_gauss(firing_rate_norm, estimate_smooth_list(n_sm)/vol_period);
-                %dim_corr(n_sm) = f_ens_estimate_dim(firing_rate_sm);
             end
-            f_plot_cv_error(est_params_list, 'test_err');
+            fprintf('\nDone\n');
+            [~, min_ind] = min([est_params_list.test_err_sm]);
+            fprintf('From provided range, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', est_params_list(min_ind).smooth_SD, est_params.method, est_params_list(min_ind).num_comp);
             
-            figure; plot(estimate_smooth_list, dim_corr);
-            xlabel('Smooth SD'); ylabel('Dimensionality of corr');
-            title(sprintf('%s smooth', norm_method), 'interpreter', 'none');
-            fprintf(' Done\n');
+            f_plot_cv_error_3D(est_params_list, 'smooth_SD', 'num_comp', 'test_err');
+            ax1 = gca;
+            ax1.Title.String = sprintf('%s, dset%d; %s error from raw, %s',cond_name,n_dset,est_params.method, ax1.Title.String);
+            
+            f_plot_cv_error_3D(est_params_list, 'smooth_SD', 'num_comp', 'test_err_sm');
+            ax1 = gca;
+            ax1.Title.String = sprintf('%s, dset%d; %s error from smooth, %s',cond_name,n_dset,est_params.method, ax1.Title.String);
         end
 
         %% Smooth data
-        if smooth_sd> 0
-            firing_rate_sm = f_smooth_gauss(firing_rate, smooth_sd/vol_period);
-        else
-            firing_rate_sm = firing_rate;
-        end
+        firing_rate_sm = f_smooth_gauss(firing_rate, ens_params.smooth_SD/vol_period);
         
         %%
-        ens_params.plot_stuff = 1;
-        ens_params.sort_cells = 1;
-        ens_params.normalize = norm_method; % 'norm_full', 'norm_mean' 'none'
-        ens_params.ensamble_extraction = 'thresh'; % clust 'thresh'
-        ens_params.ensamble_extraction_thresh = 'shuff'; % 'signal_z' 'shuff' 'signal_clust_thresh'
-        ens_out = f_ensemble_analysis_YS_raster(firing_rate, ens_params);
+        ens_out = f_ensemble_analysis_YS_raster(firing_rate_sm, ens_params);
         
         %% analyze ensembles
         1
