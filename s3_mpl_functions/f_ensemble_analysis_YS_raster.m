@@ -5,7 +5,7 @@ if ~exist('params', 'var') || ~isstruct(params)
     params = struct;
 end
 
-normalize1 = f_get_param(params, 'normalize', 'norm_mean'); % 'norm_full', 'norm_mean' 'none'
+normalize1 = f_get_param(params, 'normalize', 'norm_mean_std'); % 'norm_mean_std', 'norm_mean' 'none'
 shuffle_method = f_get_param(params, 'shuffle_method', 'circ_shift');     % 'circ_shift' or 'scramble'
 total_dim_thresh = f_get_param(params, 'total_dim_thresh', .7);
 ensamble_method = f_get_param(params, 'ensamble_method', 'nmf'); % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
@@ -22,15 +22,7 @@ end
 active_cells = sum(firing_rate,2) > 0;
 firing_rate(~active_cells,:) = [];
 
-if strcmpi(normalize1, 'norm_full')
-    firing_rate_norm = firing_rate - mean(firing_rate,2);
-    firing_rate_norm = firing_rate_norm./std(firing_rate_norm,[],2); 
-    %firing_rate_cont(isnan(firing_rate_cont)) = 0;
-elseif strcmpi(normalize1, 'norm_mean')
-    firing_rate_norm = firing_rate - mean(firing_rate,2);
-elseif strcmpi(normalize1, 'none')
-    firing_rate_norm = firing_rate;
-end
+firing_rate_norm = f_normalize(firing_rate, normalize1);
 
 [num_cells, num_T] = size(firing_rate_norm);
 
