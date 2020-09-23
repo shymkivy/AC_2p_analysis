@@ -11,7 +11,7 @@ frame_rate = 30;
 %% input parameters for cross validation estimation of smooth window and number of correlated components / ensembles
 
 estimate_params = 0;    % do estimation?
-est_params.method = 'nmf';              % options: svd, nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
+est_params.ensamble_method = 'nmf';              % options: svd, nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
 est_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'   % either way, need to normalize the power of signal in each cell, otherwise dimred will pull out individual cells
 est_params.smooth_SD = [80:10:150];       % range of values to estimate across    % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
 est_params.num_comp = [14];               % range of values to estimate across    
@@ -27,7 +27,7 @@ est_params_list = f_build_param_list(est_params, {'smooth_SD', 'num_comp', 'n_re
 % for NMF best to use norm_rms(keep values positive), otherwise can also use norm_mean_std
 % NMF 14 comp
 % SVD 11-14 comp?
-ens_params.method = 'NMF'; % options: svd, nmf, ica     % here NMF is
+ens_params.ensamble_method = 'NMF'; % options: svd, nmf, ica     % here NMF is
 ens_params.num_comp = 14;
 ens_params.smooth_SD = 100; % 110 is better?
 ens_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'
@@ -71,7 +71,7 @@ if estimate_params
 
     f_plot_cv_error_3D(est_params_list, 'smooth_SD', 'num_comp', 'test_err');
     ax1 = gca;
-    ax1.Title.String = sprintf('%s, dset%d; %s L2 error from raw, (%s)',cond_name,n_dset,est_params.method, ax1.Title.String);          
+    ax1.Title.String = sprintf('%s, dset%d; %s L2 error from raw, (%s)',cond_name,n_dset,est_params.ensamble_method, ax1.Title.String);          
 end
 
 %% Smooth data
