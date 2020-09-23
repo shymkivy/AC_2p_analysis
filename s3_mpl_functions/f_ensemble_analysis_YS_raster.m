@@ -125,10 +125,12 @@ if num_comp > 0
     %%
 
     if strcmpi(ensamble_extraction, 'clust')
-        ens_out1 = f_ensemble_extract_clust(coeffs, scores, num_ens_comps, params);
+        ens_out1 = f_ensemble_extract_clust(coeffs, scores, num_ens_comps, firing_rate_norm, params);
     elseif strcmpi(ensamble_extraction, 'thresh')
         [thresh_coeffs, thresh_scores] = f_ens_get_thresh(firing_rate_ensemb, coeffs, scores, num_ens_comps, params);
         ens_out1 = f_ensemble_apply_thresh(coeffs, scores, thresh_coeffs, thresh_scores, num_ens_comps);
+    elseif strcmpi(ensamble_extraction, 'clust_cell')
+        ens_out1 = f_ensemble_clust_cell(coeffs, scores, num_ens_comps, firing_rate_norm, params);
     end
     ens_out.cells = ens_out1.cells;
     ens_out.trials = ens_out1.trials;

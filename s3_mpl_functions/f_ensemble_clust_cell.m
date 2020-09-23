@@ -9,13 +9,22 @@ num_clust = num_ens + 1;
 
 %%
 
+dist_out = f_rbf_kernel(X, X);
+
+[dend_order, clust_ident, Z] = f_hcluster(X, 'rbf', num_clust);
+
+figure; imagesc(dist_out(dend_order,dend_order))
+%%
+
 X = coeffs;
 %X = firing_rate_LR;
+
+
 
 %% cluster cells
 if strcmpi(cluster_method_cell, 'hclust')
     %% cluster with hclust
-    params2.method = 'cosine'; % cosine, ward
+    params2.method = 'rbf'; % cosine, ward, rbf
     params2.metric = 'cosine'; % cosine squaredeuclidean
     params2.plot_dist_mat = plot_stuff;
     params2.plot_clusters = plot_stuff;

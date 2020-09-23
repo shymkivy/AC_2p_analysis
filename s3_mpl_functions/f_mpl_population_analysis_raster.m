@@ -18,15 +18,15 @@ est_params_list = f_build_param_list(est_params, {'smooth_SD', 'num_comp', 'n_re
 % for NMF best to use norm_rms(keep values positive), otherwise can also use norm_mean_std
 % NMF 14 comp
 % SVD 11-14 comp?
-ens_params.ensamble_method = 'svd'; % options: svd, nmf, ica     % here NMF is
+ens_params.ensamble_method = 'nmf'; % options: svd, nmf, ica     % here NMF is
 ens_params.num_comp = 15;
 ens_params.smooth_SD = 120; % 110 is better?
 ens_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'
-ens_params.ensamble_extraction = 'clust'; %  'thresh'(for nmf) 'clust'(for svd)
-ens_params.ensamble_extraction_thresh = 'shuff'; % 'shuff' 'signal_z' 'signal_clust_thresh'
-ens_params.signal_z_thresh = 2;
+ens_params.ensamble_extraction = 'thresh'; %  'thresh'(for nmf) 'clust'(for svd)
+ens_params.ensamble_extraction_thresh = 'signal_z'; % 'shuff' 'signal_z' 'signal_clust_thresh'
+ens_params.signal_z_thresh = 2.5;
 ens_params.shuff_thresh_percent = 95;
-ens_params.plot_stuff = 1;
+ens_params.plot_stuff = 0;
 
 %%
 
