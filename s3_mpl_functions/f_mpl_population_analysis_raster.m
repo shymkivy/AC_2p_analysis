@@ -2,7 +2,7 @@ function f_mpl_population_analysis_raster(data, ops)
 %% input parameters for cross validation estimation of smooth window and number of correlated components / ensembles
 
 estimate_params = 0;    % do estimation?
-est_params.method = 'nmf';              % options: svd, nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
+est_params.ensamble_method = 'nmf';              % options: svd, nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
 est_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'   % either way, need to normalize the power of signal in each cell, otherwise dimred will pull out individual cells
 est_params.smooth_SD = [80:10:150];       % range of values to estimate across    % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
 est_params.num_comp = [10:20];               % range of values to estimate across    
@@ -14,17 +14,19 @@ est_params.n_rep = 1:est_params.reps;
 est_params_list = f_build_param_list(est_params, {'smooth_SD', 'num_comp', 'n_rep'});
 
 %% input paramseters for ensemble analysis
-% NMF ensemble detection is best
+% NMF ensemble detection is best with thresh extraction
 % for NMF best to use norm_rms(keep values positive), otherwise can also use norm_mean_std
 % NMF 14 comp
 % SVD 11-14 comp?
-ens_params.method = 'svd'; % options: svd, nmf, ica     % here NMF is
+ens_params.ensamble_method = 'svd'; % options: svd, nmf, ica     % here NMF is
 ens_params.num_comp = 15;
 ens_params.smooth_SD = 120; % 110 is better?
 ens_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'
 ens_params.ensamble_extraction = 'clust'; %  'thresh'(for nmf) 'clust'(for svd)
 ens_params.ensamble_extraction_thresh = 'shuff'; % 'shuff' 'signal_z' 'signal_clust_thresh'
-ens_params.plot_stuff = 0;
+ens_params.signal_z_thresh = 2;
+ens_params.shuff_thresh_percent = 95;
+ens_params.plot_stuff = 1;
 
 %%
 
@@ -91,10 +93,10 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         for n_comp = 1:numel(ens_out.cells.ens_list)
             cells1 = ens_out.cells.ens_list{n_comp};
             trials1 = ens_out.trials.ens_list{n_comp};
-            scores1 = ens_out.scores(n_comp,:);
+            scores1 = ens_out.scores(ens_out.cells.scores_alignment(n_comp),:);
             
             f_plot_ensamble_deets(firing_rate_sm, cells1, trials1, scores1);
-            title([ens_params.method ' ensamble ' num2str(n_comp)]);
+            title([ens_params.ensamble_method ' ensamble ' num2str(n_comp)]);
         end
         
         

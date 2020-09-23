@@ -36,7 +36,7 @@ if num_comp < 3
     gr_list = find(ens_list == 0);
     if ~isempty(gr_list)
         lg_ax{num_plt} = plot(score(gr_list,1), score(gr_list,end), marker_type, 'MarkerSize', marker_size, 'Color', 'k');
-        lg_tit{num_plt} = 'core cells';
+        lg_tit{num_plt} = 'nonresp cells';
         num_plt = num_plt + 1;
     end
     if plot_mean
@@ -65,7 +65,7 @@ else
     gr_list = find(ens_list == 0);
     if ~isempty(gr_list)
         lg_ax{num_plt} = plot3(score(gr_list,1),score(gr_list,2),score(gr_list,3), marker_type, 'MarkerSize', marker_size, 'Color', 'k');
-        lg_tit{num_plt} = 'core cells';
+        lg_tit{num_plt} = 'nonresp cells';
         num_plt = num_plt + 1;
     end
     if plot_mean
