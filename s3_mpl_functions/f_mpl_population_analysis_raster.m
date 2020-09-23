@@ -4,9 +4,9 @@ function f_mpl_population_analysis_raster(data, ops)
 estimate_params = 0;    % do estimation?
 est_params.ensamble_method = 'nmf';              % options: svd, nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
 est_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'   % either way, need to normalize the power of signal in each cell, otherwise dimred will pull out individual cells
-est_params.smooth_SD = [80:10:150];       % range of values to estimate across    % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
-est_params.num_comp = [10:20];               % range of values to estimate across    
-est_params.randomize_data_chunks = 0;   % 1 or 0                                % if the sequence of trial presentation contains information, you will need to randomize. Also need t odo in chunks because adjacent time bins are slightly correlated
+est_params.smooth_SD = 120;       % range of values to estimate across    % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
+est_params.num_comp = 10:2:20;               % range of values to estimate across    
+est_params.shuffle_data_chunks = 1;   % 1 or 0, keeping cell correlations   % if the sequence of trial presentation contains information, you will need to shuffle. Also need to do in chunks because adjacent time bins are slightly correlated
 est_params.reps = 2;                   % how many repeats per param 
 
 %%
