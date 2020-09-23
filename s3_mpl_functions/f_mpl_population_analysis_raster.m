@@ -18,13 +18,13 @@ est_params_list = f_build_param_list(est_params, {'smooth_SD', 'num_comp', 'n_re
 % for NMF best to use norm_rms(keep values positive), otherwise can also use norm_mean_std
 % NMF 14 comp
 % SVD 11-14 comp?
-ens_params.method = 'NMF'; % options: svd, nmf, ica     % here NMF is
+ens_params.method = 'svd'; % options: svd, nmf, ica     % here NMF is
 ens_params.num_comp = 15;
 ens_params.smooth_SD = 120; % 110 is better?
 ens_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'
-ens_params.ensamble_extraction = 'thresh'; %  'thresh'(for nmf) 'clust'(for svd)
+ens_params.ensamble_extraction = 'clust'; %  'thresh'(for nmf) 'clust'(for svd)
 ens_params.ensamble_extraction_thresh = 'shuff'; % 'shuff' 'signal_z' 'signal_clust_thresh'
-ens_params.plot_stuff = 1;
+ens_params.plot_stuff = 0;
 
 %%
 
@@ -85,7 +85,18 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         ens_out = f_ensemble_analysis_YS_raster(firing_rate_sm, ens_params);
         
         %% analyze ensembles
-        1
+        f_plot_raster_mean(firing_rate_sm(ens_out.ord_cell,:), 1);
+        title('raster cell sorted');
+        
+        for n_comp = 1:numel(ens_out.cells.ens_list)
+            cells1 = ens_out.cells.ens_list{n_comp};
+            trials1 = ens_out.trials.ens_list{n_comp};
+            scores1 = ens_out.scores(n_comp,:);
+            
+            f_plot_ensamble_deets(firing_rate_sm, cells1, trials1, scores1);
+            title([ens_params.method ' ensamble ' num2str(n_comp)]);
+        end
+        
         
         %% ensemble analysis with Luis method
         
