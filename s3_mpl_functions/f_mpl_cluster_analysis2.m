@@ -80,8 +80,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         if do_clust
 
             hc_params.num_clust = 1;
-            hc_params.method = 'cosine';%'cosine', 'ward'
-            hc_params.metric = 'cosine';% 'cosine', 'euclidean, 'squaredeuclidean'
+            hc_params.method = 'average';%'average', 'ward'
+            hc_params.distance_metric = 'cosine';% 'cosine', 'euclidean, 'squaredeuclidean'
             hc_params.plot_dist_mat = 1;
             hc_params.plot_clusters = 0;
             hc_params.XY_label = 'Cells';

@@ -1,39 +1,71 @@
-function clust_out = f_ensemble_clust_cell(coeffs, scores, num_ens, raster_norm, params)
+function clust_out = f_ensemble_clust_cell(coeffs, scores, raster_norm, params)
+
 ensamble_method = f_get_param(params, 'ensamble_method', 'nmf');
 cluster_method = f_get_param(params, 'cluster_method', 'hclust');    % 'hclust' or 'gmm'
-cluster_method_cell = f_get_param(params, 'cluster_method_cell', 'hclust');
+shuffle_method = f_get_param(params, 'shuffle_method', 'circ_shift');
+corr_cell_thresh_percent = f_get_param(params, 'corr_cell_thresh_percent', 95);
+
+hcluster_method = f_get_param(params, 'hcluster_method', 'ward');
+hcluster_distance_metric = f_get_param(params, 'hcluster_distance_metric', 'cosine');
+
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
 
-num_comps = num_ens;
-num_clust = num_ens + 1;
+fprintf('Detecting ensembles with %s and clust_cell detection...\n',ensamble_method);
+
+[num_cells, num_clust] = size(coeffs);
+
+% if ~strcmpi(params.hcluster_distance_metric, 'cosine')
+%     % cosine will not pull out the no activity cluster
+%     num_clust = num_clust + 1;
+% end 
+
+%% get thresh for correlated cells
+dist_d = f_pdist_YS(raster_norm, hcluster_distance_metric);
+dist_d2 = dist_d + diag(ones(num_cells,1))*mean(squareform(dist_d));
+pwcorr_d = mean(1-dist_d2,2);
+
+num_reps = 100;
+pwcorr_s_means = zeros(num_cells,num_reps);
+for n_rep = 1:num_reps
+    raster_norm_shuff = f_shuffle_data(raster_norm, shuffle_method);
+    dist_s = f_pdist_YS(raster_norm_shuff, hcluster_distance_metric);
+    dist_s2 = dist_s + diag(ones(num_cells,1))*mean(squareform(dist_s));
+    pwcorr_s_means(:,n_rep) = mean(1-dist_s2);
+end
+
+dist_s_thresh_up = prctile(pwcorr_s_means, corr_cell_thresh_percent,2);
+dist_s_thresh_down = prctile(pwcorr_s_means, 100-corr_cell_thresh_percent,2);
+
+if plot_stuff
+    figure; hold on; axis tight;
+    plot(pwcorr_d);
+    plot(dist_s_thresh_up, '--r');
+    plot(dist_s_thresh_down, '--g');
+    legend('mean pw corr', [num2str(corr_cell_thresh_percent) '% shuff thresh'], [num2str(100-corr_cell_thresh_percent) '% shuff thresh'])
+    xlabel('cells'); ylabel('mean pw corr');
+    title('correlated cells selection');
+end
+
+corr_cells = pwcorr_d>dist_s_thresh_up;
 
 %%
 
-dist_out = f_rbf_kernel(X, X);
-
-[dend_order, clust_ident, Z] = f_hcluster(X, 'rbf', num_clust);
-
-figure; imagesc(dist_out(dend_order,dend_order))
-%%
-
-X = coeffs;
-%X = firing_rate_LR;
-
-
+X = coeffs(corr_cells,:);
 
 %% cluster cells
-if strcmpi(cluster_method_cell, 'hclust')
+if strcmpi(cluster_method, 'hclust')
     %% cluster with hclust
-    params2.method = 'rbf'; % cosine, ward, rbf
-    params2.metric = 'cosine'; % cosine squaredeuclidean
+    params2.method = hcluster_method; % ward(inner square), average, single(shortest)
+    params2.distance_metric = 'euclidean'; %hcluster_distance_metric; % none, euclidean, squaredeuclidean, cosine, hammilarity, rbf
     params2.plot_dist_mat = plot_stuff;
     params2.plot_clusters = plot_stuff;
     params2.num_clust = num_clust;
     params2.XY_label = 'Cells';
+    params2.clim = [0 1];
     clust_out_cell = f_hcluster_wrap(X, params2);
     %gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
     
-elseif strcmpi(cluster_method_cell, 'gmm')
+elseif strcmpi(cluster_method, 'gmm')
     %% clust with gmm, can find best regularizer
     optimize_reg_val = 0;
     if optimize_reg_val
@@ -46,7 +78,7 @@ elseif strcmpi(cluster_method_cell, 'gmm')
             for n_rep = 1:num_reps
                 params3.metric = 'cosine'; % cosine squaredeuclidean
                 params3.RegularizationValue = rg_list(n_rg);
-                params3.num_clust = num_comps+1;
+                params3.num_clust = num_ens+1;
                 gmmclust_out = f_gmmcluster_trial(X, params3);
                 %gscatter(X(:,1),X(:,2),gmmclust_out.clust_ident);
                 eval_gmm = f_evaluate_ens_result(gmmclust_out.clust_ident, ens_list_gt, 0);
@@ -69,42 +101,63 @@ elseif strcmpi(cluster_method_cell, 'gmm')
     [~, clust_out_cell.dend_order] = sort(clust_out_cell.clust_ident);
 end
 
-clust_params_cell = if_get_clust_params(X, clust_out_cell);
+%% put back all uncorrelated cells
 
-%proj_out = f_ens_project_clust(coeffs, scores, clust_params_cell, clust_params_tr, raster_norm);
+clust_out_cell_full = clust_out_cell;
+clust_out_cell_full.corr_cells = corr_cells;
+clust_out_cell_full.clust_out_cell_corr = clust_out_cell;
 
+clust_ident_full = zeros(num_cells,1);
+clust_ident_full(corr_cells) = clust_out_cell.clust_ident;
+clust_out_cell_full.clust_ident = clust_ident_full;
 
+Xn = coeffs(~corr_cells,:);
+clust_out_cell_uncorr = f_hcluster_wrap(Xn, params2);
+
+cell_list = (1:num_cells)';
+cell_list_X = cell_list(corr_cells);
+cell_list_Xn = cell_list(~corr_cells);
+den_order_full = [cell_list_X(clust_out_cell.dend_order); cell_list_Xn(clust_out_cell_uncorr.dend_order)];
+clust_out_cell_full.dend_order = den_order_full;
+
+clust_out_cell_full2 = f_get_clust_params(coeffs, clust_out_cell_full);
+
+% dist1 = f_pdist_YS(X(clust_out_cell.dend_order,:), 'cosine');
+% figure; imagesc(1-dist1)
+% 
+% dist1 = f_pdist_YS(Xn(clust_out_cell_uncorr.dend_order,:), 'cosine');
+% figure; imagesc(1-dist1)
+% 
+% dist1 = f_pdist_YS(coeffs(den_order_full,:));
+% figure; imagesc(1-dist1)
+
+num_frames = size(scores,2);
+% get score projections
+ens_scores = zeros(num_clust,num_frames);
+ens_fames = cell(num_clust,1);
+for n_cl = 1:num_clust
+    score1 = coeffs(clust_out_cell_full2.clust_ident == n_cl,:)*scores;
+    if numel(clust_out_cell_full2.ens_list{n_cl})>1
+        score1 = mean(score1);
+    end
+    ens_scores(n_cl,:) = score1;
+    ens_fames{n_cl} = find(score1>(3*std(score1)));
+end
+clust_out_cell_full2.ens_scores = ens_scores;
+
+clust_out.cells = clust_out_cell_full2;
+clust_out.trials.ens_list = ens_fames;
+
+for n_cl = 1:num_clust
+    ens_raster = raster_norm(clust_out_cell_full2.clust_ident == n_cl,:);
+    figure;
+    subplot(2,1,1);
+    imagesc(ens_raster);
+    title(['clust ' num2str(n_cl)])
+    subplot(2,1,2); hold on;
+    plot(ens_scores(n_cl,:)); axis tight;
+    plot(ones(num_frames,1)*3*std(ens_scores(n_cl,:)), '--r')
 end
 
-function clust_params = if_get_clust_params(X, clust_out)
 
-num_dred_comps = size(X,2);
-
-clust_label = unique(clust_out.clust_ident);
-num_clust = numel(clust_label);
-
-clust_centers = zeros(num_clust,num_dred_comps);
-clust_mag = zeros(num_clust,1);
-cell_num = zeros(num_clust,1);
-for n_clust = 1:num_clust
-    clust1 = clust_label(n_clust);
-    clust_centers(n_clust,:) = mean(X(clust_out.clust_ident == clust1,:));
-    clust_mag(n_clust) = norm(clust_centers(n_clust,:));
-    cell_num(n_clust) = sum(clust_out.clust_ident == clust1);
-end
-
-[~, ens_order] = sort(clust_mag);
-[~, ens_order2] = sort(ens_order);
-clust_ident2 = ens_order2(clust_out.clust_ident)-1;
-
-ens_list = cell(num_clust-1,1);
-for n_ens = 1:(num_clust-1)
-    ens_list{n_ens} = find(clust_ident2 == (n_ens));
-end
-
-clust_params.clust_label = clust_label - 1;
-clust_params.ens_list = ens_list;
-clust_params.residual_list = find(clust_ident2 == 0);
-clust_params.clust_ident = clust_ident2(:);
-clust_params.dend_order = clust_out.dend_order(:);
 end
