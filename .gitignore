@@ -1,6 +1,13 @@
-# ignore all data files
+# matlab files
 *.mat
 *.asv
-*.png
-*.csv
 *.fig
+
+# data files
+*.csv
+#*.xlxs
+
+# image files
+*.png
+*.tif
+*.tiff

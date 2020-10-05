@@ -23,7 +23,16 @@ siz = size(stack,3);
 hh = waitbar(0, 'Saving Tif stack');
 imwrite((stack(:,:,1)), name)
 for jj = 2:siz
-    imwrite((stack(:,:,jj)), name, 'WriteMode', 'append');
+    n_try = 0;
+    while n_try<10
+        try
+            imwrite((stack(:,:,jj)), name, 'WriteMode', 'append');
+            n_try = 10;
+        catch
+            disp(['Write error attempt ' num2str(n_try)]);
+            n_try = n_try + 1;
+        end
+    end
     waitbar(jj/siz, hh);
 end
 close(hh) 
