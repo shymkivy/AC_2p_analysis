@@ -11,9 +11,13 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     data.(cond_name).num_dsets = numel(temp_file_names);
     data.(cond_name).num_planes = zeros(data.(cond_name).num_dsets,1);
     for n_dset = 1:numel(temp_file_names)
-        temp_proc = dir([ops.file_dir, ['\' cond_name '*' ops.paradigm_type '*' temp_file_names{n_dset} '*' ops.processed_data_tag '.mat']]);
-        temp_OA = dir([ops.file_dir, ['\' cond_name '*' ops.paradigm_type '*' temp_file_names{n_dset} '*' ops.OA_output_tag '.mat']]);
-        
+        if ~isempty(strfind(temp_file_names{n_dset}, cond_name))
+            temp_proc = dir([ops.file_dir, ['\' '*' temp_file_names{n_dset} '*' ops.processed_data_tag '.mat']]);
+            temp_OA = dir([ops.file_dir, ['\' '*' temp_file_names{n_dset} '*' ops.OA_output_tag '.mat']]);
+        else 
+            temp_proc = dir([ops.file_dir, ['\' cond_name '*' ops.paradigm_type '*' temp_file_names{n_dset} '*' ops.processed_data_tag '.mat']]);
+            temp_OA = dir([ops.file_dir, ['\' cond_name '*' ops.paradigm_type '*' temp_file_names{n_dset} '*' ops.OA_output_tag '.mat']]);
+        end
         if isempty(temp_proc)
             error(['S12 processed data file missing in ' cond_name ' ' temp_file_names{n_dset}])
         end
