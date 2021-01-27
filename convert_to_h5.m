@@ -13,7 +13,6 @@
 clear;
 %close all;
 
-
 %%
 load_type = 1; 
 % 1 = Prairie tiffs
@@ -21,24 +20,26 @@ load_type = 1;
 % 3 = h5 stack (needs file name)
 
 % multiplane data?
-multiplane = 0; % number of planes or 0
+multiplane = 5; % number of planes or 0
 
 params.auto_align_pulse_crop = 1;
 % this also saves a trimmed version of movie
 params.trim_output_num_frames = 0; %  0 or number of frames to save
 
+data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\1_6_21_im';
 
 % type 1
 %file_type = 'vmmn';
-file_type = 'AAF_asynch';
+%file_type = 'AAF_asynch';
 %file_type = 'A1_freq_grating';
 %file_type = 'ammn_2_dplanes';
+file_name = 'A2_ammn_px1_pz5';
 file_num = '1';
-file_date = '5_31_20';
+file_date = '1_6_21';
 %file_date = '10_2_18';
 %
 %load_dir = ['J:\mouse\backup\2018\' file_date '_dLGN\' file_type '-00' file_num];
-load_dir = ['M:\data\AC\2p\' file_date '_im\' file_type '-00' file_num];
+load_dir = [data_dir '\' file_name '-00' file_num];
 %load_dir = ['L:\data\Auditory\2018\' file_date '_im\' file_type '-00' file_num];
 %load_dir = ['E:\data\V1\' file_date '\' file_type '-00' file_num];
 
@@ -48,12 +49,12 @@ load_dir = ['M:\data\AC\2p\' file_date '_im\' file_type '-00' file_num];
 %save_dir = 'C:\Users\rylab_dataPC\Desktop\Yuriy\DD_data\proc_data';
 %save_dir = 'E:\data\Auditory\caiman_out_multiplane';
 %save_dir = 'J:\mouse\backup\2018\caiman_out_dLGN';
-save_dir = 'L:\data\Auditory\caiman_out';
+%save_dir = 'L:\data\Auditory\caiman_out';
+save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
+
 save_dir_movie = [save_dir '\movies'];
 
-
-
-save_file_name = [file_type file_num '_' file_date '_OA'];
+save_file_name = [file_name file_num '_' file_date];
 disp(save_file_name);
 
 
@@ -61,12 +62,16 @@ disp(save_file_name);
 if ~exist(save_dir_movie, 'dir')
     mkdir(save_dir_movie)
 end
+if ~exist([save_dir_movie '\ave_proj'], 'dir')
+    mkdir([save_dir_movie '\ave_proj'])
+end
 
+addpath([pwd '\general_functions']);
 
 %% load
 if load_type == 1
     params.load_path = load_dir;
-    Y = f_collect_prairie_tiffs3(params.load_path);
+    Y = f_collect_prairie_tiffs4(params.load_path, 'Ch2');
 elseif load_type == 2
     params.load_path = [load_dir, '\',  load_file_name];
     Y = bigread3(params.load_path, 1);
@@ -103,7 +108,7 @@ if multiplane
         save([save_dir '\' save_file_name '_mpl' num2str(n_pl) '_h5cutsinfo.mat'], 'params');
 
         tmp_fig = figure; imagesc(squeeze(mean(Y,3))); title([save_file_name ' Ave prjection multiplane pl' num2str(n_pl)], 'Interpreter', 'none'); axis tight equal;
-        saveas(tmp_fig,[save_dir_movie '\' save_file_name '_mpl' num2str(n_pl) '_ave_proj']);
+        saveas(tmp_fig,[save_dir_movie '\ave_proj\' save_file_name '_mpl' num2str(n_pl) '_ave_proj']);
     end
 else
     %% process
@@ -116,7 +121,7 @@ else
     Y(:,:,~logical(params.vid_cuts_trace)) = [];
 
     %% save h5 file
-    params.save_mov_path = [save_dir_movie '\' save_file_name '_cut.hdf5'];
+    params.save_mov_path = [save_dir_movie '\' save_file_name '_cut.h5'];
 
     f_save_mov_YS(Y, params.save_mov_path, '/mov');
     if params.trim_output_num_frames
@@ -127,9 +132,6 @@ else
     tmp_fig = figure; imagesc(squeeze(mean(Y,3))); title([save_file_name ' Ave prjection'], 'Interpreter', 'none'); axis equal tight;
     saveas(tmp_fig,[save_dir_movie '\' save_file_name '_ave_proj']);
 end
-
-
-
 
 disp('Done')
 %% analysis

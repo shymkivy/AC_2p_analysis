@@ -36,12 +36,13 @@ close all;
 
 %% file path
 addpath([ pwd '\s1_functions'])
+addpath([ pwd '\general_functions'])
 
-ops.exp_date = '5_31_20';
+ops.exp_date = '12_27_20';
 %ops.file_core=['DAM_ammn_2_dplanes1_'  ops.exp_date ''];
-ops.file_core=['DF_freq_grating2_'  ops.exp_date ''];
+ops.file_core=['A1_ammn1_5plt_1plm_'  ops.exp_date ''];
 %ops.file_dir = 'L:\data\Auditory\caiman_out_multiplane';
-ops.file_dir = 'F:\data\Auditory\caiman_out\preprocessing_data';
+ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data\preprocessing';
 %ops.exp_date = '';
 %ops.file_core=['rfp-asap3-grat-008'  ops.exp_date ''];
 %ops.file_dir = 'C:\Users\ys2605\Desktop\victor crap data\with_pulses\rfp-asap3-grat-008';
@@ -60,7 +61,7 @@ ops.files_volt_in = {['raw_' ops.file_core]};
 ops.ca_processing = 'onacid';          % options: 'onacid', 'clicktrace', 'raw_movie';
 
 % for multiplane dataset set number of planes, otherwise 1;
-ops.num_planes = 1;   
+ops.num_planes = 5;   
 
 % plot extra details along the way
 ops.plot_details = 1;
