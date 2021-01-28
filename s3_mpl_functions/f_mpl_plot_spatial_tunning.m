@@ -64,7 +64,7 @@ subplot(2,3,6);
 if_plot_tuning_map(A,rc_mmn_both,rc_mmn_both_mag,dd_map1);
 title(sprintf('On and offset ctx tuned cells n=%d', sum(logical(sum(rc_mmn_both,2)))), 'interpreter', 'none');
 
-suptitle(sprintf('%s %s %s, n=%d cells total', cond_name,ops.paradigm_type, ops.file_names.(cond_name){n_dset}, ops.file_names.(cond_name){n_dset},num_cells), 'interpreter', 'none');
+suptitle(sprintf('%s %s %s, n=%d cells total', cond_name,ops.paradigm_type, ops.file_names.(cond_name){n_dset},num_cells));
 
 
 %figure; imagesc(1,ops.control_carrier_freq/1000, reshape(dd_map1,6,1,3));

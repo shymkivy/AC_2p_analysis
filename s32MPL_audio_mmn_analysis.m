@@ -1,7 +1,6 @@
 %% run this after data is preprocessed with s31MPL
 close all
 
-
 %% analysis params
 % ----------------------- plot extra stuff --------------------------
 ops.use_zscores = 1;
@@ -90,14 +89,16 @@ ops.norm_after_method = 2;
 
 
 %% Plot things
-%f_mpl_plot_cell_details(data, ops);
+f_mpl_plot_cell_details(data, ops);
 
 %%
-%f_mpl_plot_dset_details(data, ops);
+f_mpl_plot_dset_details(data, ops);
 
 %%
 %f_mpl_plot_cond_details(data, ops);
 
+%%
+f_fov_registration(data, ops);
 %% plot reliability of all cells
 %f_plot_cond_reliability(data, ops);
 

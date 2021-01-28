@@ -25,7 +25,7 @@ ops.blah = 1;
 %AC_files_OA_3_16_20;
 %AC_files_OA_5_23_20_lab;
 
-AC_files_xml_import;
+AC_files_xls_import;
 
 %% preprocessing parameters
 % ------- Load params -----------
@@ -87,17 +87,17 @@ ops.stim.increase_factor = 1.5;
 ops = f_mpl_process_ops(ops);
 
 %%
-[data, ops] = f_mpl_load_data(ops);
+%[data, ops] = f_mpl_load_data(ops);
 %[data, ops] = f_mpl_load_data2(ops);
-
+[data, ops] = f_mpl_load_data3(ops);
 %%
-data = f_mpl_preprocess_data(data, ops);
-
+%data = f_mpl_preprocess_data(data, ops);
+data = f_mpl_preprocess_data3(data, ops);
 %% compute tunning
-data = f_mpl_compute_tuning(data, ops);
-
+%data = f_mpl_compute_tuning(data, ops);
+data = f_mpl_compute_tuning3(data, ops);
 %%
-data = f_process_tuned_data(data, ops);
-
+%data = f_process_tuned_data(data, ops);
+data = f_process_tuned_data3(data, ops);
 %%
 disp('Done preprocesing');

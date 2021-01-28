@@ -26,4 +26,6 @@ ops.file_names.AAF = AC_data.experiment(strcmpi(AC_data.area, 'AAF'));
 ops.file_names.A2 = AC_data.experiment(strcmpi(AC_data.area, 'A2'));
 ops.file_names.DF = AC_data.experiment(strcmpi(AC_data.area, 'DF'));
 
+ops.AC_data = AC_data;
+
 clear AC_data use_dset;
