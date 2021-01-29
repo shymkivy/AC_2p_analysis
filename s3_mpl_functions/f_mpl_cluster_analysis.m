@@ -543,7 +543,7 @@ for n_flip1 = 1:numel(ops.flip_to_analyze)
         hold on;
         for n_cntxt = 1:3
             % converting to z-scores is tricky, I dont do it here yet
-            shadedErrorBar(cdata.trial_window_t{1}, traces_ave(:,n_cntxt), traces_SEM(:,n_cntxt), 'lineprops', ops.context_colors{n_cntxt});
+            shadedErrorBar(cdata.trial_window{1}.trial_window_t, traces_ave(:,n_cntxt), traces_SEM(:,n_cntxt), 'lineprops', ops.context_colors{n_cntxt});
         end
         title(sprintf('Population average, %s %s', cond_name, ops.fig_title_run{n_flip}));  
         ylabel('z-score');
@@ -580,7 +580,7 @@ for n_flip1 = 1:numel(ops.flip_to_analyze)
             hold on;
             for n_cntxt = 1:3
                 % converting to z-scores is tricky, I dont do it here yet
-                shadedErrorBar(cdata.trial_window_t{1}, traces_ave(:,n_cntxt), traces_SEM(:,n_cntxt), 'lineprops', ops.context_colors{n_cntxt});
+                shadedErrorBar(cdata.trial_window{1}.trial_window_t, traces_ave(:,n_cntxt), traces_SEM(:,n_cntxt), 'lineprops', ops.context_colors{n_cntxt});
             end
             axis tight;
             ylim([min([0,y_min]) y_max]);
@@ -597,7 +597,7 @@ for n_flip1 = 1:numel(ops.flip_to_analyze)
         figure;
         for ii = 1:3
             subplot(1,3,ii);
-            imagesc(cdata.trial_window_t{1},1:size(ctx_traces_sort,1),ctx_traces_sort(:,:,ii));
+            imagesc(cdata.trial_window{1}.trial_window_t,1:size(ctx_traces_sort,1),ctx_traces_sort(:,:,ii));
             colormap gray;
             caxis([0 6]);
             title(ops.context_name{ii});

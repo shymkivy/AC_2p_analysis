@@ -1,7 +1,7 @@
 function tuning_out = f_get_tuning_dset(trial_data_sort, trials_to_analyze, dset_params, ops)
 
-trial_window_t = dset_params.trial_window_t;
-trial_types = dset_params.trial_types;
+trial_window_t = dset_params.trial_window{1}.trial_window_t;
+trial_types = dset_params.trial_types_wctx{1};
 
 %% extract peaks and lat info
 
@@ -46,15 +46,17 @@ tuning_out.trace_tuning = trace_tuning;
 
 
 if ops.stat.plot_examples
+    ctx_mmn = dset_params.ctx_mmn{1};
+    
     num_trials_per_cat = zeros(numel(trials_to_analyze),1);
     for n_tr = 1:numel(trials_to_analyze)
         num_trials_per_cat(n_tr) = sum(trial_types == trials_to_analyze(n_tr));
     end
     
-    max_onset_resp = squeeze(max(trace_tuning.trial_ave(:,dset_params.onset_window_frames,:),[],2));
-    max_onset_thresh = squeeze(max(trace_tuning.stat_trace.sig_thresh(:,dset_params.onset_window_frames,:),[],2));
-    max_offset_resp = squeeze(max(trace_tuning.trial_ave(:,dset_params.offset_window_frames,:),[],2));
-    max_offset_thresh = squeeze(max(trace_tuning.stat_trace.sig_thresh(:,dset_params.offset_window_frames,:),[],2));
+    max_onset_resp = squeeze(max(trace_tuning.trial_ave(:,dset_params.trial_window{1}.onset_window_frames,:),[],2));
+    max_onset_thresh = squeeze(max(trace_tuning.stat_trace.sig_thresh(:,dset_params.trial_window{1}.onset_window_frames,:),[],2));
+    max_offset_resp = squeeze(max(trace_tuning.trial_ave(:,dset_params.trial_window{1}.offset_window_frames,:),[],2));
+    max_offset_thresh = squeeze(max(trace_tuning.stat_trace.sig_thresh(:,dset_params.trial_window{1}.offset_window_frames,:),[],2));
 
     % look for any points in the trace that cross the thresh
     tuning_ind = trace_tuning.trial_ave>trace_tuning.stat_trace.sig_thresh;
@@ -62,12 +64,12 @@ if ops.stat.plot_examples
 
     tuned_cell_ind = find(logical(sum(peak_tuning_full_resp.fr_peak_mag_tuned_trials,2)));
 
-    [pk_resp_mag_full,pk_resp_trial_ind_full] = max(peak_tuning_full_resp.fr_peak_mag_ave_z(:,dset_params.ctx_mmn),[],2);
-    pk_resp_rel_full = peak_tuning_full_resp.fr_peak_reliability(:,dset_params.ctx_mmn);
-    [pk_resp_mag_on,pk_resp_trial_ind_on] = max(peak_tuning_onset.fr_peak_mag_ave_z(:,dset_params.ctx_mmn),[],2);
-    pk_resp_rel_on = peak_tuning_onset.fr_peak_reliability(:,dset_params.ctx_mmn);
-    [pk_resp_mag_off,pk_resp_trial_ind_off] = max(peak_tuning_offset.fr_peak_mag_ave_z(:,dset_params.ctx_mmn),[],2);
-    pk_resp_rel_off = peak_tuning_offset.fr_peak_reliability(:,dset_params.ctx_mmn);
+    [pk_resp_mag_full,pk_resp_trial_ind_full] = max(peak_tuning_full_resp.fr_peak_mag_ave_z(:,ctx_mmn),[],2);
+    pk_resp_rel_full = peak_tuning_full_resp.fr_peak_reliability(:,ctx_mmn);
+    [pk_resp_mag_on,pk_resp_trial_ind_on] = max(peak_tuning_onset.fr_peak_mag_ave_z(:,ctx_mmn),[],2);
+    pk_resp_rel_on = peak_tuning_onset.fr_peak_reliability(:,ctx_mmn);
+    [pk_resp_mag_off,pk_resp_trial_ind_off] = max(peak_tuning_offset.fr_peak_mag_ave_z(:,ctx_mmn),[],2);
+    pk_resp_rel_off = peak_tuning_offset.fr_peak_reliability(:,ctx_mmn);
     
     
     
@@ -84,7 +86,7 @@ if ops.stat.plot_examples
             scatter(n_tr+(1:num_tr)/num_tr/2-0.25, peak_tuning_full_resp.fr_peak_mag(n_cell, trial_types == trials_to_analyze(n_tr)));
         end
         legend('trial ave', 'sig thresh')
-        title(sprintf('Cell %d, full resp peaks, tr=%d, zmag=%.2f, sens=%.2f', n_cell, dset_params.ctx_mmn(pk_resp_trial_ind_full(n_cell)), pk_resp_mag_full(n_cell), pk_resp_rel_full(n_cell,pk_resp_trial_ind_full(n_cell))));
+        title(sprintf('Cell %d, full resp peaks, tr=%d, zmag=%.2f, sens=%.2f', n_cell, ctx_mmn(pk_resp_trial_ind_full(n_cell)), pk_resp_mag_full(n_cell), pk_resp_rel_full(n_cell,pk_resp_trial_ind_full(n_cell))));
         subplot(3,1,2); hold on; axis tight;
         plot(peak_tuning_onset.fr_peak_mag_ave(n_cell,:));
         plot(peak_tuning_onset.stat_pk.sig_thresh(n_cell,:), '--');
@@ -92,7 +94,7 @@ if ops.stat.plot_examples
             num_tr = sum(trial_types == trials_to_analyze(n_tr));
             scatter(n_tr+(1:num_tr)/num_tr/2-0.25, peak_tuning_onset.fr_peak_mag(n_cell, trial_types == trials_to_analyze(n_tr)));
         end
-        title(sprintf('Onset resp peaks, tr=%d, zmag=%.2f, sens=%.2f', dset_params.ctx_mmn(pk_resp_trial_ind_on(n_cell)), pk_resp_mag_on(n_cell), pk_resp_rel_on(n_cell,pk_resp_trial_ind_on(n_cell))));
+        title(sprintf('Onset resp peaks, tr=%d, zmag=%.2f, sens=%.2f', ctx_mmn(pk_resp_trial_ind_on(n_cell)), pk_resp_mag_on(n_cell), pk_resp_rel_on(n_cell,pk_resp_trial_ind_on(n_cell))));
         subplot(3,1,3); hold on; axis tight;
         plot(peak_tuning_offset.fr_peak_mag_ave(n_cell,:));
         plot(peak_tuning_offset.stat_pk.sig_thresh(n_cell,:), '--');
@@ -100,7 +102,7 @@ if ops.stat.plot_examples
             num_tr = sum(trial_types == trials_to_analyze(n_tr));
             scatter(n_tr+(1:num_tr)/num_tr/2-0.25, peak_tuning_offset.fr_peak_mag(n_cell, trial_types == trials_to_analyze(n_tr)));
         end
-        title(sprintf('Offset resp peaks, tr=%d, zmag=%.2f, sens=%.2f', dset_params.ctx_mmn(pk_resp_trial_ind_off(n_cell)), pk_resp_mag_off(n_cell), pk_resp_rel_off(n_cell,pk_resp_trial_ind_off(n_cell))));
+        title(sprintf('Offset resp peaks, tr=%d, zmag=%.2f, sens=%.2f', ctx_mmn(pk_resp_trial_ind_off(n_cell)), pk_resp_mag_off(n_cell), pk_resp_rel_off(n_cell,pk_resp_trial_ind_off(n_cell))));
         
         
         figure; 
@@ -143,11 +145,11 @@ if ops.stat.plot_examples
                 ylim([0 y_max]);
                 text(trial_window_t(2), y_max-y_max/5, sprintf('On resp = %d\nOff resp = %d\nOn mag = %.2f\nOff mag = %.2f\nOn sens = %.2f\nOff sens = %.2f', trace_tuning.onset_tuned_trials(n_cell, n_trial), trace_tuning.offset_tuned_trials(n_cell, n_trial), trace_tuning.onset_tunning_metric(n_cell, n_trial), trace_tuning.offset_tunning_metric(n_cell, n_trial), trace_tuning.onset_sensitivity(n_cell, n_trial), trace_tuning.offset_sensitivity(n_cell, n_trial)), 'FontSize', 8)
                 if n_trial == 1
-                    title(sprintf('%s, %s, Cell %d, %s', dset_params.cond_name, ops.file_names.(dset_params.cond_name){dset_params.n_dset}, n_cell,ops.context_types_labels{n_trial}), 'Interpreter', 'none');
+                    title(sprintf('%s, Cell %d, %s', dset_params.experiment{1}, n_cell,ops.context_types_labels{n_trial}), 'Interpreter', 'none');
                 elseif n_trial == 20
-                    title([ops.context_types_labels{n_trial} ' freq ' num2str(dset_params.MMN_freq(2))]);
+                    title([ops.context_types_labels{n_trial} ' freq ' num2str(dset_params.MMN_freq{1}(2))]);
                 elseif n_trial == 30
-                    title([ops.context_types_labels{n_trial} ' freq ' num2str(dset_params.MMN_freq(1))]);
+                    title([ops.context_types_labels{n_trial} ' freq ' num2str(dset_params.MMN_freq{1}(1))]);
                 else
                     title(ops.context_types_labels{n_trial});
                 end
@@ -155,7 +157,7 @@ if ops.stat.plot_examples
         end
         
         
-        ctx_mmn2 = reshape(dset_params.ctx_mmn,3,2);
+        ctx_mmn2 = reshape(ctx_mmn,3,2);
         %n_cell = 176;
         y_max = max(max(trial_data_sort(n_cell,:,:)));
         figure;
@@ -173,7 +175,7 @@ if ops.stat.plot_examples
             ylim([0 y_max]);
             
             if n_tr_ind == 1
-                title(sprintf('%s, %s, Cell %d\nOn mag=%.2f, Off mag=%.2f\nOn sens=%.2f, Off sens=%.2f', dset_params.cond_name, ops.file_names.(dset_params.cond_name){dset_params.n_dset}, n_cell, trace_tuning.onset_tunning_metric(n_cell, n_tr), trace_tuning.offset_tunning_metric(n_cell, n_tr), trace_tuning.onset_sensitivity(n_cell, n_tr), trace_tuning.offset_sensitivity(n_cell, n_tr)), 'Interpreter', 'none');
+                title(sprintf('%s, Cell %d\nOn mag=%.2f, Off mag=%.2f\nOn sens=%.2f, Off sens=%.2f', dset_params.experiment{1}, n_cell, trace_tuning.onset_tunning_metric(n_cell, n_tr), trace_tuning.offset_tunning_metric(n_cell, n_tr), trace_tuning.onset_sensitivity(n_cell, n_tr), trace_tuning.offset_sensitivity(n_cell, n_tr)), 'Interpreter', 'none');
             else
                 title(sprintf('On mag=%.2f, Off mag=%.2f\nOn sens=%.2f, Off sens=%.2f', trace_tuning.onset_tunning_metric(n_cell, n_tr), trace_tuning.offset_tunning_metric(n_cell, n_tr), trace_tuning.onset_sensitivity(n_cell, n_tr), trace_tuning.offset_sensitivity(n_cell, n_tr)));
             end

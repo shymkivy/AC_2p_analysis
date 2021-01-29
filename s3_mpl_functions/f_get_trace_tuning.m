@@ -2,8 +2,8 @@ function trace_tuning_out = f_get_trace_tuning(trial_data_sort,trial_types, tria
 
 num_cells = size(trial_data_sort,1);
 
-onset_window_frames = dset_params.onset_window_frames;
-offset_window_frames = dset_params.offset_window_frames;
+onset_window_frames = dset_params.trial_window{1}.onset_window_frames;
+offset_window_frames = dset_params.trial_window{1}.offset_window_frames;
 trial_ave_data = f_mpl_trial_average(trial_data_sort,trial_types, trials_to_analyze, 'none');
 
 stat_trace = f_get_stat_thresholds(trial_data_sort, trial_types, ops.stat.trials_to_sample, trials_to_analyze, ops);

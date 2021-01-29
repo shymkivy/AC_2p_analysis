@@ -14,7 +14,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         cdata = data.(cond_name);
         ctx_cells_mmn = cat(1,cdata.peak_tuned_trials_combined_ctx{:});
         ctx_traces = cat(1,cdata.trial_ave_mmn{:});
-        trial_window_t = cdata.trial_window_t{1};
+        trial_window_t = cdata.trial_window{1}.trial_window_t;
         
         
         %% extract data

@@ -2,20 +2,19 @@ function f_mpl_plot_ctx_cond(data, ops)
 
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
-    cdata = data.(cond_name);
-    
+    cdata = data(strcmpi(data.area, cond_name),:);
     
     resp_cells = logical(sum(cat(1,cdata.peak_tuned_trials_combined_ctx{:}),2));
     trial_ave = cat(1,cdata.trial_ave{:});
  
-    MMN_freq_all = cell(cdata.num_dsets,1);
-    for n_dset = 1:cdata.num_dsets
+    MMN_freq_all = cell(numel(cdata.area),1);
+    for n_dset = 1:numel(cdata.area)
         MMN_freq_all{n_dset} = repmat(cdata.MMN_freq{n_dset},cdata.num_cells(n_dset),1);
     end
     MMN_freq_all = cat(1,MMN_freq_all{:});
    
     plot_traces = trial_ave(resp_cells,:,:);
-    f_mpl_plot_ctx(plot_traces, MMN_freq_all(resp_cells,:), cdata.trial_window_t{n_dset}, ops);
+    f_mpl_plot_ctx(plot_traces, MMN_freq_all(resp_cells,:), cdata.trial_window{n_dset}.trial_window_t, ops);
     suptitle(sprintf('%s, %d resp cells', cond_name, size(plot_traces,1)));
         
     

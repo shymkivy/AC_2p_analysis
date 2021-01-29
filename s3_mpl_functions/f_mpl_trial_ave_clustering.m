@@ -18,7 +18,7 @@ pk_lat_all = cell(numel(ops.regions_to_analyze), num_tns+do_combined);
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
     cdata = data.(cond_name);
-    trial_window_t = cdata.trial_window_t{1};
+    trial_window_t = cdata.trial_window{1}.trial_window_t;
     
     if ops.use_zscores
         trial_ave = cat(1, cdata.trial_ave_z{:});

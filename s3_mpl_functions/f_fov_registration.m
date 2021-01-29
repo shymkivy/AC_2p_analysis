@@ -22,9 +22,9 @@ end
 
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
-    cdata = data.(cond_name);
+    cdata = data(strcmpi(data.area, cond_name),:);
     
-    for n_dset = 1:cdata.num_dsets
+    for n_dset = 1:numel(cdata.area)
     end
 end
 

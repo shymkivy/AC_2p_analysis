@@ -1,22 +1,21 @@
 function f_mpl_plot_cell_details(data, ops)
 %ops.stat.plot_examples = 5;
 
-for n_cond = 1:numel(ops.regions_to_analyze)
-    cond_name = ops.regions_to_analyze{n_cond};
-    cdata = data.(cond_name);
-    
-    dset_cell_ind = cell(cdata.num_dsets,1);
-    for n_dset = 1:cdata.num_dsets
-        dset_cell_ind{n_dset} = [ones(cdata.num_cells(n_dset),1)*n_dset,...
-                            (1:cdata.num_cells(n_dset))'];
-    end
-    dset_cell_ind = cat(1,dset_cell_ind{:});
-    
-    pk_tuned_trials = cat(1,cdata.peak_tuned_trials_combined_ctx{:});
-    pk_tuned_cell_ind = find(logical(sum(pk_tuned_trials,2)));
-    
-    
-    if ops.stat.plot_examples
+if ops.stat.plot_examples
+    for n_cond = 1:numel(ops.regions_to_analyze)
+        cond_name = ops.regions_to_analyze{n_cond};
+        cdata = data(strcmpi(data.area, cond_name),:);
+        num_dsets = numel(cdata.area);
+
+        dset_cell_ind = cell(num_dsets,1);
+        for n_dset = 1:num_dsets
+            dset_cell_ind{n_dset} = [ones(cdata.num_cells(n_dset),1)*n_dset,...
+                                (1:cdata.num_cells(n_dset))'];
+        end
+        dset_cell_ind = cat(1,dset_cell_ind{:});
+
+        pk_tuned_trials = cat(1,cdata.peak_tuned_trials_combined_ctx{:});
+        pk_tuned_cell_ind = find(logical(sum(pk_tuned_trials,2)));
 
         plot_cells = sort(randsample(pk_tuned_cell_ind, ops.stat.plot_examples));
         for n_cell_ind = 1:ops.stat.plot_examples%21:30%900:910
@@ -26,21 +25,22 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             trial_types = cdata.trial_types_wctx{n_dset};
             ctx_mmn = cdata.ctx_mmn{n_dset};
             tuning_all = cdata.tuning_all{n_dset};
-            
+            trial_window_t = cdata.trial_window{n_dset}.trial_window_t;
+
             [pk_resp_mag_full,pk_resp_trial_ind_full] = max(tuning_all.peak_tuning_full_resp.fr_peak_mag_ave_z(n_cell,ctx_mmn));
             pk_resp_rel_full = tuning_all.peak_tuning_full_resp.fr_peak_reliability(n_cell,ctx_mmn);
             [pk_resp_mag_on,pk_resp_trial_ind_on] = max(tuning_all.peak_tuning_onset.fr_peak_mag_ave_z(n_cell,ctx_mmn));
             pk_resp_rel_on = tuning_all.peak_tuning_onset.fr_peak_reliability(n_cell,ctx_mmn);
             [pk_resp_mag_off,pk_resp_trial_ind_off] = max(tuning_all.peak_tuning_offset.fr_peak_mag_ave_z(n_cell,ctx_mmn));
             pk_resp_rel_off = tuning_all.peak_tuning_offset.fr_peak_reliability(n_cell,ctx_mmn);
-            
-            max_onset_resp = squeeze(max(tuning_all.trace_tuning.trial_ave(n_cell,cdata.onset_window_frames{n_dset},:),[],2));
-            max_onset_thresh = squeeze(max(tuning_all.trace_tuning.stat_trace.sig_thresh(n_cell,cdata.onset_window_frames{n_dset},:),[],2));
-            max_offset_resp = squeeze(max(tuning_all.trace_tuning.trial_ave(n_cell,cdata.offset_window_frames{n_dset},:),[],2));
-            max_offset_thresh = squeeze(max(tuning_all.trace_tuning.stat_trace.sig_thresh(n_cell,cdata.offset_window_frames{n_dset},:),[],2));
+
+            max_onset_resp = squeeze(max(tuning_all.trace_tuning.trial_ave(n_cell,cdata.trial_window{n_dset}.onset_window_frames,:),[],2));
+            max_onset_thresh = squeeze(max(tuning_all.trace_tuning.stat_trace.sig_thresh(n_cell,cdata.trial_window{n_dset}.onset_window_frames,:),[],2));
+            max_offset_resp = squeeze(max(tuning_all.trace_tuning.trial_ave(n_cell,cdata.trial_window{n_dset}.offset_window_frames,:),[],2));
+            max_offset_thresh = squeeze(max(tuning_all.trace_tuning.stat_trace.sig_thresh(n_cell,cdata.trial_window{n_dset}.offset_window_frames,:),[],2));
 
             tuning_ind = tuning_all.trace_tuning.trial_ave>tuning_all.trace_tuning.stat_trace.sig_thresh;
-            
+
             figure; 
             subplot(3,1,1); hold on; axis tight;
             plot(tuning_all.peak_tuning_full_resp.fr_peak_mag_ave(n_cell,:));
@@ -79,12 +79,12 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             legend('Onset', 'Offset');
             axis tight
             subplot(2,2,3);
-            imagesc(cdata.trial_window_t{n_dset},1:numel(ops.context_types_all),squeeze(tuning_all.trace_tuning.trial_ave(n_cell,:,:))');
+            imagesc(cdata.trial_window{n_dset}.trial_window_t,1:numel(ops.context_types_all),squeeze(tuning_all.trace_tuning.trial_ave(n_cell,:,:))');
             xlabel('time');
             ylabel('Freq');
             title('Trial ave')
             subplot(2,2,4);
-            imagesc(cdata.trial_window_t{n_dset},1:numel(ops.context_types_all),squeeze(tuning_ind(n_cell,:,:))');
+            imagesc(cdata.trial_window{n_dset}.trial_window_t,1:numel(ops.context_types_all),squeeze(tuning_ind(n_cell,:,:))');
             xlabel('time');
             title('Tuning Z thesh crossed');
 
@@ -100,13 +100,13 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             for n_trial = 1:numel(ops.context_types_all)
                 subplot(m,n,n_trial)
                 hold on;
-                plot(cdata.trial_window_t{n_dset}, squeeze(trial_data_sort(:,:,trial_types==ops.context_types_all(n_trial))), 'color', [0.8 0.8 0.8]);
-                plot(cdata.trial_window_t{n_dset}, squeeze(tuning_all.trace_tuning.trial_ave(n_cell,:,n_trial)), 'm', 'linewidth', 2);
-                plot(cdata.trial_window_t{n_dset}, tuning_all.trace_tuning.stat_trace.sig_thresh(n_cell,:,n_trial), '--g');
-                plot(cdata.trial_window_t{n_dset}, y_max*ones(1,numel(cdata.trial_window_t{n_dset})).*tuning_ind(n_cell,:,n_trial), '--r')
+                plot(trial_window_t, squeeze(trial_data_sort(:,:,trial_types==ops.context_types_all(n_trial))), 'color', [0.8 0.8 0.8]);
+                plot(trial_window_t, squeeze(tuning_all.trace_tuning.trial_ave(n_cell,:,n_trial)), 'm', 'linewidth', 2);
+                plot(trial_window_t, tuning_all.trace_tuning.stat_trace.sig_thresh(n_cell,:,n_trial), '--g');
+                plot(trial_window_t, y_max*ones(1,numel(trial_window_t)).*tuning_ind(n_cell,:,n_trial), '--r')
                 axis tight;
                 ylim([0 y_max]);
-                text(cdata.trial_window_t{n_dset}(2), y_max-y_max/5, sprintf('On resp = %d\nOff resp = %d\nOn mag = %.2f\nOff mag = %.2f\nOn sens = %.2f\nOff sens = %.2f', tuning_all.trace_tuning.onset_tuned_trials(n_cell, n_trial), tuning_all.trace_tuning.offset_tuned_trials(n_cell, n_trial), tuning_all.trace_tuning.onset_tunning_metric(n_cell, n_trial), tuning_all.trace_tuning.offset_tunning_metric(n_cell, n_trial), tuning_all.trace_tuning.onset_sensitivity(n_cell, n_trial), tuning_all.trace_tuning.offset_sensitivity(n_cell, n_trial)), 'FontSize', 8)
+                text(trial_window_t(2), y_max-y_max/5, sprintf('On resp = %d\nOff resp = %d\nOn mag = %.2f\nOff mag = %.2f\nOn sens = %.2f\nOff sens = %.2f', tuning_all.trace_tuning.onset_tuned_trials(n_cell, n_trial), tuning_all.trace_tuning.offset_tuned_trials(n_cell, n_trial), tuning_all.trace_tuning.onset_tunning_metric(n_cell, n_trial), tuning_all.trace_tuning.offset_tunning_metric(n_cell, n_trial), tuning_all.trace_tuning.onset_sensitivity(n_cell, n_trial), tuning_all.trace_tuning.offset_sensitivity(n_cell, n_trial)), 'FontSize', 8)
                 if n_trial == 1
                     title(sprintf('%s, %s, Cell %d, %s', cond_name, ops.file_names.(cond_name){n_dset}, n_cell,ops.context_types_labels{n_trial}), 'Interpreter', 'none');
                 elseif n_trial == 20
@@ -130,9 +130,9 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                     n_tr = ctx_mmn2(n_tr_ind,2);
                 end
                 subplot(1,3,n_tr_ind); hold on;
-                plot(cdata.trial_window_t{n_dset}, squeeze(trial_data_sort(:,:,trial_types==ops.context_types_all(n_tr))), 'color', [0.8 0.8 0.8]);
-                plot(cdata.trial_window_t{n_dset}, squeeze(tuning_all.trace_tuning.trial_ave(n_cell,:,n_tr)), ops.context_colors{n_tr_ind}, 'linewidth', 2);
-                plot(cdata.trial_window_t{n_dset}, tuning_all.trace_tuning.stat_trace.sig_thresh(n_cell,:,n_tr), '--g');
+                plot(trial_window_t, squeeze(trial_data_sort(:,:,trial_types==ops.context_types_all(n_tr))), 'color', [0.8 0.8 0.8]);
+                plot(trial_window_t, squeeze(tuning_all.trace_tuning.trial_ave(n_cell,:,n_tr)), 'color', ops.context_colors{n_tr_ind}, 'linewidth', 2);
+                plot(trial_window_t, tuning_all.trace_tuning.stat_trace.sig_thresh(n_cell,:,n_tr), '--g');
                 axis tight;
                 ylim([0 y_max]);
 
@@ -152,9 +152,9 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     %             for n_trial = 1:10
     %                 subplot(2,5,n_trial)
     %                 hold on;
-    %                 plot(cdata.trial_window_t{n_dset}, squeeze(trial_raw_data_sort(n_cell,:,trial_types==n_trial)), 'color', [0.8 0.8 0.8]);
-    %                 plot(cdata.trial_window_t{n_dset}, squeeze(trial_ave_freq(n_cell,:,n_trial))*10, 'm', 'linewidth', 2)
-    %                 plot(cdata.trial_window_t{n_dset}, squeeze(trial_raw_ave_freq(n_cell,:,n_trial)), 'g', 'linewidth', 2)
+    %                 plot(trial_window_t, squeeze(trial_raw_data_sort(n_cell,:,trial_types==n_trial)), 'color', [0.8 0.8 0.8]);
+    %                 plot(trial_window_t, squeeze(trial_ave_freq(n_cell,:,n_trial))*10, 'm', 'linewidth', 2)
+    %                 plot(trial_window_t, squeeze(trial_raw_ave_freq(n_cell,:,n_trial)), 'g', 'linewidth', 2)
     %                 axis tight;
     %                 ylim([y_min y_max]);
     %                 title(sprintf('Freq %d', n_trial));
@@ -162,12 +162,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
     %             suptitle(sprintf('Cell %d freq trial raw vs firing rate', n_cell));
         end
     end
-    
-    
-    
-    
-end
 
+end
 
 
 end

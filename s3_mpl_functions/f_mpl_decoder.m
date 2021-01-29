@@ -30,10 +30,12 @@ num_param_el = numel(dec_params_list);
 
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
-    cdata = data.(cond_name);
+    cdata = data(strcmpi(data.area, cond_name),:);
+    
+    num_dsets = numel(cdata.area);
     num_tt_cat = size(tt,1);
-    dec_data1 = cell(cdata.num_dsets,num_tt_cat);
-    for n_dset = 1:cdata.num_dsets
+    dec_data1 = cell(num_dsets,num_tt_cat);
+    for n_dset = 1:num_dsets
         for n_tt_cat = 1:num_tt_cat
             trial_types = cdata.trial_types_wctx{n_dset};
             traces = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag;
@@ -117,7 +119,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             dec_data1{n_dset, n_tt_cat} = temp_params;
         end
         
-        waitbar(n_dset/cdata.num_dsets,f,['Decoder, ' cond_name]);
+        waitbar(n_dset/num_dsets,f,['Decoder, ' cond_name]);
     end
     dec_data_out{n_cond} = dec_data1(:);
     

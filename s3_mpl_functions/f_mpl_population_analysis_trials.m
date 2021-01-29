@@ -108,7 +108,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         dr_params.volume_period = cdata.proc_data{n_dset}.frame_data.volume_period;
         dr_params.tn_to_dred = tn_to_dred;
         dr_params.tt_to_dred = tt_to_dred;
-        dr_params.trial_t = cdata.trial_window_t{n_dset};
+        dr_params.trial_t = cdata.trial_window{n_dset}.trial_window_t;
         dr_params.ctx_mmn = ops.context_types_all(cdata.ctx_mmn{n_dset});
         if ops.dred_params.do_cv
             dred_data_list = f_dim_red_cv(trial_data_trand, ops, dr_params);
@@ -151,7 +151,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         
         %% ensemble analysis
         
-        dr_params.trial_win_t = cdata.trial_window_t{n_dset};
+        dr_params.trial_win_t = cdata.trial_window{n_dset}.trial_window_t;
         [~, dr_params.on_bin] = min(abs(ops.ensemb.onset_time-dr_params.trial_win_t));
         [~, dr_params.off_bin] = min(abs(ops.ensemb.offset_time-dr_params.trial_win_t));
         

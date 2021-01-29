@@ -8,11 +8,11 @@ dev_ymax = 0;
 figure;
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
-    cdata = data.(cond_name);
-    
+    cdata = data(strcmpi(data.area, cond_name),:);
+
     resp_cells_mmn = logical(cat(1,cdata.peak_tuned_trials_combined_ctx{:}));
     trial_ave_mmn = cat(1,cdata.trial_ave_mmn{:});
-    trial_window_t = cdata.trial_window_t{1};
+    trial_window_t = cdata.trial_window{1}.trial_window_t;
     
     plot_traces = cell(3,1);
     if strcmpi(ops.dev_cells_ctx, 'ctx_tuned')

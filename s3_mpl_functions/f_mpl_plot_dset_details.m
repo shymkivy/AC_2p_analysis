@@ -6,9 +6,9 @@ ylim1 = [0, 0.2];
 
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
-    cdata = data.(cond_name);
+    cdata = data(strcmpi(data.area, cond_name),:);
     
-    for n_dset = 1:cdata.num_dsets
+    for n_dset = 1:numel(cdata.area)
         if 1 %cdata.num_cells(n_dset) == max(cdata.num_cells)
         
             if ops.use_zscores
@@ -16,6 +16,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             else
                 trial_ave = cdata.trial_ave{n_dset};
             end
+            trial_window_t = cdata.trial_window{n_dset}.trial_window_t;
 
             ctx_mmn = cdata.ctx_mmn{n_dset};
             resp_cells_ctx = logical(cdata.peak_tuned_trials_combined_ctx{n_dset});
@@ -26,14 +27,14 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             
             %% Plot all ctx
             if ops.plot.ctx_full_each_dset
-                f_mpl_plot_ctx3(trial_ave, resp_cells_ctx, cdata.trial_window_t{n_dset}, ops);
-                %f_mpl_plot_ctx4(trial_ave, resp_cells_ctx, cdata.trial_window_t{n_dset}, ops);
+                f_mpl_plot_ctx3(trial_ave, resp_cells_ctx, trial_window_t, ops);
+                %f_mpl_plot_ctx4(trial_ave, resp_cells_ctx, trial_window_t, ops);
                 suptitle(sprintf('%s, dset %d', cond_name, n_dset));
             end
 
             %% Plot dd plot
             if ops.plot.dd_each_dset
-                [sp_h1, ylim2] = f_mpl_plot_dd(trial_ave(:,:,ctx_mmn), resp_cells_ctx,cdata.trial_window_t{n_dset}, ops);
+                [sp_h1, ylim2] = f_mpl_plot_dd(trial_ave(:,:,ctx_mmn), resp_cells_ctx,trial_window_t, ops);
                 suptitle(sprintf('%s, dset %d', cond_name, n_dset));
                 sp_h = cat(1,sp_h, sp_h1);
                 ylim1 = [min([ylim1(1), ylim2(1)]) max([ylim1(2), ylim2(2)])];

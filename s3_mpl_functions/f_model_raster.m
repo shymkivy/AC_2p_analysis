@@ -35,10 +35,11 @@ reliab_list = cell(numel(ops.regions_to_analyze), 1);
 peak_mag_list = cell(numel(ops.regions_to_analyze), 1);
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
-    cdata = data.(cond_name);
-    reliab_list1 = cell(cdata.num_dsets, numel(tt));
-    peak_mag_list1 = cell(cdata.num_dsets, numel(tt));
-    for n_dset = 1:cdata.num_dsets
+    cdata = data(strcmpi(data.area, cond_name),:);
+    
+    reliab_list1 = cell(numel(cdata.area), numel(tt));
+    peak_mag_list1 = cell(numel(cdata.area), numel(tt));
+    for n_dset = 1:numel(cdata.area)
         trial_peaks = cdata.tuning_all{n_dset}.peak_tuning_full_resp.fr_peak_mag;
         trial_types = cdata.trial_types_wctx{n_dset};
         resp_cells = logical(cdata.peak_tuned_trials_full{n_dset});

@@ -1,26 +1,27 @@
 function [dr_params, hdata_out] = f_hcluster_cond(cdata, dr_params, ops)
 
+num_dsets = numel(cdata.area);
 
-hclust_out_tr = cell(cdata.num_dsets,1);
+hclust_out_tr = cell(num_dsets,1);
 if ops.dred_params.hclust.plot_hclust_trials
     fig_h_tr = figure;
-    sp_h_tr = cell(cdata.num_dsets,1);
+    sp_h_tr = cell(num_dsets,1);
 end
 
-hclust_out_cell = cell(cdata.num_dsets,1);
+hclust_out_cell = cell(num_dsets,1);
 if ops.dred_params.hclust.plot_hclust_cells
     fig_h_cell = figure;
-    sp_h_cell = cell(cdata.num_dsets,1);
+    sp_h_cell = cell(num_dsets,1);
 end
 fig_ras = figure;
-sp_ras = cell(cdata.num_dsets,1);
+sp_ras = cell(num_dsets,1);
 % fig_ras2 = figure;
-% sp_ras2 = cell(cdata.num_dsets,1);
+% sp_ras2 = cell(num_dsets,1);
 
-data_dim_est_full = cell(cdata.num_dsets,1);
-ens_out_full = cell(cdata.num_dsets,1);
+data_dim_est_full = cell(num_dsets,1);
+ens_out_full = cell(num_dsets,1);
 
-for n_dset = 1:cdata.num_dsets
+for n_dset = 1:num_dsets
     disp([dr_params.cond_name, ' dset ' num2str(n_dset)]);
 
     trial_types = cdata.trial_types_wctx{n_dset};
@@ -42,7 +43,7 @@ for n_dset = 1:cdata.num_dsets
     dr_params.tn_to_dred = tn_to_dred;
     dr_params.tt_to_dred = tt_to_dred;
     dr_params.volume_period = cdata.proc_data{n_dset}.frame_data.volume_period;
-    dr_params.trial_t = cdata.trial_window_t{n_dset};
+    dr_params.trial_t = cdata.trial_window{n_dset}.trial_window_t;
     dr_params.ctx_mmn = ops.context_types_all(cdata.ctx_mmn{n_dset});
     
 

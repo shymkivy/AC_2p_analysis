@@ -10,10 +10,12 @@ ops.plot.ctx_full_each_dset = 0;
 ops.plot.dd_each_dset = 0;
 ops.plot_combined = 1;
 ops.plot.spatial_tuning_dset = 0;
-ops.plot.tuning_dset = 1;
+ops.plot.tuning_dset = 0;
 
 ops.tuning_plots = 0;
 ops.ctx_plots = 0;
+
+
 
 %% --------------------------- analysis params -------------------------
 % ensemble analysis
@@ -89,10 +91,10 @@ ops.norm_after_method = 2;
 
 
 %% Plot things
-f_mpl_plot_cell_details(data, ops);
+%f_mpl_plot_cell_details(data, ops);
 
 %%
-f_mpl_plot_dset_details(data, ops);
+%f_mpl_plot_dset_details(data, ops);
 
 %%
 %f_mpl_plot_cond_details(data, ops);

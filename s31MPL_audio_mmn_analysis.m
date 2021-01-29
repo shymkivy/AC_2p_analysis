@@ -58,9 +58,8 @@ ops.stat.z_scores_thresh = 3;
 ops.stat.z_scores_average_thresh = 1;
 ops.stat.trials_to_sample = [1:10, 19, 20, 29, 30];%[1:18, 20, 21:28, 30]; % 1:10
 ops.stat.reliability_thresh = .15;          % threshold for how many individual responses are required for being responsive
-ops.stat.plot_examples = 0; % how many random examples to plot
 ops.stat.min_samp_size_z_normalization = 0;
-
+ops.stat.plot_examples = 5; % how many random examples to plot
 % remove locomotion trials
 ops.remove_loco_trials = 0;
 
@@ -87,17 +86,12 @@ ops.stim.increase_factor = 1.5;
 ops = f_mpl_process_ops(ops);
 
 %%
-%[data, ops] = f_mpl_load_data(ops);
-%[data, ops] = f_mpl_load_data2(ops);
-[data, ops] = f_mpl_load_data3(ops);
+[data, ops] = f_mpl_load_data(ops);
 %%
-%data = f_mpl_preprocess_data(data, ops);
-data = f_mpl_preprocess_data3(data, ops);
+data = f_mpl_preprocess_data(data, ops);
 %% compute tunning
-%data = f_mpl_compute_tuning(data, ops);
-data = f_mpl_compute_tuning3(data, ops);
+data = f_mpl_compute_tuning(data, ops);
 %%
-%data = f_process_tuned_data(data, ops);
-data = f_process_tuned_data3(data, ops);
+data = f_process_tuned_data(data, ops);
 %%
 disp('Done preprocesing');
