@@ -135,7 +135,7 @@ if num_comps > 0
 
     %%
     if strcmpi(ensamble_extraction, 'clust')
-        ens_out = f_ensemble_extract_clust(coeffs, scores, num_comps, params);
+        ens_out = f_ensemble_extract_clust(coeffs, scores, num_comps, [], params);
     elseif strcmpi(ensamble_extraction, 'thresh')
         [thresh_coeffs, thresh_scores] = f_ens_get_thresh(firing_rate_ensemb, coeffs, scores, num_comps, params);
         ens_out = f_ensemble_apply_thresh(coeffs, scores, thresh_coeffs, thresh_scores, num_comps);

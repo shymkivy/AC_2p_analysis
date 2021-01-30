@@ -16,11 +16,14 @@ ens_trials_cell = fake_raster_out.ens_trials_cell;
 ens_pattern_rate = fake_raster_out.ens_pattern_rate;
 
 %% quick analysis of rand
-[dend_order_cell, ~] = f_hcluster(raster, 'cosine', 1);
-[dend_order_tr, ~] = f_hcluster(raster', 'cosine', 1);
 
-raster_sort_cell = raster(dend_order_cell,:);
-raster_sort_ctr = raster_sort_cell(:,dend_order_tr);
+hc_params.num_clust = 1;
+hc_params.plot_dist_mat = 0;
+hclust_out_cell = f_hcluster_wrap(raster, hc_params);
+hclust_out_tr = f_hcluster_wrap(raster', hc_params);
+
+raster_sort_cell = raster(hclust_out_cell.dend_order,:);
+raster_sort_ctr = raster_sort_cell(:,hclust_out_tr.dend_order);
 
 if plot_stuff
     f1 = figure;
@@ -65,14 +68,15 @@ if norm1
 else
     raster_clust = raster_ens;
 end
-[dend_order_cell2, ~] = f_hcluster(raster_clust, 'cosine', 1);
-[dend_order_tr2, ~] = f_hcluster(raster_clust', 'cosine', 1);
 
-raster_ens_sort_cell = raster_ens(dend_order_cell2,:);
-raster_ens_sort_ctr = raster_ens_sort_cell(:,dend_order_tr2);
+hclust_out_cell2 = f_hcluster_wrap(raster, hc_params);
+hclust_out_tr2 = f_hcluster_wrap(raster', hc_params);
 
-ens_pattern_rate_sort_cell = ens_pattern_rate(dend_order_cell2,:);
-ens_pattern_rate_sort_ctr = ens_pattern_rate_sort_cell(:,dend_order_tr2);
+raster_ens_sort_cell = raster_ens(hclust_out_cell2.dend_order,:);
+raster_ens_sort_ctr = raster_ens_sort_cell(:,hclust_out_tr2.dend_order);
+
+ens_pattern_rate_sort_cell = ens_pattern_rate(hclust_out_cell2.dend_order,:);
+ens_pattern_rate_sort_ctr = ens_pattern_rate_sort_cell(:,hclust_out_tr2.dend_order);
 
 % % spike mags
 % ens_vals = cell(numel(ens_list_cell),1);
@@ -83,8 +87,8 @@ ens_pattern_rate_sort_ctr = ens_pattern_rate_sort_cell(:,dend_order_tr2);
 %     end
 % end
 
-ens_cells_sort1 = ens_cells1(dend_order_cell2);
-ens_trials_sort1 = ens_trials1(dend_order_tr2);
+ens_cells_sort1 = ens_cells1(hclust_out_cell2.dend_order);
+ens_trials_sort1 = ens_trials1(hclust_out_tr2.dend_order);
 
 % ens_list_sort_cell = cell(numel(ens_size),1);
 % ens_trials_sort_cell = cell(numel(ens_size),1);

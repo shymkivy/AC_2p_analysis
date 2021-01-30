@@ -1,8 +1,8 @@
 function f_model_raster(data, ops)
 
-script_params.num_reps = 50;
-script_params.plot_stuff = 0;
-script_params.dim_est_only = 1;
+script_params.num_reps = 1;
+script_params.plot_stuff = 1;
+script_params.dim_est_only = 0;
 
 %% ensemble params
 model_params.num_cells = 40;
@@ -22,7 +22,7 @@ ens_params.num_comps = [];
 ens_params.plot_stuff = 0;
 ens_params.ensamble_method = 'nmf';
 ens_params.use_LR_proj = 0;
-ens_params.ensamble_extraction = 'clust'; % 'thresh', 'clust'
+ens_params.ensamble_extraction = 'thresh'; % 'thresh', 'clust'
 ens_params.ensamble_extraction_thresh = 'signal_clust_thresh'; % 'shuff'. 'clust_thresh', 'signal_z'
 
 %load('reliability_dd12')
@@ -57,7 +57,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             cell_reliability_thr2 = cell_reliability_thr1(resp_cells1,:);
             trial_peaks1 = trial_peaks(:,trial_types == ops.context_types_all(tt1));
             trial_peaks2 = trial_peaks1(resp_cells1,:);
-            peak_mag_list1{n_dset, n_tt} = trial_peaks2(trial_peaks2>cell_reliability_thr2);
+            trial_peaks3 = trial_peaks2(trial_peaks2>cell_reliability_thr2);
+            peak_mag_list1{n_dset, n_tt} = trial_peaks3(:);
         end
     end
     reliab_list{n_cond} = cat(1,reliab_list1{:});

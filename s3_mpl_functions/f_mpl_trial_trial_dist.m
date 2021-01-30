@@ -6,13 +6,15 @@ trial_raster = cell(numel(ops.regions_to_analyze),1);
 tt_tag = cell(numel(ops.dred_params.trial_types_for_dist),1);
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
-    cdata = data.(cond_name);
+    cdata = data(strcmpi(data.area, cond_name),:);
+    num_dsets = numel(cdata.area);
+    
     dr_params.cond_name = cond_name;
-    trial_mean_vec_tt = cell(numel(ops.dred_params.trial_types_for_dist),numel(cdata.num_dsets,1));
-    trial_raster_tt = cell(numel(ops.dred_params.trial_types_for_dist),numel(cdata.num_dsets,1));
+    trial_mean_vec_tt = cell(numel(ops.dred_params.trial_types_for_dist),num_dsets);
+    trial_raster_tt = cell(numel(ops.dred_params.trial_types_for_dist),num_dsets);
     for n_tt = 1:numel(ops.dred_params.trial_types_for_dist)
         
-        for n_dset = 1:cdata.num_dsets
+        for n_dset = 1:num_dsets
             %%
             dr_params.tt_to_dred_input = ops.dred_params.trial_types_for_dist{n_tt};
             disp([cond_name, ' dset ' num2str(n_dset)]);

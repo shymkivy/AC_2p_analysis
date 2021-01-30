@@ -51,8 +51,9 @@ ens_params.plot_stuff = 0;
 disp('Ensemble analysis...');
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
-    cdata = data.(cond_name);
-    for n_dset = 1:cdata.num_dsets
+    cdata = data(strcmpi(data.area, cond_name),:);
+    
+    for n_dset = 1:numel(cdata.area)
         %%
         vol_period = cdata.proc_data{n_dset}.frame_data.volume_period;
         %%

@@ -5,8 +5,9 @@ dim_est_st = struct('cond_name', [], 'n_dset', [], 'num_cells', [],...
 dd_idx = 1;
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
-    cdata = data.(cond_name);
-    for n_dset = 1:cdata.num_dsets
+    cdata = data(strcmpi(data.area, cond_name),:);
+    
+    for n_dset = 1:numel(cdata.area)
         disp([cond_name, ' dset ' num2str(n_dset)]);
         
         trial_data_sort = cdata.trial_data_sort_wctx{n_dset};

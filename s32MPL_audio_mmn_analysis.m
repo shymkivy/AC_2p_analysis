@@ -14,9 +14,6 @@ ops.plot.tuning_dset = 0;
 
 ops.tuning_plots = 0;
 ops.ctx_plots = 0;
-
-
-
 %% --------------------------- analysis params -------------------------
 % ensemble analysis
 ops.ensemb.method = 'nmf'; %'tca'
@@ -100,12 +97,12 @@ ops.norm_after_method = 2;
 %f_mpl_plot_cond_details(data, ops);
 
 %%
-f_fov_registration(data, ops);
+%f_fov_registration(data, ops);
 %% plot reliability of all cells
 %f_plot_cond_reliability(data, ops);
 
 %% make model of fake ensembles
-%f_model_raster(data, ops);
+f_model_raster(data, ops);
 
 %% ensemble analysis of full raster
 f_mpl_population_analysis_raster(data, ops);
