@@ -9,19 +9,19 @@ shuffle_trials = 1;
 %% input parameters for cross validation estimation of smooth window and number of correlated components / ensembles
 % **params** are best params
 estimate_params = 0;    % do estimation?
-include_shuff_ver = 1;
-est_params.ensamble_method = 'nmf';              % options: svd, nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
+include_shuff_version = 1;
+est_params.ensamble_method = 'svd';              % options: svd, nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
 est_params.normalize = 'norm_mean_std'; % **'norm_mean_std'**, 'norm_mean' 'none'   % either way, need to normalize the power of signal in each cell, otherwise dimred will pull out individual cells
 est_params.shuffle_data_chunks = 0;   % 1 or 0, keeping cell correlations   % if the sequence of trial presentation contains information, you will need to shuffle. Also need to do in chunks because adjacent time bins are slightly correlated
 % ---- input one or range of values to estimate across following
 est_params.smooth_SD = 100;       % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
-est_params.num_comp = 1:2:30;       
+est_params.num_comp = 1:2:20;       
 est_params.reps = 2;              % how many repeats per param 
 
 %%
 est_params.n_rep = 1:est_params.reps;
 est_params_list = f_build_param_list(est_params, {'smooth_SD', 'num_comp', 'n_rep'});
-if include_shuff_ver
+if include_shuff_version
     est_params_list_s = est_params_list;
 end
 
@@ -31,7 +31,7 @@ end
 % NMF 14 comp
 % SVD 11-14 comp?
 ens_params.ensamble_method = 'nmf'; % options: svd, **nmf**, ica     % here NMF is
-ens_params.num_comp = 19;
+ens_params.num_comp = 11;
 ens_params.smooth_SD = 100; % 110 is better?
 ens_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'
 ens_params.ensamble_extraction = 'thresh'; %  **'thresh'(only for nmf)** 'clust'(for all)
@@ -112,25 +112,10 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         %% estimate best smoothing window
         
         if estimate_params
-            fprintf('Estimating params n/%d reps: ',numel(est_params_list));
-            %dim_corr = zeros(numel(estimate_smooth_list),1);
-            for n_par = 1:numel(est_params_list)
-                
-                params1 = est_params_list(n_par);
-                params1.vol_period = vol_period;
-                accuracy = f_ens_estimate_corr_dim_cv(firing_rate_norm, params1);
-                
-                temp_fields = fields(accuracy);
-                for n_fl = 1:numel(temp_fields)
-                    est_params_list(n_par).(temp_fields{n_fl}) = accuracy.(temp_fields{n_fl});
-                end
-                fprintf('--%d',n_par);
-            end
-            fprintf('\nDone\n');
-            [~, min_ind] = min([est_params_list.test_err]);
+            est_params_list = f_ens_estimate_dim_params(firing_rate_norm, est_params_list, vol_period)
             fprintf('From provided range, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', est_params_list(min_ind).smooth_SD, est_params.ensamble_method, est_params_list(min_ind).num_comp);
-            
-            if include_shuff_ver
+
+            if include_shuff_version
                 fprintf('Estimating params shuff n/%d reps: ',numel(est_params_list_s));
                 %dim_corr = zeros(numel(estimate_smooth_list),1);
                 for n_par = 1:numel(est_params_list_s)
@@ -165,12 +150,10 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         %% evaluate components
         ens_params.vol_period = vol_period;
         acc_out_d = f_evaluate_ens_cv(ens_out, firing_rate_norm, ens_params);
-        
-        figure; plot(acc_out_d)
-        
-        num_shuff = 100;
+ 
+        num_shuff = 10;
         ens_params_s = ens_params;
-        ens_params_s.num_comp = 1;
+        ens_params_s.num_comp = 2;
         acc_out = cell(num_shuff,1);
         for n_shuff = 1:num_shuff
             firing_rate_s = f_shuffle_data(firing_rate_norm);
@@ -190,7 +173,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         
         figure; hold on;
         plot(acc_out_d)
-        shadedErrorBar_YS(1:30, nanmean(acc_out_full,2),nanstd(acc_out_full,[],2)/sqrt(num_shuff-1))
+        shadedErrorBar_YS(1:ens_params_s.num_comp, nanmean(acc_out_full,2),nanstd(acc_out_full,[],2)/sqrt(num_shuff-1));
         
         figure; plot(acc_out{1})
         

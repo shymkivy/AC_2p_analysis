@@ -1,4 +1,5 @@
 function accuracy = f_ens_estimate_corr_dim_cv(firing_rate, params)
+% estimate dimensionality of correlations with a cross-validation method
 if ~exist('params', 'var') || ~isstruct(params)
     params = struct;
 end

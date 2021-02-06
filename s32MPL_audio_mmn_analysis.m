@@ -102,7 +102,7 @@ ops.norm_after_method = 2;
 %f_plot_cond_reliability(data, ops);
 
 %% make model of fake ensembles
-f_model_raster(data, ops);
+%f_model_raster(data, ops);
 
 %% ensemble analysis of full raster
 f_mpl_population_analysis_raster(data, ops);
