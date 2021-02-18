@@ -6,7 +6,7 @@ close all
 ops.use_zscores = 1;
 
 % for individual dsets
-ops.plot.ctx_full_each_dset = 0;
+ops.plot.ctx_full_each_dset = 1;
 ops.plot.dd_each_dset = 0;
 ops.plot_combined = 1;
 ops.plot.spatial_tuning_dset = 0;
@@ -91,15 +91,15 @@ ops.norm_after_method = 2;
 %f_mpl_plot_cell_details(data, ops);
 
 %%
-%f_mpl_plot_dset_details(data, ops);
+f_mpl_plot_dset_details(data, ops);
 
 %%
-%f_mpl_plot_cond_details(data, ops);
+f_mpl_plot_cond_details(data, ops);
 
 %%
 %f_fov_registration(data, ops);
 %% plot reliability of all cells
-%f_plot_cond_reliability(data, ops);
+f_plot_cond_reliability(data, ops);
 
 %% make model of fake ensembles
 %f_model_raster(data, ops);
