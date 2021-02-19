@@ -3,11 +3,11 @@ close all;
 
 addpath('C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\general_functions');
 
-path_csv = 'C:\Users\ys2605\Desktop\stuff\AC_data\behavior\volt\nm_day18_rl_ammn-001\';
-fname_csv = 'nm_day18_rl_ammn-001_Cycle00001_VoltageRecording_001.csv';
+path_csv = 'C:\Users\ys2605\Desktop\stuff\AC_data\behavior\volt\nm_day18_rl_ammn-002\';
+fname_csv = 'nm_day18_rl_ammn-002_Cycle00001_VoltageRecording_001.csv';
 
 path_mat = 'C:\Users\ys2605\Desktop\stuff\AC_data\behavior\stim_out\';
-fname_mat = 'nm_day18_RL_ammn_1_2_18_21_12h_33m.mat';
+fname_mat = 'nm_day18_RL_ammn_2_2_18_21_20h_2m.mat';
 
 data = readtable([path_csv fname_csv]);
 data_mat = load([path_mat fname_mat]);
@@ -45,6 +45,8 @@ plot(data_lick_n)
 plot(data_lick_on)
 %%
 
+reward_lick_rate = data_mat.trial_data.reward_lick_rate(1:90);
+rew_trials = reward_lick_rate>0;
 
 %figure; hold on;
 
@@ -52,7 +54,8 @@ time_onset = zeros(numel(time_trial_start),1);
 lick_rate = zeros(numel(time_trial_start),1);
 
 for n_tr = 1:numel(time_trial_start)
-    trial_period = (time_trial_start(n_tr)):(time_reward_period_start(n_tr)+5000);
+    trial_period = (time_trial_start(n_tr)):(time_reward_period_start(n_tr));
+    plot_period = (time_trial_start(n_tr)):(time_reward_period_start(n_tr)+5000);
     
     num_licks = sum(data_lick_on(trial_period));
     num_ms = time_reward_period_start(n_tr) - time_trial_start(n_tr);
@@ -60,8 +63,8 @@ for n_tr = 1:numel(time_trial_start)
     time_onset(n_tr) = num_ms/1000;
     lick_rate(n_tr) = num_licks/num_ms*1000;
     
-    %plot(data_lick(trial_period))
-    %plot(data.x3_Stim_type(trial_period))
+    plot(data_lick(plot_period))
+    plot(data.x3_Stim_type(plot_period))
     %plot(data_lick_on(trial_period))
     %plot(cumsum(data_lick_on(trial_period))./x1', 'color', [.5 .5 .5])
 end
@@ -78,7 +81,12 @@ for ii = 1:numel(time_onset_run)
 end
 
 figure; hold on;
-plot(time_onset_r, lick_rate, 'o');
+plot(time_onset_r(rew_trials), lick_rate(rew_trials), 'o');
+plot(time_onset_run(rew_trials), thresh1(rew_trials));
+
+
+figure; hold on;
+plot(time_onset_r(rew_trials), reward_lick_rate(rew_trials), 'o');
 plot(time_onset_run, thresh1);
 
 
