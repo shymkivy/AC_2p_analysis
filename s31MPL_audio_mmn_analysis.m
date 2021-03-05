@@ -55,7 +55,7 @@ ops.stat.thresh_method = 'zscore_around_mean'; % options: 'ecdf_percentile', 'zs
 ops.stat.ecdf_percentile_thresh = 99;      % 95% 99.7
 ops.stat.num_samples_drawn = 100;
 ops.stat.z_scores_thresh = 3;
-ops.stat.z_scores_average_thresh = 1;
+ops.stat.z_scores_average_thresh = 1; % average across different z thresh to control diff sample size
 ops.stat.trials_to_sample = [1:10, 19, 20, 29, 30];%[1:18, 20, 21:28, 30]; % 1:10
 ops.stat.reliability_thresh = .15;          % threshold for how many individual responses are required for being responsive
 ops.stat.min_samp_size_z_normalization = 0;
@@ -93,5 +93,9 @@ data = f_mpl_preprocess_data(data, ops);
 data = f_mpl_compute_tuning(data, ops);
 %%
 data = f_process_tuned_data(data, ops);
+
+%%
+%f_align_cells_across_fov(data, ops);
+
 %%
 disp('Done preprocesing');
