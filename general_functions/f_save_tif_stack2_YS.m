@@ -1,8 +1,15 @@
 function f_save_tif_stack2_YS(stack, filename)
 % updated 9/2020
 
+
+
 % check extension
 [filepath,name,ext] = fileparts(filename);
+
+if ~exist(filepath, 'dir')
+    mkdir(filepath);
+end
+
 if ~(strcmpi(ext, '.tif') || strcmpi(ext, '.tiff'))
     ext = '.tif';
     filename = [filepath '\' name ext];

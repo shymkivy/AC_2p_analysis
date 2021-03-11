@@ -26,22 +26,25 @@ params.auto_align_pulse_crop = 1;
 % this also saves a trimmed version of movie
 params.trim_output_num_frames = 0; %  0 or number of frames to save
 
-data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\1_6_21_im';
+data_dir = 'E:\data\AC\2p\12_27_20_im';
 
 % type 1
 %file_type = 'vmmn';
 %file_type = 'AAF_asynch';
 %file_type = 'A1_freq_grating';
 %file_type = 'ammn_2_dplanes';
-file_name = 'A2_ammn_px1_pz5';
+file_name = 'A1_ammn_5plt_1plm';
 file_num = '1';
-file_date = '1_6_21';
+file_date = '12_27_20';
 %file_date = '10_2_18';
 %
 %load_dir = ['J:\mouse\backup\2018\' file_date '_dLGN\' file_type '-00' file_num];
 load_dir = [data_dir '\' file_name '-00' file_num];
 %load_dir = ['L:\data\Auditory\2018\' file_date '_im\' file_type '-00' file_num];
 %load_dir = ['E:\data\V1\' file_date '\' file_type '-00' file_num];
+
+params.use_prairie_mpl_tags = 1;
+params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'};
 
 % % type 2 and 3
 % load_file_name = 'rest1_5_9_19.hdf5'; % only for 2 and 3
@@ -52,7 +55,7 @@ load_dir = [data_dir '\' file_name '-00' file_num];
 %save_dir = 'L:\data\Auditory\caiman_out';
 save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
 
-save_dir_movie = [save_dir '\movies'];
+save_dir_movie = [save_dir '\movies\old'];
 
 save_file_name = [file_name file_num '_' file_date];
 disp(save_file_name);
@@ -69,32 +72,49 @@ end
 addpath([pwd '\general_functions']);
 
 %% load
-if load_type == 1
-    params.load_path = load_dir;
-    Y = f_collect_prairie_tiffs4(params.load_path, 'Ch2');
-elseif load_type == 2
-    params.load_path = [load_dir, '\',  load_file_name];
-    Y = bigread3(params.load_path, 1);
-elseif load_type == 3
-    params.load_path = [load_dir, '\',  load_file_name];
-    Y = h5read(params.load_path, '/mov');
+
+    
+    
+if ~params.use_prairie_mpl_tags
+    if load_type == 1
+        params.load_path = load_dir;
+        Y = f_collect_prairie_tiffs4(params.load_path, 'Ch2');
+    elseif load_type == 2
+        params.load_path = [load_dir, '\',  load_file_name];
+        Y = bigread3(params.load_path, 1);
+    elseif load_type == 3
+        params.load_path = [load_dir, '\',  load_file_name];
+        Y = h5read(params.load_path, '/mov');
+    end
 end
 
 %%
 if multiplane
+    if params.use_prairie_mpl_tags
+        params.load_path = load_dir;
+        Y = cell(multiplane,1);
+        for n_pl = 1:multiplane
+            Y{n_pl} = f_collect_prairie_tiffs4(params.load_path, params.mpl_tags{n_pl});
+        end
+    else
+        last_time = size(Y,3);
+        params.ave_trace_full = squeeze(mean(mean(Y_full, 1),2));
+        figure; plot(params.ave_trace_full)
+        title('Full ave trace');
+    end
+    
     Y_full = Y;
-    last_time = size(Y,3);
-    
-    params.ave_trace_full = squeeze(mean(mean(Y_full, 1),2));
-    figure; plot(params.ave_trace_full)
-    title('Full ave trace');
-    
+
     for n_pl = 1:multiplane
-        ind_mpl = n_pl:multiplane:last_time;
-        Y = Y_full(:,:,ind_mpl);
+        if params.use_prairie_mpl_tags
+            Y = Y_full{n_pl};
+        else
+            ind_mpl = n_pl:multiplane:last_time;
+            Y = Y_full(:,:,ind_mpl);
+        end
         
         params.ave_trace = squeeze(mean(mean(Y, 1),2));
-        
+
         params = if_compute_align_cuts(params);
         
         Y(:,:,~logical(params.vid_cuts_trace)) = [];
@@ -142,7 +162,6 @@ function [params] = if_compute_align_cuts(params)
         params.auto_align_pulse_crop = 1; % default
     end
     ave_trace = params.ave_trace;
-    
 
     min_trace = min(ave_trace);
     max_trace = max(ave_trace);
@@ -152,13 +171,10 @@ function [params] = if_compute_align_cuts(params)
         thresh = 0.5;
         pulse_buff = 30; % frames
         
-
         pulse_trace = (norm_ave_trace);
         pulse_trace(pulse_trace<thresh) = 0;
         pulse_trace(pulse_trace>thresh) = 1;
        
-       
-        
         pulse_on = find(diff(pulse_trace)>0)+1;
         pulse_off = find(diff(pulse_trace)<0)+1;
         

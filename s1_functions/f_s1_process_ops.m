@@ -2,7 +2,7 @@ function ops = f_s1_process_ops(ops)
 
 if strcmp(ops.ca_processing ,'onacid')
     ops.OnACID = 1;
-    oa_tag = '_OA';
+    oa_tag = ''; % _OA
 else
     ops.OnACID = 0;
     oa_tag = '';

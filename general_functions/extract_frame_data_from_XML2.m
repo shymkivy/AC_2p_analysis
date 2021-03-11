@@ -16,7 +16,10 @@ fprintf('Loading XML file %s...\n', file_name);
     % collect errors in this
 errors = {};
 
-dataXML = xmlread([file_name,'.xml']);
+
+[path1,fname1,~] = fileparts(file_name);
+
+dataXML = xmlread([path1, '\', fname1, '.xml']);
 
 
 data_out.xml_version = string(dataXML.getElementsByTagName('PVScan').item(0).getAttribute('version'));

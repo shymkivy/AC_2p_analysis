@@ -25,7 +25,7 @@ else
     clicktrate_data = cell(1,ops.num_planes);
     data.ave_trace = cell(1,ops.num_planes);
     for n_pl = 1:ops.num_planes
-        temp_trace = dlmread([ops.file_dir '\' 'TracesRAW_',ops.file_core,'_REDCHAN.csv'],',',0,0)';;
+        temp_trace = dlmread([ops.file_dir '\' 'TracesRAW_',ops.file_core,'_REDCHAN.csv'],',',0,0)';
         data.ave_trace{n_pl}=if_normalize(temp_trace);
         
         clicktrate_data{n_pl}.cell_trace = dlmread([ops.file_dir '\' 'TracesRAW_',ops.file_core,'.csv'],',',0,0);
