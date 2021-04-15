@@ -6,16 +6,20 @@ pwd1 = fileparts(which('fast_dd_cells_identification.m'));
 
 addpath([pwd1 '\general_functions']);
 
-mov_load_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\12_27_20_im\A1_ammn_5plt_1plm-001';
+mov_load_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\3_27_21_mpl\A2_ammn3_abl-001';
 
-proc_data_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
-fname = 'A1_ammn1_5plt_1plm_12_27_20_OA';
+% proc_data_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
+% fname = 'A1_ammn1_5plt_1plm_12_27_20_OA';
+proc_data_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data\';
+fname = 'A2_ammn3_abl1_3_27_21';
 
-save_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\12_27_20_im\fast_analysis_out';
+save_path = 'C:\Users\ys2605\Desktop\stuff\random_save_path';
 
 multiplane = 5;
 mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'};
 
+% multiplane = 1;
+% mpl_tags = {'Ch2'};
 %% load movie
 Y = cell(multiplane,1);
 for n_pl = 1:multiplane
@@ -49,9 +53,9 @@ clear Y
 
 %%
 
-n_pl = 3;
+n_pl = 0;
 base_onset_win = [5 10];
-tt = 170;
+tt = 270;
 
 %%
 
@@ -84,7 +88,7 @@ f_save_tif_stack2_YS(Y_ave, [save_path, '\' sprintf('mpl%d_tt%d',n_pl, tt)])
 
 
 %%
-frames_analyze = 6:15;
+frames_analyze = 5:15;
 
 Y_ave_2d = reshape(Y_ave(:,:,frames_analyze), d1*d2, []);
 Y_sort_2d = reshape(Y_sort(:,frames_analyze,:), d1*d2, []);
@@ -97,13 +101,13 @@ if strcmpi(method1, 'pca')
     [coeff,score,latent,tsquared,explained,mu] = pca(Y_in);
 
 elseif strcmpi(method1, 'nmf')
-    [W,H] = nnmf(Y_in,10);
+    [W,H] = nnmf(Y_in,4);
     coeff = H';
     score = W;
 end
 
 
-n_pc = 9;
+n_pc = 1;
 
 score_2d = reshape(score(:,n_pc),d1, d2, []);
 figure; imagesc(score_2d); axis equal tight; title(['comp ' num2str(n_pc)])
@@ -119,7 +123,7 @@ figure; plot3(coeff_sort(:,tr,2), coeff_sort(:,tr,3), coeff_sort(:,tr,1))
 xlabel('PC2'); ylabel('PC3'); zlabel('PC1');
 
 
-lr_pcs = 1:10;
+lr_pcs = 1:3;
 mov_low_rank = reshape(score(:,lr_pcs)*coeff(:,lr_pcs)',d1,d2,[]);
 f_save_tif_stack2_YS(mov_low_rank, [save_path, '\' sprintf('mpl%d_tt%d_low_rank',n_pl, tt)])
 mov_low_rank_ave = reshape(mov_low_rank, d1, d2, numel(frames_analyze), []);

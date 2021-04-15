@@ -38,9 +38,9 @@ close all;
 addpath([ pwd '\s1_functions'])
 addpath([ pwd '\general_functions'])
 
-ops.exp_date = '12_27_20';
+ops.exp_date = '3_27_21';
 %ops.file_core=['DAM_ammn_2_dplanes1_'  ops.exp_date ''];
-ops.file_core=['A1_ammn1_5plt_1plm_'  ops.exp_date ''];
+ops.file_core=['A2_ammn3_abl1_'  ops.exp_date ''];
 %ops.file_dir = 'L:\data\Auditory\caiman_out_multiplane';
 ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data\preprocessing';
 %ops.exp_date = '';

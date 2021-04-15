@@ -11,10 +11,10 @@ addpath([suite2p_matlab_path '\utils']);
 [d1, d2, T] = size(data);
 
 % get 500 random frames
-samp_frames = randsample(T, 500);
+samp_frames = randsample(T, 1000);
 
 ops.splitFOV = [1 1];
-ops.NiterPrealign = 10;
+ops.NiterPrealign = 20;
 ops.kriging = 1; % subpix align??
 ops.useGPU = 0;
 ops.planesToProcess = 1;

@@ -113,6 +113,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         
         if estimate_params
             est_params_list = f_ens_estimate_dim_params(firing_rate_norm, est_params_list, vol_period)
+            [~, min_ind] = min([est_params_list.test_err]);
             fprintf('From provided range, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', est_params_list(min_ind).smooth_SD, est_params.ensamble_method, est_params_list(min_ind).num_comp);
 
             if include_shuff_version

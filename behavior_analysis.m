@@ -3,11 +3,11 @@ close all;
 
 addpath('C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\general_functions');
 
-path_csv = 'C:\Users\ys2605\Desktop\stuff\AC_data\behavior\volt\nm_day19_rl_ammn-001\';
-fname_csv = 'nm_day19_rl_ammn-001_Cycle00001_VoltageRecording_001.csv';
+path_csv = 'C:\Users\ys2605\Desktop\stuff\AC_data\behavior\volt\L2_day26_rl_ammn-002\';
+fname_csv = 'L2_day26_rl_ammn-002_Cycle00001_VoltageRecording_001.csv';
 
 path_mat = 'C:\Users\ys2605\Desktop\stuff\AC_data\behavior\stim_out\';
-fname_mat = 'nm_day19_RL_ammn_1_2_19_21_13h_0m.mat';
+fname_mat = 'L2_day26_RL_ammn_1_3_24_21_1h_9m.mat';
 
 data = readtable([path_csv fname_csv]);
 data_mat = load([path_mat fname_mat]);

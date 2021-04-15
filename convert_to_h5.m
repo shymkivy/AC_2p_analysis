@@ -26,16 +26,16 @@ params.auto_align_pulse_crop = 1;
 % this also saves a trimmed version of movie
 params.trim_output_num_frames = 0; %  0 or number of frames to save
 
-data_dir = 'E:\data\AC\2p\12_27_20_im';
+data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\3_27_21_mpl\';
 
 % type 1
 %file_type = 'vmmn';
 %file_type = 'AAF_asynch';
 %file_type = 'A1_freq_grating';
 %file_type = 'ammn_2_dplanes';
-file_name = 'A1_ammn_5plt_1plm';
+file_name = 'A2_ammn3_abl';
 file_num = '1';
-file_date = '12_27_20';
+file_date = '3_27_21';
 %file_date = '10_2_18';
 %
 %load_dir = ['J:\mouse\backup\2018\' file_date '_dLGN\' file_type '-00' file_num];
@@ -54,6 +54,7 @@ params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_
 %save_dir = 'J:\mouse\backup\2018\caiman_out_dLGN';
 %save_dir = 'L:\data\Auditory\caiman_out';
 save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
+%save_dir = 'C:\Users\ys2605\Desktop\stuff\random_save_path';
 
 save_dir_movie = [save_dir '\movies\old'];
 
