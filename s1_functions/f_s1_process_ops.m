@@ -29,9 +29,9 @@ end
 % end
 
 ops.file_save_path_full = [ops.file_dir '\' ops.file_core];
-if ops.OnACID
-    ops.file_save_path_full = [ops.file_save_path_full '_OA'];
-end
+% if ops.OnACID
+%     ops.file_save_path_full = [ops.file_save_path_full '_OA'];
+% end
 
 ops.file_save_path_full_processing_params = [ops.file_save_path_full '_S1_processing_params.mat'];
 

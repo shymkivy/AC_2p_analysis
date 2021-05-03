@@ -108,12 +108,16 @@ end
 fprintf('Processing locomotion window...\n');
 % process locomotion
 if ~isfield(data, 'loco_thresh')
-    figure;
-    plot(data.volt_data_binned_superpos(:,3));
-    title('absolute sensor disturbance. pick cutoff for declaring frame a "movment" frame');
-    [~,loco_thresh]=ginput(1);
-    close;
+    if ~ops.auto_loco_thresh
+        figure;
+        plot(data.volt_data_binned_superpos(:,3));
+        title('absolute sensor disturbance. pick cutoff for declaring frame a "movment" frame');
 
+        [~,loco_thresh]=ginput(1);
+        close;
+    else
+        loco_thresh = ops.auto_loco_thresh;
+    end
     data.loco_thresh = loco_thresh;
     if exist(ops.file_save_path_full_processing_params, 'file')
         save(ops.file_save_path_full_processing_params, 'loco_thresh', '-append')

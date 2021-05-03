@@ -11,11 +11,11 @@ interp_k = 2; % number of times splits the coords into two (k)
 
 plot_fov = 0;
 plot_cell_contours = 0;
-plot_freq_tuning_on = 0;
-plot_freq_tuning_off = 0;
+plot_freq_tuning_on = 1;
+plot_freq_tuning_off = 1;
 plot_freq_tuning_combined = 0;
-plot_mmn_on = 1;
-plot_mmn_off = 1;
+plot_mmn_on = 0;
+plot_mmn_off = 0;
 
 
 
@@ -226,7 +226,7 @@ for n_mous = 1:numel(mouse_names)
                     end
                 end
                 
-                sum(sum(mdata2.peak_tuned_trials_offset_ctx{1},2))
+                sum(sum(mdata2.peak_tuned_trials_offset_ctx{1},2));
                 
                 if plot_mmn_on
                     onset_mmn_mag_z = mdata2.tuning_all{1}.peak_tuning_onset.fr_peak_mag_ave_z(:,mdata2.ctx_mmn{1});
@@ -247,7 +247,7 @@ for n_mous = 1:numel(mouse_names)
                 end
                 
                 if plot_mmn_off
-                    offset_mmn_mag_z = mdata2.tuning_all{1}.peak_tuning_onset.fr_peak_mag_ave_z(:,mdata2.ctx_mmn{1});
+                    offset_mmn_mag_z = mdata2.tuning_all{1}.peak_tuning_offset.fr_peak_mag_ave_z(:,mdata2.ctx_mmn{1});
                     figure(fig5);
 %                     for n_cell = 1:num_cells
 %                         [temp_val_off, ~] = max(offset_mmn_mag_z(n_cell,:));

@@ -16,19 +16,17 @@ for n_dset = 1:num_dset
     if isempty(temp_proc)
         error(['S12 processed data file missing: ' fname])
     end
-    data.num_planes(n_dset) = numel(temp_proc);
-    for n_pl = 1:data.num_planes(n_dset)
-        temp_load = load([ops.file_dir '\' temp_proc(n_pl).name]);
-        data.proc_data{n_dset, n_pl} = temp_load.data;
-        data.proc_ops{n_dset, n_pl} = temp_load.ops;
-    end
-    
+    temp_load = load([ops.file_dir '\' temp_proc.name]);
+    data.proc_data{n_dset} = temp_load.data;
+    data.proc_ops{n_dset} = temp_load.ops;
+
     % load OA
     temp_OA = dir([ops.file_dir, ['\' '*' fname '*' ops.OA_output_tag '.mat']]);
     if isempty(temp_OA)
         error(['S12 sorted OA data file missing: ' fname])
     end
-    for n_pl = 1:numel(temp_OA)
+    data.num_planes(n_dset) = numel(temp_OA);
+    for n_pl = 1:data.num_planes(n_dset)
         data.OA_data{n_dset, n_pl} = load([ops.file_dir '\' temp_OA(n_pl).name]);
     end
     

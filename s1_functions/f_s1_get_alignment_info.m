@@ -10,7 +10,7 @@ if ~isfield(data, 'alignment')
     close;
     
     if alignment.need_alignment
-        if sum(strcmp(ops.alignment_method, {'xcorr','peak_onsets','manual'}))
+        if sum(strcmp(ops.alignment_method, {'xcorr','peak_onsets','manual', 'peak_onsets_scale_only', 'peak_onsets_shift_only'}))
             alignment_method = ops.alignment_method;
         else
             alignment_method = 'xcorr'; % default
@@ -37,8 +37,13 @@ if ~isfield(data, 'alignment')
                         shift = f_s1_align_traces_xcor(ca_traces, frame_times, volt_data);
                         scaling_factor = 1;
                     elseif strcmp(temp_method, 'peak_onsets')
-                        shift = f_s1_align_traces_peak_onesets(ca_traces, frame_times, volt_data);
+                        [shift, scaling_factor] = f_s1_align_traces_peak_onesets(ca_traces, frame_times, volt_data);
+                    elseif strcmp(temp_method, 'peak_onsets_shift_only')
+                        [shift, ~] = f_s1_align_traces_peak_onesets(ca_traces, frame_times, volt_data);
                         scaling_factor = 1;
+                    elseif strcmp(temp_method, 'peak_onsets_scale_only')
+                        [~, scaling_factor] = f_s1_align_traces_peak_onesets(ca_traces, frame_times, volt_data);
+                        shift = 0;
                     elseif strcmp(temp_method, 'manual')
                         [shift, scaling_factor] = f_s1_align_traces_manual(ca_traces, frame_times, volt_data);
                     else
@@ -55,7 +60,7 @@ if ~isfield(data, 'alignment')
                 plot(1:(size(shifted_scaled_volt_data,1)),shifted_scaled_volt_data);
                 hold on;
                 plot(frame_times, ca_traces);
-                title(sprintf('Aligned traces with %s; Is it good? [Y/N]\n shift = %dms; scale = %d', temp_method,shift,scaling_factor));
+                title(sprintf('Aligned traces with %s; Is it good? [Y/N]\n shift = %.2fms; scale = %.7f', temp_method,shift,scaling_factor), 'Interpreter', 'none');
                 legend('DAQ voltage trace', 'Alignment Channel');
                 fprintf('Are the alignments good? [Y/N](click on fig to answer)\n');
                 % if alignment is ok, keep manual alignment as 1

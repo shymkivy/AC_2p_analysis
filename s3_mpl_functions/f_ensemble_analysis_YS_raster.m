@@ -1,6 +1,5 @@
 function ens_out = f_ensemble_analysis_YS_raster(firing_rate, params)
-% parameters
-
+%% parameters
 if ~exist('params', 'var') || ~isstruct(params)
     params = struct;
 end
@@ -12,7 +11,7 @@ ensamble_method = f_get_param(params, 'ensamble_method', 'nmf'); % 'PCA', 'AV', 
 ensamble_extraction = f_get_param(params, 'ensamble_extraction', 'thresh'); % clust 'thresh'
 plot_stuff = f_get_param(params, 'plot_stuff');
 
-num_comp = f_get_param(params, 'num_comp');
+num_comps = f_get_param(params, 'num_comp');
 
 if ~strcmpi(ensamble_method, 'nmf') && strcmpi(ensamble_extraction, 'thresh')
     fprintf('Thresh detection is only for nmf dummy...\n');
@@ -57,10 +56,10 @@ dimensionality_total = sum(cumsum(d_explained2)<(total_dim_thresh*100));
 ens_out.dimensionality_total = dimensionality_total;
 ens_out.dimensionality_total_norm = dimensionality_total_norm;
 ens_out.dimensionality_first_comp_size = d_explained2(1);
-ens_out.d_explained = d_explained(1:num_comp);
+ens_out.d_explained = d_explained(1:num_comps);
 
 %% shuff and PCA
-if isempty(num_comp)
+if isempty(num_comps)
     fprintf('Estimating dimensionality...\n');
     num_reps = 50;
     max_lamb_shuff = zeros(num_reps,1);
@@ -81,12 +80,12 @@ if isempty(num_comp)
     %dimensionality_corr = sum(d_explained>prctile(max_lamb_shuff, corr_comp_thresh*100));
 
     dimensionality_corr = mean(sum(d_explained>max_lamb_shuff'));
-    num_comp = ceil(dimensionality_corr);
+    num_comps = ceil(dimensionality_corr);
     
     ens_out.dimensionality_total_norm_shuff = dimensionality_total_norm_shuff;
     ens_out.dimensionality_corr = dimensionality_corr;
 end
-ens_out.num_comps = num_comp;
+ens_out.num_comps = num_comps;
 
 %%
 %SI_firing_rate = similarity_index(firing_rate_norm, firing_rate_norm);
@@ -95,10 +94,9 @@ ens_out.num_comps = num_comp;
 %firing_rate_LR = U(:,1:num_comps)*S(1:num_comps,1:num_comps)*V(:,1:num_comps)';
 %SI_firing_rate_LR = similarity_index(firing_rate_LR, firing_rate_LR);
 
-n_comp = 1:num_comp;
+n_comp = 1:num_comps;
 firing_rate_LR = (d_coeff(:,n_comp)*d_score(:,n_comp)'+d_mu')';
 
-d_score_norm = d_score(:,n_comp)./vecnorm(d_score(:,n_comp));
 
 
 %% sort cells and trials
@@ -106,7 +104,7 @@ hc_params.method = params.hcluster_method;
 hc_params.distance_metric = params.hcluster_distance_metric;
 hc_params.plot_dist_mat = plot_stuff;
 hc_params.plot_clusters = plot_stuff;
-hc_params.num_clust = num_comp+1;
+hc_params.num_clust = num_comps+1;
 hc_params.title_tag = 'Coeffs (cells)';
 hclust_out_cell = f_hcluster_wrap(d_coeff(:,n_comp), hc_params);
 ord_cell = hclust_out_cell.dend_order;
@@ -114,15 +112,16 @@ ens_out.ord_cell = ord_cell;
 
 sort_tr = 0;
 if sort_tr
+    d_score_norm = d_score(:,n_comp)./vecnorm(d_score(:,n_comp));
     hc_params.title_tag = 'Scores (trials)';
     hclust_out_tr = f_hcluster_wrap(d_score_norm, hc_params);
     ord_tr = hclust_out_tr.dend_order;
     ens_out.ord_tr = ord_tr;
 end
 %% real data 
-if num_comp > 0
-    fprintf('Dim reduction with %s, %d comps...\n', ensamble_method, num_comp);
-    num_ens_comps = num_comp;
+if num_comps > 0
+    fprintf('Dim reduction with %s, %d comps...\n', ensamble_method, num_comps);
+    num_ens_comps = num_comps;
     firing_rate_ensemb = firing_rate_norm;
     
     [dred_factors1, ~] = f_dred_train2(firing_rate_ensemb, num_ens_comps, ensamble_method, 0);
@@ -134,7 +133,7 @@ if num_comp > 0
     ens_out.coeffs = coeffs;
     ens_out.scores = scores;
     %%
-    disp('Extraction...')
+    %disp('Extraction...')
     if strcmpi(ensamble_extraction, 'clust')
         ens_out1 = f_ensemble_clust_cell(coeffs, scores, firing_rate_norm, params);
         %ens_out1 = f_ensemble_extract_clust(coeffs, scores, num_ens_comps, firing_rate_norm, params);

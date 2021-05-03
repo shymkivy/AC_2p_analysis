@@ -53,7 +53,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             
             
             %% hclustering
-            num_clust = ops.dred_params.hclust_num_clust{n_tt};
+            num_clust = ops.dred_params.hclust.num_clust{n_tt};
             if ops.dred_params.do_hclust
                 f_hcluster_trial(trial_peaks_dred, trial_types_dred, 'cosine', num_clust, dr_params, ops);
                 f_hcluster_trial(trial_peaks_dred, trial_types_dred, 'ward', num_clust, dr_params, ops);

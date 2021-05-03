@@ -5,7 +5,7 @@ function data_dim_est = f_ensemble_comp_data_dim2(firing_rate, params)
 if ~exist('params', 'var') || isempty(params)
     params = struct;
 end
-normalize = f_get_param(params, 'normalize', 'none');  % 'norm_mean' 'norm_full' 'none'
+normalize1 = f_get_param(params, 'normalize', 'none');  % 'norm_mean_std', 'norm_mean' 'none'
 total_dim_thresh = f_get_param(params, 'total_dim_thresh', .7);
 shuffle_method = f_get_param(params, 'shuffle_method', 'scramble');     % 'circ_shift' or 'scramble'
 %corr_comp_thresh = f_get_param(params, 'corr_comp_thresh', .90);
@@ -26,24 +26,19 @@ end
 active_cells = sum(firing_rate,2) > 0;
 firing_rate(~active_cells,:) = [];
 
-if strcmpi(normalize, 'norm_full')
-    firing_rate_norm = firing_rate - mean(firing_rate,2);
-    firing_rate_norm = firing_rate_norm./std(firing_rate_norm,[],2); 
-    %firing_rate_cont(isnan(firing_rate_cont)) = 0;
-elseif strcmpi(normalize, 'norm_mean')
-    firing_rate_norm = firing_rate - mean(firing_rate,2);
-elseif strcmpi(normalize, 'none')
-    firing_rate_norm = firing_rate;
-end
+firing_rate_norm = f_normalize(firing_rate, normalize1);
 
 num_cells = size(firing_rate_norm,1);
 
 
 %% dim reduction with SVD to calulate components number
 
-[~,S,~] = svd(firing_rate_norm);
-sing_val_sq = diag(S'*S);
-d_explained = sing_val_sq/sum(sing_val_sq)*100;
+% [~,S,~] = svd(firing_rate_norm);
+% sing_val_sq = diag(S'*S);
+% d_explained = sing_val_sq/sum(sing_val_sq)*100;
+
+[d_coeff,~,~,~,d_explained,~] = pca(firing_rate_norm');
+
 %figure; plot(d_explained)
 dimensionality_total_norm = sum(cumsum(d_explained)<(total_dim_thresh*100));
 %[coeff,score,~,~,d_explained,~] = pca(firing_rate_norm');
@@ -63,9 +58,11 @@ max_lamb_shuff = zeros(num_reps,1);
 dim_total_shuff = zeros(num_reps,1);
 for n_rep = 1:num_reps
     firing_rate_shuff = f_shuffle_data(firing_rate_norm, shuffle_method);
-    [~,s_S,~] = svd(firing_rate_shuff);
-    s_sing_val_sq = diag(s_S'*s_S);
-    s_explained = s_sing_val_sq/sum(s_sing_val_sq)*100;
+%     [~,s_S,~] = svd(firing_rate_shuff);
+%     s_sing_val_sq = diag(s_S'*s_S);
+%     s_explained = s_sing_val_sq/sum(s_sing_val_sq)*100;
+%     
+    [s_coeff,~,~,~,s_explained,~] = pca(firing_rate_shuff');
     
     dim_total_shuff(n_rep) = sum(cumsum(s_explained)<(total_dim_thresh*100));
     max_lamb_shuff(n_rep) = max(s_explained);

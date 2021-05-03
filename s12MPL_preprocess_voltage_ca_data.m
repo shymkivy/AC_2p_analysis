@@ -38,9 +38,9 @@ close all;
 addpath([ pwd '\s1_functions'])
 addpath([ pwd '\general_functions'])
 
-ops.exp_date = '3_27_21';
+ops.exp_date = '10_14_19';
 %ops.file_core=['DAM_ammn_2_dplanes1_'  ops.exp_date ''];
-ops.file_core=['A2_ammn3_abl1_'  ops.exp_date ''];
+ops.file_core=['DF_ammn2_5plt_2plx_'  ops.exp_date ''];
 %ops.file_dir = 'L:\data\Auditory\caiman_out_multiplane';
 ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data\preprocessing';
 %ops.exp_date = '';
@@ -81,11 +81,17 @@ ops.parameters.TDT_volt_chan = 4;
 % which voltage channel to use for alignment? 1 for video 2 for auditory
 ops.align_to_channel = 2;
 
-ops.alignment_method = 'xcorr';     % options: 'xcorr', 'peak_onsets', 'manual'
+ops.alignment_method = 'peak_onsets_scale_only'; 
+% options: 'xcorr', 'peak_onsets', 'peak_onsets_shift_only', 'peak_onsets_scale_only', 'manual'
+% options: 
+
+
 ops.exp_window_selection = 'auto';  % options: 'auto', 'manual'
 
 % voltage output for jordan
 ops.bin_csv_out = 0;
+
+ops.auto_loco_thresh = 0; % 0 for manual, >0 for auto;
 
 %% process ops
 ops = f_s1_process_ops(ops);

@@ -70,7 +70,13 @@ for n_dset = 1:num_dsets
         hc_params.metric = ops.dred_params.hclust.plot_metric;
         hc_params.plot_dist_mat = ops.dred_params.hclust.plot_hclust_trials;
         hc_params.plot_clusters = 0;
-        hclust_out_tr{n_dset} = f_hcluster_trial2(trial_peaks_dred, trial_types_dred , hc_params, ops);
+        hc_params_cells = hc_params;
+        
+        hc_params.sample_types = f_tt_to_tn(trial_types_dred, ops);
+        hc_params.sample_types_colors = ops.context_types_all_colors2;
+        %hc_params.XY_label = 'Trials';
+        
+        hclust_out_tr{n_dset} = f_hcluster_wrap(trial_peaks_dred', hc_params);
         dr_params.hclust_out_tr = hclust_out_tr{n_dset};
         %% hclustering cells 
         if ops.dred_params.hclust.plot_hclust_cells
@@ -78,8 +84,10 @@ for n_dset = 1:num_dsets
             sp_h_cell{n_dset} = subplot(3,5,n_dset);
             hc_params.subplot_ptr = sp_h_cell{n_dset};
         end
-        hc_params.plot_dist_mat = ops.dred_params.hclust.plot_hclust_cells;
-        hclust_out_cell{n_dset} = f_hcluster_cell(trial_peaks_dred, [], hc_params, ops);
+        hc_params_cells.plot_dist_mat = ops.dred_params.hclust.plot_hclust_cells;
+        %hc_params_cells.XY_label = 'Cells';
+        
+        hclust_out_cell{n_dset} = f_hcluster_wrap(trial_peaks_dred, hc_params_cells);
         dr_params.hclust_out_cell = hclust_out_cell{n_dset};
         %%
         %f_tsne(trial_peaks)
@@ -107,6 +115,8 @@ for n_dset = 1:num_dsets
             params_ens.use_LR_proj = 0;
             params_ens.ensamble_extraction = 'thresh'; % 'thresh', 'clust'
             params_ens.ensamble_extraction_thresh = 'signal_clust_thresh'; % 'shuff'. 'clust_thresh', 'signal_z'
+            params_ens.hcluster_method = 'average';
+            params_ens.hcluster_distance_metric = 'cosine';
             ens_out_full{n_dset} = f_ensemble_analysis_peaks3(trial_peaks_dred, params_ens);
         end
         %%

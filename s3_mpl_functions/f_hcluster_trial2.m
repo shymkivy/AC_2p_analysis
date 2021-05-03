@@ -1,7 +1,7 @@
 function hclust_out = f_hcluster_trial2(trial_peaks, trial_types, params, ops)
 %n_dset = f_get_param(params, 'n_dset', 0);
 num_clust = f_get_param(params, 'num_clust');
-method = f_get_param(params, 'method', 'cosine');
+method = f_get_param(params, 'method', 'average');
 metric = f_get_param(params, 'metric', 'cosine');
 sp = f_get_param(params, 'subplot_ptr');
 plot_dist_mat = f_get_param(params, 'plot_dist_mat', 1);

@@ -2,14 +2,14 @@ function ens_out = f_ensemble_analysis_peaks3(firing_rate, params)
 % input either 3D tials data (Cell x Time X Trial)
 %           or 2D trial data (Cell x Trial)
 %% parameters
-disp('Ensemble detection');
+%disp('Ensemble detection');
 if ~exist('params', 'var') || isempty(params)
     params = struct;
 end
 %cond_name = f_get_param(params, 'cond_name', 'none');
 %n_dset = f_get_param(params, 'n_dset', 0);
 num_comps = f_get_param(params, 'num_comps', []);   % compute with dim est
-normalize = f_get_param(params, 'normalize', 'norm_full');  % 'norm_mean' 'norm_full'
+normalize1 = f_get_param(params, 'normalize', 'norm_mean_std');  % 'norm_mean_std', 'norm_mean' 'none'
 total_dim_thresh = f_get_param(params, 'total_dim_thresh', .7);
 shuffle_method = f_get_param(params, 'shuffle_method', 'scramble');     % 'circ_shift' or 'scramble'
 %corr_comp_thresh = f_get_param(params, 'corr_comp_thresh', .90);
@@ -26,7 +26,6 @@ plot_stuff = f_get_param(params, 'plot_stuff', 0);
 
 %%
 ndims1 = ndims(firing_rate);
-
 if ndims1 == 3
     [num_cells, ~, num_trials] = size(firing_rate);
     firing_rate = reshape(firing_rate, num_cells,[]);
@@ -38,23 +37,17 @@ end
 active_cells = sum(firing_rate,2) > 0;
 firing_rate(~active_cells,:) = [];
 
-if strcmpi(normalize, 'norm_full')
-    firing_rate_norm = firing_rate - mean(firing_rate,2);
-    firing_rate_norm = firing_rate_norm./std(firing_rate_norm,[],2); 
-    %firing_rate_cont(isnan(firing_rate_cont)) = 0;
-elseif strcmpi(normalize, 'norm_mean')
-    firing_rate_norm = firing_rate - mean(firing_rate,2);
-elseif strcmpi(normalize, 'none')
-    firing_rate_norm = firing_rate;
-end
+firing_rate_norm = f_normalize(firing_rate, normalize1);
 
 num_cells = size(firing_rate_norm,1);
 
 %% dim reduction with SVD to calulate components number
 
-[U,S,V] = svd(firing_rate_norm);
-sing_val_sq = diag(S'*S);
-d_explained = sing_val_sq/sum(sing_val_sq)*100;
+% [U,S,V] = svd(firing_rate_norm);
+% sing_val_sq = diag(S'*S);
+% d_explained = sing_val_sq/sum(sing_val_sq)*100;
+[d_coeff,d_score,~,~,d_explained,d_mu] = pca(firing_rate_norm');
+
 %figure; plot(d_explained)
 dimensionality_total_norm = sum(cumsum(d_explained)<(total_dim_thresh*100));
 %[coeff,score,~,~,d_explained,~] = pca(firing_rate_norm');
@@ -108,12 +101,30 @@ data_dim_est.num_trials = num_trials;
 %SI_firing_rate = similarity_index(firing_rate_norm, firing_rate_norm);
 %SI_firing_rate_shuff = similarity_index(firing_rate_shuff, firing_rate_shuff);
 
-firing_rate_LR = U(:,1:num_comps)*S(1:num_comps,1:num_comps)*V(:,1:num_comps)';
+%firing_rate_LR = U(:,1:num_comps)*S(1:num_comps,1:num_comps)*V(:,1:num_comps)';
 %SI_firing_rate_LR = similarity_index(firing_rate_LR, firing_rate_LR);
+n_comp = 1:num_comps;
+firing_rate_LR = (d_coeff(:,n_comp)*d_score(:,n_comp)'+d_mu')';
 
-%%
-%clust_est = f_hclust_estimate_num_clust(firing_rate_LR);
+%% sort cells and trials
+hc_params.method = params.hcluster_method;
+hc_params.distance_metric = params.hcluster_distance_metric;
+hc_params.plot_dist_mat = plot_stuff;
+hc_params.plot_clusters = plot_stuff;
+hc_params.num_clust = num_comps+1;
+hc_params.title_tag = 'Coeffs (cells)';
+hclust_out_cell = f_hcluster_wrap(d_coeff(:,n_comp), hc_params);
+ord_cell = hclust_out_cell.dend_order;
+ens_out.ord_cell = ord_cell;
 
+sort_tr = 1;
+if sort_tr
+    d_score_norm = d_score(:,n_comp)./vecnorm(d_score(:,n_comp));
+    hc_params.title_tag = 'Scores (trials)';
+    hclust_out_tr = f_hcluster_wrap(d_score_norm, hc_params);
+    ord_tr = hclust_out_tr.dend_order;
+    ens_out.ord_tr = ord_tr;
+end
 %%
 
 if use_LR_proj
@@ -145,13 +156,15 @@ else
     ens_out.cells.clust_label = 0;
     ens_out.cells.ens_list = {(1:num_cells)'};
     ens_out.cells.clust_ident = zeros(num_cells,1);
-    ens_out.cells.dend_order = f_hcluster(firing_rate_ensemb, 'cosine', 1);
     ens_out.trials.clust_label = 0;
     ens_out.trials.ens_list = {(1:num_trials)'};
     ens_out.trials.clust_ident = zeros(num_trials,1);
-    ens_out.trials.dend_order = f_hcluster(firing_rate_ensemb', 'cosine', 1);
 end
 
+ens_out.cells.dend_order = ord_cell;
+if sort_tr
+    ens_out.trials.dend_order = ord_tr;
+end
 
 %ens_out.cells = f_get_clust_params(coeffs, ens_out.cells);
 %ens_out.trials = f_get_clust_params(scores', ens_out.trials);

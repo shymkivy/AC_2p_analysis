@@ -70,7 +70,7 @@ if plot_dist_mat
     end
     axis tight;
     axis equal;
-    colorbar
+    %colorbar
     if ~isempty(XY_label)
         xlabel(XY_label);
         ylabel(XY_label);

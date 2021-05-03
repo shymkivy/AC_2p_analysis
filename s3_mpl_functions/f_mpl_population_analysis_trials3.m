@@ -5,7 +5,8 @@ dr_params.dim_est_st = struct('cond_name', [], 'n_dset', [], 'num_cells', [],...
     'num_cells_samp', [], 'num_comp_est', [], 'n_rep', []);
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
-    cdata = data.(cond_name);
+    cdata = data(strcmpi(data.area, cond_name),:);
+    
     %% cycle through analysis groups 
     for n_tt = 1:numel(ops.dred_params.trial_types_to_dred)
         

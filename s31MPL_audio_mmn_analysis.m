@@ -1,15 +1,19 @@
 %%%%%%%%%%%%%%%%%%%%%
 %
-%   V2 used a new struct format of saved data in previous step
+%   AC MMN analysis pipeline step 3.1
 %   
-%   % editing deviance plots
-%   % need to make spike inference better
+%       step 1 processing voltage data
+%       step 2 is obsolete
+%       step 3.1 loads data and precomputes things for 3.2
+%       step 3.2 analyis
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
-clear;
-close all;
-
+if ~exist('from_gui', 'var')
+    clear;
+    close all;
+end
+%%
 ops.processed_data_tag = 'processed_data';
 ops.OA_output_tag = 'results_sort';
 addpath([pwd '\s3_mpl_functions']);

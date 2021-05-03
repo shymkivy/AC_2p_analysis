@@ -33,7 +33,7 @@ for n_dset = 1:num_dsets
     % pull out data
     for n_pl = 1:data.num_planes(n_dset)
         temp_OA_data = data.OA_data{n_dset,n_pl};
-        temp_proc_data = data.proc_data{n_dset,n_pl};
+        temp_proc_data = data.proc_data{n_dset};
         % extra cSNR threshold
         SNR_accept = temp_OA_data.proc.SNR2_vals >= ops.extra_SNR_thresh;
         accept_cell = and(SNR_accept,temp_OA_data.proc.comp_accepted);           
