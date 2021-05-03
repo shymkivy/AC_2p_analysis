@@ -5,7 +5,7 @@ current_dset = app.DatasetDropDown.Value;
 idx1 = strcmpi(app.data.experiment, current_dset);
 app.ddata = app.data(idx1,:);
 
-app.mplSpinner.Limits = [1, app.ddata.num_planes];
+app.trialtypeDropDown.Items = [{'all'}; app.ops.context_types_labels];
 
 f_dv_update_dset_info(app);
 
