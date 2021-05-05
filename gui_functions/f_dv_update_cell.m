@@ -1,4 +1,4 @@
-function f_dv_update_trace(app)
+function f_dv_update_cell(app)
 
 n_pl = app.mplSpinner.Value;
 
@@ -9,12 +9,28 @@ n_cell = app.CellSpinner.Value;
 
 time1 = app.ddata.proc_data{1}.frame_data.frame_times_mpl{n_pl}/1000;
 
+
 if app.RawButton.Value
     app.plot_raw.XData = time1;
     app.plot_raw.YData = app.ddata.traces_raw{n_pl}(n_cell,:);
 else
     app.plot_raw.XData = 0;
     app.plot_raw.YData = 0;
+end
+if app.CButton.Value
+    app.plot_C.XData = time1;
+    
+    C_all = app.ddata.OA_data{n_pl}.proc.deconv.MCMC.C(app.ddata.OA_data{n_pl}.proc.comp_accepted);
+    C1 = C_all{n_cell};
+    
+    cuts_trace = app.ddata.proc_data{1}.file_cuts_params{n_pl}.vid_cuts_trace;
+    C_full = zeros(numel(cuts_trace),1);
+    C_full(logical(cuts_trace)) = C1;
+    
+    app.plot_C.YData = C_full;
+else
+    app.plot_C.XData = 0;
+    app.plot_C.YData = 0;
 end
 if app.FiringRateButton.Value
     app.plot_fr.XData = time1;

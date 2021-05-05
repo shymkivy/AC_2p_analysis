@@ -1,4 +1,4 @@
-function f_dv_random_button(app)
+function f_dv_plot_freq_resp(app)
 
 n_pl = app.mplSpinner.Value;
 n_cell = app.CellSpinner.Value;
@@ -14,6 +14,7 @@ firing_rate = app.ddata.firing_rate_smooth{n_pl};
 trial_types = app.ddata.trial_types_wctx{1};
 stim_times = app.ddata.stim_frame_index{n_pl};
 trig_window = app.ddata.trial_window{1}.trial_num_baseline_resp_frames;
+plot_t = app.ddata.trial_window{1}.trial_window_t;
 
 resp_all = cell(10,1);
 y_lim_max = 0;
@@ -28,40 +29,12 @@ end
 figure; 
 for n_fr = 1:10
     subplot(2,5,n_fr); hold on; axis tight; ylim([y_lim_min, y_lim_max]);
-    plot(resp_all{n_fr}, 'color', [.6 .6 .6])
-    plot(mean(resp_all{n_fr},2), 'color', [1 0 1], 'LineWidth', 2)
+    plot(plot_t, resp_all{n_fr}, 'color', [.6 .6 .6])
+    plot(plot_t, mean(resp_all{n_fr},2), 'color', [1 0 1], 'LineWidth', 2)
+    if rem(n_fr,5) ~= 1
+        set(gca,'ytick',[])
+    end
     title(sprintf('Freq %d', n_fr))
 end
-
-trial_window_t = app.ddata.trial_window{1}.trial_window_t;
-
-
-
-
-resp = f_get_stim_trig_resp(firing_rate(n_cell,:), stim_times, trig_window);
-
-resp1 = squeeze(resp);
-
-trial_ave_z = app.ddata.trial_ave_z{1};
-trial_ave_z_cell = trial_ave_z(n_cell_full,:,:);
-
-if strcmpi(app.trialtypeDropDown.Value, 'all')
-    
-else
-    ctx_idx = strcmpi(app.trialtypeDropDown.Value, app.ops.context_types_labels);
-end
-
-tt = app.ops.context_types_all(ctx_idx);
-
-idx_trials = app.ddata.trial_types{1} == tt;
-ops1 = app.ops;
-ops1.plot_combined = 1;
-f_mpl_plot_ctx_cell(resp1,trial_window_t,ops1)
-
-figure; hold on;
-plot(resp1, 'color', [.6 .6 .6])
-plot(mean(resp1,2), 'color', [1 0 1], 'LineWidth', 2)
-title(sprintf('%s', app.trialtypeDropDown.Value))
-
-
+sgtitle(sprintf('Dset %s; Cell %d', app.ddata.experiment{1}, n_cell), 'Interpreter', 'none')
 end

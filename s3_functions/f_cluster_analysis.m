@@ -329,7 +329,7 @@ function f_cluster_analysis(data, ops)
 
 
                     end
-                    suptitle('kde distribution of centroid x coordinate');
+                    sgtitle('kde distribution of centroid x coordinate');
                 end
                 clear f xi all_centroids;
 
@@ -605,7 +605,7 @@ function f_cluster_analysis(data, ops)
                     set(gca, 'XTick', [], 'YTick', []);
                 end
             end
-            suptitle([cond_name ', ' ops.fig_title_run{n_flip} ': Sorted cells by clusters']);
+            sgtitle([cond_name ', ' ops.fig_title_run{n_flip} ': Sorted cells by clusters']);
             clear ctx_traces_sort ctx_traces_sort_ind;
 
     %         % sort by time of first peak
@@ -625,7 +625,7 @@ function f_cluster_analysis(data, ops)
     %             caxis([0 6]);
     %             title(ops.context_name{ii});
     %         end
-    %         suptitle([ops.conditions{n_cond} ', ' ops.fig_title_run{n_flip} ': Sorted cells by time of first peak']);
+    %         sgtitle([ops.conditions{n_cond} ', ' ops.fig_title_run{n_flip} ': Sorted cells by time of first peak']);
     %                 if params.dim_red_method == 1
 
 

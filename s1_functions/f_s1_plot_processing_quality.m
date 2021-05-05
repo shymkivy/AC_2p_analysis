@@ -55,7 +55,7 @@ for n_pl = 1:ops.num_planes
     title(sprintf('Plane %d', n_pl));
     line([1 1], [0 1],'Color','red');
 end
-suptitle('Pulse triggered responses');
+sgtitle('Pulse triggered responses');
 
 
 end

@@ -49,7 +49,7 @@ if ops.plot_details
         plot(dattmp(:,n_plt));
         title(ops.volt_chan_labels{n_plt})
     end
-    suptitle(['Using channel ' num2str(ops.align_to_channel) ' for alignment']);
+    sgtitle(['Using channel ' num2str(ops.align_to_channel) ' for alignment']);
     drawnow();
 end
 
