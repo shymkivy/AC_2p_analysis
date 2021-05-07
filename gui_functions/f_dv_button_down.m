@@ -19,12 +19,12 @@ if ~isempty(app.DatasetDropDown.Value)
         contours_accepted = est1.contours(proc1.comp_accepted);
         temp_contours = contours_accepted{n_cell};
 
-        if isgraphics(app.plot_current_contour)
-            delete(app.plot_current_contour);
+        if isgraphics(app.gui_plots.plot_current_contour)
+            delete(app.gui_plots.plot_current_contour);
         end
 
         hold(app.UIAxes, 'on');
-        app.plot_current_contour = plot(app.UIAxes, temp_contours(:,1), temp_contours(:,2), 'color', [0.75, 0, 0.75], 'LineWidth', 2);
+        app.gui_plots.plot_current_contour = plot(app.UIAxes, temp_contours(:,1), temp_contours(:,2), 'color', [0.75, 0, 0.75], 'LineWidth', 2);
         hold(app.UIAxes, 'off');
         
         app.CellSpinner.Value = n_cell;
