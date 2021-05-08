@@ -31,6 +31,7 @@ end
 
 app.DeconvolutionmethodDropDown.Items = deconv_methods;
 
+f_dv_compute_stats(app);
 f_dv_update_A(app);
 f_dv_update_cell(app);
 
