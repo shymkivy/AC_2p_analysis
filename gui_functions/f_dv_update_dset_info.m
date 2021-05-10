@@ -31,7 +31,17 @@ end
 
 app.DeconvolutionmethodDropDown.Items = deconv_methods;
 
-f_dv_compute_stats(app);
+if ~sum(strcmpi(app.ddata.Properties.VariableNames, 'stats'))
+    f_dv_compute_stats(app);
+else
+    if isempty(app.ddata.stats)
+        f_dv_compute_stats(app);
+    else
+        if isempty(app.ddata.stats.pop_mean)
+            f_dv_compute_stats(app);
+        end
+    end
+end
 f_dv_update_A(app);
 f_dv_update_cell(app);
 
