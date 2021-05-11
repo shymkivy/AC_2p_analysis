@@ -9,5 +9,7 @@ app.trialtypeDropDown.Items = [{'all'}; app.ops.context_types_labels];
 
 f_dv_load_ops(app);
 f_dv_update_dset_info(app);
+f_dv_initialize_contours(app);
+f_dv_set_contorus(app);
 
 end

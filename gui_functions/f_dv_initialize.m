@@ -16,6 +16,7 @@ app.gui_plots.plot_stim_times = plot(app.UIAxes2, 0,0, 'color', [0, 0, 0]);
 app.gui_plots.freq_resp_fig = [];
 app.gui_plots.ctx_resp_fig = [];
 app.gui_plots.select_resp_fig = [];
+app.gui_plots.contours_gobj = [];
 
 app.StatsourceDropDown.Items = {'Freqs', 'All'};
 app.StatmethodDropDown.Items = {'Sample', 'Pop percentile'};
