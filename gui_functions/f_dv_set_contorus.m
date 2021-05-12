@@ -11,13 +11,13 @@ if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'None')
     app.gui_ops.contour_params.c_lim = [0 0];
     app.gui_ops.contour_params.c_abs_lim = [0, 0];
 elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning')
-    app.gui_ops.contour_params.visible_set = 1;
     if strcmpi(app.trialtypeDropDown.Value, 'all')
         peakvals = max(app.ddata.stats{1}{n_pl}.peak_val_all,[],2);
     else
-        ctx_idx = strcmpi(app.ops.context_types_all, app.trialtypeDropDown.Value);
+        ctx_idx = strcmpi(app.ops.context_types_labels, app.trialtypeDropDown.Value);
         peakvals = app.ddata.stats{1}{n_pl}.peak_val_all(:,ctx_idx);
     end
+    app.gui_ops.contour_params.visible_set = peakvals>0;
     app.gui_ops.contour_params.contour_mag = peakvals; % factor to resize magnitudes to fir color
     app.gui_ops.contour_params.c_abs_lim = [min(peakvals) max(peakvals)];
     if isfield(app.gui_ops, 'tuning_lim')
@@ -44,7 +44,6 @@ visible_set = app.gui_ops.contour_params.visible_set;
 app.ContourMinEditField.Value = c_lim(1);
 app.ContourMaxEditField.Value = c_lim(2);
 
-
 % crop if goes beyond lim
 contour_mag = max(app.gui_ops.contour_params.contour_mag, c_lim(1));
 contour_mag = min(contour_mag, c_lim(2));
@@ -57,9 +56,16 @@ imagesc(app.UIAxesColorPallet, color_index/contour_resolution, 1, reshape(color_
 axis(app.UIAxesColorPallet, 'tight');
 
 % update colors
-for n_cell = 1:num_cells
-    app.gui_plots.contours_gobj(n_cell).Visible = visible_set;
-    app.gui_plots.contours_gobj(n_cell).Color = color_map(round(contour_resolution*contour_mag(n_cell)) == color_index,:); 
+if numel(visible_set)>1
+    for n_cell = 1:num_cells
+        app.gui_plots.contours_gobj(n_cell).Visible = visible_set(n_cell);
+        app.gui_plots.contours_gobj(n_cell).Color = color_map(round(contour_resolution*contour_mag(n_cell)) == color_index,:); 
+    end
+else
+    for n_cell = 1:num_cells
+        app.gui_plots.contours_gobj(n_cell).Visible = visible_set;
+        app.gui_plots.contours_gobj(n_cell).Color = color_map(round(contour_resolution*contour_mag(n_cell)) == color_index,:); 
+    end
 end
 
 
