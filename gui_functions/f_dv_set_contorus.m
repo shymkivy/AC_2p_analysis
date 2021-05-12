@@ -12,8 +12,14 @@ if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'None')
     app.gui_ops.contour_params.c_abs_lim = [0, 0];
 elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning')
     app.gui_ops.contour_params.visible_set = 1;
-    app.gui_ops.contour_params.contour_mag = app.est.SNR_comp; % factor to resize magnitudes to fir color
-    app.gui_ops.contour_params.c_abs_lim = [0 1];
+    if strcmpi(app.trialtypeDropDown.Value, 'all')
+        peakvals = max(app.ddata.stats{1}{n_pl}.peak_val_all,[],2);
+    else
+        ctx_idx = strcmpi(app.ops.context_types_all, app.trialtypeDropDown.Value);
+        peakvals = app.ddata.stats{1}{n_pl}.peak_val_all(:,ctx_idx);
+    end
+    app.gui_ops.contour_params.contour_mag = peakvals; % factor to resize magnitudes to fir color
+    app.gui_ops.contour_params.c_abs_lim = [min(peakvals) max(peakvals)];
     if isfield(app.gui_ops, 'tuning_lim')
         app.gui_ops.contour_params.c_lim = app.gui_ops.tuning_lim;
     else

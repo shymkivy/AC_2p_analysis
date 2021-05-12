@@ -1,5 +1,6 @@
 function f_dv_plot_select_trial(app)
 
+
 n_pl = app.mplSpinner.Value;
 n_cell = app.CellSpinner.Value;
 

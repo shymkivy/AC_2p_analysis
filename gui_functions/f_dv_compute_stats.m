@@ -122,7 +122,7 @@ stats.peak_val_all = peak_val_all;
 stats.peak_t_all = peak_t_all;
 stats.stat_window_t = stat_window_t;
 
-data_idx = strcmpi(app.data.experiment, app.ddata.experiment);
-app.data.stats(data_idx,n_pl) = stats;
-app.ddata.stats(n_pl) = stats;
+app.ddata.stats{1}{n_pl} = stats;
+app.data(app.current_data_idx,:).stats{1}{n_pl} = stats;
+
 end

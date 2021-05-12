@@ -32,11 +32,11 @@ else
         app.gui_plots.freq_resp_fig = figure;
     end
 end
-pop_mean = app.ddata.stats.pop_mean{n_cell};
-pop_z_factor = app.ddata.stats.pop_z_factor{n_cell};
-stat_window_t = app.ddata.stats.stat_window_t;
+pop_mean = app.ddata.stats{1}{n_pl}.pop_mean{n_cell};
+pop_z_factor = app.ddata.stats{1}{n_pl}.pop_z_factor{n_cell};
+stat_window_t = app.ddata.stats{1}{n_pl}.stat_window_t;
 stat_plot_intsc = logical(logical(sum(stat_window_t'>plot_t,2)).*logical(sum(stat_window_t'<plot_t,2)));
-cell_is_resp = app.ddata.stats.cell_is_resp(n_cell,:);
+cell_is_resp = app.ddata.stats{1}{n_pl}.cell_is_resp(n_cell,:);
 for n_tr = 1:10
     subplot(2,5,n_tr); 
     hold on; axis tight; ylim([y_lim_min, y_lim_max]);
@@ -45,7 +45,7 @@ for n_tr = 1:10
     plot(stat_window_t(stat_plot_intsc), pop_mean(stat_plot_intsc)+pop_z_factor(stat_plot_intsc)*2, '--','color', [0 0 0], 'LineWidth', 1); 
     plot(plot_t, mean(resp_freq{n_tr},2), 'color', [1 0 1], 'LineWidth', 2);
     if cell_is_resp(n_tr)
-        plot(app.ddata.stats.peak_t_all(n_cell,n_tr), app.ddata.stats.peak_val_all(n_cell,n_tr), '*g')
+        plot(app.ddata.stats{1}{n_pl}.peak_t_all(n_cell,n_tr), app.ddata.stats{1}{n_pl}.peak_val_all(n_cell,n_tr), '*g')
     end
     if rem(n_tr,5) ~= 1
         set(gca,'ytick',[])

@@ -31,19 +31,22 @@ end
 
 app.DeconvolutionmethodDropDown.Items = deconv_methods;
 
+%% compute dset statistics
+if ~sum(strcmpi(app.data.Properties.VariableNames, 'stats'))
+    app.data.stats = cell(size(app.data,1),1);
+end
 if ~sum(strcmpi(app.ddata.Properties.VariableNames, 'stats'))
+    app.ddata.stats = cell(1,1);
+end
+
+if isempty(app.ddata.stats{1})
+    app.ddata.stats{1} = cell(app.ddata.num_planes,1);
+    app.data(app.current_data_idx,:).stats{1} = cell(app.ddata.num_planes,1);
     f_dv_compute_stats(app);
-else
-    if isempty(app.ddata.stats)
-        f_dv_compute_stats(app);
-    else
-        if isempty(app.ddata.stats.pop_mean)
-            f_dv_compute_stats(app);
-        end
-    end
+elseif isempty(app.ddata.stats{1}{n_pl})
+    f_dv_compute_stats(app);
 end
 f_dv_update_A(app);
 f_dv_update_cell(app);
-
 
 end
