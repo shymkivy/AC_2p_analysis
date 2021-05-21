@@ -10,16 +10,26 @@ if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'None')
     app.gui_ops.contour_params.contour_mag = zeros(num_cells,1);
     app.gui_ops.contour_params.c_lim = [0 0];
     app.gui_ops.contour_params.c_abs_lim = [0, 0];
-elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning')
-    if strcmpi(app.trialtypeDropDown.Value, 'all')
-        peakvals = max(app.ddata.stats{1}{n_pl}.peak_val_all,[],2);
+elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type freq')
+    tuning_freq = app.ddata.stats{1}{n_pl}.peak_val_all(:,1:10);
+    [max_val, max_idx] = max(tuning_freq, [], 2);
+    app.gui_ops.contour_params.visible_set = logical(max_val);
+    app.gui_ops.contour_params.contour_mag = max_idx;
+    app.gui_ops.contour_params.c_abs_lim = [min(max_idx) max(max_idx)];
+    app.gui_ops.contour_params.c_lim = [min(max_idx) max(max_idx)];
+elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type ctx')
+    
+elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning mag')
+    peak_vals = app.ddata.stats{1}{n_pl}.peak_val_all.*app.ddata.stats{1}{n_pl}.cell_is_resp;
+    if ~strcmpi(app.trialtypeDropDown.Value, 'all')
+        peak_vals2 = max(peak_vals,[],2);
     else
         ctx_idx = strcmpi(app.ops.context_types_labels, app.trialtypeDropDown.Value);
-        peakvals = app.ddata.stats{1}{n_pl}.peak_val_all(:,ctx_idx);
+        peak_vals2 = peak_vals(:,ctx_idx);
     end
-    app.gui_ops.contour_params.visible_set = peakvals>0;
-    app.gui_ops.contour_params.contour_mag = peakvals; % factor to resize magnitudes to fir color
-    app.gui_ops.contour_params.c_abs_lim = [min(peakvals) max(peakvals)];
+    app.gui_ops.contour_params.visible_set = peak_vals2>0;
+    app.gui_ops.contour_params.contour_mag = peak_vals2; % factor to resize magnitudes to fir color
+    app.gui_ops.contour_params.c_abs_lim = [min(peak_vals2) max(peak_vals2)];
     if isfield(app.gui_ops, 'tuning_lim')
         app.gui_ops.contour_params.c_lim = app.gui_ops.tuning_lim;
     else

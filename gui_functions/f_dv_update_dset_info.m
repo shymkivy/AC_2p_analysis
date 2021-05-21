@@ -31,6 +31,9 @@ end
 
 app.DeconvolutionmethodDropDown.Items = deconv_methods;
 
+%% gather C and S
+f_dv_update_current_dset_data(app);
+
 %% compute dset statistics
 if ~sum(strcmpi(app.data.Properties.VariableNames, 'stats'))
     app.data.stats = cell(size(app.data,1),1);
@@ -46,7 +49,12 @@ if isempty(app.ddata.stats{1})
 elseif isempty(app.ddata.stats{1}{n_pl})
     f_dv_compute_stats(app);
 end
+
+app.ZthreshcurrentEditField.Value = app.ddata.stats{1}{n_pl}.z_thresh;
+
+%%
 f_dv_update_A(app);
 f_dv_update_cell(app);
+
 
 end

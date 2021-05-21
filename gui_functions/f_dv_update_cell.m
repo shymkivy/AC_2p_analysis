@@ -5,38 +5,12 @@ n_pl = app.mplSpinner.Value;
 num_cells = app.ddata.num_cells_pl{n_pl};
 app.CellSpinner.Value = min([app.CellSpinner.Value, num_cells]);
 n_cell = app.CellSpinner.Value;
-
 plot_t = app.ddata.proc_data{1}.frame_data.frame_times_mpl{n_pl}/1000;
 
-cuts_trace = logical(app.ddata.proc_data{1}.file_cuts_params{n_pl}.vid_cuts_trace);
-num_t = numel(cuts_trace);
-
-cell_num_conv = find(app.ddata.OA_data{n_pl}.proc.comp_accepted);
-
-C = app.ddata.OA_data{n_pl}.est.C(cell_num_conv(n_cell),:);
-Yra = app.ddata.OA_data{n_pl}.est.YrA(cell_num_conv(n_cell),:);
-app.current_cell_raw = zeros(1,num_t);
-app.current_cell_raw(cuts_trace) = C + Yra;
-
-app.current_cell_C = zeros(1,num_t);
-app.current_cell_spikes = zeros(1,num_t);
-
-if strcmpi(app.DeconvolutionmethodDropDown.Value, 'OA_deconv')
-    S = app.ddata.OA_data{n_pl}.est.S(cell_num_conv(n_cell),:);
-elseif strcmpi(app.DeconvolutionmethodDropDown.Value, 'MCMC')
-    C = app.ddata.OA_data{n_pl}.proc.deconv.MCMC.C{cell_num_conv(n_cell)};
-    S = app.ddata.OA_data{n_pl}.proc.deconv.MCMC.S{cell_num_conv(n_cell)};
-elseif strcmpi(app.DeconvolutionmethodDropDown.Value, 'smooth_dfdt')
-    S = app.ddata.OA_data{n_pl}.proc.deconv.smooth_dfdt.S(cell_num_conv(n_cell),:);
-end
-
-if app.SmoothCheckBox.Value
-    fr = double(app.ddata.OA_data{n_pl}.ops.init_params_caiman.data.fr);
-    S = f_smooth_gauss2(S, app.SmoothsigmamsEditField.Value/1000*fr, 0);
-end
-
-app.current_cell_C(cuts_trace) = C;
-app.current_cell_spikes(cuts_trace) = S;
+%%
+app.current_cell_raw = app.cdata.raw(n_cell,:);
+app.current_cell_C = app.cdata.C(n_cell,:);
+app.current_cell_spikes = app.cdata.S(n_cell,:);
 
 if app.RawButton.Value
     app.gui_plots.plot_raw.XData = plot_t;

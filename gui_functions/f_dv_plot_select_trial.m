@@ -6,18 +6,22 @@ n_cell = app.CellSpinner.Value;
 firing_rate = app.current_cell_spikes;
 trial_types = app.ddata.trial_types{1};
 stim_times = app.ddata.stim_frame_index{n_pl};
+mmn_freq = app.ddata.MMN_freq{1};
 trig_window = app.working_ops.trial_num_baseline_resp_frames;
 plot_t = app.working_ops.trial_window_t;
 
-if strcmpi(app.trialtypeDropDown.Value, 'all')
-    idx_stim = stim_times;
-else
+trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trig_window);
+[trial_data_sort_wctx, trial_types_wctx] = f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
+
+if ~strcmpi(app.trialtypeDropDown.Value, 'all')
     idx_ctx = strcmpi(app.trialtypeDropDown.Value, app.ops.context_types_labels);
+    n_tt = find(idx_ctx);
     tt = app.ops.context_types_all(idx_ctx);
-    idx_stim = stim_times(trial_types == tt);
+    temp_resp = trial_data_sort_wctx(:,:,trial_types_wctx == tt);
+else
+    temp_resp = trial_data_sort_wctx;
 end
 
-temp_resp = f_get_stim_trig_resp(firing_rate, idx_stim, trig_window);
 resp_tr = squeeze(temp_resp);
 
 if app.NewplotsCheckBox.Value
@@ -31,11 +35,22 @@ else
     end
 end
 
+pop_mean = app.ddata.stats{1}{n_pl}.pop_mean{n_cell};
+pop_z_factor = app.ddata.stats{1}{n_pl}.pop_z_factor{n_cell};
+stat_window_t = app.ddata.stats{1}{n_pl}.stat_window_t;
+stat_plot_intsc = logical(logical(sum(stat_window_t'>=plot_t,2)).*logical(sum(stat_window_t'<=plot_t,2)));
+cell_is_resp = app.ddata.stats{1}{n_pl}.cell_is_resp(n_cell,:);
+
 hold on; axis tight;
 plot(plot_t, resp_tr, 'color', [.6 .6 .6])
-plot(plot_t, app.stats.resp_all_mean, 'color', [0 0 0], 'LineWidth', 2);
-plot(plot_t, app.stats.resp_all_mean+app.stats.z_factor*2, '--','color', [0 0 0], 'LineWidth', 1); 
+plot(stat_window_t(stat_plot_intsc), pop_mean(stat_plot_intsc), 'color', [0 0 0], 'LineWidth', 2);
+plot(stat_window_t(stat_plot_intsc), pop_mean(stat_plot_intsc)+pop_z_factor(stat_plot_intsc)*app.ddata.stats{1}{n_pl}.z_thresh, '--','color', [0 0 0], 'LineWidth', 1); 
 plot(plot_t, mean(resp_tr,2), 'color', [1 0 1], 'LineWidth', 2);
+if ~strcmpi(app.trialtypeDropDown.Value, 'all')
+    if cell_is_resp(n_tt)
+        plot(app.ddata.stats{1}{n_pl}.peak_t_all(n_cell,n_tt), app.ddata.stats{1}{n_pl}.peak_val_all(n_cell,n_tt), '*g')
+    end
+end
 title(sprintf('Stim %s; Dset %s; Cell %d', app.trialtypeDropDown.Value, app.ddata.experiment{1}, n_cell), 'Interpreter', 'none')
 
 end

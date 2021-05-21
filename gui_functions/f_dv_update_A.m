@@ -9,4 +9,6 @@ A_flat = reshape(full(sum(A,2)), 256, 256);
 
 app.gui_plots.A_image.CData = A_flat;
 
+
+
 end
