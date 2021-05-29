@@ -9,6 +9,8 @@ stim_times = app.ddata.stim_frame_index{n_pl};
 mmn_freq = app.ddata.MMN_freq{1};
 trig_window = app.working_ops.trial_num_baseline_resp_frames;
 plot_t = app.working_ops.trial_window_t;
+num_cont_trials = 400;
+num_trials = num_cont_trials/app.ddata.proc_data{1}.stim_params.num_freqs;
 
 if app.FullredCheckBox.Value
     ctx_plot_list = [18 11:17 20;
@@ -22,6 +24,17 @@ end
 
 trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trig_window);
 [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
+
+if app.ConverttoZCheckBox.Value
+    pop_mean_val = app.ddata.stats{1}{n_pl}.pop_mean_val(n_cell);
+    pop_z_factor = app.ddata.stats{1}{n_pl}.pop_z_factor(n_cell);
+else
+    pop_mean_val = 0;
+    pop_z_factor = 1;
+end
+
+trial_data_sort = (trial_data_sort - pop_mean_val)/pop_z_factor;
+trial_data_sort_wctx = (trial_data_sort_wctx - pop_mean_val)/pop_z_factor;
 
 [n,m] = size(ctx_plot_list);
 
@@ -52,10 +65,13 @@ else
         app.gui_plots.ctx_resp_fig = figure;
     end
 end
-pop_mean = app.ddata.stats{1}{n_pl}.pop_mean{n_cell};
-pop_z_factor = app.ddata.stats{1}{n_pl}.pop_z_factor{n_cell};
-stat_window_t = app.ddata.stats{1}{n_pl}.stat_window_t;
-stat_plot_intsc = logical(logical(sum(stat_window_t'>=plot_t,2)).*logical(sum(stat_window_t'<=plot_t,2)));
+
+pop_mean_trace = mean(trial_data_sort(:,:,1:num_cont_trials),3);
+pop_sem_trace = std(trial_data_sort(:,:,1:num_cont_trials), [],3)/sqrt(num_trials-1);
+%pop_mean_trace = app.ddata.stats{1}{n_pl}.pop_mean_trace(n_cell,:);
+%pop_sem_trace = app.ddata.stats{1}{n_pl}.pop_sem_trace(n_cell,:);
+%stat_window_t = app.ddata.stats{1}{n_pl}.stat_window_t;
+%stat_plot_intsc = logical(logical(sum(stat_window_t'>=plot_t,2)).*logical(sum(stat_window_t'<=plot_t,2)));
 cell_is_resp = app.ddata.stats{1}{n_pl}.cell_is_resp(n_cell,:);
 for n_stim = 1:(m*n)
     n_tr = ctx_plot_list(n_stim);
@@ -63,23 +79,32 @@ for n_stim = 1:(m*n)
     title2 = app.ops.context_types_labels{n_tr};
     subplot(m,n,n_stim); hold on; axis tight; ylim([y_lim_min, y_lim_max]);
     plot(plot_t, resp_ctx{n_stim}, 'color', [.6 .6 .6])
-    plot(stat_window_t(stat_plot_intsc), pop_mean(stat_plot_intsc), 'color', [0 1 0], 'LineWidth', 2);
-    plot(stat_window_t(stat_plot_intsc), pop_mean(stat_plot_intsc)+pop_z_factor(stat_plot_intsc)*app.ddata.stats{1}{n_pl}.z_thresh, '--','color', [0 1 0], 'LineWidth', 1); 
-    plot(stat_window_t(stat_plot_intsc), mean(resp_ctx{n_stim},2), 'color', color2, 'LineWidth', 2);
+    plot(plot_t, pop_mean_trace, 'color', [0.75, 0, 0.75], 'LineWidth', 2);
+    plot(plot_t, pop_mean_trace+pop_sem_trace*app.ddata.stats{1}{n_pl}.z_thresh, '--','color', [0.75, 0, 0.75], 'LineWidth', 1); 
+    plot(plot_t, mean(resp_ctx{n_stim},2), 'color', color2, 'LineWidth', 2);
     if cell_is_resp(n_tr)
-        plot(app.ddata.stats{1}{n_pl}.peak_t_all(n_cell,n_tr), app.ddata.stats{1}{n_pl}.peak_val_all(n_cell,n_tr), '*g')
+        plot(app.ddata.stats{1}{n_pl}.peak_t_all(n_cell,n_tr), (app.ddata.stats{1}{n_pl}.peak_val_all(n_cell,n_tr)-pop_mean_val)/pop_z_factor, '*g')
     end
     if rem(n_stim,n) ~= 1
         set(gca,'ytick',[])
     end
     if rem(n_stim,n) == 1
         if n_stim > n
-            ylabel(app.ops.context_types_labels{mmn_freq(1)})
+            if app.ConverttoZCheckBox.Value
+                ylabel(sprintf('%s; %s',app.ops.context_types_labels{mmn_freq(1)}, 'Z scores'));
+            else
+                ylabel(sprintf('%s; %s',app.ops.context_types_labels{mmn_freq(1)}, 'norm resp'));
+            end
         else
-            ylabel(app.ops.context_types_labels{mmn_freq(2)})
+            if app.ConverttoZCheckBox.Value
+                ylabel(sprintf('%s; %s',app.ops.context_types_labels{mmn_freq(2)}, 'Z scores'));
+            else
+                ylabel(sprintf('%s; %s',app.ops.context_types_labels{mmn_freq(2)}, 'norm resp'));
+            end
         end
     end
     title(sprintf('%s', title2))
 end
 sgtitle(sprintf('Dset %s; Cell %d', app.ddata.experiment{1}, n_cell), 'Interpreter', 'none')
+
 end

@@ -70,8 +70,6 @@ if min_samp_size_z_normalization
 end
 
 
-
-
 if waitbar_on
     wb = f_waitbar_initialize([], 'Statistics...');
 end
