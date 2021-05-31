@@ -6,7 +6,7 @@ function f_dv_compute_stats(app)
 
 peak_stats = 'shuff_pool'; % 'shuff_pool', 'shuff_locwise', 'z_thresh'
 peak_bin_size = 7;
-peak_prcntle = 99;
+peak_prcntle = 99.9;
 num_samp = 1000;
 
 stat_window = [-2 3];
