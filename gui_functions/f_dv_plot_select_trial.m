@@ -26,15 +26,10 @@ end
 trial_data_sort = (trial_data_sort - pop_mean_val)/pop_z_factor;
 trial_data_sort_wctx = (trial_data_sort_wctx - pop_mean_val)/pop_z_factor;
 
-if ~strcmpi(app.trialtypeDropDown.Value, 'all')
-    idx_ctx = strcmpi(app.trialtypeDropDown.Value, app.ops.context_types_labels);
-    n_tt = find(idx_ctx);
-    tt = app.ops.context_types_all(idx_ctx);
-    temp_resp = trial_data_sort_wctx(:,:,trial_types_wctx == tt);
-else
-    temp_resp = trial_data_sort_wctx;
-end
-
+tn_all = f_dv_get_trial_number(app);
+tt_all = app.ops.context_types_all(tn_all);
+idx1 = logical(sum(trial_types_wctx == tt_all',2));
+temp_resp = trial_data_sort_wctx(:,:,idx1);
 resp_tr = squeeze(temp_resp);
 
 if app.NewplotsCheckBox.Value

@@ -32,7 +32,8 @@ end
 app.DeconvolutionmethodDropDown.Items = deconv_methods;
 
 %% gather C and S
-f_dv_update_current_dset_data(app);
+params = f_dv_gather_params(app);
+app.cdata = f_dv_compute_cdata(app, params);
 
 %% compute dset statistics
 if ~sum(strcmpi(app.data.Properties.VariableNames, 'stats'))
@@ -41,13 +42,17 @@ end
 if ~sum(strcmpi(app.ddata.Properties.VariableNames, 'stats'))
     app.ddata.stats = cell(1,1);
 end
-
 if isempty(app.ddata.stats{1})
-    app.ddata.stats{1} = cell(app.ddata.num_planes,1);
     app.data(app.current_data_idx,:).stats{1} = cell(app.ddata.num_planes,1);
-    f_dv_compute_stats(app);
-elseif isempty(app.ddata.stats{1}{n_pl})
-    f_dv_compute_stats(app);
+    app.ddata.stats{1} = cell(app.ddata.num_planes,1);
+end  
+    
+if isempty(app.ddata.stats{1}{n_pl})
+    params.cdata = app.cdata;
+    stats = f_dv_compute_stats(app,params);
+    
+    app.data(app.current_data_idx,:).stats{1}{n_pl} = stats;
+    app.ddata.stats{1}{n_pl} = stats;
 end
 
 app.ZthreshcurrentEditField.Value = app.ddata.stats{1}{n_pl}.z_thresh;

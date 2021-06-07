@@ -17,19 +17,8 @@ if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'None')
     app.gui_ops.contour_params.contour_mag = zeros(num_cells,1);
     app.gui_ops.contour_params.c_lim = [0 0];
     app.gui_ops.contour_params.c_abs_lim = [0, 0];
-elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type freq')
-    tn_all = 1:10;
-    tuning_freq = app.ddata.stats{1}{n_pl}.peak_val_all(:,1:10);
-    resp_cells = app.ddata.stats{1}{n_pl}.cell_is_resp(:,1:10);
-    tuning_freq(~resp_cells) = 0;
-    [max_val, max_idx] = max(tuning_freq, [], 2);
-    app.gui_ops.contour_params.visible_set = logical(max_val);
-    app.gui_ops.contour_params.contour_mag = max_idx;
-    app.gui_ops.contour_params.c_abs_lim = [min(max_idx) max(max_idx)];
-    app.gui_ops.contour_params.c_lim = [min(max_idx) max(max_idx)];
-    use_color_map = 0;
-elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type ctx')
-    tn_all = [18 19 20 28 29 30];
+elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type')
+    tn_all = f_dv_get_trial_number(app);
     tuning_freq = app.ddata.stats{1}{n_pl}.peak_val_all(:,tn_all);
     resp_cells = app.ddata.stats{1}{n_pl}.cell_is_resp(:,tn_all);
     tuning_freq(~resp_cells) = 0;
@@ -39,44 +28,17 @@ elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type ctx')
     app.gui_ops.contour_params.c_abs_lim = [min(max_idx) max(max_idx)];
     app.gui_ops.contour_params.c_lim = [min(max_idx) max(max_idx)];
     use_color_map = 0;
-elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning mag freq')
-    tn_all = 1:10;
+elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning mag')
+    tn_all = f_dv_get_trial_number(app);
     resp_cells = app.ddata.stats{1}{n_pl}.cell_is_resp;
     peak_vals = app.ddata.stats{1}{n_pl}.peak_val_all;
-    peak_vals(~resp_cells) = 0;
-    if strcmpi(app.trialtypeDropDown.Value, 'all')
-        peak_vals2 = max(peak_vals(:,tn_all),[],2);
-    else
-        ctx_idx = strcmpi(app.ops.context_types_labels, app.trialtypeDropDown.Value);
-        peak_vals2 = peak_vals(:,ctx_idx);
-    end
-    app.gui_ops.contour_params.visible_set = peak_vals2>0;
     if app.ConverttoZCheckBox.Value
-        peak_vals2 = (peak_vals2 - pop_mean_val)./pop_z_factor;
+        peak_vals = (peak_vals - pop_mean_val)./pop_z_factor;
     end
-    
-    app.gui_ops.contour_params.contour_mag = peak_vals2; % factor to resize magnitudes to fir color
-    app.gui_ops.contour_params.c_abs_lim = [min(peak_vals2) max(peak_vals2)];
-    if isfield(app.gui_ops, 'tuning_lim')
-        app.gui_ops.contour_params.c_lim = app.gui_ops.tuning_lim;
-    else
-        app.gui_ops.contour_params.c_lim = app.gui_ops.contour_params.c_abs_lim;
-    end
-elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning mag ctx')
-    tn_all = [18 19 20 28 29 30];
-    resp_cells = app.ddata.stats{1}{n_pl}.cell_is_resp;
-    peak_vals = app.ddata.stats{1}{n_pl}.peak_val_all;
     peak_vals(~resp_cells) = 0;
-    if strcmpi(app.trialtypeDropDown.Value, 'all')
-        peak_vals2 = max(peak_vals(:,tn_all),[],2);
-    else
-        ctx_idx = strcmpi(app.ops.context_types_labels, app.trialtypeDropDown.Value);
-        peak_vals2 = peak_vals(:,ctx_idx);
-    end
+    peak_vals2 = max(peak_vals(:,tn_all),[],2);
     app.gui_ops.contour_params.visible_set = peak_vals2>0;
-    if app.ConverttoZCheckBox.Value
-        peak_vals2 = (peak_vals2 - pop_mean_val)./pop_z_factor;
-    end
+
     app.gui_ops.contour_params.contour_mag = peak_vals2; % factor to resize magnitudes to fir color
     app.gui_ops.contour_params.c_abs_lim = [min(peak_vals2) max(peak_vals2)];
     if isfield(app.gui_ops, 'tuning_lim')

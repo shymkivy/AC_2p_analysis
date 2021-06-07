@@ -1,4 +1,4 @@
-function f_dv_compute_stats(app)
+function stats = f_dv_compute_stats(app, params)
 % 
 % get significant peaks
 % get sig onset and offset windows resp
@@ -15,17 +15,20 @@ stat_resp_window = [.05 1];
 
 %stat_resp_window = [-2 3];
 
-z_thresh = app.ZthreshnewEditField.Value;
+z_thresh = params.z_thresh_new;
 
 %%
-n_pl = app.mplSpinner.Value;
+n_pl = params.n_pl;
+n_dset = params.n_dset;
 
-num_cells = app.ddata.num_cells_pl{n_pl};
-stim_times = app.ddata.stim_frame_index{n_pl};
+ddata = app.data(n_dset,:);
+
+num_cells = ddata.num_cells_pl{n_pl};
+stim_times = ddata.stim_frame_index{n_pl};
 %trig_window = app.working_ops.trial_num_baseline_resp_frames;
-trial_types = app.ddata.trial_types{1};
-MMN_freq = app.ddata.MMN_freq{1};
-fr = 1000/double(app.ddata.proc_data{1}.frame_data.volume_period);
+trial_types = ddata.trial_types{1};
+MMN_freq = ddata.MMN_freq{1};
+fr = 1000/double(ddata.proc_data{1}.frame_data.volume_period);
 
 %%
 stat_window_t = (ceil(stat_window(1)*fr):floor(stat_window(2)*fr))/fr;
@@ -36,14 +39,14 @@ stat_trial_window_num_baseline_resp_frames = [sum(stat_trial_window_t<=0) sum(st
 
 %%
 win1 = stat_trial_window_num_baseline_resp_frames;
-trial_data_sort = f_get_stim_trig_resp(app.cdata.S, stim_times, win1);
+trial_data_sort = f_get_stim_trig_resp(params.cdata.S, stim_times, win1);
 [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, MMN_freq, app.ops);
 
 %% choose population for shuffle
-if strcmpi(app.StatsourceDropDown.Value, 'All')
+if strcmpi(params.stat_source, 'All')
     pop_stim_times = stim_times;
     trial_data_sort_stat = trial_data_sort;
-elseif strcmpi(app.StatsourceDropDown.Value, 'Freqs')
+elseif strcmpi(params.stat_source, 'Freqs')
     stim_idx = logical(sum(trial_types == 1:app.ops.stim.num_freqs,2));
     pop_stim_times = stim_times(stim_idx);
     trial_data_sort_stat = trial_data_sort(:,:,stim_idx);
@@ -175,8 +178,5 @@ stats.peak_stats = peak_stats;
 stats.peak_bin_size = peak_bin_size;
 stats.peak_prcntle = peak_prcntle;
 stats.num_samp = num_samp;
-
-app.ddata.stats{1}{n_pl} = stats;
-app.data(app.current_data_idx,:).stats{1}{n_pl} = stats;
 
 end
