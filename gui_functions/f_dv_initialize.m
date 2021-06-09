@@ -1,5 +1,7 @@
 function f_dv_initialize(app)
 
+app.regdatapathEditField.Value = app.gui_ops.reg_data_path;
+
 app.gui_plots.A_image = imagesc(app.UIAxes, 0);
 app.gui_plots.A_image.ButtonDownFcn = @(~,~) f_dv_button_down(app, app.gui_plots.A_image);
 app.gui_plots.plot_current_contour = [];
@@ -20,5 +22,6 @@ app.gui_plots.contours_gobj = [];
 
 app.StatsourceDropDown.Items = {'Freqs', 'All'};
 app.StatmethodDropDown.Items = {'Sample', 'Pop percentile'};
+
 
 end
