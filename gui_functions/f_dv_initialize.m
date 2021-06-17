@@ -19,9 +19,12 @@ app.gui_plots.freq_resp_fig = [];
 app.gui_plots.ctx_resp_fig = [];
 app.gui_plots.select_resp_fig = [];
 app.gui_plots.contours_gobj = [];
+app.gui_plots.registration_fig = [];
 
 app.StatsourceDropDown.Items = {'Freqs', 'All'};
 app.StatmethodDropDown.Items = {'Sample', 'Pop percentile'};
 
+app.plotfeatureDropDown.Items = {'peak loc', 'resp mag'};
+app.plottypeDropDown.Items = {'kde', 'ecdf', 'histogram'};
 
 end

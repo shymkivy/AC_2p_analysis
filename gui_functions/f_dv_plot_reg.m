@@ -1,40 +1,70 @@
 function f_dv_plot_reg(app)
 
+n_pl = app.mplSpinner.Value;
+
 interp_k = 2; % number of times splits the coords into two (k)
 % if used ad increase fac, 185*2^interp_r_fac - 2^interp_r_fac +1
 % num points in between 2^k - 1
 
-plot_fov = 1;
-plot_cell_contours = 1;
-plot_freq_tuning_on = 1;
-plot_freq_tuning_off = 1;
-plot_freq_tuning_combined = 0;
-plot_mmn_on = 0;
-plot_mmn_off = 0;
+marker_size1 = 20;
+freq_im_num = app.numfreqSpinner.Value;
 
-%app.plotdataButtonGroup.Value
+anchor_dset = 1;
 
-%%
-reg_data = app.reg_data.data_all;
+plot_fov = 0;
+plot_cell_contours = 0;
+plot_nontuned = 0;
 
-%areas_all = ops.regions_to_analyze;
+plot_resp_thresh = app.RespthreshEditField.Value;
 
 %%
-mdata = app.ddata;
+reg_data = app.reg_data;
 
-dset_idx_r = strcmpi(mdata.mouse_tag,{reg_data.mouse_tag});
-rdata = reg_data(dset_idx_r);
+%%
+if strcmpi(app.plotdataButtonGroup.SelectedObject.Text, 'dset')
+    all_mice = app.ddata.mouse_tag;
+elseif strcmpi(app.plotdataButtonGroup.SelectedObject.Text, 'mouse')
+    all_mice = app.ddata.mouse_tag;
+elseif strcmpi(app.plotdataButtonGroup.SelectedObject.Text, 'all')
+    all_mice = unique(app.data.mouse_tag);
+end
+%%
+region_means_all = cat(3,reg_data.wf_region_means);
+region_means_all_in = region_means_all*2^interp_k - 2^interp_k + 1;
 
+num_dset = numel(reg_data);
+num_regions = size(reg_data(1).wf_mapping_regions_coords,2);
+
+
+anchor_means = region_means_all(:,:,anchor_dset);
+anchor_im_size = size(reg_data(anchor_dset).wf_mapping_im{freq_im_num})*2^interp_k - 2^interp_k + 1;
+
+%% for current mouse plot wf im
+mouse_tag = app.ddata.mouse_tag;
+current_rdata_idx = strcmpi(mouse_tag,{reg_data.mouse_tag});
+current_rdata = reg_data(current_rdata_idx);
+current_means = region_means_all(:,:,current_rdata_idx);
+current_means_in = region_means_all_in(:,:,current_rdata_idx);
 %rdata.regions(1).fov_fname{2}
-
 %rdata.regions(1).region_name{1};
 
-image_wf = rdata.wf_mapping_im{2};
-%image_wf = rdata.wf_im{1};  
+image_wf = current_rdata.wf_mapping_im{freq_im_num};
 image_wf = image_wf - min(image_wf(:));
 image_wf = image_wf/max(image_wf(:));
+image_wf_in = interp2(image_wf, interp_k); %
 
-image_wf_in = interp2(image_wf, interp_k);
+%figure; hold on; imagesc(image_wf_in); 
+
+% register to anchor
+current_tform = fitgeotrans(current_means,anchor_means ,'nonreflectivesimilarity');
+current_tform.T(3,1:2) = current_tform.T(3,1:2)*2^interp_k - 2^interp_k + 1;
+if anchor_dset
+    image_wf_in = imwarp(image_wf_in,current_tform ,'OutputView',imref2d(anchor_im_size)); %
+    current_means_in2 = current_tform.T' * [current_means_in, ones(size(current_means_in,1),1)]';
+    current_means_in3 = current_means_in2(1:2,:)';
+else
+    current_means_in3 = current_means_in;
+end
 
 comb_im_fov = image_wf_in;
 comb_im_A = image_wf_in;
@@ -42,69 +72,96 @@ comb_im_A = image_wf_in;
 if plot_fov
     figure;
     comb_im_fov_fig = imagesc(comb_im_fov); hold on; axis equal tight;
-    title(['mouse ' mdata.mouse_tag{1}], 'interpreter', 'none');
+    title(['mouse ' mouse_tag ' fov'], 'interpreter', 'none');
+    plot(current_means_in3(:,1),current_means_in3(:,2), 'or')
 end
 
 if plot_cell_contours
     figure;
     comb_im_A_fig = imagesc(comb_im_A); hold on; axis equal tight;
-    title(['mouse ' mdata.mouse_tag{1}], 'interpreter', 'none');
+    title(['mouse ' mouse_tag ' cell contours'], 'interpreter', 'none');
+    plot(current_means_in3(:,1),current_means_in3(:,2), 'or')
 end
 
-if plot_freq_tuning_on
-    fig1 = figure;
-    imagesc(comb_im_fov); hold on; axis equal tight;
-    title(['mouse ' mdata.mouse_tag{1} ' onset cells'], 'interpreter', 'none');
+if app.NewplotsCheckBox.Value
+    app.gui_plots.registration_fig = figure;
+else
+    if isgraphics(app.gui_plots.registration_fig)
+        figure(app.gui_plots.registration_fig);
+        clf(app.gui_plots.registration_fig);
+    else
+        app.gui_plots.registration_fig = figure;
+    end
 end
+imagesc(comb_im_fov); hold on; axis equal tight;
+title(['mouse ' mouse_tag ' tuning'], 'interpreter', 'none');
 
-if plot_freq_tuning_off
-    fig2 = figure;
-    imagesc(comb_im_fov); hold on; axis equal tight;
-    title(['mouse ' mdata.mouse_tag{1} ' offset cells'], 'interpreter', 'none');
-end
-
-if plot_freq_tuning_combined
-    fig3 = figure;
-    imagesc(comb_im_fov); hold on; axis equal tight;
-    title(['mouse ' mdata.mouse_tag{1}  ' onset+offset cells'], 'interpreter', 'none');
-end
-
-if plot_mmn_on
-    fig4 = figure;
-    imagesc(comb_im_fov); hold on; axis equal tight;
-    title(['mouse ' mdata.mouse_tag{1}  ' mmn on cells'], 'interpreter', 'none');
-end
-
-if plot_mmn_off
-    fig5 = figure;
-    imagesc(comb_im_fov); hold on; axis equal tight;
-    title(['mouse ' mdata.mouse_tag{1}  ' mmn off cells'], 'interpreter', 'none');
-end
 %%
 
-for n_reg = 1:numel(rdata.regions)
-    reg1 = rdata.regions(n_reg);
-    m_idx = strcmpi(mdata.area, reg1.region_name);
-    mdata2 = mdata(m_idx,:);
-    if ~isempty(mdata2)
-        if ~isempty(rdata.regions(n_reg).regions_tforms)
+for n_ms = 1:numel(all_mice)
+    mouse_tag2 = all_mice{n_ms};
+    idx_mdata = strcmpi(mouse_tag2,app.data.mouse_tag);
+    mdata = app.data(idx_mdata,:);
+    
+    %%
+    current_rdata_idx = strcmpi(mouse_tag2,{reg_data.mouse_tag});
+    current_rdata = reg_data(current_rdata_idx);
+    rdata = current_rdata.regions;
+    
+    current_means = region_means_all(:,:,current_rdata_idx);
+%     current_means_in = region_means_all_in(:,:,current_rdata_idx);
+    
+    current_tform_wf = fitgeotrans(current_means,anchor_means ,'nonreflectivesimilarity');
+    current_tform_wf.T(3,1:2) = current_tform_wf.T(3,1:2)*2^interp_k - 2^interp_k + 1;
+%     if anchor_dset
+%         image_wf_in = imwarp(image_wf_in,current_tform_wf ,'OutputView',imref2d(anchor_im_size)); %
+%         current_means_in2 = current_tform_wf.T' * [current_means_in, ones(size(current_means_in,1),1)]';
+%         current_means_in3 = current_means_in2(1:2,:)';
+%     else
+%         current_means_in3 = current_means_in;
+%     end
+
+%     current_wf = app.data_all(n_ms).wf_mapping_im{n_fr};
+% 
+%     if app.RegisteronButton.Value
+%         current_tform = app.wf_tform_all{n_ms};
+%         movingRegistered = imwarp(current_wf,current_tform ,'OutputView',imref2d(size(app.wf_axes_map_mouse.CData))); %
+%         %comb_im(movingRegistered>0) = movingRegistered(movingRegistered>0);
+%         app.wf_axes_map_mouse.CData = movingRegistered;
+%     else
+%         app.wf_axes_map_mouse.CData = current_wf;
+%     end
+% 
+    
+    for n_dset = 1:size(mdata,1)
+        mdata2 = mdata(n_dset,:);
+        idx_r = strcmpi(mdata2.area, [rdata.region_name]);
+        rdata2 = rdata(:,idx_r);
+
+        %%
+        if app.ConverttoZCheckBox.Value
+            pop_mean_val = mdata2.stats{1}{n_pl}.pop_mean_val;
+            pop_z_factor = mdata2.stats{1}{n_pl}.pop_z_factor;
+        end
+
+        if ~isempty(rdata2.regions_tforms)
 
             %% load images and tform
-            image_2p = rdata.regions(n_reg).fov_im;
+            image_2p = rdata2.fov_im;
 
             f = mean(mdata2.OA_data{1}.est.f);
             b = mdata2.OA_data{1}.est.b;
             image_2p_b = reshape(f*b, 256, 256)';
 
-            tform = rdata.regions(n_reg).regions_tforms.tform;
+            tform = rdata2.regions_tforms.tform;
 
             %% load the contours and get coords
-            comp_idx = mdata2.OA_data{1}.proc.comp_accepted;
-            A = mdata2.OA_data{1}.est.A(:,comp_idx);
+            accepted_cells = mdata2.stats{1}{n_pl}.accepted_cells;
+            A = mdata2.OA_data{1}.est.A(:,accepted_cells);
             A_sum = reshape(mean(A,2), 256, 256)';
             image_A = full(A_sum/max(A_sum(:)));
 
-            num_cells = size(A,2);
+            num_cells = mdata2.stats{1}{n_pl}.num_cells;
             coords = ones(num_cells,3);
             [~, ind1] = max(A);
             [coords(:,1), coords(:,2)] = ind2sub([256 256], ind1);
@@ -136,7 +193,11 @@ for n_reg = 1:numel(rdata.regions)
 
             tform_in = tform;
             tform_in.T(3,1:2) = tform_in.T(3,1:2)*2^interp_k - 2^interp_k + 1;
-
+            
+            if anchor_dset
+                tform_in.T = tform_in.T * current_tform_wf.T;
+            end
+            
             coords_in = coords;
             coords_in(:,1:2) = coords_in(:,1:2)*2^interp_k - 2^interp_k + 1;
 
@@ -155,115 +216,80 @@ for n_reg = 1:numel(rdata.regions)
 
             coords_tf = (coords_in*tform_in.T)';
 
-            %% plot
+            %% plot tuning
 
-            if plot_freq_tuning_on
-                onset_fr_mag_z = mdata2.tuning_all{1}.peak_tuning_onset.fr_peak_mag_ave_z(:,1:10);
-                figure(fig1);
-                for n_cell = 1:num_cells
-                    [temp_val_on, ~] = max(onset_fr_mag_z(n_cell,:));
-                    if temp_val_on < ops.stat.z_scores_thresh
-                        plot(coords_tf(1,n_cell), coords_tf(2,n_cell), '.', 'color', [.6 .6 .6],'MarkerSize',20);
-                    end
+
+            if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'None')
+                contour_vals = zeros(num_cells,1);
+                use_color_map = 0;
+            elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type')
+                tn_all = f_dv_get_trial_number(app);
+                tuning_freq = mdata2.stats{1}{n_pl}.peak_val_all(:,tn_all);
+                resp_cells = mdata2.stats{1}{n_pl}.cell_is_resp(:,tn_all);
+                tuning_freq(~resp_cells) = 0;
+                [max_val, max_idx] = max(tuning_freq, [], 2);
+                contour_vals = max_val;
+                contour_mag = max_idx;
+                c_lim = [min(max_idx) max(max_idx)];
+                use_color_map = 0;
+            elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning mag')
+                tn_all = f_dv_get_trial_number(app);
+                resp_cells = mdata2.stats{1}{n_pl}.cell_is_resp;
+                peak_vals = mdata2.stats{1}{n_pl}.peak_val_all;
+                if app.ConverttoZCheckBox.Value
+                    peak_vals = (peak_vals - pop_mean_val)./pop_z_factor;
                 end
-                for n_cell = 1:num_cells
-                    [temp_val_on, ind_on] = max(onset_fr_mag_z(n_cell,:));
-                    if temp_val_on > ops.stat.z_scores_thresh
-                        plot(coords_tf(1,n_cell), coords_tf(2,n_cell), '.', 'color', ops.context_types_all_colors2{ind_on},'MarkerSize',20);
-                    end
-                end
+                peak_vals(~resp_cells) = 0;
+                peak_vals2 = max(peak_vals(:,tn_all),[],2);
+                contour_vals = peak_vals2;
+                contour_mag = peak_vals2; % factor to resize magnitudes to fir color
+                c_lim = [min(contour_mag) max(contour_mag)];
+                use_color_map = 1;
+            elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'SNR')
+                SNR_list = mdata2.OA_data{n_pl}.proc.SNR2_vals(accepted_cells);
+                contour_mag = SNR_list; % factor to resize magnitudes to fir color
+                contour_vals = ones(num_cells,1);
+                use_color_map = 1;
+            end    
+
+            if use_color_map
+                % crop if goes beyond lim
+                % create color map
+                contour_resolution = 50;
+                color_map = jet(round(contour_resolution*c_lim(2)) - round(contour_resolution*c_lim(1))+1); 
+                color_index = round(contour_resolution*c_lim(1)):round(contour_resolution*c_lim(2));
             end
 
-            if plot_freq_tuning_off
-                offset_fr_mag_z = mdata2.tuning_all{1}.peak_tuning_offset.fr_peak_mag_ave_z(:,1:10);
-                figure(fig2);
-                for n_cell = 1:num_cells
-                    [temp_val_off, ~] = max(offset_fr_mag_z(n_cell,:));
-                    if temp_val_off < ops.stat.z_scores_thresh
-                        plot(coords_tf(1,n_cell), coords_tf(2,n_cell), '.', 'color', [.6 .6 .6],'MarkerSize',20);
-                    end
-                end
-                for n_cell = 1:num_cells
-                    [temp_val_off, ind_off] = max(offset_fr_mag_z(n_cell,:));
-                    if temp_val_off > ops.stat.z_scores_thresh
-                        plot(coords_tf(1,n_cell), coords_tf(2,n_cell), '.', 'color', ops.context_types_all_colors2{ind_off},'MarkerSize',20);
-                    end
-                end
-            end
+            contour_vals(contour_vals<plot_resp_thresh) = 0;
 
-            if plot_freq_tuning_combined
-                onset_fr_mag_z = mdata2.tuning_all{1}.peak_tuning_onset.fr_peak_mag_ave_z(:,1:10);
-                offset_fr_mag_z = mdata2.tuning_all{1}.peak_tuning_offset.fr_peak_mag_ave_z(:,1:10);
-                figure(fig3);
-                for n_cell = 1:num_cells
-                    [temp_val_on, ~] = max(onset_fr_mag_z(n_cell,:));
-                    [temp_val_off, ~] = max(offset_fr_mag_z(n_cell,:));
-                    if and(temp_val_on < ops.stat.z_scores_thresh, temp_val_off < ops.stat.z_scores_thresh)
-                        plot(coords_tf(1,n_cell), coords_tf(2,n_cell), 'o', 'color', [.6 .6 .6],'LineWidth',2);
+            figure(app.gui_plots.registration_fig);
+            for n_cell = 1:num_cells
+                if app.SizemagadjustCheckBox.Value
+                    if app.ConverttoZCheckBox.Value
+                        marker_size2 = marker_size1*contour_vals(n_cell)*app.SizefactorEditField.Value+10;
+                    else
+                        marker_size2 = marker_size1*contour_vals(n_cell)*app.SizefactorEditField.Value+10;
                     end
+                else
+                    marker_size2 = marker_size1;
                 end
-                for n_cell = 1:num_cells
-                    [temp_val_on, ind_on] = max(onset_fr_mag_z(n_cell,:));
-                    [temp_val_off, ind_off] = max(offset_fr_mag_z(n_cell,:));
-                    if temp_val_on > ops.stat.z_scores_thresh
-                        plot(coords_tf(1,n_cell), coords_tf(2,n_cell), 'o', 'color', ops.context_types_all_colors2{ind_on},'LineWidth',2);
+                if contour_vals(n_cell)
+                    if use_color_map
+                        color1 = color_map(round(contour_resolution*contour_mag(n_cell)) == color_index,:);
+                    else
+                        color1 = app.ops.context_types_all_colors2{tn_all(contour_mag(n_cell))};
                     end
-
-                    if temp_val_off > ops.stat.z_scores_thresh
-                        plot(coords_tf(1,n_cell), coords_tf(2,n_cell), 'x', 'color', ops.context_types_all_colors2{ind_off},'LineWidth',2);
-                    end
-                end
-            end
-
-            sum(sum(mdata2.peak_tuned_trials_offset_ctx{1},2));
-
-            if plot_mmn_on
-                onset_mmn_mag_z = mdata2.tuning_all{1}.peak_tuning_onset.fr_peak_mag_ave_z(:,mdata2.ctx_mmn{1});
-                figure(fig4);
-%                     for n_cell = 1:num_cells
-%                         [temp_val_on, ~] = max(onset_mmn_mag_z(n_cell,:));
-%                         if temp_val_on < ops.stat.z_scores_thresh
-%                             plot(coords_tf(1,n_cell), coords_tf(2,n_cell), '.', 'color', [.6 .6 .6],'MarkerSize',20);
-%                         end
-%                     end
-                for n_cell = 1:num_cells
-                    [temp_val_on, ind_on] = max(onset_mmn_mag_z(n_cell,:));
-                    if temp_val_on > ops.stat.z_scores_thresh
-                        plot(coords_tf(1,n_cell), coords_tf(2,n_cell), '.', 'color', ops.context_types_all_colors2{mdata2.ctx_mmn{1}(ind_on)},'MarkerSize',20);
+                    plot(coords_tf(1,n_cell), coords_tf(2,n_cell), '.', 'color', color1,'MarkerSize',marker_size2);
+                else
+                    if plot_nontuned
+                        color1 = [.6 .6 .6];
+                        plot(coords_tf(1,n_cell), coords_tf(2,n_cell), '.', 'color', color1,'MarkerSize',marker_size2);
                     end
                 end
 
             end
-
-            if plot_mmn_off
-                offset_mmn_mag_z = mdata2.tuning_all{1}.peak_tuning_offset.fr_peak_mag_ave_z(:,mdata2.ctx_mmn{1});
-                figure(fig5);
-%                     for n_cell = 1:num_cells
-%                         [temp_val_off, ~] = max(offset_mmn_mag_z(n_cell,:));
-%                         if temp_val_off < ops.stat.z_scores_thresh
-%                             plot(coords_tf(1,n_cell), coords_tf(2,n_cell), '.', 'color', [.6 .6 .6],'MarkerSize',20);
-%                         end
-%                     end
-                for n_cell = 1:num_cells
-                    [temp_val_off, ind_on] = max(offset_mmn_mag_z(n_cell,:));
-                    if temp_val_off > ops.stat.z_scores_thresh
-                        plot(coords_tf(1,n_cell), coords_tf(2,n_cell), '.', 'color', ops.context_types_all_colors2{mdata2.ctx_mmn{1}(ind_on)},'MarkerSize',20);
-                    end
-                end
-
-            end
-
         end
     end
 end
-
-
-
-
-if logical(plot_freq_tuning_combined+plot_freq_tuning_on+plot_freq_tuning_off)
-    leg_im = reshape(cat(2,ops.context_types_all_colors2{1:10})',10,1,3);
-    figure; imagesc(leg_im); ylabel('low to high freqs')
-end
-
 
 end

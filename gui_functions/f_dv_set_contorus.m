@@ -2,8 +2,8 @@ function f_dv_set_contorus(app)
 
 n_pl = app.mplSpinner.Value;
 
-accepted_cells = app.ddata.OA_data{n_pl}.proc.comp_accepted;
-num_cells = sum(accepted_cells);
+accepted_cells = app.cdata.accepted_cells;
+num_cells = app.cdata.num_cells;
 
 use_color_map = 1;
 
@@ -62,6 +62,7 @@ visible_set = app.gui_ops.contour_params.visible_set;
 
 if use_color_map
     c_lim = app.gui_ops.contour_params.c_lim;
+    c_lim(2) = min(c_lim(2), 100);
     app.ContourMinEditField.Value = c_lim(1);
     app.ContourMaxEditField.Value = c_lim(2);
 

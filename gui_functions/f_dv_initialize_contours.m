@@ -6,11 +6,10 @@ end
 
 n_pl = app.mplSpinner.Value;
 
-proc1 = app.ddata.OA_data{n_pl}.proc;
 est1 = app.ddata.OA_data{n_pl}.est;
 
-num_cells = sum(proc1.comp_accepted);
-cell_num_convert = find(proc1.comp_accepted);
+num_cells = app.cdata.num_cells;
+cell_num_convert = find(app.cdata.accepted_cells);
 
 app.gui_plots.contours_gobj = gobjects(num_cells,1);
 hold(app.UIAxes, 'on');

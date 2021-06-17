@@ -23,7 +23,7 @@ n_dset = params.n_dset;
 
 ddata = app.data(n_dset,:);
 
-num_cells = ddata.num_cells_pl{n_pl};
+num_cells = params.cdata.num_cells;
 stim_times = ddata.stim_frame_index{n_pl};
 %trig_window = app.working_ops.trial_num_baseline_resp_frames;
 trial_types = ddata.trial_types{1};
@@ -178,5 +178,6 @@ stats.peak_stats = peak_stats;
 stats.peak_bin_size = peak_bin_size;
 stats.peak_prcntle = peak_prcntle;
 stats.num_samp = num_samp;
-
+stats.num_cells = num_cells;
+stats.accepted_cells = params.cdata.accepted_cells;
 end
