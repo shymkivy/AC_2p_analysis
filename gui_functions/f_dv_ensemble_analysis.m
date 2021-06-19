@@ -25,7 +25,7 @@ end
 % NMF 14 comp
 % SVD 11-14 comp?
 ens_params.ensamble_method = 'nmf'; % options: svd, **nmf**, ica     % here NMF is
-ens_params.num_comp = 11;
+ens_params.num_comp = 21;
 ens_params.smooth_SD = 100; % 110 is better?
 ens_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'
 ens_params.ensamble_extraction = 'thresh'; %  **'thresh'(only for nmf)** 'clust'(for all)
@@ -95,9 +95,84 @@ end
 
 %% Smooth data
 firing_rate_sm = f_smooth_gauss(firing_rate, ens_params.smooth_SD/volume_period);
+firing_rate_sm_s = f_shuffle_data(firing_rate_sm);
 
 %% extract ensambles
 ens_out = f_ensemble_analysis_YS_raster(firing_rate_sm, ens_params);
 
+%% evaluate components
+ens_params.vol_period = volume_period;
+acc_out_d = f_evaluate_ens_cv(ens_out, firing_rate_norm, ens_params);
+
+num_shuff = 10;
+ens_params_s = ens_params;
+ens_params_s.num_comp = 2;
+acc_out = cell(num_shuff,1);
+for n_shuff = 1:num_shuff
+    firing_rate_s = f_shuffle_data(firing_rate_norm);
+    firing_rate_sm_s = f_smooth_gauss(firing_rate_s, ens_params_s.smooth_SD/vol_period);
+    ens_out_s = f_ensemble_analysis_YS_raster(firing_rate_sm_s, ens_params_s);
+
+    acc_out{n_shuff} = f_evaluate_ens_cv(ens_out_s, firing_rate_s, ens_params_s);
+end
+
+
+
+acc_out_full = cat(2,acc_out{:});
+figure; plot(acc_out_full')
+
+prctile(acc_out_full,1)
+min(acc_out_full)
+
+figure; hold on;
+plot(acc_out_d)
+shadedErrorBar_YS(1:ens_params_s.num_comp, nanmean(acc_out_full,2),nanstd(acc_out_full,[],2)/sqrt(num_shuff-1));
+
+figure; plot(acc_out{1})
+
+%% analyze ensembles
+f_plot_raster_mean(firing_rate_sm(ens_out.ord_cell,:), 1);
+title('raster cell sorted');
+
+for n_comp = 1:numel(ens_out.cells.ens_list)
+    cells1 = ens_out.cells.ens_list{n_comp};
+    trials1 = ens_out.trials.ens_list{n_comp};
+    scores1 = ens_out.cells.ens_scores(n_comp,:);
+
+    f_plot_ensamble_deets(firing_rate_sm, cells1, trials1, scores1);
+    title([ens_params.ensamble_method ' ensamble ' num2str(n_comp) '; ' num2str(tn')]);
+end
+
+
+%%
+
+scores_3d = reshape(ens_out.cells.ens_scores, ens_params.num_comp, [], num_trials);
+
+for n_comp = 1:ens_params.num_comp
+    figure;
+    for n_tr = 1:numel(tn)
+        curr_tr = tn(n_tr);
+        subplot(2,3,n_tr); hold on; axis tight
+        traces1 = squeeze(scores_3d(n_comp,:,logical(trial_types_cut == curr_tr)));
+        plot(traces1, 'color', [.5 .5 .5]);
+        plot(mean(traces1,2), 'r', 'LineWidth', 2);
+        ylim([0 0.22])
+        if n_tr == 1
+            title(['comp ' num2str(n_comp) '; ' num2str(tn')])
+        end
+    end
+end
+
+
+%% 
+[~, max_ind] = max(firing_rate,[],2);
+[~, seq1] = sort(max_ind, 'ascend');
+figure; imagesc(firing_rate(seq1,:))
+
+firing_rate_sh = f_shuffle_data(firing_rate);
+[~, max_ind_s] = max(firing_rate_sh,[],2);
+[~, seq1_s] = sort(max_ind_s, 'ascend');
+figure; imagesc(firing_rate_sh(seq1_s,:))
+title('shuffle')
 
 end
