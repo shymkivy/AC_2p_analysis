@@ -1,19 +1,11 @@
-%% analyzing ensembles with NMF
-% load data into 'firing_rate' variable (cells x frames)
-clear;
-close all;
-addpath([pwd '\functions'])
-
-%firing_rate = put data here
-
-frame_rate = 30;
+function f_dv_ensemble_analysis(app)
 
 %% input parameters for cross validation estimation of smooth window and number of correlated components / ensembles
 
-estimate_params = 0;    % do estimation?
+estimate_params = 1;    % do estimation?
 est_params.ensamble_method = 'nmf';              % options: svd, nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
 est_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'   % either way, need to normalize the power of signal in each cell, otherwise dimred will pull out individual cells
-est_params.smooth_SD = [80:10:150];       % range of values to estimate across    % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
+est_params.smooth_SD = [50:50:300];       % range of values to estimate across    % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
 est_params.num_comp = [14];               % range of values to estimate across    
 est_params.randomize_data_chunks = 0;   % 1 or 0                                % if the sequence of trial presentation contains information, you will need to randomize. Also need t odo in chunks because adjacent time bins are slightly correlated
 est_params.reps = 2;                   % how many repeats per param 
@@ -36,11 +28,21 @@ ens_params.ensamble_extraction_thresh = 'shuff'; % 'shuff' 'signal_z' 'signal_cl
 ens_params.plot_stuff = 1;
 
 %%
-vol_period = 1000/frame_rate;
+volume_period = app.ddata.proc_data{1}.frame_data.volume_period;
+%%
+n_pl = app.mplSpinner.Value;
+tn_all = f_dv_get_trial_number(app);
+tt_all = app.ops.context_types_all(tn_all)';
 
-%% remove inactive cells
+stim_times = app.ddata.stim_frame_index{n_pl};
+mmn_freq = app.ddata.MMN_freq{1};
+trig_window = app.working_ops.trial_num_baseline_resp_frames;
+trial_types = app.ddata.trial_types{1};
 
-active_cells = sum(firing_rate,2) > 0;
+firing_rate = app.cdata.S;
+
+%%
+active_cells = sum(firing_rate,2) ~= 0;
 firing_rate(~active_cells,:) = [];
 
 num_cells = size(firing_rate,1);
@@ -57,7 +59,7 @@ if estimate_params
         firing_rate_norm = f_normalize(firing_rate, est_params.normalize);
 
         params1 = est_params_list(n_par);
-        params1.vol_period = vol_period;
+        params1.vol_period = volume_period;
         accuracy = f_ens_estimate_corr_dim_cv(firing_rate_norm, params1);
 
         temp_fields = fields(accuracy);
@@ -66,16 +68,20 @@ if estimate_params
         end
     end
     fprintf('\nDone\n');
-    [~, min_ind] = min([est_params_list.test_err]);
-    fprintf('From provided range, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', est_params_list(min_ind).smooth_SD, est_params.method, est_params_list(min_ind).num_comp);
+    [~, min_ind] = min(mean(reshape([est_params_list.test_err]', [], est_params_list(1).reps),2));
+    sd_all = mean(reshape([est_params_list.smooth_SD]', [], est_params_list(1).reps),2);
+    fprintf('From provided range, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', sd_all(min_ind), est_params.ensamble_method, est_params_list(min_ind).num_comp);
 
     f_plot_cv_error_3D(est_params_list, [], 'smooth_SD', 'num_comp', 'test_err');
     ax1 = gca;
-    ax1.Title.String = sprintf('%s, dset%d; %s L2 error from raw, (%s)',cond_name,n_dset,est_params.ensamble_method, ax1.Title.String);          
+    ax1.Title.String = sprintf('dset %s', app.ddata.experiment{1});          
 end
 
 %% Smooth data
-firing_rate_sm = f_smooth_gauss(firing_rate, ens_params.smooth_SD/vol_period);
+firing_rate_sm = f_smooth_gauss(firing_rate, ens_params.smooth_SD/volume_period);
 
 %% extract ensambles
 ens_out = f_ensemble_analysis_YS_raster(firing_rate_sm, ens_params);
+
+
+end

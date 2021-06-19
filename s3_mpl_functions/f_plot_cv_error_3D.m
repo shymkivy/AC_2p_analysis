@@ -87,8 +87,11 @@ if ~isempty(data_s)
         zlabel(z_var, 'interpreter', 'none');
     end
     title(z_var, 'interpreter', 'none') 
+    legend([p1 p2], {'data', 'shuff'})
+else
+    legend([p1], {'data'})
 end
 
-legend([p1 p2], {'data', 'shuff'})
+
 
 end

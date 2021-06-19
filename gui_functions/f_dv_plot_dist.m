@@ -1,7 +1,5 @@
 function f_dv_plot_dist(app)
 
-marginalize1 = 0;
-
 n_pl = app.mplSpinner.Value;
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 num_dsets = numel(data.experiment);
@@ -36,7 +34,7 @@ for n_dset = 1:num_dsets
         elseif strcmpi(app.plotfeatureDropDown.Value, 'resp mag')
             features1{n_dset, n_tn} = data(n_dset,:).stats{1}{n_pl}.peak_val_all(cell_is_resp,tn1);
             if app.ConverttoZCheckBox.Value
-                features1{n_dset, n_tn} = (features1{n_dset, n_tn} - pop_mean_val)./pop_z_factor;
+                features1{n_dset, n_tn} = (features1{n_dset, n_tn} - pop_mean_val(cell_is_resp))./pop_z_factor(cell_is_resp);
             end
         end
     end
@@ -48,7 +46,7 @@ for n_tn = 1:num_tn
 end
 
 figure; hold on;
-if marginalize1
+if app.MarginalizedistCheckBox.Value
     features_pool2 = cat(1, features_pool{:});
     if numel(features_pool2)
         if strcmpi(app.plottypeDropDown.Value, 'kde')
@@ -77,7 +75,7 @@ else
         end
     end
 end
-title(title_tag)
+title(title_tag, 'interpreter', 'none')
 
 
     
