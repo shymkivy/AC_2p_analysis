@@ -7,10 +7,12 @@ app.CellSpinner.Value = min([app.CellSpinner.Value, num_cells]);
 n_cell = app.CellSpinner.Value;
 plot_t = app.ddata.proc_data{1}.frame_data.frame_times_mpl{n_pl}/1000;
 
+cdata = app.cdata;
+
 %%
-app.current_cell_raw = app.cdata.raw(n_cell,:);
-app.current_cell_C = app.cdata.C(n_cell,:);
-app.current_cell_spikes = app.cdata.S(n_cell,:);
+app.current_cell_raw = cdata.raw(n_cell,:);
+app.current_cell_C = cdata.C(n_cell,:);
+app.current_cell_spikes = cdata.S(n_cell,:);
 
 if app.RawButton.Value
     app.gui_plots.plot_raw.XData = plot_t;
@@ -64,7 +66,6 @@ SNR_accepted = app.ddata.OA_data{n_pl}.proc.SNR2_vals(app.cdata.accepted_cells);
 app.SNREditField.Value = SNR_accepted(n_cell);
 
 %%
-
 if app.UpdatefigsCheckBox.Value
     if isgraphics(app.gui_plots.freq_resp_fig)
         f_dv_plot_freq_resp(app)

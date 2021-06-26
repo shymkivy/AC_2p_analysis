@@ -5,13 +5,15 @@ function f_dv_plot_tunning_ecdf(app)
 
 n_pl = app.mplSpinner.Value;
 
-resp_cells = app.ddata.stats{1}{n_pl}.cell_is_resp;
-peak_vals = app.ddata.stats{1}{n_pl}.peak_val_all;
+stats1 = app.ddata.stats{n_pl};
+
+resp_cells = stats1.cell_is_resp;
+peak_vals = stats1.peak_val_all;
 %peak_vals(~resp_cells) = 0;
 
 if app.ConverttoZCheckBox.Value
-    pop_mean_val = app.ddata.stats{1}{n_pl}.pop_mean_val;
-    pop_z_factor = app.ddata.stats{1}{n_pl}.pop_z_factor;
+    pop_mean_val = stats1.pop_mean_val;
+    pop_z_factor = stats1.pop_z_factor;
 end
 
 tn_all = f_dv_get_trial_number(app);

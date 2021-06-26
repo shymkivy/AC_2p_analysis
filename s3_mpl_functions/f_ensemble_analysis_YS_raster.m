@@ -1,4 +1,6 @@
 function ens_out = f_ensemble_analysis_YS_raster(firing_rate, params)
+% input either 3D tials data (Cell x Time X Trial)
+%           or 2D trial data (Cell x Trial)
 %% parameters
 if ~exist('params', 'var') || ~isstruct(params)
     params = struct;
@@ -7,9 +9,10 @@ end
 normalize1 = f_get_param(params, 'normalize', 'norm_mean_std'); % 'norm_mean_std', 'norm_mean' 'none'
 shuffle_method = f_get_param(params, 'shuffle_method', 'circ_shift');     % 'circ_shift' or 'scramble'
 total_dim_thresh = f_get_param(params, 'total_dim_thresh', .7);
+dim_est_num_reps = f_get_param(params, 'dim_est_num_reps', 50);
 ensamble_method = f_get_param(params, 'ensamble_method', 'nmf'); % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
 ensamble_extraction = f_get_param(params, 'ensamble_extraction', 'thresh'); % clust 'thresh'
-plot_stuff = f_get_param(params, 'plot_stuff');
+plot_stuff = f_get_param(params, 'plot_stuff', 0);
 
 num_comps = f_get_param(params, 'num_comp');
 
@@ -18,7 +21,7 @@ if ~strcmpi(ensamble_method, 'nmf') && strcmpi(ensamble_extraction, 'thresh')
     ensamble_extraction = 'clust';
 end
 
-fprintf('Detecting ensembles with %s and %s...\n',ensamble_method, ensamble_extraction);
+fprintf('Detecting ensembles with %s and %s...',ensamble_method, ensamble_extraction);
 
 %%
 ndims1 = ndims(firing_rate);
@@ -27,8 +30,9 @@ if ndims1 == 3
     firing_rate = reshape(firing_rate, num_cells,[]);
 end
 
-active_cells = sum(firing_rate,2) > 0;
-firing_rate(~active_cells,:) = [];
+% active_cells = sum(firing_rate,2) ~= 0;
+% firing_rate(~active_cells,:) = [];
+% ens_out.active_cells = active_cells;
 
 firing_rate_norm = f_normalize(firing_rate, normalize1);
 
@@ -61,10 +65,10 @@ ens_out.d_explained = d_explained(1:num_comps);
 %% shuff and PCA
 if isempty(num_comps)
     fprintf('Estimating dimensionality...\n');
-    num_reps = 50;
-    max_lamb_shuff = zeros(num_reps,1);
-    dim_total_shuff = zeros(num_reps,1);
-    for n_rep = 1:num_reps
+    dim_est_num_reps = 50;
+    max_lamb_shuff = zeros(dim_est_num_reps,1);
+    dim_total_shuff = zeros(dim_est_num_reps,1);
+    for n_rep = 1:dim_est_num_reps
         firing_rate_shuff = f_shuffle_data(firing_rate_norm, shuffle_method);
     %     [~,s_S,~] = svd(firing_rate_shuff);
     %     s_sing_val_sq = diag(s_S'*s_S);
@@ -84,6 +88,9 @@ if isempty(num_comps)
     
     ens_out.dimensionality_total_norm_shuff = dimensionality_total_norm_shuff;
     ens_out.dimensionality_corr = dimensionality_corr;
+    fprintf('; estimated %d dimensions...\n',num_comps);
+else
+    fprintf('; using %d components\n', num_comps);
 end
 ens_out.num_comps = num_comps;
 

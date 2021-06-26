@@ -83,11 +83,9 @@ ops = f_mpl_process_ops(ops);
 %%
 data = f_mpl_preprocess_data(data, ops);
 
-%% additional 
 app.data = data;
 app.ops = ops;
 
-app.DatasetDropDown.Items = data.experiment;
-
-f_dv_load_dset_from_data(app);
+%% additional 
+f_dv_initialize_post_load(app);
 end

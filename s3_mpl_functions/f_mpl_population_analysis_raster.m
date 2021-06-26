@@ -152,7 +152,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         %% evaluate components
         ens_params.vol_period = vol_period;
         acc_out_d = f_evaluate_ens_cv(ens_out, firing_rate_norm, ens_params);
- 
+        
         num_shuff = 10;
         ens_params_s = ens_params;
         ens_params_s.num_comp = 2;
@@ -194,7 +194,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         
 
         %%
-        
+
         scores_3d = reshape(ens_out.cells.ens_scores, ens_params.num_comp, [], num_trials);
         
         for n_comp = 1:ens_params.num_comp

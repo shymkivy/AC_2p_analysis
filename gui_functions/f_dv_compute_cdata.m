@@ -82,5 +82,6 @@ cdata.C = C_full;
 cdata.S = S_full;
 cdata.accepted_cells = accepted_cells;
 cdata.num_cells = num_cells;
+cdata.volume_period = ddata.proc_data{1}.frame_data.volume_period;
 
 end

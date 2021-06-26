@@ -7,9 +7,11 @@ num_cells = app.cdata.num_cells;
 
 use_color_map = 1;
 
+stats1 = app.ddata.stats{n_pl};
+
 if app.ConverttoZCheckBox.Value
-    pop_mean_val = app.ddata.stats{1}{n_pl}.pop_mean_val;
-    pop_z_factor = app.ddata.stats{1}{n_pl}.pop_z_factor;
+    pop_mean_val = stats1.pop_mean_val;
+    pop_z_factor = stats1.pop_z_factor;
 end
 
 if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'None')
@@ -19,8 +21,8 @@ if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'None')
     app.gui_ops.contour_params.c_abs_lim = [0, 0];
 elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type')
     tn_all = f_dv_get_trial_number(app);
-    tuning_freq = app.ddata.stats{1}{n_pl}.peak_val_all(:,tn_all);
-    resp_cells = app.ddata.stats{1}{n_pl}.cell_is_resp(:,tn_all);
+    tuning_freq = stats1.peak_val_all(:,tn_all);
+    resp_cells = stats1.cell_is_resp(:,tn_all);
     tuning_freq(~resp_cells) = 0;
     [max_val, max_idx] = max(tuning_freq, [], 2);
     app.gui_ops.contour_params.visible_set = logical(max_val);
@@ -30,8 +32,8 @@ elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type')
     use_color_map = 0;
 elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning mag')
     tn_all = f_dv_get_trial_number(app);
-    resp_cells = app.ddata.stats{1}{n_pl}.cell_is_resp;
-    peak_vals = app.ddata.stats{1}{n_pl}.peak_val_all;
+    resp_cells = stats1.cell_is_resp;
+    peak_vals = stats1.peak_val_all;
     if app.ConverttoZCheckBox.Value
         peak_vals = (peak_vals - pop_mean_val)./pop_z_factor;
     end

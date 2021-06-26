@@ -1,6 +1,7 @@
 function f_dv_initialize(app)
 
 app.regdatapathEditField.Value = app.gui_ops.reg_data_path;
+app.matdatapathEditField.Value = app.gui_ops.mat_data_path;
 
 app.gui_plots.A_image = imagesc(app.UIAxes, 0);
 app.gui_plots.A_image.ButtonDownFcn = @(~,~) f_dv_button_down(app, app.gui_plots.A_image);
@@ -26,5 +27,6 @@ app.StatmethodDropDown.Items = {'Sample', 'Pop percentile'};
 
 app.plotfeatureDropDown.Items = {'peak loc', 'resp mag'};
 app.plottypeDropDown.Items = {'kde', 'ecdf', 'histogram'};
+app.RunallDropDown.Items = {'Stats', 'dim_red_pca', 'dim_red_cv', 'ensemble_extract'};
 
 end

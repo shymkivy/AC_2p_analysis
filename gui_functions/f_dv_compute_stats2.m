@@ -1,4 +1,4 @@
-function f_dv_compute_stats(app)
+function f_dv_compute_stats2(app)
 
 stat_window = [-2 4];
 stat_resp_window = [.05 1];
@@ -115,7 +115,7 @@ stats.peak_t_all = peak_t_all;
 stats.stat_window_t = stat_window_t;
 stats.z_thresh = z_thresh;
 
-app.ddata.stats{1}{n_pl} = stats;
-app.data(app.current_data_idx,:).stats{1}{n_pl} = stats;
+app.ddata.stats{n_pl} = stats;
+app.data(app.current_data_idx,:).stats{n_pl} = stats;
 
 end
