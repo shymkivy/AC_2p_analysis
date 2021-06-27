@@ -1,4 +1,4 @@
-function f_dv_plot_mmn(app)
+function f_dv_plot_mmn3(app)
 
 add_combined = 1;
 
@@ -17,17 +17,20 @@ num_flip = size(ctx_plot_list,2);
                  
 params = f_dv_gather_params(app);
 
-resp_all = cell(num_dsets, num_flip);
-cell_counts = zeros(num_dsets, num_flip);
 
-stats1 = data1.stats{n_pl};
-
+reg_data = cell(4,1);
+for n_reg = 1:4
+    reg_data{n_reg}.resp_all = cell(num_dsets, num_flip);
+    reg_data{n_reg}.cell_counts = zeros(num_dsets, num_flip);
+end
 for n_flip = 1:num_flip
     tn_all = ctx_plot_list(:,n_flip);
     ctx1 = app.ops.context_types_all(tn_all)';
-    
+
     for n_dset = 1:num_dsets
+        fprintf('Dset %d\n', n_dset);
         data1 =  data(n_dset,:);
+        stats1 = data1.stats{n_pl};
         params.n_dset = find(data1.idx == app.data.idx);
 
         cdata = f_dv_compute_cdata(app, params);
@@ -37,13 +40,13 @@ for n_flip = 1:num_flip
         stim_times = data1.stim_frame_index{n_pl};
         mmn_freq = data1.MMN_freq{1};
         cell_is_resp = stats1.cell_is_resp;
-        
-        if ~isempty(data1.registered_data{n_dset})
-            reg_labels = data1.registered_data{n_dset}.reg_labels;
+
+        if ~isempty(data1.registered_data{1})
+            reg_labels = data1.registered_data{1}.reg_labels;
         else
             reg_labels = zeros(cdata.num_cells,1);
         end
-        
+
         trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trig_window);
         [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
 
@@ -54,21 +57,25 @@ for n_flip = 1:num_flip
             pop_mean_val = zeros(cdata.num_cells,1);
             pop_z_factor = ones(cdata.num_cells,1);
         end
-
+        
         trial_data_sort_wctx = (trial_data_sort_wctx - pop_mean_val)./pop_z_factor;
         
-        % get resp cells
         resp_cell_idx = logical(sum(cell_is_resp(:,tn_all),2));
-        cell_counts(n_dset, n_flip) = sum(resp_cell_idx);
-        
-        resp_all{n_dset, n_flip} = zeros(cell_counts(n_dset, n_flip), num_t, size(ctx1,2));
-        for n_ctx = 1:size(ctx1,2)
-            ctx2 = ctx1(:,n_ctx)';
-            temp_resp = trial_data_sort_wctx(resp_cell_idx,:,logical(sum(trial_types_wctx == ctx2,2)));
-            resp_all{n_dset, n_flip}(:,:,n_ctx) = mean(temp_resp,3);
+        for n_reg = 1:4
+            reg_idx = reg_labels == n_reg;
+            % get resp cells
+            resp_cell_idx2 = logical(resp_cell_idx.*reg_idx);
+            
+            reg_data{n_reg}.cell_counts(n_dset, n_flip) = sum(resp_cell_idx2);
+
+            reg_data{n_reg}.resp_all{n_dset, n_flip} = zeros(reg_data{n_reg}.cell_counts(n_dset, n_flip), num_t, size(ctx1,2));
+            for n_ctx = 1:size(ctx1,2)
+                ctx2 = ctx1(:,n_ctx)';
+                temp_resp = trial_data_sort_wctx(resp_cell_idx2,:,logical(sum(trial_types_wctx == ctx2,2)));
+                reg_data{n_reg}.resp_all{n_dset, n_flip}(:,:,n_ctx) = mean(temp_resp,3);
+            end
         end
     end
-   
 end
 
 resp_all_pool = cell(1,num_flip);

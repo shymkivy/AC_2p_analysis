@@ -1,9 +1,7 @@
 function data_dim_est = f_dv_estimate_dim_pca_core(params)
 %%
-est_params.normalize = 'norm_mean_std';
-est_params.dim_est_num_reps = 50;
-est_params.plot_stuff = 0;
-
+params2 = f_dv_ensemble_params(app);
+est_params_pca = params2.est_params_pca;
 %%
 % tn_all = f_dv_get_trial_number(app);
 % tt_all = app.ops.context_types_all(tn_all)';
@@ -16,6 +14,6 @@ est_params.plot_stuff = 0;
 %%
 firing_rate = f_dv_get_firing_rate(params.cdata);
 
-data_dim_est = f_ensemble_comp_data_dim2(firing_rate, est_params);
+data_dim_est = f_ensemble_comp_data_dim2(firing_rate, est_params_pca);
 
 end

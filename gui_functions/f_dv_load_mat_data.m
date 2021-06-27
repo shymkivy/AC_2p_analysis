@@ -14,9 +14,11 @@ for n_dset = 1:num_dsets
     if sum(idx1)
         for n_var = 1:numel(var_list)
             var1 = var_list{n_var};
-            for n_pl = 1:numel(data1.(var1)(n_dset))
-                if ~isempty(data1(n_dset,:).(var1){n_pl})
-                    app.data(idx1,:).(var1){n_pl} = data1(n_dset,:).(var1){n_pl};
+            if sum(strcmpi(data1.Properties.VariableNames, var1))
+                for n_pl = 1:numel(data1.(var1)(n_dset))
+                    if ~isempty(data1(n_dset,:).(var1){n_pl})
+                        app.data(idx1,:).(var1){n_pl} = data1(n_dset,:).(var1){n_pl};
+                    end
                 end
             end
         end

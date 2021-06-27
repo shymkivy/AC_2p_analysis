@@ -27,6 +27,6 @@ app.StatmethodDropDown.Items = {'Sample', 'Pop percentile'};
 
 app.plotfeatureDropDown.Items = {'peak loc', 'resp mag'};
 app.plottypeDropDown.Items = {'kde', 'ecdf', 'histogram'};
-app.RunallDropDown.Items = {'Stats', 'dim_red_pca', 'dim_red_cv', 'ensemble_extract'};
+app.RunallDropDown.Items = app.gui_ops.save_var_list;
 
 end

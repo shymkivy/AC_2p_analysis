@@ -6,21 +6,14 @@ app.trialtypeDropDown.Items = [{'all'}; {'Freqs'}; {'Context'}; app.ops.context_
 
 max_planes = max(app.data.num_planes);
 
-if ~sum(strcmpi(app.data.Properties.VariableNames, 'stats'))
-    app.data.stats = cell(size(app.data,1),max_planes);
+for n_var = 1:numel(app.gui_ops.save_var_list)
+    var1 = app.gui_ops.save_var_list{n_var};
+    if ~sum(strcmpi(app.data.Properties.VariableNames, var1))
+        app.data.(var1) = cell(size(app.data,1),max_planes);
+    end
 end
 
-if ~sum(strcmpi(app.data.Properties.VariableNames, 'data_dim_pca'))
-    app.data.data_dim_pca = cell(size(app.data,1),max_planes);
-end
-
-if ~sum(strcmpi(app.data.Properties.VariableNames, 'data_dim_cv'))
-    app.data.data_dim_cv = cell(size(app.data,1),max_planes);
-end
-
-if ~sum(strcmpi(app.data.Properties.VariableNames, 'ensembles'))
-    app.data.ensembles = cell(size(app.data,1),max_planes);
-end
+app.data.registered_data = cell(size(app.data,1),max_planes);
 
 f_dv_load_dset_from_data(app);
 disp('Loaded')
