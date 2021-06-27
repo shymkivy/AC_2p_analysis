@@ -44,12 +44,40 @@ elseif strcmpi(app.RunallDropDown.Value, 'dim_red_cv')
             params.n_pl = n_pl;
             if isempty(app.data(n_dset,:).data_dim_cv{n_pl})
                 params.cdata = f_dv_compute_cdata(app, params);
+                params.ddata = ddata;
+                if isempty(app.data(n_dset,:).data_dim_pca{n_pl})
+                    app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
+                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
+                else
+                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
+                end
                 app.data(n_dset,:).data_dim_cv{n_pl} = f_dv_estimate_dim_cv_core(params);
             end
         end
     end
     fprintf('\n');
 elseif strcmpi(app.RunallDropDown.Value, 'ensemble_extract')
+    fprintf('Running all dim red CV, Dset_/%d: ', num_data)
+    for n_dset = 1:num_data
+        fprintf('%d..', n_dset);
+        params.n_dset = n_dset;
+        ddata = app.data(n_dset,:);
+        for n_pl = 1:ddata.num_planes
+            params.n_pl = n_pl;
+            if isempty(app.data(n_dset,:).ensembles{n_pl})
+                params.cdata = f_dv_compute_cdata(app, params);
+                params.ddata = ddata;
+                if isempty(app.data(n_dset,:).data_dim_pca{n_pl})
+                    app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
+                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
+                else
+                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
+                end
+                app.data(n_dset,:).ensembles{n_pl} = f_dv_ensemble_extract_core(app, params);
+            end
+        end
+    end
+    fprintf('\n');
 end
 disp('Done')
 end

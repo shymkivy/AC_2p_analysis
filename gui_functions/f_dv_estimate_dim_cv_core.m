@@ -1,4 +1,7 @@
 function data_dim_cv = f_dv_estimate_dim_cv_core(params)
+
+corr_dim = round(params.data_dim_pca.dimensionality_corr);
+
 %% input parameters for cross validation estimation of smooth window and number of correlated components / ensembles
 % **params** are best params
 include_shuff_version = 0;
@@ -7,8 +10,8 @@ est_params.normalize = 'norm_mean_std'; % **'norm_mean_std'**, 'norm_mean' 'none
 est_params.shuffle_data_chunks = 1;   % 1 or 0, keeping cell correlations   % if the sequence of trial presentation contains information, you will need to shuffle. Also need to do in chunks because adjacent time bins are slightly correlated
 % ---- input one or range of values to estimate across following
 est_params.smooth_SD = 0;       % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
-est_params.num_comp = (corr_dim-10):2:(corr_dim+10);       
-est_params.reps = 5;              % how many repeats per param 
+est_params.num_comp = (corr_dim-5):1:(corr_dim+5);       
+est_params.reps = 4;              % how many repeats per param 
 
 %%
 firing_rate = f_dv_get_firing_rate(params.cdata);
@@ -20,7 +23,7 @@ if include_shuff_version
     est_params_list_s = est_params_list;
 end
 
-volume_period = params.volume_period;
+volume_period = params.cdata.volume_period;
 
 %%
 %firing_rate = f_dv_get_current_firing_rate(app);
@@ -42,13 +45,12 @@ if include_shuff_version
     sd_all = mean(reshape([est_params_list_s.smooth_SD]', [], est_params_list_s(1).reps),2);
     fprintf('For shuff, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', sd_all(min_ind), est_params.ensamble_method, est_params_list(min_ind).num_comp);
 
-    f_plot_cv_error_3D(est_params_list, est_params_list_s, 'smooth_SD', 'num_comp', 'test_err');
+    fig1 = f_plot_cv_error_3D(est_params_list, est_params_list_s, 'smooth_SD', 'num_comp', 'test_err');
 else
-    f_plot_cv_error_3D(est_params_list, [], 'smooth_SD', 'num_comp', 'test_err');
+    fig1 = f_plot_cv_error_3D(est_params_list, [], 'smooth_SD', 'num_comp', 'test_err');
 end
 
-ax1 = gca;
-ax1.Title.String = sprintf('dset %s', app.ddata.experiment{1});          
+fig1.Children(2).Title.String = sprintf('dset %s', params.ddata.experiment{1});          
 
 data_dim_cv.test_err_data = test_err_data;
 data_dim_cv.num_comp = est_params.num_comp';
