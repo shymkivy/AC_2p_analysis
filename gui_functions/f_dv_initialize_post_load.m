@@ -2,7 +2,7 @@ function f_dv_initialize_post_load(app)
 
 app.DatasetDropDown.Items = app.data.experiment;
 
-app.trialtypeDropDown.Items = [{'all'}; {'Freqs'}; {'Context'}; app.ops.context_types_labels];
+app.trialtypeDropDown.Items = [{'all'}; {'Freqs'}; {'Context'}; {'Ongoing'}; app.ops.context_types_labels];
 
 max_planes = max(app.data.num_planes);
 

@@ -63,4 +63,94 @@ end
 tn_seq_plot = reshape(repmat(tn_seq, [1 num_t])',[],1);
 f_plot_raster_mean(firing_rate2(ord_cell,:), 1, tn_seq_plot, app.ops.context_types_all_colors2)
 
+%%
+n_tr = 6;
+firing_rate = app.cdata.S;
+
+ens_stats = app.ddata.ensemble_stats{1};
+
+ens_tuning = app.ddata.ensemble_tuning{1};
+
+ens_data = app.ddata.ensembles{1}.ens_out;
+
+raster_lr = ens_data.coeffs*ens_data.scores;
+figure; imagesc(raster_lr)
+
+figure; imagesc(firing_rate)
+
+accepted_ens = ens_stats.accepted_ensembles;
+
+ens_cells_list = ens_data.cells.ens_list(accepted_ens);
+ens_cell_coeffs = ens_data.coeffs(:,accepted_ens);
+scores = ens_data.scores(accepted_ens,:);
+
+resp_ens = find(ens_tuning.cell_is_resp(:,n_tr));
+
+figure; hold on;
+for n_ens = 1:numel(resp_ens)
+   n_ens2 =  resp_ens(n_ens);
+   plot(scores(n_ens2,:))
+end
+
+cell_ens_idx = false(app.cdata.num_cells, numel(resp_ens));
+for n_ens = 1:numel(resp_ens)
+    n_ens2 =  resp_ens(n_ens);
+    cell_list = ens_cells_list{n_ens2};
+    cell_ens_idx(cell_list,n_ens) = 1;
+end
+
+for n_ens = 1:numel(resp_ens)
+    n_ens2 =  resp_ens(n_ens);
+    cell_list = ens_cells_list{n_ens2};
+    [~, sort_idx] = sort(ens_cell_coeffs(cell_list,n_ens2), 'descend');
+    figure;
+    ax1 = subplot(2,1,1);
+    imagesc(firing_rate(cell_list(sort_idx),:));
+    title(['ens ' num2str(n_ens2)]);
+    ax2 = subplot(2,1,2); hold on;
+    plot(sum(firing_rate(cell_list(sort_idx),:))/ max(sum(firing_rate(cell_list(sort_idx),:))));
+    plot(scores(n_ens2,:)/max(scores(n_ens2,:)))
+    linkaxes([ax1,ax2],'x');
+end
+
+all_cell_list = [];
+for n_ens = 1:numel(resp_ens)
+    n_ens2 =  resp_ens(n_ens);
+    cell_list = ens_cells_list{n_ens2};
+    [~, sort_idx] = sort(ens_cell_coeffs(cell_list,n_ens2), 'descend');
+    all_cell_list = [all_cell_list; cell_list(sort_idx)];
+end
+
+all_cell_list_uniq = unique(all_cell_list, 'stable');
+
+figure; 
+subplot(1,10,1:9);
+imagesc(firing_rate(all_cell_list_uniq,:));
+subplot(1,10,10);
+imagesc(cell_ens_idx(all_cell_list_uniq,:));
+
+
+stim_frame_index = app.ddata.stim_frame_index{1}(app.ddata.trial_types{1} == n_tr);
+
+trial_num_baseline_resp_frames = app.ddata.trial_window{1}.trial_num_baseline_resp_frames;
+trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_num_baseline_resp_frames);
+
+trial_data_sort_2d = reshape(trial_data_sort, app.cdata.num_cells, []);
+raster_ens = trial_data_sort_2d(all_cell_list_uniq,:);
+
+figure; 
+subplot(1,10,1:9);
+imagesc(raster_ens);
+subplot(1,10,10);
+imagesc(cell_ens_idx(all_cell_list_uniq,:));
+
+figure; imagesc(raster_ens)
+
+D = f_pdist2_YS(raster_ens, raster_ens, 'cosine');
+
+figure; imagesc(1-D)
+
+
+
+
 end

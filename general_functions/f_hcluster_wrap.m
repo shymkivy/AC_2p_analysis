@@ -100,3 +100,6 @@ if plot_dist_mat
 end
 
 end
+
+load('handel')
+sound(y)

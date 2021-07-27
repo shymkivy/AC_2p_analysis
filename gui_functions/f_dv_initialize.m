@@ -29,4 +29,7 @@ app.plotfeatureDropDown.Items = {'peak loc', 'resp mag'};
 app.plottypeDropDown.Items = {'kde', 'ecdf', 'histogram'};
 app.RunallDropDown.Items = app.gui_ops.save_var_list;
 
+app.regiontoplotDropDown.Items = {'all', 'A1', 'A2', 'AAF', 'UF'};
+
+app.DeconvolutionmethodDropDown.Items = {'smooth_dfdt'}
 end

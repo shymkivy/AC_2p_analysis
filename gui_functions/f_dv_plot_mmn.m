@@ -20,14 +20,27 @@ params = f_dv_gather_params(app);
 resp_all = cell(num_dsets, num_flip);
 cell_counts = zeros(num_dsets, num_flip);
 
-stats1 = data1.stats{n_pl};
+if strcmpi(app.regiontoplotDropDown.Value, 'all')
+    region_num = 0;
+elseif strcmpi(app.regiontoplotDropDown.Value, 'A1')
+    region_num = 1;
+elseif strcmpi(app.regiontoplotDropDown.Value, 'A2')
+    region_num = 2;
+elseif strcmpi(app.regiontoplotDropDown.Value, 'AAF')
+    region_num = 3;
+elseif strcmpi(app.regiontoplotDropDown.Value, 'UF')
+    region_num = 4;
+end
+
 
 for n_flip = 1:num_flip
     tn_all = ctx_plot_list(:,n_flip);
     ctx1 = app.ops.context_types_all(tn_all)';
     
     for n_dset = 1:num_dsets
+        fprintf('dset %d\n', n_dset);
         data1 =  data(n_dset,:);
+        stats1 = data1.stats{n_pl};
         params.n_dset = find(data1.idx == app.data.idx);
 
         cdata = f_dv_compute_cdata(app, params);
@@ -38,10 +51,14 @@ for n_flip = 1:num_flip
         mmn_freq = data1.MMN_freq{1};
         cell_is_resp = stats1.cell_is_resp;
         
-        if ~isempty(data1.registered_data{n_dset})
-            reg_labels = data1.registered_data{n_dset}.reg_labels;
+        if ~region_num
+            reg_cell_idx = ones(cdata.num_cells,1);
         else
-            reg_labels = zeros(cdata.num_cells,1);
+            if ~isempty(data1.registered_data{1})
+                reg_cell_idx = data1.registered_data{1}.reg_labels==region_num;
+            else
+                reg_cell_idx = zeros(cdata.num_cells,1);
+            end
         end
         
         trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trig_window);
@@ -58,7 +75,7 @@ for n_flip = 1:num_flip
         trial_data_sort_wctx = (trial_data_sort_wctx - pop_mean_val)./pop_z_factor;
         
         % get resp cells
-        resp_cell_idx = logical(sum(cell_is_resp(:,tn_all),2));
+        resp_cell_idx = logical(sum(cell_is_resp(:,tn_all),2).*reg_cell_idx);
         cell_counts(n_dset, n_flip) = sum(resp_cell_idx);
         
         resp_all{n_dset, n_flip} = zeros(cell_counts(n_dset, n_flip), num_t, size(ctx1,2));
@@ -108,7 +125,13 @@ for n_flip = 1:num_flip
         end
 
     end
-
+    if app.ConverttoZCheckBox.Value
+        ylabel('Z-score');
+    else
+        ylabel('response mag');
+    end
+    xlabel('Time (sec)');
+    title(sprintf('%s; %d cells', app.regiontoplotDropDown.Value, num_cells(n_flip)));
 %     if rem(n_ctx,n) ~= 1
 %         set(gca,'ytick',[])
 %     end
@@ -129,7 +152,7 @@ for n_flip = 1:num_flip
 %     end
     %title(sprintf('%s', title2))
 end
-sgtitle(title_tag, 'Interpreter', 'none')
+sgtitle([title_tag '; region ' app.regiontoplotDropDown.Value], 'Interpreter', 'none');
 
 
 end

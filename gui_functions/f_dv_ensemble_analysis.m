@@ -24,13 +24,13 @@ ens_params.vol_period = ddata.proc_data{1}.frame_data.volume_period;
 
 %%
 
-% tn_all = f_dv_get_trial_number(app);
-% tt_all = app.ops.context_types_all(tn_all)';
-% 
-% stim_times = app.ddata.stim_frame_index{n_pl};
-% mmn_freq = app.ddata.MMN_freq{1};
-% trig_window = app.working_ops.trial_num_baseline_resp_frames;
-% trial_types = app.ddata.trial_types{1};
+tn_all = f_dv_get_trial_number(app);
+tt_all = app.ops.context_types_all(tn_all)';
+
+stim_times = app.ddata.stim_frame_index{n_pl};
+mmn_freq = app.ddata.MMN_freq{1};
+trig_window = app.working_ops.trial_num_baseline_resp_frames;
+trial_types = app.ddata.trial_types{1};
 
 firing_rate = app.cdata.S;
 
@@ -188,5 +188,9 @@ for n_comp = 1:ens_params.num_comp
         end
     end
 end
+
+figure; hold on;
+plot(ens_out.cells.ens_scores(2,:))
+plot(ens_out.cells.ens_scores(15,:))
 
 end

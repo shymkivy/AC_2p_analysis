@@ -1,10 +1,10 @@
-function ens_params = f_dv_ensemble_extract_core(~, params)
+function ens_params = f_dv_ensemble_extract_core(app, params)
 
 corr_dim = round(params.data_dim_pca.dimensionality_corr);
 
 %% input paramseters for ensemble analysis
-params = f_dv_ensemble_params(app, corr_dim);
-ens_params = params.ens_params;
+params2 = f_dv_ensemble_params(app, corr_dim);
+ens_params = params2.ens_params;
 
 %%
 ens_params.vol_period = params.cdata.volume_period;
@@ -27,6 +27,6 @@ ens_out = f_ensemble_analysis_YS_raster(firing_rate_sm_norm, ens_params);
 firing_rate_norm = f_normalize(firing_rate, ens_params.normalize);
 acc_out_d = f_evaluate_ens_cv(ens_out, firing_rate_norm, ens_params);
 ens_params.acc_out_d = acc_out_d;
-
+ens_params.ens_out = ens_out;
 
 end

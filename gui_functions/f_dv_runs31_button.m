@@ -86,6 +86,9 @@ data = f_mpl_preprocess_data(data, ops);
 app.data = data;
 app.ops = ops;
 
+%%
+f_dv_compute_cdata_all(app)
+
 %% additional 
 f_dv_initialize_post_load(app);
 end
