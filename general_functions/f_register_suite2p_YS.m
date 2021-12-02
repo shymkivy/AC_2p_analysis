@@ -2,7 +2,7 @@ function [dreg, dsall] = f_register_suite2p_YS(data, input_frame)
 
 %% register Y
 
-suite2p_matlab_path = 'C:\Users\ys2605\Desktop\stuff\Suite2P_matlab';
+suite2p_matlab_path = 'C:\Users\shymk\Desktop\stuff\Suite2P_matlab';
 addpath(suite2p_matlab_path);
 addpath([suite2p_matlab_path '\preRegistration']);
 addpath([suite2p_matlab_path '\registration']);
