@@ -1,8 +1,8 @@
-function [dreg, dsall] = f_register_suite2p_YS(data, input_frame)
+function [dreg, dsall] = f_suite2p_apply_reg_YS(data, dsall)
 
 %% register Y
 
-suite2p_matlab_path = 'C:\Users\shymk\Desktop\stuff\Suite2P_matlab';
+suite2p_matlab_path = 'C:\Users\ys2605\Desktop\stuff\Suite2P_matlab';
 addpath(suite2p_matlab_path);
 addpath([suite2p_matlab_path '\preRegistration']);
 addpath([suite2p_matlab_path '\registration']);
@@ -40,10 +40,11 @@ ops1{1,1}.mimg1       = zeros(ops1{1,1}.Ly, ops1{1,1}.Lx);
 ops1{1}.Nframes(1) = 0;
 
 data = reshape(data, d1,d2,T,1);
-if exist('input_frame', 'var')
-    ops1{1,1}.mimg = input_frame;
-end
-[dsall, ops1] = rigidOffsets(data, 1, 1, 1, ops, ops1);
+
+% if exist('input_frame', 'var')
+%     ops1{1,1}.mimg = input_frame;
+% end
+%[dsall, ops1] = rigidOffsets(data, 1, 1, 1, ops, ops1);
 
 dreg = rigidMovie(data, ops1, dsall, yFOVs, xFOVs);
 
