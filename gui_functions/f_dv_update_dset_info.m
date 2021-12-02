@@ -47,7 +47,11 @@ if isempty(ddata.stats{n_pl})
     app.ddata = app.data(idx1,:);
 end
 
-app.ZthreshcurrentEditField.Value = app.data(idx1,:).stats{n_pl}.z_thresh;
+if isfield(app.data(idx1,:).stats{n_pl}, 'z_thresh')
+    app.ZthreshcurrentEditField.Value = app.data(idx1,:).stats{n_pl}.z_thresh;
+else 
+    app.ZthreshcurrentEditField.Value = app.data(idx1,:).stats{n_pl}.stat_params.z_thresh;
+end
 
 if ~isempty(ddata.data_dim_pca{n_pl})
     app.DimpcaEditField.Value = ddata.data_dim_pca{n_pl}.dimensionality_corr;

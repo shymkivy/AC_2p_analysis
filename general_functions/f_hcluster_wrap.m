@@ -53,6 +53,7 @@ hclust_out.dist = dist1;
 hclust_out.dend_order = dend_order;
 hclust_out.clust_ident = clust_ident;
 hclust_out.Z = Z;
+hclust_out.num_clust = num_clust;
 
 if plot_dist_mat
     image_Z = 1-dist1;
@@ -100,6 +101,3 @@ if plot_dist_mat
 end
 
 end
-
-load('handel')
-sound(y)

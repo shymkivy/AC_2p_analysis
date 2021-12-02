@@ -8,6 +8,9 @@ est_params_cv = params.est_params_cv;
 %%
 firing_rate = f_dv_get_firing_rate(params.cdata);
 
+num_cells = size(firing_rate,1);
+firing_rate = firing_rate(randperm(num_cells),:);
+
 %%
 est_params_cv.n_rep = 1:est_params_cv.reps;
 est_params_list = f_build_param_list(est_params_cv, {'smooth_SD', 'num_comp', 'n_rep'});

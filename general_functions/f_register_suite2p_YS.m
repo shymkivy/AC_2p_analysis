@@ -1,4 +1,4 @@
-function [dreg, dsall] = f_register_suite2p_YS(data)
+function [dreg, dsall] = f_register_suite2p_YS(data, input_frame)
 
 %% register Y
 
@@ -23,7 +23,6 @@ ops.nplanes = 1;
 ops.smooth_time_space = [];
 
 
-
 [Ly, Lx, T] = size(data);
 ops.Ly = Ly;
 ops.Lx = Lx;
@@ -41,7 +40,9 @@ ops1{1,1}.mimg1       = zeros(ops1{1,1}.Ly, ops1{1,1}.Lx);
 ops1{1}.Nframes(1) = 0;
 
 data = reshape(data, d1,d2,T,1);
-
+if exist('input_frame', 'var')
+    ops1{1,1}.mimg = input_frame;
+end
 [dsall, ops1] = rigidOffsets(data, 1, 1, 1, ops, ops1);
 
 dreg = rigidMovie(data, ops1, dsall, yFOVs, xFOVs);

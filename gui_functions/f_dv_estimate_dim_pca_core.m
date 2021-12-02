@@ -14,6 +14,9 @@ est_params_pca = params2.est_params_pca;
 %%
 firing_rate = f_dv_get_firing_rate(params.cdata);
 
+num_cells = size(firing_rate,1);
+firing_rate = firing_rate(randperm(num_cells),:);
+
 data_dim_est = f_ensemble_comp_data_dim2(firing_rate, est_params_pca);
 
 end

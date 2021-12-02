@@ -1,4 +1,4 @@
-function data_dim_est = f_ensemble_comp_data_dim2(firing_rate, params)
+function data_dim_est = f_ensemble_comp_data_dim_trials(firing_rate, params)
 % input either 3D tials data (Cell x Time X Trial)
 %           or 2D trial data (Cell x Trial)
 %% parameters
@@ -9,24 +9,30 @@ end
 normalize1 = f_get_param(params, 'normalize', 'norm_mean_std');  % 'norm_mean_std', 'norm_mean' 'none'
 shuffle_method = f_get_param(params, 'shuffle_method', 'circ_shift');     % 'circ_shift' or 'scramble'
 total_dim_thresh = f_get_param(params, 'total_dim_thresh', .7);
-dim_est_num_reps = f_get_param(params, 'dim_est_num_reps', 100);
+dim_est_num_reps = f_get_param(params, 'dim_est_num_reps', 10000);
 %corr_comp_thresh = f_get_param(params, 'corr_comp_thresh', .90);
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
+shuff_3d_trials = 1;
 
 %%
 ndims1 = ndims(firing_rate);
 if ndims1 == 3
-    num_cells = size(firing_rate,1);
-    firing_rate = reshape(firing_rate, num_cells,[]);
+    [num_cells, ~, num_tr] = size(firing_rate);
+    firing_rate_2d = reshape(firing_rate, num_cells,[]);
+else
+    firing_rate_2d = firing_rate;
 end  
 
 % active_cells = sum(firing_rate,2) ~= 0;
 % firing_rate(~active_cells,:) = [];
 % ens_out.active_cells = active_cells;
 
-firing_rate_norm = f_normalize(firing_rate, normalize1);
+firing_rate_2d_norm = f_normalize(firing_rate_2d, normalize1);
+[num_cells, ~] = size(firing_rate_2d_norm);
 
-[num_cells, ~] = size(firing_rate_norm);
+if ndims1 == 3
+    firing_rate_3d_norm = reshape(firing_rate_2d_norm, num_cells,[], num_tr);
+end
 
 %% dim reduction with SVD to calulate components number
 
@@ -34,13 +40,13 @@ firing_rate_norm = f_normalize(firing_rate, normalize1);
 % sing_val_sq = diag(S'*S);
 % d_explained = sing_val_sq/sum(sing_val_sq)*100;
 
-[d_coeff,~,~,~,d_explained,~] = pca(firing_rate_norm');
+[d_coeff,~,~,~,d_explained,~] = pca(firing_rate_2d_norm');
 
 dimensionality_total_norm = sum(cumsum(d_explained)<(total_dim_thresh*100));
 %figure; plot(d_explained)
 
 %% repeat with not norm
-[~,S2,~] = svd(firing_rate);
+[~,S2,~] = svd(firing_rate_2d);
 sing_val_sq2 = diag(S2'*S2);
 d_explained2 = sing_val_sq2/sum(sing_val_sq2)*100;
 %figure; plot(d_explained)
@@ -50,7 +56,16 @@ dimensionality_total = sum(cumsum(d_explained2)<(total_dim_thresh*100));
 max_lamb_shuff = zeros(dim_est_num_reps,1);
 dim_total_shuff = zeros(dim_est_num_reps,1);
 for n_rep = 1:dim_est_num_reps
-    firing_rate_shuff = f_shuffle_data(firing_rate_norm, shuffle_method);
+    if and(ndims1 == 3, shuff_3d_trials)
+        firing_rate_3d_norm_shuff = zeros(size(firing_rate_3d_norm));
+        for n_cell = 1:num_cells
+            rand_idx = randperm(num_tr);
+            firing_rate_3d_norm_shuff(n_cell,:,:) = firing_rate_3d_norm(n_cell,:,rand_idx);
+        end
+        firing_rate_shuff = reshape(firing_rate_3d_norm_shuff, num_cells,[]);
+    else
+        firing_rate_shuff = f_shuffle_data(firing_rate_2d_norm, shuffle_method);
+    end
 %     [~,s_S,~] = svd(firing_rate_shuff);
 %     s_sing_val_sq = diag(s_S'*s_S);
 %     s_explained = s_sing_val_sq/sum(s_sing_val_sq)*100;
@@ -83,13 +98,13 @@ data_dim_est.params = params;
 
 %%
 if plot_stuff
-    SI_firing_rate = similarity_index(firing_rate_norm, firing_rate_norm);
+    SI_firing_rate = similarity_index(firing_rate_2d_norm, firing_rate_2d_norm);
     SI_firing_rate_shuff = similarity_index(firing_rate_shuff, firing_rate_shuff);
     
     figure; 
-    ax1 = subplot(3,1,1:2);imagesc(firing_rate_norm); axis tight;
+    ax1 = subplot(3,1,1:2);imagesc(firing_rate_2d_norm); axis tight;
     title('Firing rates raster');
-    ax2 = subplot(3,1,3);plot(sum(firing_rate_norm)); axis tight;
+    ax2 = subplot(3,1,3);plot(sum(firing_rate_2d_norm)); axis tight;
     linkaxes([ax1,ax2],'x');
 
     figure; 

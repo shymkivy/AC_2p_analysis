@@ -16,7 +16,7 @@ if strcmpi(app.RunallDropDown.Value, 'stats')
         params.ddata = ddata;
         for n_pl = 1:ddata.num_planes
             params.n_pl = n_pl;
-            if isempty(app.data(n_dset,:).stats{n_pl})
+            if or(isempty(app.data(n_dset,:).stats{n_pl}), app.OverwriteCheckBox.Value)
                 params.cdata = app.data(n_dset,:).cdata{n_pl};
                 app.data(n_dset,:).stats{n_pl} = f_dv_compute_stats_core(app, params);
             end
@@ -31,7 +31,7 @@ elseif strcmpi(app.RunallDropDown.Value, 'data_dim_pca')
         ddata = app.data(n_dset,:);
         for n_pl = 1:ddata.num_planes
             params.n_pl = n_pl;
-            if isempty(app.data(n_dset,:).data_dim_pca{n_pl})
+            if or(isempty(app.data(n_dset,:).data_dim_pca{n_pl}), app.OverwriteCheckBox.Value)
                 params.cdata = app.data(n_dset,:).cdata{n_pl};
                 app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
             end
@@ -47,7 +47,7 @@ elseif strcmpi(app.RunallDropDown.Value, 'data_dim_cv')
         params.ddata = ddata;
         for n_pl = 1:ddata.num_planes
             params.n_pl = n_pl;
-            if isempty(app.data(n_dset,:).data_dim_cv{n_pl})
+            if or(isempty(app.data(n_dset,:).data_dim_cv{n_pl}), app.OverwriteCheckBox.Value)
                 params.cdata = app.data(n_dset,:).cdata{n_pl};
                 if isempty(app.data(n_dset,:).data_dim_pca{n_pl})
                     app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
@@ -69,7 +69,7 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensembles')
         params.ddata = ddata;
         for n_pl = 1:ddata.num_planes
             params.n_pl = n_pl;
-            if isempty(app.data(n_dset,:).ensembles{n_pl})
+            if or(isempty(app.data(n_dset,:).ensembles{n_pl}), app.OverwriteCheckBox.Value)
                 params.cdata = app.data(n_dset,:).cdata{n_pl};
                 if isempty(app.data(n_dset,:).data_dim_pca{n_pl})
                     app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
@@ -91,7 +91,7 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensemble_stats')
         params.ddata = ddata;
         for n_pl = 1:ddata.num_planes
             params.n_pl = n_pl;
-            if isempty(app.data(n_dset,:).ensemble_stats{n_pl})
+            if or(isempty(app.data(n_dset,:).ensemble_stats{n_pl}), app.OverwriteCheckBox.Value)
                 params.cdata = app.data(n_dset,:).cdata{n_pl};
                 if isempty(app.data(n_dset,:).data_dim_pca{n_pl})
                     app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
@@ -119,7 +119,7 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensemble_tuning')
         params.ddata = ddata;
         for n_pl = 1:ddata.num_planes
             params.n_pl = n_pl;
-            if isempty(app.data(n_dset,:).ensemble_tuning{n_pl})
+            if or(isempty(app.data(n_dset,:).ensemble_tuning{n_pl}), app.OverwriteCheckBox.Value)
                 params.cdata = app.data(n_dset,:).cdata{n_pl};
                 if isempty(app.data(n_dset,:).data_dim_pca{n_pl})
                     app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
@@ -140,6 +140,22 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensemble_tuning')
 %                     params.ensemble_stats = app.data(n_dset,:).ensemble_stats{n_pl};
 %                 end
                 app.data(n_dset,:).ensemble_tuning{n_pl} = f_dv_ensemble_tuning(app, params);
+            end
+        end
+    end
+    fprintf('\n');
+elseif strcmpi(app.RunallDropDown.Value, 'ensless_dim_est')
+    fprintf('Running all ensless dim est, Dset_/%d: ', num_data)
+    for n_dset = 1:num_data
+        fprintf('%d..', n_dset);
+        params.n_dset = n_dset;
+        ddata = app.data(n_dset,:);
+        params.ddata = ddata;
+        for n_pl = 1:ddata.num_planes
+            params.n_pl = n_pl;
+            if or(isempty(app.data(n_dset,:).ensless_dim_est{n_pl}), app.OverwriteCheckBox.Value)
+                params.cdata = app.data(n_dset,:).cdata{n_pl};
+                app.data(n_dset,:).ensless_dim_est{n_pl} = f_dv_ensless_dim_est(app, params);
             end
         end
     end

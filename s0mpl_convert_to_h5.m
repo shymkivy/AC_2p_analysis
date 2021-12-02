@@ -22,32 +22,24 @@ load_type = 1;
 % multiplane data?
 multiplane = 5; % number of planes or 0
 
-params.auto_align_pulse_crop = 1;
+params.auto_align_pulse_crop = 0;
 % this also saves a trimmed version of movie
 params.trim_output_num_frames = 0; %  0 or number of frames to save
 
-data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\1_30_21_im_stim\';
+data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3\';
 
 % type 1
 %file_type = 'vmmn';
 %file_type = 'AAF_asynch';
 %file_type = 'A1_freq_grating';
 %file_type = 'ammn_2_dplanes';
-file_name = 'AC_ammn_5plt_1plx'; % 
+fname = 'AC_rest1_mpl5'; % 
 file_num = '2';
-file_date = '1_30_21';
+file_date = '11_24_21';
 %file_date = '10_2_18';
-%
-%load_dir = ['J:\mouse\backup\2018\' file_date '_dLGN\' file_type '-00' file_num];
-load_dir = [data_dir '\' file_name '-00' file_num];
-%load_dir = ['L:\data\Auditory\2018\' file_date '_im\' file_type '-00' file_num];
-%load_dir = ['E:\data\V1\' file_date '\' file_type '-00' file_num];
-
-params.use_prairie_mpl_tags = 1;
-params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'}; % 
-
 % % type 2 and 3
 % load_file_name = 'rest1_5_9_19.hdf5'; % only for 2 and 3
+
 
 %save_dir = 'C:\Users\rylab_dataPC\Desktop\Yuriy\DD_data\proc_data';
 %save_dir = 'E:\data\Auditory\caiman_out_multiplane';
@@ -56,15 +48,28 @@ params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_
 save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
 %save_dir = 'C:\Users\ys2605\Desktop\stuff\random_save_path';
 
+params.use_prairie_mpl_tags = 1;
+params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'}; % 
+
+
+%%
+%load_dir = ['J:\mouse\backup\2018\' file_date '_dLGN\' file_type '-00' file_num];
+load_dir = [data_dir '\' fname '-00' file_num];
+%load_dir = ['L:\data\Auditory\2018\' file_date '_im\' file_type '-00' file_num];
+%load_dir = ['E:\data\V1\' file_date '\' file_type '-00' file_num];
+
 save_dir_movie = [save_dir '\movies'];
+save_dir_cuts = [save_dir '\preprocessing'];
 
-save_file_name = [file_name file_num '_' file_date];
+save_file_name = [fname '_' file_date];
 disp(save_file_name);
-
 
 %%
 if ~exist(save_dir_movie, 'dir')
     mkdir(save_dir_movie)
+end
+if ~exist(save_dir_cuts, 'dir')
+    mkdir(save_dir_cuts)
 end
 if ~exist([save_dir_movie '\ave_proj'], 'dir')
     mkdir([save_dir_movie '\ave_proj'])
@@ -73,9 +78,6 @@ end
 addpath([pwd '\general_functions']);
 
 %% load
-
-    
-    
 if ~params.use_prairie_mpl_tags
     if load_type == 1
         params.load_path = load_dir;

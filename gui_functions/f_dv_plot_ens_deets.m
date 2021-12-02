@@ -27,6 +27,7 @@ for n_ens = 1:numel(resp_ens)
    n_ens2 =  resp_ens(n_ens);
    plot(scores(n_ens2,:))
 end
+title(sprintf('Ensemble scores'));
 
 cell_ens_idx = false(app.cdata.num_cells, numel(resp_ens));
 for n_ens = 1:numel(resp_ens)
@@ -42,10 +43,11 @@ for n_ens = 1:numel(resp_ens)
     figure;
     ax1 = subplot(2,1,1);
     imagesc(firing_rate(cell_list(sort_idx),:));
-    title(['ens ' num2str(n_ens2)]);
+    title(sprintf('ens %d raster', n_ens2));
     ax2 = subplot(2,1,2); hold on;
     plot(sum(firing_rate(cell_list(sort_idx),:))/ max(sum(firing_rate(cell_list(sort_idx),:))));
     plot(scores(n_ens2,:)/max(scores(n_ens2,:)))
+    title('Scores vs ens average')
     linkaxes([ax1,ax2],'x');
 end
 
@@ -62,6 +64,7 @@ all_cell_list_uniq = unique(all_cell_list, 'stable');
 figure; 
 subplot(1,10,1:9);
 imagesc(firing_rate(all_cell_list_uniq,:));
+title('Full raster');
 subplot(1,10,10);
 imagesc(cell_ens_idx(all_cell_list_uniq,:));
 
@@ -76,10 +79,11 @@ trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_num_
 
 trial_data_sort2 = trial_data_sort_wctx(:,:,trial_types_wctx==app.ops.context_types_all(n_tr));
 
-num_gr_cells = numel(all_cell_list_uniq)
+num_gr_cells = numel(all_cell_list_uniq);
 peak_vals = squeeze(max(trial_data_sort2(all_cell_list_uniq,:,:), [], 2));
 
-params.plot_stuff = 1;
+params.plot_dist_mat = 0;
+params.plot_clusters = 0;
 hclust_out = f_hcluster_wrap(peak_vals', params);
 
 trial_data_sort_2d = reshape(trial_data_sort2(:,:,hclust_out.dend_order), app.cdata.num_cells, []);
@@ -88,8 +92,10 @@ raster_ens = trial_data_sort_2d(all_cell_list_uniq,:);
 figure; 
 subplot(1,10,1:9);
 imagesc(raster_ens);
+title('Single trial raster sorted')
 subplot(1,10,10);
 imagesc(cell_ens_idx(all_cell_list_uniq,:));
+
 
 [~, idx1] = sort(trial_types);
 trial_data_sort_sort = trial_data_sort(:,:,idx1);
@@ -99,6 +105,7 @@ raster_ens_all_tr = trial_data_sort_sort_2d(all_cell_list_uniq,:);
 figure; 
 subplot(1,10,1:9);
 imagesc(raster_ens_all_tr);
+title('trial responsive ens full raster')
 subplot(1,10,10);
 imagesc(cell_ens_idx(all_cell_list_uniq,:));
 
@@ -107,17 +114,18 @@ imagesc(cell_ens_idx(all_cell_list_uniq,:));
 D = f_pdist2_YS(raster_ens, raster_ens, 'cosine');
 
 figure; imagesc(1-D)
+title('trial responsive similarity sorted')
 
 figure; imagesc(scores(resp_ens,:))
+title('Trial responsive scores')
 
-figure; imagesc(scores(resp_ens,:))
-
-figure; imagesc(scores)
+figure; imagesc(scores);
+title('All scores')
 
 trial_scores_sort = f_get_stim_trig_resp(scores, stim_frame_index, trial_num_baseline_resp_frames);
 
 trial_scores_sort_2d = reshape(trial_scores_sort(:,:,idx1), size(scores,1), []);
 figure; imagesc(trial_scores_sort_2d)
-
+title('All scores trial sorted');
 
 end

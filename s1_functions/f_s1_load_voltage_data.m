@@ -5,7 +5,7 @@ volt_data_all_segmented = cell(ops.num_volt_in_files,1);
 % load and process voltage files
 for n_file = 1:ops.num_volt_in_files
     dattmp = dlmread([ops.file_dir '\' ops.files_volt_in{n_file} '.csv'],',',1,1);
-    num_volt_traces = size(dattmp,2);
+    num_volt_traces = min([size(dattmp,2), 4]);
     
     
     % syncs the start of voltage recording with start of frame

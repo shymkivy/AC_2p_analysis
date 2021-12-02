@@ -6,7 +6,7 @@ function stats = f_dv_compute_stats_core(app, params)
 peak_stats = 'shuff_pool'; % 'shuff_pool', 'shuff_locwise', 'z_thresh'
 peak_bin_size = 7;
 peak_prcntle = 99.9;
-num_samp = 1000;
+num_samp = 1000; % 1000 before
 
 stat_window = [-2 3];
 stat_trial_window = [0 1];
@@ -44,14 +44,20 @@ if strcmpi(params.stat_source, 'All')
     pop_stim_times = stim_times;
     trial_data_sort_stat = trial_data_sort;
 elseif strcmpi(params.stat_source, 'Freqs')
-    stim_idx = logical(sum(trial_types == 1:app.ops.stim.num_freqs,2));
+    trials_of_interest = 1:app.ops.stim.num_freqs;
+    stim_idx = logical(sum(trial_types == trials_of_interest,2));
+    pop_stim_times = stim_times(stim_idx);
+    trial_data_sort_stat = trial_data_sort(:,:,stim_idx);
+elseif strcmpi(params.stat_source, 'Freqs_dd')
+    trials_of_interest = [1:app.ops.stim.num_freqs 170 270];
+    stim_idx = logical(sum(trial_types == trials_of_interest,2));
     pop_stim_times = stim_times(stim_idx);
     trial_data_sort_stat = trial_data_sort(:,:,stim_idx);
 end
 
 num_tt = numel(app.ops.context_types_all);
 num_trials = numel(pop_stim_times);
-num_trial_per_stim = num_trials/app.ops.stim.num_freqs;
+num_trial_per_stim = round(sum(logical(sum(trial_types == (1:app.ops.stim.num_freqs),2)))/app.ops.stim.num_freqs);
 num_t = sum(stat_trial_window_num_baseline_resp_frames);
 
 trial_data_sort_stat_mean = squeeze(mean(trial_data_sort_stat,2));
@@ -204,14 +210,17 @@ stats.resp_thresh = resp_thresh;
 stats.peak_val_all = peak_vals;
 stats.peak_t_all = stat_trial_window_t(peak_locs);
 stats.stat_window_t = stat_trial_window_t; % stat_window_t
-stats.z_thresh = z_thresh;
-stats.peak_stats = peak_stats;
-stats.peak_bin_size = peak_bin_size;
-stats.peak_prcntle = peak_prcntle;
-stats.num_samp = num_samp;
 stats.num_cells = num_cells;
 stats.accepted_cells = params.cdata.accepted_cells;
 stats.loco_cell = loco_cell;
 stats.loco_corr = loco_corr;
 stats.loco_z = loco_z;
+params2 = rmfield(params, 'cdata');
+params2 = rmfield(params2, 'ddata');
+stats.stat_params = params2;
+stats.stat_params.z_thresh = z_thresh;
+stats.stat_params.peak_stats = peak_stats;
+stats.stat_params.peak_bin_size = peak_bin_size;
+stats.stat_params.peak_prcntle = peak_prcntle;
+stats.stat_params.num_samp = num_samp;
 end

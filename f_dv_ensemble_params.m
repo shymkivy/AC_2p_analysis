@@ -12,7 +12,7 @@ est_params_cv.normalize = 'norm_mean_std'; % **'norm_mean_std'**, 'norm_mean' 'n
 est_params_cv.shuffle_data_chunks = 1;   % 1 or 0, keeping cell correlations   % if the sequence of trial presentation contains information, you will need to shuffle. Also need to do in chunks because adjacent time bins are slightly correlated
 % ---- input one or range of values to estimate across following
 est_params_cv.smooth_SD = 0;       % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
-if exist('cv_corr_dim', 'var')
+if exist('corr_dim', 'var')
     est_params_cv.num_comp = (corr_dim-10):2:(corr_dim+10); 
 else
     est_params_cv.num_comp = 1:2:30;
@@ -26,7 +26,9 @@ est_params_cv.include_shuff_version = 0;
 % NMF 14 comp
 % SVD 11-14 comp?
 ens_params.ensamble_method = 'nmf'; % options: svd, **nmf**, ica     % here NMF is
-ens_params.num_comp = corr_dim;
+if exist('corr_dim', 'var')
+    ens_params.num_comp = corr_dim;
+end
 ens_params.smooth_SD = 0; % 110 is better?
 ens_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'
 ens_params.ensamble_extraction = 'thresh'; %  **'thresh'(only for nmf)** 'clust'(for all)
