@@ -5,7 +5,7 @@ pwd1 = fileparts(which('fast_dd_cells_identification.m'));
 
 addpath([pwd1 '\general_functions']);
 
-data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3';
+data_dir = 'C:\Users\shymk\Desktop\stuff\AC_data\11_24_21_pt3';
 
 % proc_data_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
 % fname = 'A1_ammn1_5plt_1plm_12_27_20_OA';
@@ -18,7 +18,7 @@ load_dir = [data_dir '\' fname '-00' file_num];
 
 %save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3';
 %save_dir = 'C:\Users\ys2605\Desktop\stuff\random_save_path';
-save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
+save_dir = 'C:\Users\shymk\Desktop\stuff\AC_data\caiman_data';
 save_dir_movie = [save_dir '\movies'];
 
 multiplane = 5;
@@ -26,6 +26,8 @@ multiplane = 5;
 mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'};
 red_chan = {'Ch1_000001', 'Ch1_000002', 'Ch1_000003', 'Ch1_000004', 'Ch1_000005'};
 
+%%
+multiplane = 1;
 %% load movie
 Y = cell(multiplane,1);
 
