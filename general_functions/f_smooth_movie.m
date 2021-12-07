@@ -19,16 +19,14 @@ for n_sm = 1:3
         norm_line = ones(siz1(1),1);
         norm_line_sm = conv(norm_line, gaus_kernel, 'same');
 
-        f = waitbar(0,sprintf('Smoothing movie dim%d...', n_sm));
         for nd2 = 1:siz1(2)
             for nd3 = 1:siz1(3)
                 line_data = squeeze(double(Y_sm(:, nd2, nd3)));
                 line_data_sm = conv(line_data, gaus_kernel, 'same')./norm_line_sm;
                 Y_sm(:, nd2, nd3) = uint16(line_data_sm);
             end
-            waitbar(nd2/siz1(2),f);
         end
-        close(f);
+
     end
     smooth_std1 = smooth_std1([2 3 1]);
     siz1 = siz1([2 3 1]);

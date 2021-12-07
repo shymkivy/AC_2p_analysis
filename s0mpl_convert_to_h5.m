@@ -11,7 +11,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 clear;
-%close all;
+close all;
 
 %%
 load_type = 1; 
@@ -20,22 +20,30 @@ load_type = 1;
 % 3 = h5 stack (needs file name)
 
 % multiplane data?
-multiplane = 5; % number of planes or 0
+num_planes = 5; % number of planes or 0
+params.use_prairie_mpl_tags = 1;
+params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'}; % 
 
-params.auto_align_pulse_crop = 0;
+do_bidi = 1;
+do_moco = 1;
+save_all_steps = 0;
+
+params.auto_align_pulse_crop = 1;
 % this also saves a trimmed version of movie
 params.trim_output_num_frames = 0; %  0 or number of frames to save
 
-data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3\';
+
+data_dir = 'D:\data\AC\2p\12_4_21a';
+%data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3\';
 
 % type 1
 %file_type = 'vmmn';
 %file_type = 'AAF_asynch';
 %file_type = 'A1_freq_grating';
 %file_type = 'ammn_2_dplanes';
-fname = 'AC_rest1_mpl5'; % 
-file_num = '2';
-file_date = '11_24_21';
+fname = 'A1_cont_4'; % 
+file_num = '4';
+file_date = '12_4_21a';
 %file_date = '10_2_18';
 % % type 2 and 3
 % load_file_name = 'rest1_5_9_19.hdf5'; % only for 2 and 3
@@ -48,9 +56,23 @@ file_date = '11_24_21';
 save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
 %save_dir = 'C:\Users\ys2605\Desktop\stuff\random_save_path';
 
-params.use_prairie_mpl_tags = 1;
-params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'}; % 
 
+
+%%
+params_bidi.smooth_std = [1 2 2];
+params_bidi.fix_range = -20:20;
+params_bidi.num_iterations = 2;
+params_bidi.plot_stuff = 1;
+params_bidi.use_planes = [1 3];
+
+params_moco.image_target = [];
+params_moco.num_iterations = 2;
+params_moco.plot_stuff = 1;
+params_moco.smooth_std = [0.5 0.5 3];
+params_moco.im_target_fname = 'A1_cont_0.5_12_4_21a_h5cutsdata.mat';
+
+params.params_bidi = params_bidi;
+params.params_moco = params_moco;
 
 %%
 %load_dir = ['J:\mouse\backup\2018\' file_date '_dLGN\' file_type '-00' file_num];
@@ -64,6 +86,15 @@ save_dir_cuts = [save_dir '\preprocessing'];
 save_file_name = [fname '_' file_date];
 disp(save_file_name);
 
+proc_steps = '_cut';
+
+colors1 = parula(num_planes);
+
+params.save_path = save_dir_movie;
+
+if ~isempty(params_moco.im_target_fname)
+    moco_init_load = load([save_dir_movie '\' params_moco.im_target_fname]);
+end
 %%
 if ~exist(save_dir_movie, 'dir')
     mkdir(save_dir_movie)
@@ -78,165 +109,196 @@ end
 addpath([pwd '\general_functions']);
 
 %% load
-if ~params.use_prairie_mpl_tags
+Y = cell(num_planes,1);
+
+if params.use_prairie_mpl_tags
+    params.load_path = load_dir;
+    for n_pl = 1:num_planes
+        Y{n_pl} = f_collect_prairie_tiffs4(params.load_path, params.mpl_tags{n_pl});
+    end
+else
     if load_type == 1
         params.load_path = load_dir;
-        Y = f_collect_prairie_tiffs4(params.load_path, 'Ch2');
+        Y_full = f_collect_prairie_tiffs4(params.load_path, 'Ch2');
     elseif load_type == 2
         params.load_path = [load_dir, '\',  load_file_name];
-        Y = bigread3(params.load_path, 1);
+        Y_full = bigread3(params.load_path, 1);
     elseif load_type == 3
         params.load_path = [load_dir, '\',  load_file_name];
-        Y = h5read(params.load_path, '/mov');
+        Y_full = h5read(params.load_path, '/mov');
+    end
+    if num_planes > 1
+        last_time = size(Y_full,3);
+        params.ave_trace_full = squeeze(mean(mean(Y_full, 1),2));
+        figure; plot(params.ave_trace_full)
+        title('Full ave trace');
+        for n_pl = 1:num_planes
+            ind_mpl = n_pl:num_planes:last_time;
+            Y{n_pl} = Y_full(:,:,ind_mpl);
+        end
+    else
+        Y{1} = Y_full;
+    end
+    clear Y_full;
+end
+
+%% load cuts data
+mat_name = [save_dir_movie '\' save_file_name '_h5cutsdata.mat'];
+if exist(mat_name, 'file')
+    load_data = load(mat_name);
+    cuts_data = load_data.cuts_data;
+else
+    cuts_data = cell(num_planes,1);
+end
+
+%% compute cuts
+if ~isfield(cuts_data{1}, 'vid_cuts_trace')
+    cuts_data = cell(num_planes,1);
+    [d1, d2, T] = size(Y{1});
+    vid_cuts_trace_all = true(T,1);
+    for n_pl = 1:num_planes
+        cuts_data{n_pl} = params;
+        if num_planes>1
+            cuts_data{n_pl}.title_tag = sprintf('_mpl%d_pl%d', num_planes, n_pl);
+        else
+            cuts_data{n_pl}.title_tag = '';
+        end
+        cuts_data{n_pl}.ave_trace = squeeze(mean(mean(Y{n_pl}, 1),2));
+        cuts_data{n_pl} = f_s0_compute_align_cuts(cuts_data{n_pl});
+        vid_cuts_trace_all = vid_cuts_trace_all.*cuts_data{n_pl}.vid_cuts_trace;
+    end
+    for n_pl = 1:num_planes
+        cuts_data{n_pl}.vid_cuts_trace = vid_cuts_trace_all;
+    end
+    save(mat_name, 'params', 'cuts_data');
+end
+
+%% apply cuts
+for n_pl = 1:num_planes
+    Y{n_pl}(:,:,~cuts_data{n_pl}.vid_cuts_trace) = [];
+    if save_all_steps
+        f_save_mov_YS(Y{n_pl}, [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov');
     end
 end
 
-%%
-if multiplane
-    if params.use_prairie_mpl_tags
-        params.load_path = load_dir;
-        Y = cell(multiplane,1);
-        for n_pl = 1:multiplane
-            Y{n_pl} = f_collect_prairie_tiffs4(params.load_path, params.mpl_tags{n_pl});
+%% bidi fix
+if do_bidi
+    Y_pre_bidi = Y;
+    
+    if ~isfield(cuts_data{1}, 'bidi_out')
+        % compute
+        for n_pl = 1:num_planes
+            fprintf('%s %s\n', save_file_name, cuts_data{n_pl}.title_tag);
+            params_bidi.title_tag = cuts_data{n_pl}.title_tag;
+            [~, cuts_data{n_pl}.bidi_out] = f_fix_bidi_shifts2(Y{n_pl}, params_bidi);
         end
-    else
-        last_time = size(Y,3);
-        params.ave_trace_full = squeeze(mean(mean(Y, 1),2));
-        figure; plot(params.ave_trace_full)
-        title('Full ave trace');
+        save(mat_name, 'params', 'cuts_data');
     end
     
-    Y_full = Y;
-
-    for n_pl = 1:multiplane
-        if params.use_prairie_mpl_tags
-            Y = Y_full{n_pl};
-        else
-            ind_mpl = n_pl:multiplane:last_time;
-            Y = Y_full(:,:,ind_mpl);
-        end
-        
-        params.ave_trace = squeeze(mean(mean(Y, 1),2));
-
-        params = if_compute_align_cuts(params);
-        
-        Y(:,:,~logical(params.vid_cuts_trace)) = [];
-        
-        params.save_mov_path = [save_dir_movie '\' save_file_name '_mpl' num2str(n_pl) '_cut.hdf5'];
-        f_save_mov_YS(Y, params.save_mov_path, '/mov');
-        if params.trim_output_num_frames
-            params.save_mov_path_trim = [save_dir_movie '\' save_file_name '_mpl' num2str(n_pl) '_cut_trim.hdf5'];
-            f_save_mov_YS(Y(:,:,1:round(params.trim_output_num_frames)), params.save_mov_path_trim, '/mov');  
-        end
-        save([save_dir '\' save_file_name '_mpl' num2str(n_pl) '_h5cutsinfo.mat'], 'params');
-
-        tmp_fig = figure; imagesc(squeeze(mean(Y,3))); title([save_file_name ' Ave prjection multiplane pl' num2str(n_pl)], 'Interpreter', 'none'); axis tight equal;
-        saveas(tmp_fig,[save_dir_movie '\ave_proj\' save_file_name '_mpl' num2str(n_pl) '_ave_proj']);
+    bidi_shifts_all = cell(num_planes,1);
+    for n_pl = 1:num_planes
+        bidi_shifts_all{n_pl} = sum(cuts_data{n_pl}.bidi_out.best_shifts,2);
     end
-else
-    %% process
-    % mean trace
-    params.ave_trace = squeeze(mean(mean(Y, 1),2));
+    bidi_shifts_all = cat(2,bidi_shifts_all{:});
+    % only use top 3
+    if isfield(params_bidi, 'use_planes')
+        mean_tag = num2str(params_bidi.use_planes(1):min([params_bidi.use_planes(2) num_planes]));
+        mean_bidi_shifts = round(mean(bidi_shifts_all(:,params_bidi.use_planes(1):min([params_bidi.use_planes(2) num_planes])),2));
+    else
+        mean_tag = 'all';
+        mean_bidi_shifts = round(mean(bidi_shifts_all(:,1:min([3 num_planes])),2));
+    end
+    
+    figure; hold on;
+    for n_pl = 1:num_planes
+        plot(bidi_shifts_all(:,n_pl), 'color', colors1(n_pl, :))
+    end
+    plot(mean_bidi_shifts, 'k');
+    title(['computed bidi shifts all planes; black-average pl ' mean_tag])
+    
+    % apply
+    for n_pl = 1:num_planes
+        Y{n_pl} = f_bidi_apply_shift(Y{n_pl}, mean_bidi_shifts);
+    end
+    proc_steps = [proc_steps '_bidi'];
+    
+    if save_all_steps
+        for n_pl = 1:num_planes
+            f_save_mov_YS(Y{n_pl}, [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov');
+        end
+    end
+end
 
-    [params] = if_compute_align_cuts(params);
+%% moco
+if do_moco
+    Y_pre_moco = Y;
+    
+    if ~isfield(cuts_data{1}, 'dsall')
+        for n_pl = 1:num_planes
+            
+            if isfield(moco_init_load.cuts_data{n_pl}, 'image_target')
+                if ~isempty(moco_init_load.cuts_data{n_pl}.image_target)
+                    params_moco.image_target = moco_init_load.cuts_data{n_pl}.image_target;
+                end
+            end
+            
+            [~, cuts_data{n_pl}.dsall, cuts_data{n_pl}.image_target] = f_mpl_register2(Y{n_pl}, params_moco);
+        end
+        save(mat_name, 'params', 'cuts_data');
+    end
+    
+    dsall1 = cell(num_planes, 1);
+    for n_pl = 1:num_planes
+        dsall1{n_pl} = sum(cat(3,cuts_data{n_pl}.dsall{:}),3);
+    end
+    dsall1_all = median(cat(3,dsall1{:}),3);
+    
+    figure;
+    subplot(2,1,1); hold on;
+    for n_pl = 1:num_planes
+        plot(dsall1{n_pl}(:,1), 'color', colors1(n_pl,:));
+    end
+    plot(dsall1_all(:,1), 'k');
+    subplot(2,1,2); hold on;
+    for n_pl = 1:num_planes
+        plot(dsall1{n_pl}(:,2), 'color', colors1(n_pl,:));
+    end
+    plot(dsall1_all(:,2), 'k');
+    
+    for n_pl = 1:num_planes
+        Y{n_pl} = uint16(f_suite2p_reg_apply(Y{n_pl}, dsall1_all));
+    end
+    
+    proc_steps = [proc_steps '_moco'];
+    for n_pl = 1:num_planes
+        f_save_mov_YS(Y{n_pl}, [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov')
+    end
+end
 
-    % crop movie
-    Y(:,:,~logical(params.vid_cuts_trace)) = [];
+%% save
+params.params_bidi = params_bidi;
+params.params_moco = params_moco;
 
-    %% save h5 file
-    params.save_mov_path = [save_dir_movie '\' save_file_name '_cut.h5'];
-
-    f_save_mov_YS(Y, params.save_mov_path, '/mov');
+for n_pl = 1:num_planes
+    params.save_mov_path = [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'];
+    params.cuts_data = cuts_data{n_pl};
+    
+    f_save_mov_YS(Y{n_pl}, params.save_mov_path, '/mov');
+    
     if params.trim_output_num_frames
-        params.save_mov_path_trim = [save_dir_movie '\' save_file_name '_cut_trim.hdf5'];
-        f_save_mov_YS(Y(:,:,1:round(params.trim_output_num_frames)), params.save_mov_path_trim, '/mov');
+        params.save_mov_path_trim = [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '_trim.hdf5'];
+        f_save_mov_YS(Y{n_pl}(:,:,1:round(params.trim_output_num_frames)), params.save_mov_path_trim, '/mov');  
     end
-    save([save_dir '\' save_file_name '_h5cutsinfo.mat'], 'params');
-    tmp_fig = figure; imagesc(squeeze(mean(Y,3))); title([save_file_name ' Ave prjection'], 'Interpreter', 'none'); axis equal tight;
-    saveas(tmp_fig,[save_dir_movie '\' save_file_name '_ave_proj']);
+    
+    save([save_dir '\' save_file_name cuts_data{n_pl}.title_tag '_h5cutsinfo.mat'], 'params');
+
+    tmp_fig = figure; imagesc(squeeze(mean(Y{n_pl},3)));
+    title([save_file_name ' Ave prjection ' cuts_data{n_pl}.title_tag], 'Interpreter', 'none');
+    axis tight equal;
+    saveas(tmp_fig,[save_dir_movie '\ave_proj\' save_file_name cuts_data{n_pl}.title_tag '_ave_proj.fig']);
 end
 
 disp('Done')
 %% analysis
 
 %% functions
-function [params] = if_compute_align_cuts(params)
-    if ~isfield(params, 'auto_align_pulse_crop')
-        params.auto_align_pulse_crop = 1; % default
-    end
-    ave_trace = params.ave_trace;
-
-    min_trace = min(ave_trace);
-    max_trace = max(ave_trace);
-    norm_ave_trace = (ave_trace - min_trace)/(max_trace-min_trace);
-    
-    if params.auto_align_pulse_crop
-        thresh = 0.5;
-        pulse_buff = 30; % frames
-        
-        pulse_trace = (norm_ave_trace);
-        pulse_trace(pulse_trace<thresh) = 0;
-        pulse_trace(pulse_trace>thresh) = 1;
-       
-        pulse_on = find(diff(pulse_trace)>0)+1;
-        pulse_off = find(diff(pulse_trace)<0)+1;
-        
-        % quality check if light turns off in beginning 
-        if and(pulse_trace(1) == 1,numel(pulse_off)>numel(pulse_on))
-            pulse_off(1) = [];
-        end
-        
-        num_frag = round(numel(pulse_on)-1);
-        
-        vid_cuts = zeros(num_frag,2);
-        
-        n_pulse = 1;
-        vid_cuts_trace = zeros(size(norm_ave_trace));
-        for n_frag = 1:num_frag
-            vid_cuts(n_frag,1) = pulse_off(n_pulse) + pulse_buff;
-            n_pulse = n_pulse+1;
-            vid_cuts(n_frag,2) = pulse_on(n_pulse) - pulse_buff;
-            vid_cuts_trace(vid_cuts(n_frag,1):vid_cuts(n_frag,2)) = 1;
-        end
-
-        
-        figure; plot(norm_ave_trace);
-        hold on; plot(vid_cuts_trace);
-        axis tight;
-        title(sprintf('Automatic %d frag selected', num_frag));
-    else
-        f1 = figure;
-        plot(norm_ave_trace);
-        axis tight;
-        title('how many fragments?');
-        num_frag = input('how many fragments? (int):');
-        vid_cuts = zeros(num_frag,2);
-        vid_cuts_trace = zeros(size(norm_ave_trace));
-        for n_frag = 1:num_frag
-            title(sprintf('Select fragment %d/%d (2 clicks)', n_frag,num_frag));
-            [temp_cuts, ~] = ginput(2);
-            vid_cuts(n_frag,:) = round(temp_cuts);
-            if vid_cuts(n_frag,1) < 1
-                vid_cuts(n_frag,1) = 1;
-            end
-            if vid_cuts(n_frag,2) > numel(ave_trace)
-                vid_cuts(n_frag,2) = numel(ave_trace);
-            end
-            vid_cuts_trace(vid_cuts(n_frag,1):vid_cuts(n_frag,2)) = 1;
-            plot(norm_ave_trace);
-            hold on;
-            plot(vid_cuts_trace);
-            hold off;
-            axis tight;
-        end
-        close(f1)
-        
-        figure;plot(norm_ave_trace);
-        hold on; plot(vid_cuts_trace);
-        axis tight;
-        title(sprintf('Manual %d frag selected', num_frag));
-    end
-    
-    params.vid_cuts = vid_cuts;
-    params.vid_cuts_trace = vid_cuts_trace;
-end

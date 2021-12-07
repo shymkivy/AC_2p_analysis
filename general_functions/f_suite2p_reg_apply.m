@@ -1,4 +1,4 @@
-function [dreg, dsall] = f_suite2p_apply_reg_YS(data, dsall)
+function dreg = f_suite2p_reg_apply(data, dsall)
 
 %% register Y
 
@@ -9,9 +9,6 @@ addpath([suite2p_matlab_path '\registration']);
 addpath([suite2p_matlab_path '\utils']);
 
 [d1, d2, T] = size(data);
-
-% get 500 random frames
-samp_frames = randsample(T, 1000);
 
 ops.splitFOV = [1 1];
 ops.NiterPrealign = 20;
@@ -32,8 +29,6 @@ ops.Lx = Lx;
 ops1 = cell(1, 1);
 ops1{1} = ops;
 
-ops1{1,1} = alignIterative(single(data(:,:,samp_frames)), ops);
-
 ops1{1,1}.DS          = [];
 ops1{1,1}.CorrFrame   = [];
 ops1{1,1}.mimg1       = zeros(ops1{1,1}.Ly, ops1{1,1}.Lx);
@@ -41,15 +36,7 @@ ops1{1}.Nframes(1) = 0;
 
 data = reshape(data, d1,d2,T,1);
 
-% if exist('input_frame', 'var')
-%     ops1{1,1}.mimg = input_frame;
-% end
-%[dsall, ops1] = rigidOffsets(data, 1, 1, 1, ops, ops1);
-
 dreg = rigidMovie(data, ops1, dsall, yFOVs, xFOVs);
-
-% f_save_tif_stack2_YS(Y_prereg, [save_path '\movie_pre_reg']);
-% f_save_tif_stack2_YS(dreg, [save_path '\movie_post_reg']);
 
 
 end

@@ -5,9 +5,9 @@ pwd1 = fileparts(which('fast_dd_cells_identification.m'));
 
 addpath([pwd1 '\general_functions']);
 
-data_dir = 'C:\Users\shymk\Desktop\stuff\AC_data\11_24_21_pt3';
+data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3';
 
-% proc_data_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
+proc_data_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
 % fname = 'A1_ammn1_5plt_1plm_12_27_20_OA';
 
 fname = 'AC_rest1_mpl5';
@@ -18,16 +18,15 @@ load_dir = [data_dir '\' fname '-00' file_num];
 
 %save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3';
 %save_dir = 'C:\Users\ys2605\Desktop\stuff\random_save_path';
-save_dir = 'C:\Users\shymk\Desktop\stuff\AC_data\caiman_data';
+save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
 save_dir_movie = [save_dir '\movies'];
 
 multiplane = 5;
 
 mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'};
-red_chan = {'Ch1_000001', 'Ch1_000002', 'Ch1_000003', 'Ch1_000004', 'Ch1_000005'};
+mpl_tags_red = {'Ch1_000001', 'Ch1_000002', 'Ch1_000003', 'Ch1_000004', 'Ch1_000005'};
 
-%%
-multiplane = 1;
+
 %% load movie
 Y = cell(multiplane,1);
 
@@ -43,113 +42,184 @@ for n_pl = 1:multiplane
     end
 end
 
-ave_temp = cell(multiplane,1);
+ave_pre = cell(multiplane,1);
 for n_pl = 1:multiplane
-    ave_temp{n_pl} = mean(Y{n_pl},3);
+    ave_pre{n_pl} = mean(Y{n_pl},3);
 end
 
 %% register
-params_reg.image_target = ave_temp;
-params_reg.save_smooth = 1;
-params_reg.save_path = save_dir_movie;
-params_reg.save_fname = [fname '_' file_date];
-Y_reg = f_mpl_register(Y, params_reg);
-
-%%
-
-Y = Y_reg;
+Y_reg = cell(multiplane,1);
 dsall = cell(multiplane,1);
-for n_pl = 1:multiplane       
-    % smooth movie
-    smooth_std = [0.5 0.5 3];
-    %smooth_std = [0 0 3];
-    Y_sm = f_smooth_movie(Y{n_pl}, smooth_std);
 
-    %%
-    temp_fname_sm = sprintf('%s_%s_pl%d_sm.h5',fname, file_date, n_pl);
-    f_save_mov_YS(Y_sm, [save_dir_movie '\' temp_fname_sm], '/mov');
+params_reg.image_target = [];
+params_reg.num_iterations = 2;
+params_reg.plot_stuff = 1;
+params_reg.save_smooth = 0;
+params_reg.save_reg = 0;
+params_reg.save_path = save_dir_movie;
+params_reg.smooth_std = [0.5 0.5 3];
 
-    %%
-    tic;
-    [~, dsall{n_pl}] = f_suite2p_register_YS(Y_sm, ave_reg{n_pl});
-    toc
-    clear Y_sm;
-
-%         figure; plot(dsall{n_pl})
-%         
-%         temp_fname_reg = sprintf('%s_%s_pl%d_reg.h5',fname, file_date, n_pl);
-%         f_save_mov_YS(Y_reg, [save_dir_movie '\' temp_fname_reg], '/mov');
-
-end
-
-color1 = parula(5);
-figure; hold on;
-for n_pl = 1:5
-    plot(dsall{n_pl}(:,1), 'color', color1(n_pl,:))
-end
-
-
-%% apply corr to raw files
-Y_reg = cell(multiplane, 1);
-for n_pl = 1:multiplane
-    tic;
-    Y_reg{n_pl} = f_suite2p_apply_reg_YS(Y{n_pl}, dsall{n_pl});
-    toc
-end
-
-ave_reg = cell(multiplane,1);
-for n_pl = 1:multiplane
-    ave_reg{n_pl} = mean(Y_reg{n_pl},3);
-end
-
-figure; 
-subplot(2,1,1);
-imagesc(cat(2,ave_reg{:}));
-subplot(2,1,2);
-imagesc(cat(2,ave_temp{:}));
-
-%% save reg
-
+fname_dsall = sprintf('%s_%s_reg_data', fname, file_date);
 for n_pl = 1:multiplane
     temp_fname_reg = sprintf('%s_%s_pl%d_reg.h5',fname, file_date, n_pl);
-    f_save_mov_YS(Y_reg{n_pl}, [save_dir_movie '\' temp_fname_reg], '/mov')
+    temp_fpath = [save_dir_movie '\' temp_fname_reg];
+    if exist(temp_fpath, 'file')
+        disp(['Loading ' temp_fname]);
+        Y_reg{n_pl} = h5read(temp_fpath,'/mov');
+        
+        load_data = load([save_dir_movie '\' fname_dsall]);
+        dsall{n_pl} = load_data.dsall{n_pl};
+    else
+        params_reg.save_fname = [fname '_' file_date '_pl' num2str(n_pl)];
+        [Y_reg{n_pl}, dsall{n_pl}] = f_mpl_register2(Y{n_pl}, params_reg);
+
+        % save reg
+        f_save_mov_YS(Y_reg{n_pl}, temp_fpath, '/mov')
+    end
 end
+clear Y;
+
+save([save_dir_movie '\' fname_dsall], 'dsall');
+
+ave_reg = cell(multiplane,1);
+ave_reg_std = cell(multiplane,1);
+for n_pl = 1:multiplane
+    ave_reg{n_pl} = mean(Y_reg{n_pl},3);
+    ave_reg_std{n_pl} = std(Y_reg{n_pl},[],3);
+end
+
+%% check registration
+figure; 
+subplot(2,1,1);
+imagesc(cat(2,ave_pre{:}));
+title('Before registration')
+subplot(2,1,2);
+imagesc(cat(2,ave_reg{:}));
+title('After registration')
+
+%%
+Y_red = cell(multiplane, 1);
+for n_pl = 1:multiplane
+    temp_fname = sprintf('%s_%s_pl%d.h5',fname, file_date, n_pl);
+    temp_fpath = [save_dir_movie '\' temp_fname];
+    Y_red{n_pl} = f_collect_prairie_tiffs4(load_dir, mpl_tags_red{n_pl});
+    
+    temp_dsall = sum(reshape(cat(2,dsall{n_pl}{:}), [], 2, params_reg.num_iterations),3);
+    Y_red{n_pl} = uint16(f_suite2p_reg_apply(Y_red{n_pl}, temp_dsall));
+end
+
+ave_red_reg = cell(multiplane,1);
+for n_pl = 1:multiplane
+    ave_red_reg{n_pl} = mean(Y_red{n_pl},3);
+end
+
+%% make some ave im planes
+clim_prc_th = 99.8;
+
+green_chan = cat(2,ave_reg{:});
+green_chan = green_chan - min(green_chan(:));
+clim_max = prctile(green_chan(:), clim_prc_th);
+green_chan = green_chan/clim_max;
+green_chan(green_chan>1) = 1;
+
+red_chan = cat(2,ave_red_reg{:});
+red_chan = red_chan - min(red_chan(:));
+clim_max = prctile(red_chan(:), clim_prc_th);
+red_chan = red_chan/clim_max;
+red_chan(red_chan>1) = 1;
+
+imall = cat(3, red_chan, green_chan, zeros(size(green_chan)));
+figure; imagesc(imall/max(imall(:)));
+axis equal tight
+title(sprintf('%s planes 1-%d', [fname '_' file_date], multiplane), 'interpreter', 'none');
+
+disp('saving ave images')
+imwrite(imall,[save_dir_movie '\' sprintf('%s_%s_ave_im_pl_all.png', fname, file_date)])
+imall_split = reshape(imall, [256, 256, 5, 3]);
+for n_pl = 1:multiplane
+    imwrite(squeeze(imall_split(:,:,1,:)),[save_dir_movie '\' sprintf('%s_%s_ave_im_pl%d.png', fname, file_date,n_pl)])
+end
+
+clear Y_red;
+%%
+
+fname = 'AC_ammn2_mpl5';
+file_num = '2';
+file_date = '11_24_21';
+load_dir = [data_dir '\' fname '-00' file_num];
+
 
 %%
 
-Y_cat = cat(2,Y{:,1});
+Y = cell(multiplane,1);
 
-
-f_save_mov_YS(Y_cat, sprintf('%s\\%s_%s_mpl5_cat_pre_reg.h5', save_dir_movie,fname, file_date), '/mov')
-
-f_save_mov_YS(Y_cat_reg, sprintf('%s\\%s_%s_mpl5_cat_post_reg.h5', save_dir_movie,fname, file_date), '/mov')
-
-
-ave1= squeeze(mean(mean(Y{1})));
-
-%% registration
-Y_reg = cell(multiplane,1);
-
-save_mov = 1;
-
-n_chan = 1;
 for n_pl = 1:multiplane
-    tic
-    Y_reg{n_pl} = f_register_suite2p_YS(Y{n_pl,n_chan});
-    toc
-     
-    figure;
-    subplot(1,2,1); imagesc(squeeze(mean(Y{n_pl},3))); title(sprintf('pre reg mpl%d', n_pl)); axis equal tight;
-    subplot(1,2,2); imagesc(squeeze(mean(Y_reg{n_pl},3))); title(sprintf('post reg mpl%d', n_pl)); axis equal tight;
-     
-    if save_mov
-        f_save_mov_YS(Y{1,n_chan}, sprintf('%s\\%s_%s_red_mpl%d_pre_reg.h5', save_dir_movie,fname, file_date, n_pl), '/mov')
-        f_save_mov_YS(Y_reg{1}, sprintf('%s\\%s_%s_red_mpl%d_post_reg.h5', save_dir_movie,fname, file_date, n_pl), '/mov')
+    temp_fname = sprintf('%s_%s_pl%d.h5',fname, file_date, n_pl);
+    temp_fpath = [save_dir_movie '\' temp_fname];
+    if exist(temp_fpath, 'file')
+        disp(['Loading ' temp_fname]);
+        Y{n_pl} = h5read(temp_fpath,'/mov');
+    else
+        Y{n_pl} = f_collect_prairie_tiffs4(load_dir, mpl_tags{n_pl});
+        f_save_mov_YS(Y{n_pl}, [save_dir_movie '\' temp_fname], '/mov');
     end
 end
 
-clear Y
+ave_pre_ammn = cell(multiplane,1);
+for n_pl = 1:multiplane
+    ave_pre_ammn{n_pl} = mean(Y{n_pl},3);
+end
+
 %%
+
+Y_reg = cell(multiplane,1);
+dsall = cell(multiplane,1);
+
+params_reg.num_iterations = 2;
+params_reg.plot_stuff = 1;
+params_reg.save_smooth = 0;
+params_reg.save_reg = 0;
+params_reg.save_path = save_dir_movie;
+params_reg.smooth_std = [0.5 0.5 3];
+
+fname_dsall = sprintf('%s_%s_reg_data', fname, file_date);
+for n_pl = 1:multiplane
+    temp_fname_reg = sprintf('%s_%s_pl%d_reg.h5',fname, file_date, n_pl);
+    temp_fpath = [save_dir_movie '\' temp_fname_reg];
+    if exist(temp_fpath, 'file')
+        disp(['Loading ' temp_fname]);
+        Y_reg{n_pl} = h5read(temp_fpath,'/mov');
+        
+        load_data = load([save_dir_movie '\' fname_dsall]);
+        dsall{n_pl} = load_data.dsall{n_pl};
+    else
+        params_reg.save_fname = [fname '_' file_date '_pl' num2str(n_pl)];
+        params_reg.image_target = ave_reg{n_pl};
+        [Y_reg{n_pl}, dsall{n_pl}] = f_mpl_register2(Y{n_pl}, params_reg);
+
+        % save reg
+        f_save_mov_YS(Y_reg{n_pl}, temp_fpath, '/mov')
+    end
+end
+clear Y;
+
+save([save_dir_movie '\' fname_dsall], 'dsall');
+
+ave_reg_ammn = cell(multiplane,1);
+for n_pl = 1:multiplane
+    ave_reg_ammn{n_pl} = mean(Y_reg{n_pl},3);
+end
+
+%% check registration
+figure; 
+subplot(2,1,1);
+imagesc(cat(2,ave_pre_ammn{:}));
+title('Before registration')
+subplot(2,1,2);
+imagesc(cat(2,ave_reg_ammn{:}));
+title('After registration')
+
+%% analysis
 n_pl = multiplane;
 base_onset_win = [5 10];
 tt = 270;
