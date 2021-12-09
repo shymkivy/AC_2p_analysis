@@ -3,20 +3,20 @@
 clear;
 %close all;
 
-fpath = 'C:\Users\ys2605\Desktop\stuff\AC_data\10_27_21_stim\rest_stim-001';
-fname = 'rest_stim-001_Cycle00001_VoltageRecording_001.csv';
-fname_roi = 'cell2_trace_post.csv';
+fpath = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3\cell_traces';
+fname = 'raw_AC_stim2_11_24_21_mpl5.csv';
+fname_roi = 'Cell2_stim.csv';
 
 % fpath = 'C:\Users\ys2605\Desktop\stuff\AC_data\1_30_21\stim_fov2_cell4-011';
 % fname = 'stim_fov2_cell4-011_Cycle00001_VoltageRecording_001.csv';
 % fname_roi = 'cell_roi_trace.csv';
 % 
 
-trial_ave = 2;
+trial_ave = 1;
 
-framePeriod = 0.017570762 * 1000 * trial_ave;
+framePeriod = 0.10721251 * 1000 * trial_ave;
 
-stim_chan = 1;
+stim_chan = 5;
 
 %%
 addpath([pwd '\general_functions']);
@@ -48,9 +48,9 @@ if onset_frames(1) < 30
     onset_frames(1) = [];
 end
 
-stim_t = ((1:150)-30)*framePeriod/1000;
-resp_sort = squeeze(f_get_stim_trig_resp(roi_data_norm_sm', onset_frames, [30 120]));
-stim_sort = squeeze(f_get_stim_trig_resp(stim_trace_norm_dsmp', onset_frames, [30 120]));
+stim_t = ((1:50)-10)*framePeriod/1000;
+resp_sort = squeeze(f_get_stim_trig_resp(roi_data_norm_sm', onset_frames, [10 40]));
+stim_sort = squeeze(f_get_stim_trig_resp(stim_trace_norm_dsmp', onset_frames, [10 40]));
 
 resp_sort_bs = resp_sort - mean(resp_sort(1:30,:));
 peak_val = max(resp_sort_bs(:));
@@ -66,5 +66,4 @@ plot(stim_t, resp_sort_bs, 'color', [.5 .5 .5])
 plot(stim_t, mean(resp_sort_bs,2), 'm', 'LineWidth', 2);
 plot(stim_t, stim_sort*peak_val, 'r');
 title('stim trig response');
-legend('trials', 'trial ave', 'stim');
 xlabel('Time (sec)')

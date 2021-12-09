@@ -26,14 +26,14 @@ params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_
 
 do_bidi = 1;
 do_moco = 1;
-save_all_steps = 0;
+save_all_steps = 1;
 
-params.auto_align_pulse_crop = 1;
+params.auto_align_pulse_crop = 0;
 % this also saves a trimmed version of movie
 params.trim_output_num_frames = 0; %  0 or number of frames to save
 
 
-data_dir = 'D:\data\AC\2p\12_4_21a';
+data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3';
 %data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3\';
 
 % type 1
@@ -41,9 +41,9 @@ data_dir = 'D:\data\AC\2p\12_4_21a';
 %file_type = 'AAF_asynch';
 %file_type = 'A1_freq_grating';
 %file_type = 'ammn_2_dplanes';
-fname = 'A1_cont_4'; % 
-file_num = '4';
-file_date = '12_4_21a';
+fname = 'AC_stim2_mpl5'; % 
+file_num = '2';
+file_date = '11_24_21';
 %file_date = '10_2_18';
 % % type 2 and 3
 % load_file_name = 'rest1_5_9_19.hdf5'; % only for 2 and 3
@@ -59,9 +59,9 @@ save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
 
 
 %%
-params_bidi.smooth_std = [1 2 2];
-params_bidi.fix_range = -20:20;
-params_bidi.num_iterations = 2;
+params_bidi.smooth_std = [1 2 10];%[1 2 2];
+params_bidi.fix_range = -50:10;
+params_bidi.num_iterations = 1;
 params_bidi.plot_stuff = 1;
 params_bidi.use_planes = [1 3];
 
@@ -69,7 +69,7 @@ params_moco.image_target = [];
 params_moco.num_iterations = 2;
 params_moco.plot_stuff = 1;
 params_moco.smooth_std = [0.5 0.5 3];
-params_moco.im_target_fname = 'A1_cont_0.5_12_4_21a_h5cutsdata.mat';
+params_moco.im_target_fname = 'AC_ammn2_11_24_21_h5cutsdata.mat';%'A1_cont_0.5_12_4_21a_h5cutsdata.mat';
 
 params.params_bidi = params_bidi;
 params.params_moco = params_moco;
@@ -108,6 +108,15 @@ end
 
 addpath([pwd '\general_functions']);
 
+%% load cuts data
+mat_name = [save_dir_movie '\' save_file_name '_h5cutsdata.mat'];
+if exist(mat_name, 'file')
+    load_data = load(mat_name);
+    cuts_data = load_data.cuts_data;
+else
+    cuts_data = cell(num_planes,1);
+end
+
 %% load
 Y = cell(num_planes,1);
 
@@ -142,14 +151,7 @@ else
     clear Y_full;
 end
 
-%% load cuts data
-mat_name = [save_dir_movie '\' save_file_name '_h5cutsdata.mat'];
-if exist(mat_name, 'file')
-    load_data = load(mat_name);
-    cuts_data = load_data.cuts_data;
-else
-    cuts_data = cell(num_planes,1);
-end
+
 
 %% compute cuts
 if ~isfield(cuts_data{1}, 'vid_cuts_trace')
@@ -184,13 +186,13 @@ end
 %% bidi fix
 if do_bidi
     Y_pre_bidi = Y;
-    
+    % Y = Y_pre_bidi;
     if ~isfield(cuts_data{1}, 'bidi_out')
         % compute
         for n_pl = 1:num_planes
             fprintf('%s %s\n', save_file_name, cuts_data{n_pl}.title_tag);
             params_bidi.title_tag = cuts_data{n_pl}.title_tag;
-            [~, cuts_data{n_pl}.bidi_out] = f_fix_bidi_shifts2(Y{n_pl}, params_bidi);
+            [~, cuts_data{n_pl}.bidi_out] = f_fix_bidi_shifts3(Y{n_pl}, params_bidi);
         end
         save(mat_name, 'params', 'cuts_data');
     end
@@ -218,7 +220,7 @@ if do_bidi
     
     % apply
     for n_pl = 1:num_planes
-        Y{n_pl} = f_bidi_apply_shift(Y{n_pl}, mean_bidi_shifts);
+        Y{n_pl} = f_bidi_apply_shift(Y{n_pl}, bidi_shifts_all);
     end
     proc_steps = [proc_steps '_bidi'];
     
@@ -236,12 +238,12 @@ if do_moco
     if ~isfield(cuts_data{1}, 'dsall')
         for n_pl = 1:num_planes
             
-            if isfield(moco_init_load.cuts_data{n_pl}, 'image_target')
+            if ~isempty(params_moco.im_target_fname)
                 if ~isempty(moco_init_load.cuts_data{n_pl}.image_target)
                     params_moco.image_target = moco_init_load.cuts_data{n_pl}.image_target;
                 end
             end
-            
+            fprintf('%s %s\n', save_file_name, cuts_data{n_pl}.title_tag);
             [~, cuts_data{n_pl}.dsall, cuts_data{n_pl}.image_target] = f_mpl_register2(Y{n_pl}, params_moco);
         end
         save(mat_name, 'params', 'cuts_data');
@@ -270,8 +272,10 @@ if do_moco
     end
     
     proc_steps = [proc_steps '_moco'];
-    for n_pl = 1:num_planes
-        f_save_mov_YS(Y{n_pl}, [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov')
+    if save_all_steps
+        for n_pl = 1:num_planes
+            f_save_mov_YS(Y{n_pl}, [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov')
+        end
     end
 end
 
@@ -280,7 +284,7 @@ params.params_bidi = params_bidi;
 params.params_moco = params_moco;
 
 for n_pl = 1:num_planes
-    params.save_mov_path = [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'];
+    params.save_mov_path = [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag '.h5'];
     params.cuts_data = cuts_data{n_pl};
     
     f_save_mov_YS(Y{n_pl}, params.save_mov_path, '/mov');

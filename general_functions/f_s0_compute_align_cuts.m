@@ -72,7 +72,7 @@ function [params] = f_s0_compute_align_cuts(params)
         figure;plot(norm_ave_trace);
         hold on; plot(vid_cuts_trace);
         axis tight;
-        title(sprintf('Manual %d frag selected %s', num_frag, params.mpl_tag), 'interpreter', 'none');
+        title(sprintf('Manual %d frag selected %s', num_frag, params.title_tag), 'interpreter', 'none');
     end
     
     params.vid_cuts = vid_cuts;

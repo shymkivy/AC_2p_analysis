@@ -54,7 +54,6 @@ else
 end
 
 %%
-fprintf('Registering %s\n', save_fname);
 if isempty(image_target)
     fprintf('Computing target image\n');
     make_image_targe = 1;
@@ -112,7 +111,5 @@ if plot_stuff
         title(sprintf('%s xy shifts, iter %d',save_fname, n_iter), 'interpreter', 'none');
     end
 end
-
-fprintf('Done\n');
 
 end
