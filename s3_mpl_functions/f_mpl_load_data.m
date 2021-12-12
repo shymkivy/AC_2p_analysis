@@ -12,6 +12,12 @@ for n_dset = 1:num_dset
     fname = data.experiment{n_dset};
     
     % load proc data
+%     pat_loc = strfind(fname, '_mpl'); % to compensate for mpl common proc files
+%     if ~isempty(pat_loc)
+%         fname_core = fname(1:(pat_loc-1));
+%     else
+%         fname_core = fname;
+%     end
     temp_proc = dir([ops.file_dir, ['\' '*' fname '*' ops.processed_data_tag '.mat']]);
     if isempty(temp_proc)
         error(['S12 processed data file missing: ' fname])

@@ -2,7 +2,10 @@ function [data, title_tag] = f_dv_get_data_by_mouse_selection(app)
 
 button_text = app.SelectdatagroupButtonGroup.SelectedObject.Text;
 
-if strcmpi(button_text, 'dset')
+if strcmpi(button_text, 'plane')
+    idx_data = strcmpi(app.data.experiment, app.ddata.experiment);
+    title_tag = ['plane ' app.ddata.experiment{1}];
+elseif strcmpi(button_text, 'dset')
     idx_data = strcmpi(app.data.experiment, app.ddata.experiment);
     title_tag = ['dset ' app.ddata.experiment{1}];
 elseif strcmpi(button_text, 'mouse')

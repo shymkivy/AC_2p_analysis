@@ -9,15 +9,15 @@ data_dim_est = f_dv_estimate_dim_pca_core(params);
 
 app.DimpcaEditField.Value = data_dim_est.dimensionality_corr;
 
-max_planes = max(app.data.num_planes);
+%max_planes = max(app.data.num_planes);
 if ~isfield(app.data, data_dim_est)
-    app.data.data_dim_est = cell(size(app.data,1),max_planes);
-    app.ddata.data_dim_est = cell(1,max_planes);
+    app.data.data_dim_est = cell(size(app.data,1),1);
+    app.ddata.data_dim_est = cell(1);
 end
 
 ddata_idx = strcmpi(app.ddata.experiment, app.data.experiment);
-app.data(ddata_idx,:).data_dim_est{n_pl} = data_dim_est;
-app.ddata.data_dim_est{n_pl} = data_dim_est;
+app.data(ddata_idx,:).data_dim_est = data_dim_est;
+app.ddata.data_dim_est = data_dim_est;
 
 disp('Done')
 

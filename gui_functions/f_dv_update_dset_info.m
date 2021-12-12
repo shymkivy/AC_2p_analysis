@@ -38,13 +38,27 @@ app.DeconvolutionmethodDropDown.Items = deconv_methods;
 %% gather C and S
 params = f_dv_gather_params(app);
 params.ddata = ddata;
-app.cdata = f_dv_compute_cdata(app, params);
+
+% data_gr = app.SelectdatagroupButtonGroup.SelectedObject.Text;
+% if strcmpi(data_gr, 'plane')
+%     app.cdata = {f_dv_compute_cdata(app, params)};
+% else
+    cdata_all = cell(5,1);
+    for n_pl2 = 1:ddata.num_planes
+        params.n_pl = n_pl2;
+        cdata_all{n_pl2} = f_dv_compute_cdata(app, params);
+    end
+    app.cdata = cat(1, cdata_all{:});
+%end
 
 %% compute dset statistics
-if isempty(ddata.stats{n_pl})
-    params.cdata = app.cdata;
-    app.data(idx1,:).stats{n_pl} = f_dv_compute_stats_core(app, params);
-    app.ddata = app.data(idx1,:);
+for n_pl2 = 1:ddata.num_planes
+    if isempty(ddata.stats{n_pl2})
+        params.cdata = app.cdata(n_pl2,:);
+        params.n_pl = n_pl2;
+        app.data(idx1,:).stats{n_pl2} = f_dv_compute_stats_core(app, params);
+        app.ddata = app.data(idx1,:);
+    end
 end
 
 if isfield(app.data(idx1,:).stats{n_pl}, 'z_thresh')
@@ -52,6 +66,7 @@ if isfield(app.data(idx1,:).stats{n_pl}, 'z_thresh')
 else 
     app.ZthreshcurrentEditField.Value = app.data(idx1,:).stats{n_pl}.stat_params.z_thresh;
 end
+app.pvalcurrentEditField.Value = 1 - normcdf(app.ZthreshcurrentEditField.Value);
 
 if ~isempty(ddata.data_dim_pca{n_pl})
     app.DimpcaEditField.Value = ddata.data_dim_pca{n_pl}.dimensionality_corr;

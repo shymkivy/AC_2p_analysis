@@ -5,7 +5,7 @@ smooth_SD = 0; % 110 is better?
 %%
 volume_period = app.ddata.proc_data{1}.frame_data.volume_period;
 
-firing_rate = app.cdata.S;
+firing_rate = app.cdata.S{n_pl};
 
 %%
 active_cells = sum(firing_rate,2) ~= 0;

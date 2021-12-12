@@ -2,12 +2,15 @@ function f_dv_update_cell(app)
 
 n_pl = app.mplSpinner.Value;
 
-num_cells = app.cdata.num_cells;
+cdata = app.cdata(n_pl,:);
+
+num_cells = cdata.num_cells;
 app.CellSpinner.Value = min([app.CellSpinner.Value, num_cells]);
 n_cell = app.CellSpinner.Value;
 plot_t = app.ddata.proc_data{1}.frame_data.frame_times_mpl{n_pl}/1000;
+accepted_cells = cdata.accepted_cells;
 
-cdata = app.cdata;
+
 
 %%
 app.current_cell_raw = cdata.raw(n_cell,:);
@@ -51,7 +54,7 @@ else
     app.gui_plots.plot_stim_times.YData = 0;
 end
 
-contours_accepted = app.ddata.OA_data{n_pl}.est.contours(app.cdata.accepted_cells);
+contours_accepted = app.ddata.OA_data{n_pl}.est.contours(accepted_cells);
 temp_contours = contours_accepted{n_cell};
 
 if isgraphics(app.gui_plots.plot_current_contour)
@@ -62,7 +65,7 @@ hold(app.UIAxes, 'on');
 app.gui_plots.plot_current_contour = plot(app.UIAxes, temp_contours(:,1), temp_contours(:,2), 'color', [0.75, 0, 0.75], 'LineWidth', 2);
 hold(app.UIAxes, 'off');
 
-SNR_accepted = app.ddata.OA_data{n_pl}.proc.SNR2_vals(app.cdata.accepted_cells);
+SNR_accepted = app.ddata.OA_data{n_pl}.proc.SNR2_vals(accepted_cells);
 app.SNREditField.Value = SNR_accepted(n_cell);
 
 %%

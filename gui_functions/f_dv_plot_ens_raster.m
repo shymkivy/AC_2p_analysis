@@ -2,8 +2,11 @@ function f_dv_plot_ens_raster(app)
 
 plot_selected_tr = 1;
 
+n_pl = app.mplSpinner.Value;
 n_tr = f_dv_get_trial_number(app);
-firing_rate = app.cdata.S;
+
+firing_rate = app.cdata.S{n_pl};
+num_cells = app.cdata.num_cells(n_pl);
 
 ens_stats = app.ddata.ensemble_stats{1};
 ens_tuning = app.ddata.ensemble_tuning{1};
@@ -34,7 +37,7 @@ resp_ens = find(logical(sum(ens_tuning.cell_is_resp(:,n_tr),2)));
 %    plot(scores(n_ens2,:))
 % end
 
-cell_ens_idx = false(app.cdata.num_cells, numel(resp_ens));
+cell_ens_idx = false(num_cells, numel(resp_ens));
 for n_ens = 1:numel(resp_ens)
     n_ens2 =  resp_ens(n_ens);
     cell_list = ens_cells_list{n_ens2};

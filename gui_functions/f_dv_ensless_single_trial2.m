@@ -1,4 +1,4 @@
-function f_dv_ensless_single_trial(app)
+function f_dv_ensless_single_trial2(app)
 
 tn_all = f_dv_get_trial_number(app);
 
@@ -26,37 +26,31 @@ else
     resp_cell = cat(1,resp_cells_all{:});
 end
 
-resp_ens = logical(sum(app.ddata.ensemble_tuning{1}.cell_is_resp(:,tn_all),2));
-
-ens_list = app.ddata.ensembles{1}.ens_out.cells.ens_list(app.ddata.ensemble_stats{1}.accepted_ensembles);
-resp_ens_list = ens_list(resp_ens);
-ens_cells = false(num_cells, numel(resp_ens_list));
-for n_ens = 1:numel(resp_ens_list)
-    ens_cells(resp_ens_list{n_ens}, n_ens) = 1;
-end
-
-resp_all = [resp_cell, ens_cells];
-
-
 %%
 trial_types = app.ddata.trial_types{1};
 stim_frame_index = app.ddata.stim_frame_index{1};
 trial_num_baseline_resp_frames = app.ddata.trial_window{1}.trial_num_baseline_resp_frames;
 
 trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_num_baseline_resp_frames);
-[trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, app.ddata.MMN_freq{1}, app.ops);
+if ~isempty(app.ddata.MMN_freq{1})
+    [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, app.ddata.MMN_freq{1}, app.ops);
+else
+    trial_data_sort_wctx = trial_data_sort;
+    trial_types_wctx = trial_types;
+end
 
 tr_idx = logical(sum(trial_types_wctx == app.ops.context_types_all(tn_all)',2));
-tr_data =trial_data_sort_wctx(:,:,tr_idx);
+tr_loc_full = find(tr_idx);
+tr_data = trial_data_sort_wctx(:,:,tr_idx);
 
 if select_resp_cells
-    sel_resp_cells = logical(sum(resp_all,2));
+    sel_resp_cells = logical(sum(resp_cell,2));
     tr_data2 = tr_data(sel_resp_cells,:,:);
-    resp_all2 = resp_all(sel_resp_cells,:);
+    resp_all2 = resp_cell(sel_resp_cells,:);
     firing_rate2 = firing_rate(sel_resp_cells,:);
 else
     tr_data2 = tr_data;
-    resp_all2 = resp_all;
+    resp_all2 = resp_cell;
     firing_rate2 = firing_rate;
 end
 
@@ -64,15 +58,22 @@ end
 
 hc_params.plot_dist_mat = 1;
 hc_params.plot_clusters = 0;
+hc_params.num_clust = 1;
 
 if sort_trials
     tr_data_2d_tr = reshape(tr_data2, [], num_tr);
     hclust_out_trial = f_hcluster_wrap(tr_data_2d_tr', hc_params);
-    
     tr_data3 = tr_data2(:,:,hclust_out_trial.dend_order);
 else
     tr_data3 = tr_data2;
 end
+
+figure; plot(hclust_out_trial.clust_ident(hclust_out_trial.dend_order))
+
+x = tr_loc_full(hclust_out_trial.clust_ident==2)-1;
+x(x==0) = [];
+figure; histogram(trial_types(x));
+
 
 if sort_with_full_firing_rate
     hclust_out_cell = f_hcluster_wrap(firing_rate2, hc_params);
@@ -94,12 +95,9 @@ if resort_by_ens
     end
 end
 
-
-%%
 figure; 
 subplot(1,10,1:8);
 imagesc(tr_data_2d_sort(sort_ord,:))
 subplot(1,10, 9:10);
 imagesc(resp_all_sort(sort_ord,:))
-
 end

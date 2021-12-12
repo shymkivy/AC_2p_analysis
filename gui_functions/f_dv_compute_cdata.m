@@ -1,24 +1,16 @@
 function cdata = f_dv_compute_cdata(app, params)
 
-n_pl = params.n_pl;
 n_dset = params.n_dset;
-
 ddata = app.data(n_dset,:);
-
-cuts_trace = logical(ddata.proc_data{1}.file_cuts_params{n_pl}.vid_cuts_trace);
-num_t = numel(cuts_trace);
+n_pl = params.n_pl;
 fr = 1000/double(ddata.proc_data{1}.frame_data.volume_period);
 
 %%
 accepted_cells = ddata.OA_data{n_pl}.proc.comp_accepted;
-
-% filter out cells with missing sig
 sig_frac = 1 - ddata.OA_data{n_pl}.proc.num_zeros/ddata.OA_data{n_pl}.proc.num_frames;
 accepted_cells(sig_frac<.9) = 0;
-
 num_cells = sum(accepted_cells);
 
-%%
 C = ddata.OA_data{n_pl}.est.C;
 Yra = ddata.OA_data{n_pl}.est.YrA;
 raw = Yra + C;
@@ -61,12 +53,17 @@ if params.normalize_max_spikes
     S2 = S2./max(S2,[],2);
 end
 
-%% fill back pulse cuts
-raw_full = zeros(num_cells,num_t);
-raw_full(:,cuts_trace) = raw2;
+cuts_trace = logical(ddata.proc_data{1}.file_cuts_params{n_pl}.vid_cuts_trace);
+num_t = numel(cuts_trace);
 
 C_full = zeros(num_cells,num_t);
 C_full(:,cuts_trace) = C2;
+
+Yra_full = zeros(num_cells,num_t);
+Yra_full(:,cuts_trace) = Yra(accepted_cells,:);
+
+raw_full = zeros(num_cells,num_t);
+raw_full(:,cuts_trace) = raw2;
 
 S_full = zeros(num_cells,num_t);
 S_full(:,cuts_trace) = S2;
@@ -77,8 +74,11 @@ if params.smooth
     end
 end
 
+%%
+
 cdata.raw = raw_full;
 cdata.C = C_full;
+cdata.Yra = Yra_full;
 cdata.S = S_full;
 cdata.accepted_cells = accepted_cells;
 cdata.num_cells = num_cells;

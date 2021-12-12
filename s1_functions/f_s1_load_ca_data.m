@@ -7,11 +7,19 @@ function data = f_s1_load_ca_data(data, ops)
 
 % ca videos are assumed to be all concatinated into one
 if strcmp(ops.ca_processing ,'onacid')
-    data.file_cuts_params = cell(1,ops.num_planes);
+    
     data.ave_trace = cell(1,ops.num_planes);
+    if exist([ops.file_save_path_full '_h5cutsdata.mat'], 'file')
+        temp_params_all = load([ops.file_save_path_full '_h5cutsdata.mat']);
+        data.file_cuts_params = temp_params_all.cuts_data;
+    else
+        data.file_cuts_params = cell(1,ops.num_planes);
+    end
     for n_pl = 1:ops.num_planes
-        temp_params = load([ops.file_path_full_ca{n_pl} '_h5cutsinfo']);
-        data.file_cuts_params{n_pl} = temp_params.params;
+        if isempty(data.file_cuts_params{n_pl})
+            temp_params = load([ops.file_path_full_ca{n_pl} '_h5cutsinfo']);
+            data.file_cuts_params{n_pl} = temp_params.params;
+        end
         data.ave_trace{n_pl} = if_normalize(data.file_cuts_params{n_pl}.ave_trace);
     end
 elseif strcmp(ops.ca_processing ,'raw_movie')

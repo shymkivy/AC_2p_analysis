@@ -17,7 +17,7 @@ if strcmpi(app.RunallDropDown.Value, 'stats')
         for n_pl = 1:ddata.num_planes
             params.n_pl = n_pl;
             if or(isempty(app.data(n_dset,:).stats{n_pl}), app.OverwriteCheckBox.Value)
-                params.cdata = app.data(n_dset,:).cdata{n_pl};
+                params.cdata = app.data(n_dset,:).cdata{1};
                 app.data(n_dset,:).stats{n_pl} = f_dv_compute_stats_core(app, params);
             end
         end
@@ -32,7 +32,8 @@ elseif strcmpi(app.RunallDropDown.Value, 'data_dim_pca')
         for n_pl = 1:ddata.num_planes
             params.n_pl = n_pl;
             if or(isempty(app.data(n_dset,:).data_dim_pca{n_pl}), app.OverwriteCheckBox.Value)
-                params.cdata = app.data(n_dset,:).cdata{n_pl};
+                %params.cdata = app.data(n_dset,:).cdata{1};
+                params.cdata = f_dv_compute_cdata(app, params);
                 app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
             end
         end

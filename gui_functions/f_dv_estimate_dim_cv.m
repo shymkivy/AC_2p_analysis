@@ -2,11 +2,11 @@ function f_dv_estimate_dim_cv(app, params)
 
 n_pl = params.n_pl;
 
-if isempty(app.ddata.data_dim_est{n_pl})
+if isempty(app.ddata.data_dim_est)
     f_dv_estimate_dim_pca(app);
 end
 
-cv_corr_dim = round(app.ddata.data_dim_est{n_pl}.dimensionality_corr);
+cv_corr_dim = round(app.ddata.data_dim_est.dimensionality_corr);
 
 %% input parameters for cross validation estimation of smooth window and number of correlated components / ensembles
 params = f_dv_ensemble_params(app, cv_corr_dim);

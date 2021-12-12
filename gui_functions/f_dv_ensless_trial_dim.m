@@ -6,13 +6,20 @@ est_params_pca = params2.est_params_pca;
 
 est_params_pca.dim_est_num_reps = 100;
 %%
+n_pl = app.mplSpinner.Value;
 
-firing_rate = app.cdata.S;
+if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+    cdata = app.cdata(n_pl,:);
+else
+    cdata = app.cdata;
+end
+
+firing_rate = cat(1,cdata.S);
 trial_types = app.ddata.trial_types{1};
 stim_times = app.ddata.stim_frame_index{1};
 trig_window = app.working_ops.trial_num_baseline_resp_frames;
 mmn_freq = app.ddata.MMN_freq{1};
-stats1 = app.ddata.stats{1};
+stats1 = app.ddata.stats{n_pl};
 ens_list = app.ddata.ensembles{1}.ens_out.cells.ens_list(app.ddata.ensemble_stats{1}.accepted_ensembles);
 
 ens_cells = false(stats1.num_cells, numel(ens_list));

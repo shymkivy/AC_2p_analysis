@@ -14,7 +14,8 @@ ops.file_path_full_ca = cell(ops.num_planes,1);
 if strcmp(ops.ca_processing ,'onacid')
     if ops.num_planes > 1
         for n_pl = 1:ops.num_planes
-            ops.file_path_full_ca{n_pl} = [ops.file_dir '\' ops.file_core oa_tag '_mpl' num2str(n_pl)];
+            %ops.file_path_full_ca{n_pl} = [ops.file_dir '\' ops.file_core oa_tag '_mpl' num2str(n_pl)];
+            ops.file_path_full_ca{n_pl} = [ops.file_dir '\' ops.file_core oa_tag '_mpl' num2str(ops.num_planes) '_pl' num2str(n_pl)];
         end
     else
         ops.file_path_full_ca{1} = [ops.file_dir '\' ops.file_core oa_tag];

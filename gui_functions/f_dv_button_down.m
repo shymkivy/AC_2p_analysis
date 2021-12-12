@@ -5,7 +5,7 @@ if ~isempty(app.DatasetDropDown.Value)
     n_pl = app.mplSpinner.Value;
     est1 = app.ddata.OA_data{n_pl}.est;
     proc1 = app.ddata.OA_data{n_pl}.proc;
-    
+    accepted_cells = app.cdata(n_pl,:).accepted_cells;
     
     
     info = get(src);
@@ -14,11 +14,11 @@ if ~isempty(app.DatasetDropDown.Value)
     %selection_type = app.UIFigure.SelectionType;
     %app.last_cell_num = app.current_cell_num;
     
-    pix_vals = est1.A(indx_current,app.cdata.accepted_cells);
+    pix_vals = est1.A(indx_current,accepted_cells);
     [temp_val, n_cell] = max(pix_vals);
     if full(temp_val) > 0
   
-        contours_accepted = est1.contours(app.cdata.accepted_cells);
+        contours_accepted = est1.contours(accepted_cells);
         temp_contours = contours_accepted{n_cell};
 
         if isgraphics(app.gui_plots.plot_current_contour)

@@ -38,11 +38,11 @@ close all;
 addpath([ pwd '\s1_functions'])
 addpath([ pwd '\general_functions'])
 
-ops.exp_date = '11_24_21';
+ops.exp_date = '12_4_21b';
 %ops.file_core=['DAM_ammn_2_dplanes1_'  ops.exp_date ''];
-ops.file_core=['AC_ammn2_mpl5_'  ops.exp_date ''];
+ops.file_core=['A1_cont_05_'  ops.exp_date ''];
 %ops.file_dir = 'L:\data\Auditory\caiman_out_multiplane';
-ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data\preprocessing';
+ops.file_dir = 'D:\data\caiman_data_echo\preprocessing';
 %ops.exp_date = '';
 %ops.file_core=['rfp-asap3-grat-008'  ops.exp_date ''];
 %ops.file_dir = 'C:\Users\ys2605\Desktop\victor crap data\with_pulses\rfp-asap3-grat-008';
@@ -81,7 +81,7 @@ ops.parameters.TDT_volt_chan = 4;
 % which voltage channel to use for alignment? 1 for video 2 for auditory
 ops.align_to_channel = 2;
 
-ops.alignment_method = 'peak_onsets_scale_only'; 
+ops.alignment_method = 'peak_onsets_scale_only';%'peak_onsets_scale_only'; 
 % options: 'xcorr', 'peak_onsets', 'peak_onsets_shift_only', 'peak_onsets_scale_only', 'manual'
 % options: 
 

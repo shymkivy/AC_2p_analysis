@@ -2,8 +2,8 @@ function f_dv_set_contorus(app)
 
 n_pl = app.mplSpinner.Value;
 
-accepted_cells = app.cdata.accepted_cells;
-num_cells = app.cdata.num_cells;
+accepted_cells = app.cdata(n_pl,:).accepted_cells;
+num_cells = app.cdata(n_pl,:).num_cells;
 
 use_color_map = 1;
 

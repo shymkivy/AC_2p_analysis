@@ -1,8 +1,6 @@
 function f_dv_runs31_button(app)
 
 %% from S31 file s31MPL_audio_mmn_analysis.m
-
-
 ops.processed_data_tag = 'processed_data';
 ops.OA_output_tag = 'results_sort';
 addpath([pwd '\s3_mpl_functions']);
@@ -10,7 +8,6 @@ addpath([pwd '\general_functions']);
 %% List of files to load
 
 %which files to analyze
-ops.blah = 1;
 
 %AC_files_preOA_7_31_19
 %AC_files_OA_10_27_19
@@ -58,7 +55,7 @@ ops.remove_loco_trials = 0;
 
 % ---------------------Analysis window parameters--------------------
 % define windows
-ops.trial_window = [-.05, .95];       % in sec
+ops.trial_window = [-.05, 1];       % in sec
 ops.onset_window = [0.05, 0.5];
 ops.offset_window = [0.55, 0.95];
 ops.resp_window_time = [.05 .95];
@@ -87,6 +84,7 @@ app.data = data;
 app.ops = ops;
 
 %%
+f_dv_load_params(app);
 f_dv_compute_cdata_all(app)
 
 %% additional 

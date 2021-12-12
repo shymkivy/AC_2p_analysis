@@ -2,8 +2,8 @@ function f_dv_compute_cdata_all(app)
 
 num_dsets = size(app.data,1);
 if ~sum(strcmpi(app.data.Properties.VariableNames, 'cdata'))
-    max_planes = max(app.data.num_planes);
-    app.data.cdata = cell(num_dsets,max_planes);
+    %max_planes = max(app.data.num_planes);
+    app.data.cdata = cell(num_dsets,1);
 end
 
 wb = f_waitbar_initialize(app, 'Computing cdata...');
