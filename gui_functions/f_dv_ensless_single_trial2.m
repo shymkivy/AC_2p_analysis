@@ -7,11 +7,7 @@ resort_by_ens = app.resortbyensCheckBox.Value;
 sort_trials = app.sorttrialsCheckBox.Value;
 sort_with_full_firing_rate = app.sortwithfullfrCheckBox.Value;
 
-if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
-    cdata = app.cdata(n_pl,:);
-else
-    cdata = app.cdata;
-end
+cdata = f_dv_get_cdata(app);
 
 num_cells = sum([cdata.num_cells]);
 firing_rate = cat(1,cdata.S);
@@ -64,16 +60,27 @@ if sort_trials
     tr_data_2d_tr = reshape(tr_data2, [], num_tr);
     hclust_out_trial = f_hcluster_wrap(tr_data_2d_tr', hc_params);
     tr_data3 = tr_data2(:,:,hclust_out_trial.dend_order);
+    
+    SI = 1-hclust_out_trial.dist;
+    SI_vals = tril(SI,-1);
+    SI_vals(SI_vals==0) = [];
+
+    figure; 
+    im1 = imagesc(1-hclust_out_trial.dist); axis equal tight;
+    title(sprintf('%s, trial %d, Mean corr = %.3f', app.ddata.experiment{1}, tn_all, mean(SI_vals)), 'interpreter', 'none');
+    im1.Parent.CLim(2) = 0.6;
+    colorbar;
 else
     tr_data3 = tr_data2;
 end
 
-figure; plot(hclust_out_trial.clust_ident(hclust_out_trial.dend_order))
 
-x = tr_loc_full(hclust_out_trial.clust_ident==2)-1;
-x(x==0) = [];
-figure; histogram(trial_types(x));
 
+% figure; plot(hclust_out_trial.clust_ident(hclust_out_trial.dend_order))
+% x = tr_loc_full(hclust_out_trial.clust_ident==2)-1;
+% x(x==0) = [];
+% figure; histogram(trial_types(x));
+% 
 
 if sort_with_full_firing_rate
     hclust_out_cell = f_hcluster_wrap(firing_rate2, hc_params);

@@ -112,9 +112,9 @@ if strcmpi(peak_stats, 'shuff_pool') || strcmpi(peak_stats, 'shuff_locwise')
     % compute stats for peaks
     samp_peak_vals = zeros(num_cells, num_samp);
     samp_peak_locs = zeros(num_cells, num_samp);
-    wb = f_waitbar_initialize(app, 'Stats: sampling...');
+    %wb = f_waitbar_initialize(app, 'Stats: sampling...');
     for n_cell = 1:num_cells
-        f_waitbar_update(wb, n_cell/num_cells, 'Stats: sampling...');
+        %f_waitbar_update(wb, n_cell/num_cells, 'Stats: sampling...');
 %         for n_samp = 1:num_samp
 %             samp_idx = randsample(num_trials, num_trial_per_stim, 1);
 %             samp_trial_data_sort = trial_data_sort_wctx(n_cell, :, samp_idx);
@@ -127,7 +127,7 @@ if strcmpi(peak_stats, 'shuff_pool') || strcmpi(peak_stats, 'shuff_locwise')
 
         %fprintf('%d-', n_cell)
     end
-    f_waitbar_close(wb);
+    %f_waitbar_close(wb);
     %fprintf('\n')
 end
 

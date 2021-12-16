@@ -12,7 +12,9 @@ mmn_freq = app.ddata.MMN_freq{1};
 trig_window = app.working_ops.trial_num_baseline_resp_frames;
 trial_types = app.ddata.trial_types{1};
 
-firing_rate = app.cdata.S{n_pl};
+cdata = f_dv_get_cdata(app);
+
+firing_rate = cat(1,cdata.S);
 num_cells = size(firing_rate,1);
 
 if smooth_SD

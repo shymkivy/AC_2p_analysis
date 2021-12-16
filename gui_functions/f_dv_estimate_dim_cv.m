@@ -1,12 +1,12 @@
-function f_dv_estimate_dim_cv(app, params)
+function f_dv_estimate_dim_cv(app)
 
-n_pl = params.n_pl;
+n_pl = app.mplSpinner.Value;
 
-if isempty(app.ddata.data_dim_est)
+if isempty(app.ddata.data_dim_pca{1})
     f_dv_estimate_dim_pca(app);
 end
 
-cv_corr_dim = round(app.ddata.data_dim_est.dimensionality_corr);
+cv_corr_dim = round(app.ddata.data_dim_pca{1}.dimensionality_corr);
 
 %% input parameters for cross validation estimation of smooth window and number of correlated components / ensembles
 params = f_dv_ensemble_params(app, cv_corr_dim);
@@ -71,8 +71,8 @@ if ~sum(strcmpi(app.data.Properties.VariableNames, 'data_dim_cv'))
 end
 
 ddata_idx = strcmpi(app.ddata.experiment, app.data.experiment);
-app.data(ddata_idx,:).data_dim_cv{n_pl} = data_dim_cv;
-app.ddata.data_dim_cv{n_pl} = data_dim_cv;
+app.data(ddata_idx,:).data_dim_cv{1} = data_dim_cv;
+app.ddata.data_dim_cv{1} = data_dim_cv;
 
 disp('Done')
 

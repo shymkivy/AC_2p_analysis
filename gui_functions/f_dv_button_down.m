@@ -5,8 +5,7 @@ if ~isempty(app.DatasetDropDown.Value)
     n_pl = app.mplSpinner.Value;
     est1 = app.ddata.OA_data{n_pl}.est;
     proc1 = app.ddata.OA_data{n_pl}.proc;
-    accepted_cells = app.cdata(n_pl,:).accepted_cells;
-    
+    accepted_cells = app.cdata{n_pl}.accepted_cells;
     
     info = get(src);
     coord = round(info.Parent.CurrentPoint(1,1:2));

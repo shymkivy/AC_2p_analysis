@@ -3,8 +3,11 @@ function f_dv_plot_ens_deets(app)
 %%
 n_tr = 30;
 n_pl = app.mplSpinner.Value;
-firing_rate = app.cdata.S{n_pl};
-num_cells = app.cdata.num_cells(n_pl);
+
+cdata = f_dv_get_cdata(app);
+firing_rate = cat(1,cdata.S);
+
+num_cells = cdata.num_cells;
 
 ens_stats = app.ddata.ensemble_stats{1};
 

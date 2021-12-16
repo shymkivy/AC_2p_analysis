@@ -39,22 +39,18 @@ app.DeconvolutionmethodDropDown.Items = deconv_methods;
 params = f_dv_gather_params(app);
 params.ddata = ddata;
 
-% data_gr = app.SelectdatagroupButtonGroup.SelectedObject.Text;
-% if strcmpi(data_gr, 'plane')
-%     app.cdata = {f_dv_compute_cdata(app, params)};
-% else
-    cdata_all = cell(5,1);
-    for n_pl2 = 1:ddata.num_planes
-        params.n_pl = n_pl2;
-        cdata_all{n_pl2} = f_dv_compute_cdata(app, params);
-    end
-    app.cdata = cat(1, cdata_all{:});
-%end
+cdata_all = cell(5,1);
+for n_pl2 = 1:ddata.num_planes
+    params.n_pl = n_pl2;
+    cdata_all{n_pl2} = f_dv_compute_cdata(app, params);
+end
+app.cdata = cdata_all;
+
 
 %% compute dset statistics
 for n_pl2 = 1:ddata.num_planes
     if isempty(ddata.stats{n_pl2})
-        params.cdata = app.cdata(n_pl2,:);
+        params.cdata = cdata_all{n_pl2};
         params.n_pl = n_pl2;
         app.data(idx1,:).stats{n_pl2} = f_dv_compute_stats_core(app, params);
         app.ddata = app.data(idx1,:);
@@ -68,14 +64,14 @@ else
 end
 app.pvalcurrentEditField.Value = 1 - normcdf(app.ZthreshcurrentEditField.Value);
 
-if ~isempty(ddata.data_dim_pca{n_pl})
-    app.DimpcaEditField.Value = ddata.data_dim_pca{n_pl}.dimensionality_corr;
+if ~isempty(ddata.data_dim_pca{1})
+    app.DimpcaEditField.Value = ddata.data_dim_pca{1}.dimensionality_corr;
 else
     app.DimpcaEditField.Value = 0;
 end
 
-if ~isempty(ddata.data_dim_cv{n_pl})
-    app.DimCVEditField.Value = ddata.data_dim_cv{n_pl}.dimensionality_corr;
+if ~isempty(ddata.data_dim_cv{1})
+    app.DimCVEditField.Value = ddata.data_dim_cv{1}.dimensionality_corr;
 else
     app.DimCVEditField.Value = 0;
 end

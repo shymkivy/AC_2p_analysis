@@ -8,8 +8,9 @@ n_pl = app.mplSpinner.Value;
 
 est1 = app.ddata.OA_data{n_pl}.est;
 
-num_cells = app.cdata(n_pl,:).num_cells;
-cell_num_convert = find(app.cdata(n_pl,:).accepted_cells);
+cdata = app.cdata{n_pl};
+num_cells = cdata.num_cells;
+cell_num_convert = find(cdata.accepted_cells);
 
 app.gui_plots.contours_gobj = gobjects(num_cells,1);
 hold(app.UIAxes, 'on');

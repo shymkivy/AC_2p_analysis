@@ -23,16 +23,17 @@ end
 ens_params.vol_period = ddata.proc_data{1}.frame_data.volume_period;
 
 %%
+cdata = f_dv_get_cdata(app);
 
 tn_all = f_dv_get_trial_number(app);
 tt_all = app.ops.context_types_all(tn_all)';
 
-stim_times = app.ddata.stim_frame_index{n_pl};
-mmn_freq = app.ddata.MMN_freq{1};
-trig_window = app.working_ops.trial_num_baseline_resp_frames;
-trial_types = app.ddata.trial_types{1};
+stim_times = ddata.stim_frame_index{n_pl};
+mmn_freq = ddata.MMN_freq{1};
+trial_types = ddata.trial_types{1};
 
-firing_rate = app.cdata.S;
+trig_window = app.working_ops.trial_num_baseline_resp_frames;
+firing_rate = cat(1,cdata.S);
 
 %%
 active_cells = sum(firing_rate,2) ~= 0;
@@ -64,7 +65,7 @@ if estimate_params
     
     
     ax1 = gca;
-    ax1.Title.String = sprintf('dset %s', app.ddata.experiment{1});          
+    ax1.Title.String = sprintf('dset %s', ddata.experiment{1});          
 end
 
 %% extract ensambles

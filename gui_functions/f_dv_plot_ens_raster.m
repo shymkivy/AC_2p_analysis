@@ -5,8 +5,10 @@ plot_selected_tr = 1;
 n_pl = app.mplSpinner.Value;
 n_tr = f_dv_get_trial_number(app);
 
-firing_rate = app.cdata.S{n_pl};
-num_cells = app.cdata.num_cells(n_pl);
+cdata = f_dv_get_cdata(app);
+
+firing_rate = cat(1,cdata.S);
+num_cells = sum([cdata.num_cells]);
 
 ens_stats = app.ddata.ensemble_stats{1};
 ens_tuning = app.ddata.ensemble_tuning{1};

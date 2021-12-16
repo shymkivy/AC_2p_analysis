@@ -74,10 +74,18 @@ for n_dset = 1:num_dsets
     rdata = current_rdata.regions;
     
     current_tform_wf = mouse_tforms{current_rdata_idx};
-
+    
+    % convert 'DF' to 'UF'
+    idx1 = strcmpi([rdata.region_name], 'DF');
+    if sum(idx1)
+        rdata(idx1).region_name = {'UF'};
+    end
+    
     idx_r = strcmpi(mdata.area, [rdata.region_name]);
     rdata2 = rdata(:,idx_r);
-
+    
+    
+    
     if ~isempty(rdata2.regions_tforms)
         %% load images and tform
         tform = rdata2.regions_tforms.tform;

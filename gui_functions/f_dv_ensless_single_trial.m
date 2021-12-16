@@ -7,11 +7,7 @@ resort_by_ens = app.resortbyensCheckBox.Value;
 sort_trials = app.sorttrialsCheckBox.Value;
 sort_with_full_firing_rate = app.sortwithfullfrCheckBox.Value;
 
-if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
-    cdata = app.cdata(n_pl,:);
-else
-    cdata = app.cdata;
-end
+cdata = f_dv_get_cdata(app);
 
 num_cells = sum([cdata.num_cells]);
 firing_rate = cat(1,cdata.S);

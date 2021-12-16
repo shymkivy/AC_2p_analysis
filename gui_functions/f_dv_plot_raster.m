@@ -9,11 +9,7 @@ mmn_freq = app.ddata.MMN_freq{1};
 trig_window = app.working_ops.trial_num_baseline_resp_frames;
 trial_types = app.ddata.trial_types{1};
 
-if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
-    cdata = app.cdata(n_pl,:);
-else
-    cdata = app.cdata;
-end
+cdata = f_dv_get_cdata(app);
 
 num_cells = sum([cdata.num_cells]);
 firing_rate = cat(1,cdata.S);

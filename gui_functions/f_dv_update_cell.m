@@ -2,7 +2,7 @@ function f_dv_update_cell(app)
 
 n_pl = app.mplSpinner.Value;
 
-cdata = app.cdata(n_pl,:);
+cdata = app.cdata{n_pl};
 
 num_cells = cdata.num_cells;
 app.CellSpinner.Value = min([app.CellSpinner.Value, num_cells]);

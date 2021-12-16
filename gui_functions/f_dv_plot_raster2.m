@@ -1,13 +1,17 @@
 function f_dv_plot_raster2(app)
 
 n_tr = 6;
-firing_rate = app.cdata.S{n_pl};
 
-ens_stats = app.ddata.ensemble_stats{1};
+cdata = f_dv_get_cdata(app);
+ddata = app.ddata;
 
-ens_tuning = app.ddata.ensemble_tuning{1};
+firing_rate = cat(1,cdata.S);
 
-ens_data = app.ddata.ensembles{1}.ens_out;
+ens_stats = ddata.ensemble_stats{1};
+
+ens_tuning = ddata.ensemble_tuning{1};
+
+ens_data = ddata.ensembles{1}.ens_out;
 
 raster_lr = ens_data.coeffs*ens_data.scores;
 figure; imagesc(raster_lr)
@@ -66,9 +70,9 @@ subplot(1,10,10);
 imagesc(cell_ens_idx(all_cell_list_uniq,:));
 
 
-stim_frame_index = app.ddata.stim_frame_index{1}(app.ddata.trial_types{1} == n_tr);
+stim_frame_index = ddata.stim_frame_index{1}(ddata.trial_types{1} == n_tr);
 
-trial_num_baseline_resp_frames = app.ddata.trial_window{1}.trial_num_baseline_resp_frames;
+trial_num_baseline_resp_frames = ddata.trial_window{1}.trial_num_baseline_resp_frames;
 trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_num_baseline_resp_frames);
 
 trial_data_sort_2d = reshape(trial_data_sort, num_cells, []);

@@ -1,8 +1,14 @@
 function params = f_dv_gather_params(app)
 
 params.n_pl = app.mplSpinner.Value;
-params.n_dset = find(app.current_data_idx);
 
+if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+    params.planes = app.mplSpinner.Value;
+else
+    params.planes = 1:app.data(app.current_data_idx,:).num_planes;
+end
+
+params.n_dset = find(app.current_data_idx);
 params.deconvolution = app.DeconvolutionmethodDropDown.Value;
 params.smooth = app.SmoothCheckBox.Value;
 params.smooth_sigma = app.SmoothsigmamsEditField.Value;

@@ -1,95 +1,128 @@
 function f_dv_plot_tuning(app)
 
-n_pl = app.mplSpinner.Value;
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 
-tn_all = f_dv_get_trial_number(app);
+if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+    n_pl = app.mplSpinner.Value;
+else
+    n_pl = 1:max([data.num_planes]);
+end
 
+tn_all = f_dv_get_trial_number(app);
 num_dsets = numel(data.experiment);
+reg_all = app.ops.regions_to_analyze;
 
 if strcmpi(app.regiontoplotDropDown.Value, 'all')
-    region_num = 0;
+    region_num = 1:numel(reg_all);
 elseif strcmpi(app.regiontoplotDropDown.Value, 'A1')
-    region_num = 1;
+    region_num = find(strcmpi(reg_all, 'A1'));
 elseif strcmpi(app.regiontoplotDropDown.Value, 'A2')
-    region_num = 2;
+    region_num = find(strcmpi(reg_all, 'A2'));
 elseif strcmpi(app.regiontoplotDropDown.Value, 'AAF')
-    region_num = 3;
+    region_num = find(strcmpi(reg_all, 'AAF'));
 elseif strcmpi(app.regiontoplotDropDown.Value, 'UF')
-    region_num = 4;
+    region_num = find(strcmpi(reg_all, 'UF'));
 end
 
-params = f_dv_gather_params(app);
+resp_cell_all = cell(num_dsets,1);
+num_cells_all = zeros(num_dsets,numel(region_num));
+for n_dset = 1:num_dsets
+    data1 = data(n_dset,:);
 
-resp_cell_all = zeros(num_dsets, numel(tn_all));
-for n_tn = 1:numel(tn_all)
-    for n_dset = 1:num_dsets
-        fprintf('dset %d\n', n_dset);
-        tn1 = tn_all(n_tn);
-        
-        data1 = data(n_dset,:);
-        
-        resp_cells1 = cell(5,1);
-        for n_pl2 = 1:5
-            num_cells = data1.stats{n_pl2}.num_cells;
+    stats1 = cat(1,data1.stats{n_pl});
+    num_cells = sum([stats1.num_cells]);
+    cell_is_resp = cat(1,stats1.cell_is_resp);
+    cell_is_resp2 = cell_is_resp(:,tn_all);
 
-            if ~region_num
-                reg_cell_idx = ones(num_cells,1);
-            else
-                if ~isempty(data1.registered_data{1})
-                    reg_cell_idx = data1.registered_data{1}.reg_labels==region_num;
-                else
-                    reg_cell_idx = zeros(num_cells,1);
-                end
-            end
-
-            resp_cells1{n_pl2} = data1.stats{n_pl2}.cell_is_resp(:,tn1).*reg_cell_idx;     
-            
+    reg_idx = find(strcmpi(reg_all, data1.area));
+    reg_cell_idx = ones(num_cells,1)*reg_idx;
+    if ~isempty(data1.registered_data{1})
+        if app.UseregdatalabelsCheckBox.Value
+            reg_cell_idx = data1.registered_data{1}.reg_labels;
         end
-        
-        resp_cell_all(n_dset, n_tn) = sum(cat(1,resp_cells1{:}));
-        
     end
+    
+    cell_is_resp_reg = zeros(num_cells, numel(tn_all), numel(region_num));
+    for n_reg = 1:numel(region_num)
+        reg_idx = reg_cell_idx == region_num(n_reg);
+        cell_is_resp_reg(reg_idx,:,n_reg) = cell_is_resp2(reg_idx,:);
+        num_cells_all(n_dset, n_reg) = sum(reg_idx);
+    end
+    resp_cell_all{n_dset} = cell_is_resp_reg;  
 end
+
+resp_cell_all2 = cat(1,resp_cell_all{:});
 
 categories = app.ops.context_types_labels(tn_all);
-
-if app.poolgroupsCheckBox.Value
-    resp1= sum(resp_cell_all,1);
+if app.poolregionsCheckBox.Value
+    resp1= logical(sum(resp_cell_all2,3));
+    num_cells1 = sum(num_cells_all,2);
+    resp2 = sum(resp1,1)/sum(num_cells1);
+    figure;
+    bar(categorical(categories,categories), resp2, 'EdgeColor',[219, 239, 255]/256,'LineWidth',1.5);
+    title([title_tag ' ' app.regiontoplotDropDown.Value  ' tuning distribution; ' num2str(sum(num_cells1)) ' cells'], 'Interpreter', 'none');
+    ylabel('Cell fraction');
 else
-    resp1 = resp_cell_all;
+    resp1 = squeeze(sum(resp_cell_all2,1));
+    num_cells2 = sum(num_cells_all,1);
+    resp2 = resp1./num_cells2;
+    figure;
+    bar(categorical(categories,categories), resp2); %  'EdgeColor',[219, 239, 255]/256, ,'LineWidth',1.5
+    title([title_tag ' ' app.regiontoplotDropDown.Value  ' tuning distribution'], 'Interpreter', 'none');
+    legend(reg_all, 'location', 'northwest');
+    figure;
+    bar(categorical(reg_all,reg_all), num_cells2);
+    title([title_tag ' ' app.regiontoplotDropDown.Value ' cell counts'], 'Interpreter', 'none');
 end
 
-figure;
-bar(categorical(categories,categories), resp1, 'EdgeColor',[219, 239, 255]/256,'LineWidth',1.5);
-title([title_tag ' ' app.regiontoplotDropDown.Value], 'Interpreter', 'none')
+%%
 
-
-loco_counts = zeros(num_dsets, 4);
-no_loco_counts = zeros(num_dsets, 4);
-for n_reg = 1:4
-    for n_dset = 1:num_dsets
-        data1 = data(n_dset,:);
-        if ~isempty(data1.registered_data{1})
-            reg_cell = data1.registered_data{1}.reg_labels == n_reg;
-            loco_cell = data1.stats{1}.loco_cell';
-            reg_loco = loco_cell(reg_cell);
-            if ~isempty(reg_loco)
-                loco_counts(n_dset, n_reg) = sum(reg_loco);
-                no_loco_counts(n_dset, n_reg) = sum(~reg_loco);
-            end
+loco_cell_reg_all = cell(num_dsets,1);
+for n_dset = 1:num_dsets
+    data1 = data(n_dset,:);
+    
+    stats1 = cat(1,data1.stats{n_pl});
+    num_cells = sum([stats1.num_cells]);
+    
+    loco_cell = cat(1,[stats1.loco_cell])';
+    
+    reg_idx = find(strcmpi(reg_all, data1.area));
+    reg_cell_idx = ones(num_cells,1)*reg_idx;
+    if ~isempty(data1.registered_data{1})
+        if app.UseregdatalabelsCheckBox.Value
+            reg_cell_idx = data1.registered_data{1}.reg_labels;
         end
     end
+    
+    loco_cell_reg = zeros(num_cells, numel(region_num));
+    for n_reg = 1:numel(region_num)
+        reg_idx = reg_cell_idx == region_num(n_reg);
+        loco_cell_reg(reg_idx, n_reg) = loco_cell(reg_idx);
+    end
+    loco_cell_reg_all{n_dset} = loco_cell_reg;  
 end
 
-loco_frac = sum(loco_counts,1)./(sum(no_loco_counts,1) + sum(loco_counts,1));
+loco_cell2 = cat(1,loco_cell_reg_all{:});
 
-categories = {'A1', 'A2', 'AAF', 'DF'};
-figure; bar(categorical(categories,categories), loco_frac);
-title([title_tag ' locomotion tuned cells ' app.regiontoplotDropDown.Value], 'Interpreter', 'none')
-ylabel('Fraction')
+if app.poolregionsCheckBox.Value
+    loco_cell3 = sum(loco_cell2,2);
+    num_cells1 = sum(num_cells_all,2);
+    loco_frac = sum(loco_cell3,1)./sum(num_cells1,1);
+    figure; bar(categorical(reg_all,reg_all), loco_frac);
+    title([title_tag ' locomotion tuned cells ' app.regiontoplotDropDown.Value], 'Interpreter', 'none')
+    ylabel('Fraction');
+else
+    loco_frac = sum(loco_cell2,1)./sum(num_cells_all,1);
+    figure; bar(categorical({'loco cells'}), loco_frac);
+    title([title_tag ' locomotion tuned cells ' app.regiontoplotDropDown.Value], 'Interpreter', 'none');
+    legend(reg_all, 'location', 'northwest');
+    ylabel('Fraction');
+end
 
 
+%%
+%cdata = f_dv_get_cdata(app);
+%params = f_dv_gather_params(app);
 
 % %% ensemble stuff
 % ens_counts_resp = zeros(num_dsets,1);
