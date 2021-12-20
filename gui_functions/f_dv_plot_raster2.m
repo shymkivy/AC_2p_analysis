@@ -5,11 +5,11 @@ n_tr = 6;
 cdata = f_dv_get_cdata(app);
 ddata = app.ddata;
 
-firing_rate = cat(1,cdata.S);
+firing_rate = cat(1,cdata.S_sm);
 
 ens_stats = ddata.ensemble_stats{1};
 
-ens_tuning = ddata.ensemble_tuning{1};
+ens_tuning = ddata.ensemble_tuning_stats{1};
 
 ens_data = ddata.ensembles{1}.ens_out;
 

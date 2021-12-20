@@ -12,7 +12,10 @@ est_params_pca = params2.est_params_pca;
 % trial_types = app.ddata.trial_types{1};
 
 %%
-firing_rate = f_dv_get_firing_rate(params.cdata);
+firing_rate = cat(1,params.cdata.S_sm);
+active_cells = sum(firing_rate,2) ~= 0;
+firing_rate(~active_cells,:) = [];
+%firing_rate = f_dv_get_firing_rate(params.cdata);
 
 num_cells = size(firing_rate,1);
 firing_rate = firing_rate(randperm(num_cells),:);

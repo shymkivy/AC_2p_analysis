@@ -1,11 +1,11 @@
-function ens_stats = f_dv_ensamble_stats_core(~, params)
+function ens_stats = f_dv_ensemble_stats_core(~, params)
 
 %% input paramseters for ensemble analysis
 ens_params = params.ensembles;
 ens_params.acc_shuff_reps = 20;
 
 %%
-firing_rate = params.cdata.S;
+firing_rate = cat(1,params.cdata.S_sm);
 
 active_cells = sum(firing_rate,2) ~= 0;
 firing_rate(~active_cells,:) = [];

@@ -5,7 +5,7 @@ n_pl = app.mplSpinner.Value;
 
 %%
 corr_dim = round(ddata.data_dim_pca{n_pl}.dimensionality_corr);
-params = f_dv_ensemble_params(app, corr_dim);
+params = f_dv_ensemble_params(corr_dim);
 
 est_params = params.est_params_cv;
 ens_params = params.ens_params;
@@ -33,7 +33,7 @@ mmn_freq = ddata.MMN_freq{1};
 trial_types = ddata.trial_types{1};
 
 trig_window = app.working_ops.trial_num_baseline_resp_frames;
-firing_rate = cat(1,cdata.S);
+firing_rate = cat(1,cdata.S_sm);
 
 %%
 active_cells = sum(firing_rate,2) ~= 0;

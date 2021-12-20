@@ -5,13 +5,13 @@ n_tr = 30;
 n_pl = app.mplSpinner.Value;
 
 cdata = f_dv_get_cdata(app);
-firing_rate = cat(1,cdata.S);
+firing_rate = cat(1,cdata.S_sm);
 
 num_cells = cdata.num_cells;
 
 ens_stats = app.ddata.ensemble_stats{1};
 
-ens_tuning = app.ddata.ensemble_tuning{1};
+ens_tuning = app.ddata.ensemble_tuning_stats{1};
 
 ens_data = app.ddata.ensembles{1}.ens_out;
 

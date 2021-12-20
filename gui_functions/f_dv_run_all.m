@@ -30,8 +30,7 @@ elseif strcmpi(app.RunallDropDown.Value, 'data_dim_pca')
         params.n_dset = n_dset;
         params.ddata = app.data(n_dset,:);
         if or(isempty(app.data(n_dset,:).data_dim_pca{1}), app.OverwriteCheckBox.Value)
-            %params.cdata = app.data(n_dset,:).cdata{1};
-            params.cdata = cat(1,params.ddata.cdata{:});%f_dv_compute_cdata(app, params);
+            params.cdata = cat(1,params.ddata.cdata{:});
             app.data(n_dset,:).data_dim_pca{1} = f_dv_estimate_dim_pca_core(params);
         end
     end
@@ -43,18 +42,13 @@ elseif strcmpi(app.RunallDropDown.Value, 'data_dim_cv')
         params.n_dset = n_dset;
         ddata = app.data(n_dset,:);
         params.ddata = ddata;
-        for n_pl = 1:ddata.num_planes
-            params.n_pl = n_pl;
-            if or(isempty(app.data(n_dset,:).data_dim_cv{n_pl}), app.OverwriteCheckBox.Value)
-                params.cdata = app.data(n_dset,:).cdata{n_pl};
-                if isempty(app.data(n_dset,:).data_dim_pca{n_pl})
-                    app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
-                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
-                else
-                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
-                end
-                app.data(n_dset,:).data_dim_cv{n_pl} = f_dv_estimate_dim_cv_core(params);
+        if or(isempty(ddata.data_dim_cv{1}), app.OverwriteCheckBox.Value)
+            params.cdata = cat(1,params.ddata.cdata{:});
+            if isempty(ddata.data_dim_pca{1})
+                app.data(n_dset,:).data_dim_pca{1} = f_dv_estimate_dim_pca_core(params);
             end
+            params.data_dim_pca = app.data(n_dset,:).data_dim_pca{1};
+            app.data(n_dset,:).data_dim_cv{1} = f_dv_estimate_dim_cv_core(params);
         end
     end
     fprintf('\n');
@@ -65,18 +59,13 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensembles')
         params.n_dset = n_dset;
         ddata = app.data(n_dset,:);
         params.ddata = ddata;
-        for n_pl = 1:ddata.num_planes
-            params.n_pl = n_pl;
-            if or(isempty(app.data(n_dset,:).ensembles{n_pl}), app.OverwriteCheckBox.Value)
-                params.cdata = app.data(n_dset,:).cdata{n_pl};
-                if isempty(app.data(n_dset,:).data_dim_pca{n_pl})
-                    app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
-                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
-                else
-                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
-                end
-                app.data(n_dset,:).ensembles{n_pl} = f_dv_ensemble_extract_core(app, params);
+        if or(isempty(app.data(n_dset,:).ensembles{1}), app.OverwriteCheckBox.Value)
+            params.cdata = cat(1,params.ddata.cdata{:});
+            if isempty(app.data(n_dset,:).data_dim_pca{1})
+                app.data(n_dset,:).data_dim_pca{1} = f_dv_estimate_dim_pca_core(params);
             end
+            params.data_dim_pca = app.data(n_dset,:).data_dim_pca{1};
+            app.data(n_dset,:).ensembles{1} = f_dv_ensemble_extract_core(app, params);
         end
     end
     fprintf('\n');
@@ -87,58 +76,41 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensemble_stats')
         params.n_dset = n_dset;
         ddata = app.data(n_dset,:);
         params.ddata = ddata;
-        for n_pl = 1:ddata.num_planes
-            params.n_pl = n_pl;
-            if or(isempty(app.data(n_dset,:).ensemble_stats{n_pl}), app.OverwriteCheckBox.Value)
-                params.cdata = app.data(n_dset,:).cdata{n_pl};
-                if isempty(app.data(n_dset,:).data_dim_pca{n_pl})
-                    app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
-                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
-                else
-                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
-                end
-                if isempty(app.data(n_dset,:).ensembles{n_pl})
-                    app.data(n_dset,:).ensembles{n_pl} = f_dv_ensemble_extract_core(app, params);
-                    params.ensembles = app.data(n_dset,:).ensembles{n_pl};
-                else
-                    params.ensembles = app.data(n_dset,:).ensembles{n_pl};
-                end
-                app.data(n_dset,:).ensemble_stats{n_pl} = f_dv_ensamble_stats_core(app, params);
+        if or(isempty(app.data(n_dset,:).ensemble_stats{1}), app.OverwriteCheckBox.Value)
+            params.cdata = cat(1,params.ddata.cdata{:});
+            if isempty(app.data(n_dset,:).data_dim_pca{1})
+                app.data(n_dset,:).data_dim_pca{1} = f_dv_estimate_dim_pca_core(params);
             end
+            params.data_dim_pca = app.data(n_dset,:).data_dim_pca{1};
+            if isempty(app.data(n_dset,:).ensembles{1})
+                app.data(n_dset,:).ensembles{1} = f_dv_ensemble_extract_core(app, params);
+            end
+            params.ensembles = app.data(n_dset,:).ensembles{1};
+            app.data(n_dset,:).ensemble_stats{1} = f_dv_ensemble_stats_core(app, params);
         end
     end
     fprintf('\n');
-elseif strcmpi(app.RunallDropDown.Value, 'ensemble_tuning')
+elseif strcmpi(app.RunallDropDown.Value, 'ensemble_tuning_stats')
     fprintf('Running all ensemble tuning, Dset_/%d: ', num_data)
     for n_dset = 1:num_data
         fprintf('%d..', n_dset);
         params.n_dset = n_dset;
         ddata = app.data(n_dset,:);
         params.ddata = ddata;
-        for n_pl = 1:ddata.num_planes
-            params.n_pl = n_pl;
-            if or(isempty(app.data(n_dset,:).ensemble_tuning{n_pl}), app.OverwriteCheckBox.Value)
-                params.cdata = app.data(n_dset,:).cdata{n_pl};
-                if isempty(app.data(n_dset,:).data_dim_pca{n_pl})
-                    app.data(n_dset,:).data_dim_pca{n_pl} = f_dv_estimate_dim_pca_core(params);
-                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
-                else
-                    params.data_dim_pca = app.data(n_dset,:).data_dim_pca{n_pl};
-                end
-                if isempty(app.data(n_dset,:).ensembles{n_pl})
-                    app.data(n_dset,:).ensembles{n_pl} = f_dv_ensemble_extract_core(app, params);
-                    params.ensembles = app.data(n_dset,:).ensembles{n_pl};
-                else
-                    params.ensembles = app.data(n_dset,:).ensembles{n_pl};
-                end
-%                 if isempty(app.data(n_dset,:).ensemble_stats{n_pl})
-%                     app.data(n_dset,:).ensemble_stats{n_pl} = f_dv_ensamble_stats_core(app, params);
-%                     params.ensemble_stats = app.data(n_dset,:).ensemble_stats{n_pl};
-%                 else
-%                     params.ensemble_stats = app.data(n_dset,:).ensemble_stats{n_pl};
-%                 end
-                app.data(n_dset,:).ensemble_tuning{n_pl} = f_dv_ensemble_tuning(app, params);
+        if or(isempty(app.data(n_dset,:).ensemble_tuning_stats{1}), app.OverwriteCheckBox.Value)
+            params.cdata = cat(1,params.ddata.cdata{:});
+            if isempty(app.data(n_dset,:).data_dim_pca{1})
+                app.data(n_dset,:).data_dim_pca{1} = f_dv_estimate_dim_pca_core(params);
             end
+            params.data_dim_pca = app.data(n_dset,:).data_dim_pca{1};
+            if isempty(app.data(n_dset,:).ensembles{1})
+                app.data(n_dset,:).ensembles{1} = f_dv_ensemble_extract_core(app, params);
+            end
+            if ~isempty(app.data(n_dset,:).ensemble_stats{1})
+                params.ensemble_stats = app.data(n_dset,:).ensemble_stats{1};
+            end
+            params.ensembles = app.data(n_dset,:).ensembles{1};
+            app.data(n_dset,:).ensemble_tuning_stats{1} = f_dv_ensemble_tuning_stats2(app, params);
         end
     end
     fprintf('\n');
@@ -149,12 +121,9 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensless_dim_est')
         params.n_dset = n_dset;
         ddata = app.data(n_dset,:);
         params.ddata = ddata;
-        for n_pl = 1:ddata.num_planes
-            params.n_pl = n_pl;
-            if or(isempty(app.data(n_dset,:).ensless_dim_est{n_pl}), app.OverwriteCheckBox.Value)
-                params.cdata = app.data(n_dset,:).cdata{n_pl};
-                app.data(n_dset,:).ensless_dim_est{n_pl} = f_dv_ensless_dim_est(app, params);
-            end
+        if or(isempty(app.data(n_dset,:).ensless_dim_est{1}), app.OverwriteCheckBox.Value)
+            params.cdata = cat(1,params.ddata.cdata{:});
+            app.data(n_dset,:).ensless_dim_est{1} = f_dv_ensless_dim_est(app, params);
         end
     end
     fprintf('\n');

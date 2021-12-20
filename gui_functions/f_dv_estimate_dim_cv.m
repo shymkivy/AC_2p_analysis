@@ -9,7 +9,7 @@ end
 cv_corr_dim = round(app.ddata.data_dim_pca{1}.dimensionality_corr);
 
 %% input parameters for cross validation estimation of smooth window and number of correlated components / ensembles
-params = f_dv_ensemble_params(app, cv_corr_dim);
+params = f_dv_ensemble_params(cv_corr_dim);
 est_params_cv = params.est_params_cv;
 %%
 est_params_cv.n_rep = 1:est_params_cv.reps;

@@ -45,7 +45,7 @@ for n_flip = 1:num_flip
 
         cdata = f_dv_compute_cdata(app, params);
 
-        firing_rate = cdata.S;
+        firing_rate = cdata.S_sm;
         trial_types = data1.trial_types{1};
         stim_times = data1.stim_frame_index{n_pl};
         mmn_freq = data1.MMN_freq{1};

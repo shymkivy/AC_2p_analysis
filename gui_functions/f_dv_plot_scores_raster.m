@@ -4,7 +4,7 @@ plot_selected_tr = 1;
 
 n_tr = f_dv_get_trial_number(app);
 ens_stats = app.ddata.ensemble_stats{1};
-ens_tuning = app.ddata.ensemble_tuning{1};
+ens_tuning = app.ddata.ensemble_tuning_stats{1};
 ens_data = app.ddata.ensembles{1}.ens_out;
 
 %raster_lr = ens_data.coeffs*ens_data.scores;

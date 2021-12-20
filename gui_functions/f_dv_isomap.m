@@ -14,7 +14,7 @@ trial_types = app.ddata.trial_types{1};
 
 cdata = f_dv_get_cdata(app);
 
-firing_rate = cat(1,cdata.S);
+firing_rate = cat(1,cdata.S_sm);
 num_cells = size(firing_rate,1);
 
 if smooth_SD

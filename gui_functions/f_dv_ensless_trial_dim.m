@@ -1,7 +1,7 @@
 function f_dv_ensless_trial_dim(app)
 
 % this will compute dimensionality of trials
-params2 = f_dv_ensemble_params(app);
+params2 = f_dv_ensemble_params([]);
 est_params_pca = params2.est_params_pca;
 
 est_params_pca.dim_est_num_reps = 100;
@@ -10,7 +10,7 @@ n_pl = app.mplSpinner.Value;
 
 cdata = f_dv_get_cdata(app);
 
-firing_rate = cat(1,cdata.S);
+firing_rate = cat(1,cdata.S_sm);
 trial_types = app.ddata.trial_types{1};
 stim_times = app.ddata.stim_frame_index{1};
 trig_window = app.working_ops.trial_num_baseline_resp_frames;
@@ -53,7 +53,7 @@ for n_tt = 1:num_tn
     
     resp_cells = stats1.cell_is_resp(:,tn);
     
-    resp_ens = logical(sum(app.ddata.ensemble_tuning{1}.cell_is_resp(:,tn),2));
+    resp_ens = logical(sum(app.ddata.ensemble_tuning_stats{1}.cell_is_resp(:,tn),2));
     resp_ens_cells = ens_cells(:,resp_ens); 
     
     if app.PlotrespensCheckBox.Value

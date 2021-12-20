@@ -1,7 +1,6 @@
-function ens_tuning = f_dv_ensemble_tuning(app, params)
+function ens_tuning = f_dv_ensemble_tuning_stats(app, params)
 
 ens_out = params.ensembles.ens_out;
-
 num_ens = ens_out.num_comps;
 
 if isfield(params, 'ensemble_stats')
@@ -12,31 +11,33 @@ end
 
 ens_scores = ens_out.scores(accepted_ens,:);
 
-
 %% params
 peak_stats = 'shuff_pool'; % 'shuff_pool', 'shuff_locwise', 'z_thresh'
-peak_bin_size = 7;
-peak_prcntle = 99.9;
-num_samp = 1000;
+peak_bin_time = .250; % sec
+
+num_samp = 2000;
 
 stat_window = [-2 3];
-stat_trial_window = [0 1];
-stat_resp_window = [.05 1];
+stat_trial_window = app.working_ops.trial_window;
 
+%stat_resp_window = [.05 1];
 %stat_resp_window = [-2 3];
 
 z_thresh = params.z_thresh_new;
+peak_prcntle = normcdf(params.z_thresh_new)*100;
 
 %%
 n_pl = params.n_pl;
 ddata = params.ddata;
 
 num_ens = size(ens_scores,1);
-stim_times = ddata.stim_frame_index{n_pl};
+stim_times = cat(2,ddata.stim_frame_index{params.planes});
+stim_times2 = round(mean(stim_times,2));
 %trig_window = app.working_ops.trial_num_baseline_resp_frames;
 trial_types = ddata.trial_types{1};
 MMN_freq = ddata.MMN_freq{1};
 fr = 1000/double(ddata.proc_data{1}.frame_data.volume_period);
+peak_bin_size = ceil(peak_bin_time*fr);
 
 %%
 stat_window_t = (ceil(stat_window(1)*fr):floor(stat_window(2)*fr))/fr;
@@ -48,9 +49,15 @@ stat_trial_window_num_baseline_resp_frames = [sum(stat_trial_window_t<=0) sum(st
 %%
 win1 = stat_trial_window_num_baseline_resp_frames;
 
-trial_data_sort = f_get_stim_trig_resp(ens_scores, stim_times, win1);
-[trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, MMN_freq, app.ops);
+trial_data_sort = f_get_stim_trig_resp(ens_scores, stim_times2, win1);
 
+if ~isempty(MMN_freq)
+    [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, MMN_freq, app.ops);
+else
+    trial_data_sort_wctx = trial_data_sort;
+    trial_types_wctx = trial_types;
+end
+% 
 %% choose population for shuffle
 if strcmpi(params.stat_source, 'All')
     pop_stim_times = stim_times;

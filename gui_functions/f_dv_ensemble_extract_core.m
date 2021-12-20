@@ -3,15 +3,14 @@ function ens_params = f_dv_ensemble_extract_core(app, params)
 corr_dim = round(params.data_dim_pca.dimensionality_corr);
 
 %% input paramseters for ensemble analysis
-params2 = f_dv_ensemble_params(app, corr_dim);
+params2 = f_dv_ensemble_params(corr_dim);
 ens_params = params2.ens_params;
 
 %%
 ens_params.vol_period = params.cdata.volume_period;
 
 %%
-firing_rate = params.cdata.S;
-
+firing_rate = cat(1,params.cdata.S_sm);
 active_cells = sum(firing_rate,2) ~= 0;
 firing_rate(~active_cells,:) = [];
 

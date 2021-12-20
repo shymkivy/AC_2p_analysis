@@ -7,7 +7,7 @@ volume_period = app.ddata.proc_data{1}.frame_data.volume_period;
 
 cdata = f_dv_get_cdata(app);
 
-firing_rate = cat(1,cdata.S);
+firing_rate = cat(1,cdata.S_sm);
 
 %%
 active_cells = sum(firing_rate,2) ~= 0;

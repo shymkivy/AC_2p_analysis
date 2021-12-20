@@ -1,4 +1,4 @@
-function params = f_dv_ensemble_params(~, corr_dim)
+function params = f_dv_ensemble_params(corr_dim)
 %%
 est_params_pca.normalize = 'norm_mean_std';
 est_params_pca.dim_est_num_reps = 50;
@@ -13,7 +13,7 @@ est_params_cv.shuffle_data_chunks = 1;   % 1 or 0, keeping cell correlations   %
 % ---- input one or range of values to estimate across following
 est_params_cv.smooth_SD = 0;       % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
 if exist('corr_dim', 'var')
-    est_params_cv.num_comp = max([corr_dim-10,1]):2:(corr_dim+10); 
+    est_params_cv.num_comp = max([corr_dim-5,1]):1:(corr_dim+5); 
 else
     est_params_cv.num_comp = 1:2:30;
 end

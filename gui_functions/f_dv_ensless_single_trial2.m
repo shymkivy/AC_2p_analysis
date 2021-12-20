@@ -10,7 +10,7 @@ sort_with_full_firing_rate = app.sortwithfullfrCheckBox.Value;
 cdata = f_dv_get_cdata(app);
 
 num_cells = sum([cdata.num_cells]);
-firing_rate = cat(1,cdata.S);
+firing_rate = cat(1,cdata.S_sm);
 
 if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
     resp_cell = logical(sum(app.ddata.stats{n_pl}.cell_is_resp(:,tn_all),2));

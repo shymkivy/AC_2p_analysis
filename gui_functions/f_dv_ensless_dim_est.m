@@ -1,10 +1,10 @@
 function data_out = f_dv_ensless_dim_est(app, params)
 % this will compute dimensionality of trials
-params2 = f_dv_ensemble_params(app);
+params2 = f_dv_ensemble_params([]);
 est_params_pca = params2.est_params_pca;
 %%
 
-firing_rate = params.cdata.S;
+firing_rate = cat(1,params.cdata.S_sm);
 
 trial_types = params.ddata.trial_types{1};
 stim_times = params.ddata.stim_frame_index{1};

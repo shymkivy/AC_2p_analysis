@@ -15,7 +15,7 @@ accepted_cells = cdata.accepted_cells;
 %%
 app.current_cell_raw = cdata.raw(n_cell,:);
 app.current_cell_C = cdata.C(n_cell,:);
-app.current_cell_spikes = cdata.S(n_cell,:);
+app.current_cell_spikes = cdata.S_sm(n_cell,:);
 
 if app.RawButton.Value
     app.gui_plots.plot_raw.XData = plot_t;

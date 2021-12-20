@@ -36,7 +36,8 @@ stat_trial_window_num_baseline_resp_frames = [sum(stat_trial_window_t<=0) sum(st
 
 %%
 win1 = stat_trial_window_num_baseline_resp_frames;
-trial_data_sort = f_get_stim_trig_resp(params.cdata.S, stim_times, win1);
+firing_rate = cat(1,params.cdata.S_sm);
+trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, win1);
 if ~isempty(MMN_freq)
     [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, MMN_freq, app.ops);
 else
@@ -210,8 +211,6 @@ end
 volt_dat = params.ddata.proc_data{1}.volt_data_binned{n_pl};
 
 loco1 = volt_dat(:,3);
-firing_rate = params.cdata.S;
-
 cell_corr = corr(loco1, firing_rate');
 
 num_shuff = 50;

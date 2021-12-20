@@ -68,20 +68,22 @@ raw_full(:,cuts_trace) = raw2;
 S_full = zeros(num_cells,num_t);
 S_full(:,cuts_trace) = S2;
 
+S_full_sm = S_full;
 if params.smooth
     for n_cell = 1:num_cells
-        S_full(n_cell,:) = f_smooth_gauss2(S_full(n_cell,:), params.smooth_sigma/1000*fr, 0);
+        S_full_sm(n_cell,:) = f_smooth_gauss2(S_full_sm(n_cell,:), params.smooth_sigma/1000*fr, 0);
     end
 end
-
 %%
 
 cdata.raw = raw_full;
 cdata.C = C_full;
 cdata.Yra = Yra_full;
 cdata.S = S_full;
+cdata.S_sm = S_full_sm;
 cdata.accepted_cells = accepted_cells;
 cdata.num_cells = num_cells;
 cdata.volume_period = ddata.proc_data{1}.frame_data.volume_period;
+cdata.cdata_prams = params;
 
 end

@@ -12,7 +12,7 @@ trial_types = app.ddata.trial_types{1};
 cdata = f_dv_get_cdata(app);
 
 num_cells = sum([cdata.num_cells]);
-firing_rate = cat(1,cdata.S);
+firing_rate = cat(1,cdata.S_sm);
 
 if app.shufflecellsCheckBox.Value
     firing_rate = firing_rate(randperm(num_cells),:);

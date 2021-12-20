@@ -24,7 +24,7 @@ for n_dset = 1:numel(dset_list)
         end
         
         num_cells = sum([cdata.num_cells]);
-        firing_rate = cat(1,cdata.S);
+        firing_rate = cat(1,cdata.S_sm);
         
         stats1 = ddata.stats;
         if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
