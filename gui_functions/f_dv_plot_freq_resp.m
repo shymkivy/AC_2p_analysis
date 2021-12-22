@@ -6,10 +6,19 @@ n_cell = app.CellSpinner.Value;
 firing_rate = app.current_cell_spikes;
 trial_types = app.ddata.trial_types{1};
 stim_times = app.ddata.stim_frame_index{n_pl};
-trig_window = app.working_ops.trial_num_baseline_resp_frames;
-plot_t = app.working_ops.trial_window_t;
+
 % num_cont_trials = 400;
 % num_trials = num_cont_trials/app.ddata.proc_data{1}.stim_params.num_freqs;
+
+if app.ManualtimewinCheckBox.Value
+    frame_period = 1/app.FramerateEditField.Value;
+    trial_window = [app.BaselineEditField.Value app.RespEditField.Value];
+    plot_t = (ceil(trial_window(1)/frame_period):floor(trial_window(2)/frame_period))*frame_period;
+    trig_window = [sum(plot_t<=0) sum(plot_t>0)]; 
+else
+    trig_window = app.working_ops.trial_num_baseline_resp_frames;
+    plot_t = app.working_ops.trial_window_t;
+end
 
 trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trig_window);
 

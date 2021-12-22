@@ -3,22 +3,20 @@ function stats = f_dv_compute_stats_core(app, params)
 % get sig onset and offset windows resp
 % then extract some measure and do stat with sampling
 
-peak_stats = 'shuff_pool'; % 'shuff_pool', 'shuff_locwise', 'z_thresh'
-peak_bin_time = .250; % sec
+peak_stats = params.stats.stat_method; % 'shuff_pool', 'shuff_locwise', 'z_thresh'
+stat_source = params.stats.stat_source; % 'All', 'Freqs', 'Freqs_dd'
+peak_bin_time = params.stats.peak_bin_time; % sec, .250
+num_samp = params.stats.num_shuff_samp; % 1000 before
+stat_window = params.stats.base_resp_win;
+z_thresh = params.stats.z_thresh;
+loco_thresh_prc = params.stats.loco_thresh;
 
-num_samp = 2000; % 1000 before
-
-stat_window = [-2 3];
-stat_trial_window = app.working_ops.trial_window;
-
-%stat_resp_window = [-2 3];
-
-z_thresh = params.z_thresh_new;
-peak_prcntle = normcdf(params.z_thresh_new)*100;
 
 %%
 n_pl = params.n_pl;
 ddata = params.ddata;
+
+stat_trial_window = app.working_ops.trial_window;
 
 num_cells = params.cdata.num_cells;
 stim_times = ddata.stim_frame_index{n_pl};
@@ -26,7 +24,10 @@ stim_times = ddata.stim_frame_index{n_pl};
 trial_types = ddata.trial_types{1};
 MMN_freq = ddata.MMN_freq{1};
 fr = 1000/double(ddata.proc_data{1}.frame_data.volume_period);
+
 peak_bin_size = ceil(peak_bin_time*fr);
+peak_prcntle = normcdf(z_thresh)*100;
+
 %%
 stat_window_t = (ceil(stat_window(1)*fr):floor(stat_window(2)*fr))/fr;
 stat_window_num_baseline_resp_frames = [sum(stat_window_t<=0) sum(stat_window_t>0)];   
@@ -66,15 +67,15 @@ end
 %     plot(squeeze(trial_data_sort(26,:,trial_types==n_tr)))
 % end
 %% choose population for shuffle
-if strcmpi(params.stat_source, 'All')
+if strcmpi(stat_source, 'All')
     pop_stim_times = stim_times;
     trial_data_sort_stat = trial_data_sort;
-elseif strcmpi(params.stat_source, 'Freqs')
+elseif strcmpi(stat_source, 'Freqs')
     trials_of_interest = 1:app.ops.stim.num_freqs;
     stim_idx = logical(sum(trial_types == trials_of_interest,2));
     pop_stim_times = stim_times(stim_idx);
     trial_data_sort_stat = trial_data_sort(:,:,stim_idx);
-elseif strcmpi(params.stat_source, 'Freqs_dd')
+elseif strcmpi(stat_source, 'Freqs_dd')
     trials_of_interest = [1:app.ops.stim.num_freqs 170 270];
     stim_idx = logical(sum(trial_types == trials_of_interest,2));
     pop_stim_times = stim_times(stim_idx);
@@ -206,7 +207,7 @@ end
 %     [f, x] = ksdensity(peak_t_all(peak_is_sig(:,n_tt),n_tt));
 %     plot(x, f, 'Color', col1(n_tt,:));
 % end
-%%
+%% locomotion analysis
 
 volt_dat = params.ddata.proc_data{1}.volt_data_binned{n_pl};
 
@@ -220,7 +221,7 @@ for n_shuff = 1:num_shuff
     firing_rate_s = f_shuffle_data(firing_rate);
     samp_data(n_shuff,:) = corr(loco1, firing_rate_s');
 end
-loco_thresh = prctile(samp_data(:), 99);
+loco_thresh = prctile(samp_data(:), loco_thresh_prc);
 
 % [f_d,x_d] = ecdf(cell_corr);
 % [f_s,x_s] = ecdf(samp_data(:));
@@ -262,10 +263,9 @@ stats.loco_corr = loco_corr;
 stats.loco_z = loco_z;
 params2 = rmfield(params, 'cdata');
 params2 = rmfield(params2, 'ddata');
-stats.stat_params = params2;
-stats.stat_params.z_thresh = z_thresh;
-stats.stat_params.peak_stats = peak_stats;
+stats.params = params2;
+stats.stat_params = params.stats;
 stats.stat_params.peak_bin_size = peak_bin_size;
 stats.stat_params.peak_prcntle = peak_prcntle;
-stats.stat_params.num_samp = num_samp;
+
 end

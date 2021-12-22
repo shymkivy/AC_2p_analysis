@@ -14,5 +14,7 @@ f_dv_update_A(app);
 f_dv_update_cell(app);
 f_dv_initialize_contours(app);
 f_dv_set_contorus(app);
+f_dv_update_params(app);
+
 
 end

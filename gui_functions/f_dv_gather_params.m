@@ -15,7 +15,13 @@ params.smooth_sigma = app.SmoothsigmamsEditField.Value;
 params.rectify_spikes = app.RectifyspikesCheckBox.Value;
 params.subtract_mean_spikes = app.SubtractmeanspikesCheckBox.Value;
 params.normalize_max_spikes = app.NormalizemaxspikesCheckBox.Value;
-params.z_thresh_new = app.ZthreshnewEditField.Value;
-params.stat_source = app.StatsourceDropDown.Value;
+
+params.stats.stat_source = app.newStatsourceDropDown.Value;
+params.stats.stat_method = app.newStatmethodDropDown.Value;
+params.stats.z_thresh = app.newZthreshEditField.Value;
+params.stats.peak_bin_time = app.newPeakbintimesecEditField.Value;
+params.stats.num_shuff_samp = app.newNumshuffsampEditField.Value;
+params.stats.base_resp_win = [app.newbasewinEditField.Value app.newrespwinEditField.Value];
+params.stats.loco_thresh = app.newLocothreshEditField.Value;
 
 end

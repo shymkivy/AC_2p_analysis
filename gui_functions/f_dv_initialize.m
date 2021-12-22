@@ -23,12 +23,23 @@ app.gui_plots.select_resp_fig = [];
 app.gui_plots.contours_gobj = [];
 app.gui_plots.registration_fig = [];
 
-app.StatsourceDropDown.Items = {'Freqs_dd', 'Freqs', 'All'};
-app.StatsourceDropDown.Value = app.gui_ops.stat_source_default;
+%% load default stats
 
-app.StatmethodDropDown.Items = {'Sample', 'Pop percentile'}; % unused
-app.pvalnewEditField.Value = (1 - normcdf(app.ZthreshnewEditField.Value));
+app.newStatmethodDropDown.Items = {'shuff_pool', 'shuff_locwise', 'z_thresh'}; % unused
+app.newStatmethodDropDown.Value = app.gui_ops.stats.stat_method;
 
+app.newStatsourceDropDown.Items = {'Freqs_dd', 'Freqs', 'All'};
+app.newStatsourceDropDown.Value = app.gui_ops.stats.stat_source;
+
+app.newZthreshEditField.Value = app.gui_ops.stats.z_thresh;
+app.newPvalEditField.Value = (1 - normcdf(app.newZthreshEditField.Value));
+app.newPeakbintimesecEditField.Value = app.gui_ops.stats.peak_bin_time;
+app.newNumshuffsampEditField.Value = app.gui_ops.stats.num_shuff_samp;
+app.newbasewinEditField.Value = app.gui_ops.stats.base_resp_win(1);
+app.newrespwinEditField.Value = app.gui_ops.stats.base_resp_win(2);
+app.newLocothreshEditField.Value = app.gui_ops.stats.loco_thresh;
+
+%%
 app.plotfeatureDropDown.Items = {'peak loc', 'resp mag'};
 app.plottypeDropDown.Items = {'kde', 'ecdf', 'histogram'};
 

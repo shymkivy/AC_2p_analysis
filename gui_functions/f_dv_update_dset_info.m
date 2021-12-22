@@ -46,24 +46,23 @@ for n_pl2 = 1:ddata.num_planes
 end
 app.cdata = cdata_all;
 
-
 %% compute dset statistics
+if isempty(ddata.stats{1})
+    fprintf('Computing stats _/%d planes: ', ddata.num_planes);
+end
 for n_pl2 = 1:ddata.num_planes
+    
     if isempty(ddata.stats{n_pl2})
+        fprintf('%d..',n_pl2);
         params.cdata = cdata_all{n_pl2};
         params.n_pl = n_pl2;
         app.data(idx1,:).stats{n_pl2} = f_dv_compute_stats_core(app, params);
         app.ddata = app.data(idx1,:);
     end
 end
-
-if isfield(app.data(idx1,:).stats{n_pl}, 'z_thresh')
-    app.ZthreshcurrentEditField.Value = app.data(idx1,:).stats{n_pl}.z_thresh;
-else 
-    app.ZthreshcurrentEditField.Value = app.data(idx1,:).stats{n_pl}.stat_params.z_thresh;
+if isempty(ddata.stats{1})
+    fprintf(' Done\n');
 end
-app.pvalcurrentEditField.Value = 1 - normcdf(app.ZthreshcurrentEditField.Value);
-
 if ~isempty(ddata.data_dim_pca{1})
     app.DimpcaEditField.Value = ddata.data_dim_pca{1}.dimensionality_corr;
 else
