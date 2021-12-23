@@ -16,11 +16,74 @@ stats.num_shuff_samp = 2000;
 stats.base_resp_win = [-2 3];
 stats.loco_thresh = 99; % in percent;
 
-%% ensemble default params
+%% est dim pca default params
 
+est_params_pca.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'
+est_params_pca.shuffle_method = 'circ_shift'; % 'circ_shift', 'scramble'
+est_params_pca.dim_est_num_reps = 50;
+est_params_pca.total_dim_thresh = 0.7;
+est_params_pca.plot_stuff = 0;
 
+%% dim est CV
 
+est_params_cv.ensamble_method = 'pca';              % options: svd, pca (faster than svd), nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
+est_params_cv.normalize = 'norm_mean_std'; % **'norm_mean_std'**, 'norm_mean' 'none'   % either way, need to normalize the power of signal in each cell, otherwise dimred will pull out individual cells
+est_params_cv.shuffle_data_chunks = 1;   % 1 or 0, keeping cell correlations   % if the sequence of trial presentation contains information, you will need to shuffle. Also need to do in chunks because adjacent time bins are slightly correlated
+% ---- input one or range of values to estimate across following
 
+est_params_cv.smooth_SD_center = 0;       % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
+est_params_cv.smooth_SD_range = 0;
+est_params_cv.smooth_SD_count = 1;
+
+est_params_cv.num_comp_center_around_dim_pca = 1;
+est_params_cv.num_comp_center = 8;     
+est_params_cv.num_comp_range = 5;
+est_params_cv.num_comp_count = 10;
+
+est_params_cv.reps = 5;              % how many repeats per param 
+est_params_cv.include_shuff_version = 0;
+
+%% ensemble extract default params
+
+ens_params.ensamble_method = 'nmf'; % options: svd, **nmf**, ica     % here NMF is
+ens_params.num_comp_use_dim_pca = 1;
+%ens_params.num_comp = corr_dim;
+ens_params.num_comp = 10;
+ens_params.smooth_SD = 0; % 110 is better?
+ens_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'
+ens_params.ensamble_extraction = 'thresh'; %  **'thresh'(only for nmf)** 'clust'(for all)
+% --- for thresh detection (only nmf)
+ens_params.ensamble_extraction_thresh = 'signal_z'; % 'shuff' 'signal_z' 'signal_clust_thresh'
+ens_params.signal_z_thresh = 2;
+ens_params.shuff_thresh_percent = 95;
+% --- for clust detection and general sorting 
+ens_params.hcluster_method = 'average';  % ward(inner square), **average**, single(shortest)     
+ens_params.hcluster_distance_metric = 'cosine';  % none, euclidean, squaredeuclidean, **cosine**, hammilarity, rbf% for low component number better euclidean, otherwise use cosine
+ens_params.corr_cell_thresh_percent = 95;   % to remove cells with no significant correlations
+% --- other
+ens_params.plot_stuff = 0;
+ens_params.acc_shuff_reps = 20;
+
+%%
+gui_defaults.stat_method_options = {'shuff_pool', 'shuff_locwise', 'z_thresh'};
+gui_defaults.stat_source_options = {'All', 'Freqs', 'Freqs_dd'};
+
+gui_defaults.normalize_options = {'norm_mean_std', 'norm_mean' 'none'};
+gui_defaults.shuffle_method_options = {'circ_shift', 'scramble'};
+
+gui_defaults.ens_method_options = {'svd', 'nmf', 'ica'};
+gui_defaults.ens_extraction_options = {'thresh', 'clust'};
+gui_defaults.ens_extraction_thresh_options = {'shuff', 'signal_z', 'signal_clust_thresh'};
+
+gui_defaults.est_dim_cv_method_options = {'pca', 'svd', 'nmf', 'ica'};
+
+gui_defaults.hcluster_method_options = {'ward', 'average', 'single'};
+gui_defaults.hcluster_distance_metric_options = {'none', 'euclidean', 'squaredeuclidean', 'cosine', 'hammilarity', 'rbf'};
+
+%%
+app.gui_ops.ens_params = ens_params;
+app.gui_ops.est_params_pca = est_params_pca;
+app.gui_ops.est_params_cv = est_params_cv;
 app.gui_ops.stats = stats;
-
+app.gui_ops.gui_defaults = gui_defaults;
 end

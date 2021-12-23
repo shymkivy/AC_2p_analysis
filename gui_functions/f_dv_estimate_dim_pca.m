@@ -12,5 +12,6 @@ ddata_idx = strcmpi(app.ddata.experiment, app.data.experiment);
 app.data(ddata_idx,:).data_dim_pca = {dim_est_pca};
 app.ddata.data_dim_pca = {dim_est_pca};
 
+f_dv_update_params(app);
 disp('Done')
 end

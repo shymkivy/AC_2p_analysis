@@ -13,6 +13,13 @@ dim_est_num_reps = f_get_param(params, 'dim_est_num_reps', 100);
 %corr_comp_thresh = f_get_param(params, 'corr_comp_thresh', .90);
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
 
+params_out.normalize = normalize1;
+params_out.shuffle_method = shuffle_method;
+params_out.total_dim_thresh = total_dim_thresh;
+params_out.dim_est_num_reps = dim_est_num_reps;
+params_out.plot_stuff = plot_stuff;
+params_out.params_in = params;
+
 %%
 ndims1 = ndims(firing_rate);
 if ndims1 == 3
@@ -79,7 +86,7 @@ data_dim_est.num_comps = num_comps;
 data_dim_est.d_explained = d_explained(1:num_comps);
 %data_dim_est.corr_comp_thresh = corr_comp_thresh;
 data_dim_est.num_cells = num_cells;
-data_dim_est.params = params;
+data_dim_est.params = params_out;
 
 %%
 if plot_stuff

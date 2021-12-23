@@ -11,12 +11,15 @@ est_params_cv.ensamble_method = 'pca';              % options: svd, pca (faster 
 est_params_cv.normalize = 'norm_mean_std'; % **'norm_mean_std'**, 'norm_mean' 'none'   % either way, need to normalize the power of signal in each cell, otherwise dimred will pull out individual cells
 est_params_cv.shuffle_data_chunks = 1;   % 1 or 0, keeping cell correlations   % if the sequence of trial presentation contains information, you will need to shuffle. Also need to do in chunks because adjacent time bins are slightly correlated
 % ---- input one or range of values to estimate across following
-est_params_cv.smooth_SD = 0;       % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
-if exist('corr_dim', 'var')
-    est_params_cv.num_comp = max([corr_dim-5,1]):1:(corr_dim+5); 
-else
-    est_params_cv.num_comp = 1:2:30;
-end
+est_params_cv.smooth_SD_center = 0;       % larger window will capture 'sequences' of ensembles, if window is smaller than optimal, you will end up splitting those into more components
+est_params_cv.smooth_SD_range = 0;
+est_params_cv.smooth_SD_count = 1;
+
+est_params_cv.num_comp_center_around_dim_pca = 1;
+est_params_cv.num_comp_center = 10;     
+est_params_cv.num_comp_range = 10;
+est_params_cv.num_comp_count = 20;
+
 est_params_cv.reps = 5;              % how many repeats per param 
 est_params_cv.include_shuff_version = 0;
 
