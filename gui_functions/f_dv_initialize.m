@@ -25,13 +25,18 @@ app.gui_plots.registration_fig = [];
 
 %%
 gui_defaults = app.gui_ops.gui_defaults;
+ops = app.gui_ops.ops;
 stats = app.gui_ops.stats;
 est_params_pca = app.gui_ops.est_params_pca;
 est_params_cv = app.gui_ops.est_params_cv;
 ens_params = app.gui_ops.ens_params;
 
 %% gui defaults
+%% general
+app.plot_BaserespwinEditField.Value = f_array_to_str(ops.plot_window);
+app.analysis_BaserespwinEditField.Value = f_array_to_str(ops.analysis_window);
 
+%%
 app.stats_StatmethodDropDown.Items = gui_defaults.stat_method_options;
 app.stats_StatsourceDropDown.Items = gui_defaults.stat_source_options;
 
@@ -56,7 +61,7 @@ app.stats_ZthreshEditField.Value = stats.z_thresh;
 app.stats_PvalEditField.Value = (1 - normcdf(app.stats_ZthreshEditField.Value));
 app.stats_PeakbintimesecEditField.Value = stats.peak_bin_time;
 app.stats_NumshuffsampEditField.Value = stats.num_shuff_samp;
-app.stats_BaserespwindowEditField.Value = f_array_to_str(stats.base_resp_win);
+app.stats_BaserespwinEditField.Value = f_array_to_str(stats.base_resp_win);
 app.stats_LocothreshEditField.Value = stats.loco_thresh;
 
 %% load default dim est pca 

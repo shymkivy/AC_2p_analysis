@@ -9,14 +9,6 @@ app.MMNfreqEditField.Value = num2str(ddata.MMN_freq{1});
 app.FramerateEditField.Value = 1000/ddata.proc_data{1}.frame_data.volume_period;
 
 %%
-frame_period = 1/app.FramerateEditField.Value;
-trial_window = app.working_ops.trial_window;
-trial_window_t = (ceil(trial_window(1)/frame_period):floor(trial_window(2)/frame_period))*frame_period;
-
-app.working_ops.trial_window_t = trial_window_t;
-app.working_ops.trial_num_baseline_resp_frames = [sum(trial_window_t<=0) sum(trial_window_t>0)];     
-
-%%
 n_pl = app.mplSpinner.Value;
 
 deconv_methods = {};

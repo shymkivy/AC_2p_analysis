@@ -32,7 +32,9 @@ stim_times = ddata.stim_frame_index{n_pl};
 mmn_freq = ddata.MMN_freq{1};
 trial_types = ddata.trial_types{1};
 
-trig_window = app.working_ops.trial_num_baseline_resp_frames;
+trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
+[~, trial_frames] = f_dv_compute_window_t(app, trial_window);
+
 firing_rate = cat(1,cdata.S_sm);
 
 %%
@@ -148,7 +150,7 @@ end
 %%
 
 figure; imagesc(ens_out.cells.ens_scores)
-ens_scores_sort = f_get_stim_trig_resp(ens_out.cells.ens_scores, stim_times, trig_window);
+ens_scores_sort = f_get_stim_trig_resp(ens_out.cells.ens_scores, stim_times, trial_frames);
 [ens_scores_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(ens_scores_sort, trial_types, mmn_freq, app.ops);
 
 % freqs

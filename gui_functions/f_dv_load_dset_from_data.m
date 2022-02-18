@@ -8,7 +8,6 @@ app.current_data_idx = idx1;
 app.ddata = app.data(idx1,:);
 
 %%
-f_dv_load_ops(app);
 f_dv_update_dset_info(app);
 f_dv_update_A(app);
 f_dv_update_cell(app);

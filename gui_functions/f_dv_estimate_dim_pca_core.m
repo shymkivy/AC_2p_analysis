@@ -7,7 +7,6 @@ est_params_pca = params.est_params_pca;
 % 
 % stim_times = app.ddata.stim_frame_index{n_pl};
 % mmn_freq = app.ddata.MMN_freq{1};
-% trig_window = app.working_ops.trial_num_baseline_resp_frames;
 % trial_types = app.ddata.trial_types{1};
 
 %%

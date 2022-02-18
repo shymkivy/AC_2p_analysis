@@ -1,10 +1,10 @@
 function data_dim_cv = f_dv_estimate_dim_cv_core(params)
 
-cv_corr_dim = round(params.data_dim_pca.dimensionality_corr);
+cv_corr_dim = ceil(params.data_dim_pca.dimensionality_corr);
 
 %% input parameters for cross validation estimation of smooth window and number of correlated components / ensembles
-params_ens = f_dv_ensemble_params(cv_corr_dim);
-est_params_cv = params_ens.est_params_cv;
+%params_ens = f_dv_ensemble_params(cv_corr_dim);
+est_params_cv = params.est_params_cv;
 %%
 firing_rate = cat(1,params.cdata.S_sm);
 active_cells = sum(firing_rate,2) ~= 0;

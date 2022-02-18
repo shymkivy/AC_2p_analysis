@@ -1,7 +1,13 @@
 function f_dv_plot_dist(app)
 
-n_pl = app.mplSpinner.Value;
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
+
+if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+    n_pl = app.mplSpinner.Value;
+else
+    n_pl = 1:max([data.num_planes]);
+end
+
 num_dsets = numel(data.experiment);
 
 tn_all = f_dv_get_trial_number(app);

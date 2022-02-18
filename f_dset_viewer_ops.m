@@ -5,15 +5,81 @@ app.gui_ops.reg_data_path = ...
 
 app.gui_ops.mat_data_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\echo_save_12_19_21.mat.mat';
 
+ops = struct();
+
+%% preprocessing params
+
+% ----------- process ops params ----------
+ops.regions_to_analyze = {'A1','AAF','A2','UF'}; %,, ,,     % choose from fieldnames above 
+
+% ----------- load data params ----------
+ops.waitbar = 1;
+
+% ------- preprocess data params -----------
+% ---------------------Analysis window parameters--------------------
+% define windows
+ops.plot_window = [-.5, 2];
+ops.analysis_window = [-.05, .95];       % in sec
+%ops.onset_window = [0.05, 0.5];
+%ops.offset_window = [0.55, 0.95];
+%ops.resp_window_time = [.05 .95];
+% ops.trial_window_long = [-5, 6];
+
+ops.normalize_firing_rate = 1;
+ops.extra_SNR_thresh = 0; % 0 = no thresh
+
+
+% ops.redundent_to_analyze = 3;
+% ops.redundent_pool_trials = 2:7;
+% ops.dev_cells_ctx = 'ctx_tuned';      % options: 'all', 'ctx_tuned', 'tuned_all'
+% ops.remove_early_dev = 1;
+
+% 
+% % A1 A2 AAF DF
+
+% ops.flip_to_analyze = [1 2 3];  % 1 is regular, 2 is flip, 3 is combined
+% 
+% % which type of infered signal you want to use
+% ops.signal_inference = 'MCMC'; % options: 'smooth_dfdt', 'MCMC', 'c_foopsi', 'df_f', 'raw'
+% % create another trace with extra smoothing for population anazysis
+% ops.signal_extra_smooth_sig = .100;   % in sec
+% ops.signal_extra_smooth_plot_examples = 0;
+% 
+% % computing threshholds
+% % the distribution of trial averaged data looks like cut off normal dist,
+% % so using median is better approximation for z score computation but it
+% % requires sampling data so it is slow.
+% ops.stat.thresh_method = 'zscore_around_mean'; % options: 'ecdf_percentile', 'zscore_around_mean', 'zscore_around_median'
+% ops.stat.ecdf_percentile_thresh = 99;      % 95% 99.7
+% ops.stat.num_samples_drawn = 100;
+% ops.stat.z_scores_thresh = 3;
+% ops.stat.z_scores_average_thresh = 1; % average across different z thresh to control diff sample size
+% ops.stat.trials_to_sample = [1:10, 19, 20, 29, 30];%[1:18, 20, 21:28, 30]; % 1:10
+% ops.stat.reliability_thresh = .15;          % threshold for how many individual responses are required for being responsive
+% ops.stat.min_samp_size_z_normalization = 0;
+% ops.stat.plot_examples = 0; % how many random examples to plot
+% % remove locomotion trials
+% ops.remove_loco_trials = 0;
+% 
+
+% % trial averaging baseline removal
+% ops.baseline_removal_trial_ave = 'kde'; % options: 'kde', 'mean', 'min', 'none' (default kde)
+% 
+% % % ----------------------------stim parameters-----------------------------
+% ops.stim.stim_isi = 0.5;
+% ops.stim.stim_duration = 0.5;
+% 
+% ops.stim.num_freqs = 10;
+% ops.stim.start_freq = 2000;
+% ops.stim.increase_factor = 1.5;
 
 %% stat default params
-
 stats.stat_method = 'shuff_pool'; % 'shuff_pool', 'shuff_locwise', 'z_thresh'
 stats.stat_source = 'Freqs_dd'; % 'All', 'Freqs', 'Freqs_dd'
 stats.z_thresh = 3;
 stats.peak_bin_time = 0.250; % in sec
 stats.num_shuff_samp = 2000;
-stats.base_resp_win = [-2 3];
+stats.base_resp_win = [-1 3];
 stats.loco_thresh = 99; % in percent;
 
 %% est dim pca default params
@@ -81,6 +147,7 @@ gui_defaults.hcluster_method_options = {'ward', 'average', 'single'};
 gui_defaults.hcluster_distance_metric_options = {'none', 'euclidean', 'squaredeuclidean', 'cosine', 'hammilarity', 'rbf'};
 
 %%
+app.gui_ops.ops = ops;
 app.gui_ops.ens_params = ens_params;
 app.gui_ops.est_params_pca = est_params_pca;
 app.gui_ops.est_params_cv = est_params_cv;

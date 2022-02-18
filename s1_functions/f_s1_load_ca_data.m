@@ -18,9 +18,10 @@ if strcmp(ops.ca_processing ,'onacid')
     for n_pl = 1:ops.num_planes
         if isempty(data.file_cuts_params{n_pl})
             temp_params = load([ops.file_path_full_ca{n_pl} '_h5cutsinfo']);
-            data.file_cuts_params{n_pl} = temp_params.params;
+            data.file_cuts_params{n_pl} = temp_params.params.cuts_data;
         end
         data.ave_trace{n_pl} = if_normalize(data.file_cuts_params{n_pl}.ave_trace);
+        %data.ave_trace{n_pl} = if_normalize(data.ave_trace{n_pl});
     end
 elseif strcmp(ops.ca_processing ,'raw_movie')
     Y = double(bigread3([ops.file_dir '\' ops.file_core '.tif']));

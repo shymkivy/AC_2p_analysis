@@ -16,11 +16,8 @@ loco_thresh_prc = params.stats.loco_thresh;
 n_pl = params.n_pl;
 ddata = params.ddata;
 
-stat_trial_window = app.working_ops.trial_window;
-
 num_cells = params.cdata.num_cells;
 stim_times = ddata.stim_frame_index{n_pl};
-%trig_window = app.working_ops.trial_num_baseline_resp_frames;
 trial_types = ddata.trial_types{1};
 MMN_freq = ddata.MMN_freq{1};
 fr = 1000/double(ddata.proc_data{1}.frame_data.volume_period);
@@ -32,11 +29,8 @@ peak_prcntle = normcdf(z_thresh)*100;
 stat_window_t = (ceil(stat_window(1)*fr):floor(stat_window(2)*fr))/fr;
 stat_window_num_baseline_resp_frames = [sum(stat_window_t<=0) sum(stat_window_t>0)];   
 
-stat_trial_window_t = (ceil(stat_trial_window(1)*fr):floor(stat_trial_window(2)*fr))/fr;
-stat_trial_window_num_baseline_resp_frames = [sum(stat_trial_window_t<=0) sum(stat_trial_window_t>0)];   
-
 %%
-win1 = stat_trial_window_num_baseline_resp_frames;
+win1 = stat_window_num_baseline_resp_frames;
 firing_rate = cat(1,params.cdata.S_sm);
 trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, win1);
 if ~isempty(MMN_freq)
@@ -67,16 +61,18 @@ end
 %     plot(squeeze(trial_data_sort(26,:,trial_types==n_tr)))
 % end
 %% choose population for shuffle
+num_freqs = ddata.proc_data{1}.stim_params.num_freqs;
+
 if strcmpi(stat_source, 'All')
     pop_stim_times = stim_times;
     trial_data_sort_stat = trial_data_sort;
 elseif strcmpi(stat_source, 'Freqs')
-    trials_of_interest = 1:app.ops.stim.num_freqs;
+    trials_of_interest = 1:num_freqs;
     stim_idx = logical(sum(trial_types == trials_of_interest,2));
     pop_stim_times = stim_times(stim_idx);
     trial_data_sort_stat = trial_data_sort(:,:,stim_idx);
 elseif strcmpi(stat_source, 'Freqs_dd')
-    trials_of_interest = [1:app.ops.stim.num_freqs 170 270];
+    trials_of_interest = [1:num_freqs 170 270];
     stim_idx = logical(sum(trial_types == trials_of_interest,2));
     pop_stim_times = stim_times(stim_idx);
     trial_data_sort_stat = trial_data_sort(:,:,stim_idx);
@@ -87,8 +83,8 @@ end
 ctx_types_all = app.ops.context_types_all;
 num_tt = numel(app.ops.context_types_all);
 num_trials = numel(pop_stim_times);
-num_trial_per_stim = round(sum(logical(sum(trial_types == (1:app.ops.stim.num_freqs),2)))/app.ops.stim.num_freqs);
-num_t = sum(stat_trial_window_num_baseline_resp_frames);
+num_trial_per_stim = round(sum(logical(sum(trial_types == (1:num_freqs),2)))/num_freqs);
+num_t = sum(win1);
 
 %trial_data_sort_stat_mean = squeeze(mean(trial_data_sort_stat,2));
 %% convert to z scores
@@ -243,7 +239,7 @@ loco_z = cell_corr/z_factor;
 peak_t_all = nan(size(peak_locs));
 for n_tt = 1:num_tt
     if ~sum(isnan(peak_locs(:,n_tt)))
-        peak_t_all(:, n_tt) = stat_trial_window_t(peak_locs(:,n_tt));
+        peak_t_all(:, n_tt) = stat_window_t(peak_locs(:,n_tt));
     end
 end
 %%
@@ -255,7 +251,7 @@ stats.cell_is_resp = resp_cells;
 stats.resp_thresh = resp_thresh;
 stats.peak_val_all = peak_vals;
 stats.peak_t_all = peak_t_all;
-stats.stat_window_t = stat_trial_window_t; % stat_window_t
+stats.stat_window_t = stat_window_t; % stat_window_t
 stats.num_cells = num_cells;
 stats.accepted_cells = params.cdata.accepted_cells;
 stats.loco_cell = loco_cell;

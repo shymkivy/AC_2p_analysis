@@ -25,7 +25,7 @@ while end1 <= num_chars
     % if not end
     if ~done1
         if (end1+1) <= num_chars
-            if and(str_in(end1+1)>='0',str_in(end1+1)<='9')
+            if or(and(str_in(end1+1)>='0',str_in(end1+1)<='9'), str_in(end1+1)=='.')
                 end1 = end1 + 1;
                 done1 = 1;
             end

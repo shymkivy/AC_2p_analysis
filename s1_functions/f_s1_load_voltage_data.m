@@ -46,7 +46,7 @@ if ops.plot_details
     hold on;
     for n_plt = 1:num_volt_traces
         subplot(num_volt_traces,1,n_plt);
-        plot(dattmp(:,n_plt));
+        plot(dat_proc(:,n_plt));
         title(ops.volt_chan_labels{n_plt})
     end
     sgtitle(['Using channel ' num2str(ops.align_to_channel) ' for alignment']);

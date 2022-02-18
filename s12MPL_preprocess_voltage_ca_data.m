@@ -38,18 +38,19 @@ close all;
 addpath([ pwd '\s1_functions'])
 addpath([ pwd '\general_functions'])
 
-ops.exp_date = '12_4_21b';
+ops.exp_date = '1_2_22a';
 %ops.file_core=['DAM_ammn_2_dplanes1_'  ops.exp_date ''];
-ops.file_core=['A1_cont_05_'  ops.exp_date ''];
+ops.file_core=['M4465_im1_AC_ammn1_'  ops.exp_date ''];
 %ops.file_dir = 'L:\data\Auditory\caiman_out_multiplane';
-ops.file_dir = 'D:\data\caiman_data_echo\preprocessing';
+ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\\caiman_data_dream\preprocessing';
 %ops.exp_date = '';
 %ops.file_core=['rfp-asap3-grat-008'  ops.exp_date ''];
 %ops.file_dir = 'C:\Users\ys2605\Desktop\victor crap data\with_pulses\rfp-asap3-grat-008';
 
 
 % voltage csv and xml and traces raw base
-ops.files_volt_in = {['raw_' ops.file_core]};
+%ops.files_volt_in = {['raw_' ops.file_core]};
+ops.files_volt_in = {['' ops.file_core '_prairie']};
 % files to be concetentated
 %files_in = {['audio_grating1raw_' exp_date]};
               %['rest7_' exp_date];
@@ -73,10 +74,10 @@ ops.processing_type = 2;
 % = 3; auditory freq grating; (needs TDT_volt for stim_times)
 
 % DAQ voltage channels recording order
-ops.parameters.stimchan = 1;
-ops.parameters.ledchan = 2;
-ops.parameters.movchan = 3;
-ops.parameters.TDT_volt_chan = 4;
+ops.parameters.stimchan = 1; % 1
+ops.parameters.ledchan = 2; % 2
+ops.parameters.movchan = 3; % 3
+ops.parameters.TDT_volt_chan = 4; % 4
 
 % which voltage channel to use for alignment? 1 for video 2 for auditory
 ops.align_to_channel = 2;

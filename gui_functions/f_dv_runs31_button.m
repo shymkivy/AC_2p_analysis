@@ -1,14 +1,14 @@
 function f_dv_runs31_button(app)
+%% load preprocessing parameters
+ops = app.gui_ops.ops;
 
 %% from S31 file s31MPL_audio_mmn_analysis.m
 ops.processed_data_tag = 'processed_data';
 ops.OA_output_tag = 'results_sort';
-addpath([pwd '\s3_mpl_functions']);
-addpath([pwd '\general_functions']);
+
 %% List of files to load
 
 %which files to analyze
-
 %AC_files_preOA_7_31_19
 %AC_files_OA_10_27_19
 %AC_files_MPL_files_12_11_19
@@ -22,14 +22,14 @@ ops = f_mpl_process_ops(ops);
 
 %%
 [data, ops] = f_mpl_load_data(ops);
+
 %%
-data = f_mpl_preprocess_data(data, ops);
+data = f_dv_preprocess_data(data, ops);
 
 app.data = data;
 app.ops = ops;
 
 %%
-f_dv_load_params(app);
 f_dv_compute_cdata_all(app)
 
 %% additional 

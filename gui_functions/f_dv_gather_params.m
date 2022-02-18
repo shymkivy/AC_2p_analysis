@@ -23,7 +23,7 @@ stats.stat_method = app.stats_StatmethodDropDown.Value;
 stats.z_thresh = app.stats_ZthreshEditField.Value;
 stats.peak_bin_time = app.stats_PeakbintimesecEditField.Value;
 stats.num_shuff_samp = app.stats_NumshuffsampEditField.Value;
-stats.base_resp_win = f_str_to_array(app.stats_BaserespwindowEditField.Value);
+stats.base_resp_win = f_str_to_array(app.stats_BaserespwinEditField.Value);
 stats.loco_thresh = app.stats_LocothreshEditField.Value;
 
 %%

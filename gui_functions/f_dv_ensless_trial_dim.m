@@ -13,7 +13,8 @@ cdata = f_dv_get_cdata(app);
 firing_rate = cat(1,cdata.S_sm);
 trial_types = app.ddata.trial_types{1};
 stim_times = app.ddata.stim_frame_index{1};
-trig_window = app.working_ops.trial_num_baseline_resp_frames;
+trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
+[~, trial_frames] = f_dv_compute_window_t(app, trial_window);
 mmn_freq = app.ddata.MMN_freq{1};
 stats1 = app.ddata.stats{n_pl};
 ens_list = app.ddata.ensembles{1}.ens_out.cells.ens_list(app.ddata.ensemble_stats{1}.accepted_ensembles);
@@ -23,7 +24,7 @@ for n_ens = 1:numel(ens_list)
     ens_cells(ens_list{n_ens}, n_ens) = 1;
 end
 
-trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trig_window);
+trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trial_frames);
 [trial_data_sort_wctx, trial_types_wctx, trial_types_idx_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
 
 %%

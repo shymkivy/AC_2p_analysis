@@ -3,65 +3,75 @@
 clear;
 close all;
 
-fpath = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3\cell_traces';
+fpath = 'C:\Users\ys2605\Desktop\stuff\AC_data\12_24_21b_dream\cell_traces';
 
-traces_names_pre = {'Cell1_pre.csv';...
-                    'Cell2_pre.csv';...
-                    'Cell3_pre.csv';...
-                    'Cell4_pre.csv';...
-                    'Cell5_pre.csv'};
+traces_rest_pre = {'cell1_rest1.csv';...
+                   'cell2_rest1.csv';...
+                   %'cell3_rest1.csv';...
+                   %'Cell4_pre.csv';...
+                   'cell3_rest1.csv'};
 
-traces_names_stim = {'Cell1_stim.csv';...
-                     'Cell2_stim.csv';...
-                     'Cell3_stim.csv';...
-                     'Cell4_stim.csv';...
-                     'Cell5_stim.csv'};
+traces_ammn_pre = {'cell1_ammn1.csv';...
+                   'cell2_ammn1.csv';...
+                   %'Cell3_pre.csv';...
+                   %'Cell4_pre.csv';...
+                   'cell3_ammn1.csv'};
+
+traces_ammn_stim = {'cell1_ammn_stim2.csv';...
+                    'cell2_ammn_stim2.csv';...
+                    %'Cell3_stim.csv';...
+                    %'Cell4_stim.csv';...
+                    'cell3_ammn_stim2.csv'};
                  
-traces_names_post = {'Cell1_post.csv';...
-                     'Cell2_post.csv';...
-                     'Cell3_post.csv';...
-                     'Cell4_post.csv';...
-                     'Cell5_post.csv'};
+traces_ammn_post = {'cell1_ammn_post4.csv';...
+                    'cell2_ammn_post4.csv';...
+                    %'Cell3_post.csv';...
+                    %'Cell4_post.csv';...
+                    'cell3_ammn_post4.csv'};
+                 
+traces_rest_post = {'cell1_rest_post3.csv';...
+                    'cell2_rest_post3.csv';...
+                    %'Cell3_pre.csv';...
+                    %'Cell4_pre.csv';...
+                    'cell3_rest_post3.csv'};
                  
 
-cuts_stim_fname = 'AC_stim2_mpl5_11_24_21_h5cutsdata.mat';
-volt_dtim_fname = 'raw_AC_stim2_11_24_21_mpl5.csv';
+cuts_stim_fname = 'AC_ammn_stim2_12_24_21b_h5cutsdata.mat';
+volt_dtim_fname = 'raw_AC_ammn_stim2_12_24_21b.csv';
 %%
-traces_pre = cell(numel(traces_names_pre),1);
-for n_file = 1:numel(traces_names_pre)
-    temp_data = csvread([fpath '/' traces_names_pre{n_file}],1,0);
+traces_pre = cell(numel(traces_ammn_pre),1);
+for n_file = 1:numel(traces_ammn_pre)
+    temp_data = csvread([fpath '/' traces_ammn_pre{n_file}],1,0);
     traces_pre{n_file} = temp_data(:,2);
 end
 traces_pre = cat(2,traces_pre{:})';
 traces_pre_d = f_smooth_dfdt3(traces_pre, 1,5);
 
-traces_stim = cell(numel(traces_names_stim),1);
-for n_file = 1:numel(traces_names_stim)
-    temp_data = csvread([fpath '/' traces_names_stim{n_file}],1,0);
+traces_stim = cell(numel(traces_ammn_stim),1);
+for n_file = 1:numel(traces_ammn_stim)
+    temp_data = csvread([fpath '/' traces_ammn_stim{n_file}],1,0);
     traces_stim{n_file} = temp_data(:,2);
 end
 traces_stim = cat(2,traces_stim{:})';
 traces_stim_d = f_smooth_dfdt3(traces_stim, 1,5);
 
-traces_post = cell(numel(traces_names_post),1);
-for n_file = 1:numel(traces_names_post)
-    temp_data = csvread([fpath '/' traces_names_post{n_file}],1,0);
+traces_post = cell(numel(traces_ammn_post),1);
+for n_file = 1:numel(traces_ammn_post)
+    temp_data = csvread([fpath '/' traces_ammn_post{n_file}],1,0);
     traces_post{n_file} = temp_data(:,2);
 end
 traces_post = cat(2,traces_post{:})';
 traces_post_d = f_smooth_dfdt3(traces_post, 1,5);
 
 %%
-cuts_stim = load([fpath '\' cuts_stim_fname]);
+cuts_stim = load([fpath '\..\' cuts_stim_fname]);
 
+volt_data_stim = csvread([fpath '\..\' volt_dtim_fname], 1, 0);
 
-
-volt_data_stim = csvread([fpath '\' volt_dtim_fname], 1, 0);
-
-stim_chan = 6;
+stim_chan = 2;
 figure; plot(volt_data_stim(:,stim_chan))
 
-vid_cuts_trace = cuts_stim.cuts_data{3}.vid_cuts_trace;
+vid_cuts_trace = logical(cuts_stim.cuts_data{4}.vid_cuts_trace);
 
 stim_trace_full = zeros(numel(vid_cuts_trace),1);
 stim_trace_full(vid_cuts_trace) = traces_stim(1,:);
@@ -71,26 +81,35 @@ stim_trace_full(vid_cuts_trace) = traces_stim(1,:);
 %traces_post_d = traces_post_d(:,6001:end);
 
 figure; hold on; 
-subplot(2,1,1);
+subplot(3,1,1);
 plot(traces_pre(1,:))
-subplot(2,1,2);
+subplot(3,1,2);
 plot(traces_pre(2,:))
+subplot(3,1,3);
+plot(traces_pre(3,:))
 
 figure; hold on; 
 plot(traces_pre_d(1,:))
 plot(traces_pre_d(2,:))
+plot(traces_pre_d(3,:))
+
 
 figure; hold on;
 plot(traces_post(1,:))
 plot(traces_post(2,:))
+plot(traces_post(3,:))
+
 
 figure; hold on; 
 plot(traces_post_d(1,:))
 plot(traces_post_d(2,:))
+plot(traces_post_d(3,:))
+
 
 figure; hold on; 
 plot(traces_stim(1,:))
 plot(traces_stim(2,:))
+plot(traces_stim(3,:))
 
 
 %traces_pre1 = traces_pre(:,1:4000);

@@ -7,12 +7,13 @@ firing_rate = app.current_cell_spikes;
 trial_types = app.ddata.trial_types{1};
 stim_times = app.ddata.stim_frame_index{n_pl};
 mmn_freq = app.ddata.MMN_freq{1};
-trig_window = app.working_ops.trial_num_baseline_resp_frames;
-plot_t = app.working_ops.trial_window_t;
+trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
+[plot_t, trial_frames] = f_dv_compute_window_t(app, trial_window);
+
 num_cont_trials = 400;
 num_trials = num_cont_trials/app.ddata.proc_data{1}.stim_params.num_freqs;
 
-trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trig_window);
+trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trial_frames);
 [trial_data_sort_wctx, trial_types_wctx] = f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
 
 stats1 = app.ddata.stats{n_pl};

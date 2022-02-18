@@ -9,24 +9,17 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         warning(['Region ' ops.regions_to_analyze{n_cond} ' is not found in file_names'])
         remove_cond(n_cond) = 1;
     elseif isempty(ops.file_names.(ops.regions_to_analyze{n_cond}))
-        disp(['Region ' ops.regions_to_analyze{n_cond} ' has no data and will be removed from analysis'])
+        disp(['Region ' ops.regions_to_analyze{n_cond} ' has no data, removed from analysis'])
         remove_cond(n_cond) = 1;
     end
 end
 ops.regions_to_analyze(remove_cond) = []; 
 
-%% compute frequencies used
-ops.control_carrier_freq = zeros(1, ops.stim.num_freqs);
-ops.control_carrier_freq(1) = ops.stim.start_freq;
-for ii = 2:ops.stim.num_freqs
-    ops.control_carrier_freq(ii) = ops.control_carrier_freq(ii-1) * ops.stim.increase_factor;
-end
-
 %%
 % create freq legend for plots
 ops.context_type_legend = cell(10,3);
-for ii = 1:numel(ops.control_carrier_freq)
-    ops.context_type_legend{ii,1} = sprintf('%.1fkHz',ops.control_carrier_freq(ii)/1000);
+for ii = 1:10
+    ops.context_type_legend{ii,1} = sprintf('Freq %d', ii);
 end
 ops.context_type_legend{1,2} = 'Cont';
 ops.context_type_legend{1,3} = 'ContFlip';

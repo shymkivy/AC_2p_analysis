@@ -17,8 +17,8 @@ peak_bin_time = .250; % sec
 
 num_samp = 2000;
 
-stat_window = [-2 3];
-stat_trial_window = app.working_ops.trial_window;
+stat_window = f_str_to_array(app.stats_BaserespwinEditField.Value);
+[stat_window_t, stat_frames] = f_dv_compute_window_t(app, stat_window);
 
 %stat_resp_window = [.05 1];
 %stat_resp_window = [-2 3];
@@ -33,21 +33,13 @@ ddata = params.ddata;
 num_ens = size(ens_scores,1);
 stim_times = cat(2,ddata.stim_frame_index{params.planes});
 stim_times2 = round(mean(stim_times,2));
-%trig_window = app.working_ops.trial_num_baseline_resp_frames;
 trial_types = ddata.trial_types{1};
 MMN_freq = ddata.MMN_freq{1};
 fr = 1000/double(ddata.proc_data{1}.frame_data.volume_period);
 peak_bin_size = ceil(peak_bin_time*fr);
 
 %%
-stat_window_t = (ceil(stat_window(1)*fr):floor(stat_window(2)*fr))/fr;
-stat_window_num_baseline_resp_frames = [sum(stat_window_t<=0) sum(stat_window_t>0)];   
-
-stat_trial_window_t = (ceil(stat_trial_window(1)*fr):floor(stat_trial_window(2)*fr))/fr;
-stat_trial_window_num_baseline_resp_frames = [sum(stat_trial_window_t<=0) sum(stat_trial_window_t>0)];   
-
-%%
-win1 = stat_trial_window_num_baseline_resp_frames;
+win1 = stat_frames;
 
 trial_data_sort = f_get_stim_trig_resp(ens_scores, stim_times2, win1);
 
@@ -71,7 +63,7 @@ end
 num_tt = numel(app.ops.context_types_all);
 num_trials = numel(pop_stim_times);
 num_trial_per_stim = num_trials/app.ops.stim.num_freqs;
-num_t = sum(stat_trial_window_num_baseline_resp_frames);
+num_t = sum(stat_frames);
 
 trial_data_sort_stat_mean = squeeze(mean(trial_data_sort_stat,2));
 %% convert to z scores
@@ -185,8 +177,8 @@ ens_tuning.pop_z_factor = mean(trial_data_stat_sem,2);
 ens_tuning.cell_is_resp = resp_cells;
 ens_tuning.resp_thresh = resp_thresh;
 ens_tuning.peak_val_all = peak_vals;
-ens_tuning.peak_t_all = stat_trial_window_t(peak_locs);
-ens_tuning.stat_window_t = stat_trial_window_t; % stat_window_t
+ens_tuning.peak_t_all = stat_window_t(peak_locs);
+ens_tuning.stat_window_t = stat_window_t; % stat_window_t
 ens_tuning.z_thresh = z_thresh;
 ens_tuning.peak_stats = peak_stats;
 ens_tuning.peak_bin_size = peak_bin_size;

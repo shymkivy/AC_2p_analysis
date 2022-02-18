@@ -1,3 +1,5 @@
+function f_s0mpl_convert_to_h5(params)
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %   Workflow
@@ -9,10 +11,15 @@
 %       Save as H5
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%
-clear;
-close all;
+%% laod params
+num_planes = params.num_planes; % number of planes or 0
+do_moco = params.do_moco;
+do_bidi = params.do_bidi;
 
+data_dir = params.data_dir;
+save_dir = params.save_dir;
+
+params_moco.im_target_fname = [params.im_target_fname];
 %%
 load_type = 1; 
 % 1 = Prairie tiffs
@@ -20,12 +27,9 @@ load_type = 1;
 % 3 = h5 stack (needs file name)
 
 % multiplane data?
-num_planes = 5; % number of planes or 0
 params.use_prairie_mpl_tags = 1;
 params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'}; % 
 
-do_bidi = 0;
-do_moco = 1;
 save_all_steps = 0;
 save_indiv_h5info = 0;
 
@@ -37,40 +41,29 @@ params.trim_output_num_frames = 0; %  0 or number of frames to save
 %file_type = 'AAF_asynch';
 %file_type = 'A1_freq_grating';
 %file_type = 'ammn_2_dplanes';
-save_prefix = 'M105_im3_';
-fname = 'AC_ammn_stim'; %
-file_num = '3';
-file_date = '1_21_22a';
+%save_prefix = 'M105_im3_';
+%fname = 'AC_ammn_stim'; %
+%file_num = '3';
+%file_date = '1_21_22a';
 %file_date = '10_2_18';
 % % type 2 and 3
 % load_file_name = 'rest1_5_9_19.hdf5'; % only for 2 and 3
 
-data_dir = 'D:\data\AC\M105_1_21_22a_dream';
+%data_dir = 'D:\data\AC\M105_1_21_22a_dream';
 %data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3\';
 
-params_moco.im_target_fname = 'M105_im1_AC_ammn1_1_21_22a_h5cutsdata.mat';%'A1_cont_0.5_12_4_21a_h5cutsdata.mat';
+%params_moco.im_target_fname = 'M105_im1_AC_ammn1_1_21_22a_h5cutsdata.mat';%'A1_cont_0.5_12_4_21a_h5cutsdata.mat';
 
 %save_dir = 'C:\Users\rylab_dataPC\Desktop\Yuriy\DD_data\proc_data';
 %save_dir = 'E:\data\Auditory\caiman_out_multiplane';
 %save_dir = 'J:\mouse\backup\2018\caiman_out_dLGN';
 %save_dir = 'L:\data\Auditory\caiman_out';
-save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream';
+%save_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream';
 %save_dir = 'C:\Users\ys2605\Desktop\stuff\random_save_path';
 
 %%
-check1 = strfind(data_dir, file_date);
-if isempty(check1)
-    error('fix date, dir does not match date')
-end
 
-if ~isempty(params_moco.im_target_fname)
-    check2 = strfind(params_moco.im_target_fname, file_date);
-    if isempty(check2)
-        error('fix template, it does not match date')
-    end
-end
-
-check3 = strfind(fname, 'rest');
+check3 = strfind(params.fname, 'rest');
 if isempty(check3)
     params.auto_align_pulse_crop = 1;
 else
@@ -94,14 +87,15 @@ params.params_moco = params_moco;
 
 %%
 %load_dir = ['J:\mouse\backup\2018\' file_date '_dLGN\' file_type '-00' file_num];
-load_dir = [data_dir '\' fname '-00' file_num];
+load_dir = [data_dir '\' params.dset_name(1:end-1) '-00' params.dset_name(end) '\'];
 %load_dir = ['L:\data\Auditory\2018\' file_date '_im\' file_type '-00' file_num];
 %load_dir = ['E:\data\V1\' file_date '\' file_type '-00' file_num];
 
 save_dir_movie = [save_dir '\movies'];
 save_dir_cuts = [save_dir '\preprocessing'];
 
-save_file_name = [save_prefix fname file_num '_' file_date];
+save_file_name = params.fname;
+
 disp(save_file_name);
 
 proc_steps = '_cut';
@@ -111,7 +105,7 @@ colors1 = parula(num_planes);
 params.save_path = save_dir_movie;
 
 if ~isempty(params_moco.im_target_fname)
-    moco_init_load = load([save_dir '\' params_moco.im_target_fname]);
+    moco_init_load = load([save_dir_cuts '\' params_moco.im_target_fname '_h5cutsdata.mat']);
 end
 %%
 if ~exist(save_dir_movie, 'dir')
@@ -326,3 +320,4 @@ disp('Done')
 %% analysis
 
 %% functions
+end

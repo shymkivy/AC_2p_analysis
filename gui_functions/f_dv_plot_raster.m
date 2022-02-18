@@ -6,7 +6,9 @@ tt_all = app.ops.context_types_all(tn_all)';
 
 stim_times = app.ddata.stim_frame_index{n_pl};
 mmn_freq = app.ddata.MMN_freq{1};
-trig_window = app.working_ops.trial_num_baseline_resp_frames;
+trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
+[plot_t, trial_frames] = f_dv_compute_window_t(app, trial_window);
+
 trial_types = app.ddata.trial_types{1};
 
 cdata = f_dv_get_cdata(app);
@@ -18,7 +20,7 @@ if app.shufflecellsCheckBox.Value
     firing_rate = firing_rate(randperm(num_cells),:);
 end
 
-trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trig_window);
+trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trial_frames);
 
 if ~isempty(mmn_freq)
     [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);

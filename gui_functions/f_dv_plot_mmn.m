@@ -6,9 +6,10 @@ n_pl = app.mplSpinner.Value;
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 num_dsets = numel(data.experiment);
 
-trig_window = app.working_ops.trial_num_baseline_resp_frames;
-plot_t = app.working_ops.trial_window_t;
-num_t = sum(trig_window);
+trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
+[plot_t, trial_frames] = f_dv_compute_window_t(app, trial_window);
+
+num_t = sum(trial_window);
 
 ctx_plot_list = [18, 19, 20; ...
                      28, 29, 30]';
@@ -61,7 +62,7 @@ for n_flip = 1:num_flip
             end
         end
         
-        trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trig_window);
+        trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trial_frames);
         [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
 
         if app.ConverttoZCheckBox.Value

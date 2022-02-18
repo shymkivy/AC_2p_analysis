@@ -5,7 +5,7 @@ pwd1 = fileparts(which('fast_dd_cells_identification.m'));
 
 addpath([pwd1 '\general_functions']);
 
-data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3';
+data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\12_24_21b_dream';
 
 proc_data_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
 % fname = 'A1_ammn1_5plt_1plm_12_27_20_OA';

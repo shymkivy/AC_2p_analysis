@@ -2,15 +2,17 @@ function f_dv_update_cell(app)
 
 n_pl = app.mplSpinner.Value;
 
-cdata = app.cdata{n_pl};
+params = f_dv_gather_params(app);
+params.ddata = app.ddata;
+
+cdata = f_dv_compute_cdata(app, params);
+app.cdata{n_pl} = cdata;
 
 num_cells = cdata.num_cells;
 app.CellSpinner.Value = min([app.CellSpinner.Value, num_cells]);
 n_cell = app.CellSpinner.Value;
 plot_t = app.ddata.proc_data{1}.frame_data.frame_times_mpl{n_pl}/1000;
 accepted_cells = cdata.accepted_cells;
-
-
 
 %%
 app.current_cell_raw = cdata.raw(n_cell,:);
