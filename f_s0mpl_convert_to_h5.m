@@ -35,6 +35,7 @@ save_indiv_h5info = 0;
 
 % this also saves a trimmed version of movie
 params.trim_output_num_frames = 0; %  0 or number of frames to save
+params.align_pulse_crop_method = 1;
 
 % type 1
 %file_type = 'vmmn';close a
@@ -63,11 +64,13 @@ params.trim_output_num_frames = 0; %  0 or number of frames to save
 
 %%
 
-check3 = strfind(params.fname, 'rest');
-if isempty(check3)
-    params.auto_align_pulse_crop = 1;
-else
-    params.auto_align_pulse_crop = 0;
+if params.align_pulse_crop_method
+    check3 = strfind(params.fname, 'rest');
+    if isempty(check3)
+        params.align_pulse_crop_method = 1;
+    else
+        params.align_pulse_crop_method = 2;
+    end
 end
 
 %%
