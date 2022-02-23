@@ -1,4 +1,4 @@
-function f_s0mpl_convert_to_h5(params)
+function f_s0mpl_convert_to_h5_HB_lab(params)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -21,13 +21,13 @@ save_dir = params.save_dir;
 
 params_moco.im_target_fname = [params.im_target_fname];
 %%
-load_type = 1; 
+load_type = 2; 
 % 1 = Prairie tiffs
 % 2 = tiff stack (needs file name)
 % 3 = h5 stack (needs file name)
 
 % multiplane data?
-params.use_prairie_mpl_tags = 1;
+params.use_prairie_mpl_tags = 0;
 params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'}; % 
 
 save_all_steps = 0;
@@ -90,7 +90,7 @@ params.params_moco = params_moco;
 
 %%
 %load_dir = ['J:\mouse\backup\2018\' file_date '_dLGN\' file_type '-00' file_num];
-load_dir = [data_dir '\' params.dset_name(1:end-1) '-00' params.dset_name(end) '\'];
+load_dir = [data_dir '\' params.dset_name];
 %load_dir = ['L:\data\Auditory\2018\' file_date '_im\' file_type '-00' file_num];
 %load_dir = ['E:\data\V1\' file_date '\' file_type '-00' file_num];
 
@@ -145,10 +145,10 @@ else
         params.load_path = load_dir;
         Y_full = f_collect_prairie_tiffs4(params.load_path, 'Ch2');
     elseif load_type == 2
-        params.load_path = [load_dir, '\',  load_file_name];
+        params.load_path = [load_dir];
         Y_full = bigread3(params.load_path, 1);
     elseif load_type == 3
-        params.load_path = [load_dir, '\',  load_file_name];
+        params.load_path = [load_dir];
         Y_full = h5read(params.load_path, '/mov');
     end
     if num_planes > 1
@@ -322,5 +322,4 @@ end
 disp('Done')
 %% analysis
 
-%% functions
 end

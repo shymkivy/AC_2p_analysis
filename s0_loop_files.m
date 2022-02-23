@@ -1,5 +1,6 @@
 clear;
 close all;
+addpath([pwd '\s1_functions']);
 
 %%
 data_dir = {'D:\data\AC\2021\'...
@@ -16,12 +17,13 @@ limilt_mouse_id = '';
 limit_mouse_tag = '';
 
 %%
-
 AC_data = readtable(params.dset_table_fpath);
 
 %%
 
 AC_data = AC_data(~isnan(AC_data.idx),:);
+
+AC_data = AC_data(AC_data.do_proc == 1,:);
 
 %%
 AC_data2 = AC_data(strcmpi(AC_data.experiment, experiment_tag),:);
