@@ -8,26 +8,40 @@
 % AC_data = readtable('AC_data_list.xlsx');
 % ops.paradigm_type = 'ammn'; 
 
-ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data';
-AC_data = readtable('AC_data_list_echo.xlsx');
-ops.paradigm_type = 'cont'; % 'ammn' 'freq_grating' 'cont'
+ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream';
+AC_data = readtable('AC_data_list_all.xlsx');
+ops.paradigm_type = ''; % 'ammn' 'freq_grating' 'cont'
+ops.experiment_type = 'dream';
+%%
+if numel(ops.paradigm_type)
+    temp_idx = strcmpi(AC_data.paradigm, ops.paradigm_type);
+    AC_data = AC_data(temp_idx,:);
+end
+
+if numel(ops.experiment_type)
+    temp_idx = strcmpi(AC_data.experiment, ops.experiment_type);
+    AC_data = AC_data(temp_idx,:);
+end
 
 %%
-use_dset = AC_data.im_use_dset;
-use_dset(isnan(use_dset)) = 0;
+% use_dset = AC_data.im_use_dset;
+% use_dset(isnan(use_dset)) = 0;
+% 
+% AC_data.mpl(isnan(AC_data.mpl)) = 0;
+% 
+% %use_dset(AC_data.mpl<2) = 0;
+% %use_dset(AC_data.mpl>1) = 0;
+% 
+% AC_data = AC_data(logical(use_dset),:);
+% AC_data = AC_data(strcmpi(AC_data.paradigm,ops.paradigm_type),:);
 
-AC_data.mpl(isnan(AC_data.mpl)) = 0;
+ops.conditions = unique(AC_data.area, 'stable');
+ops.regions_to_analyze = unique(AC_data.area, 'stable');
 
-%use_dset(AC_data.mpl<2) = 0;
-%use_dset(AC_data.mpl>1) = 0;
-
-AC_data = AC_data(logical(use_dset),:);
-AC_data = AC_data(strcmpi(AC_data.paradigm,ops.paradigm_type),:);
-
-ops.file_names.A1 = AC_data.experiment(strcmpi(AC_data.area, 'A1'));
-ops.file_names.AAF = AC_data.experiment(strcmpi(AC_data.area, 'AAF'));
-ops.file_names.A2 = AC_data.experiment(strcmpi(AC_data.area, 'A2'));
-ops.file_names.UF = AC_data.experiment(strcmpi(AC_data.area, 'UF'));
+% ops.file_names.A1 = AC_data.experiment(strcmpi(AC_data.area, 'A1'));
+% ops.file_names.AAF = AC_data.experiment(strcmpi(AC_data.area, 'AAF'));
+% ops.file_names.A2 = AC_data.experiment(strcmpi(AC_data.area, 'A2'));
+% ops.file_names.UF = AC_data.experiment(strcmpi(AC_data.area, 'UF'));
 
 ops.AC_data = AC_data;
 clear AC_data use_dset;

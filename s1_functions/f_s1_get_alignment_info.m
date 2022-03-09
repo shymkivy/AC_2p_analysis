@@ -11,7 +11,7 @@ if ~isfield(data, 'alignment')
     close;
     
     if alignment.need_alignment
-        if sum(strcmp(ops.alignment_method, {'xcorr','peak_onsets','manual', 'peak_onsets_scale_only', 'peak_onsets_shift_only'}))
+        if sum(strcmpi(ops.alignment_method, {'xcorr','peak_onsets','manual', 'peak_onsets_scale_only', 'peak_onsets_shift_only', 'regress'}))
             alignment_method = ops.alignment_method;
         else
             alignment_method = 'xcorr'; % default
@@ -47,6 +47,8 @@ if ~isfield(data, 'alignment')
                         shift = 0;
                     elseif strcmp(temp_method, 'manual')
                         [shift, scaling_factor] = f_s1_align_traces_manual(ca_traces, frame_times, volt_data);
+                    elseif strcmpi(temp_method, 'regress')
+                        [shift, scaling_factor] = f_s1_align_traces_regress(ca_traces, frame_times, volt_data);
                     else
                         error('Select proper alignment method')
                     end
@@ -70,7 +72,7 @@ if ~isfield(data, 'alignment')
                 if alignment_good
                     temp_finish_alignment = 1;
                 else
-                    ans_temp = if_get_input('Enter 1 for xcorr; 2 for peak_onsets; 3 for manual alignment; 4 for manual shift; 0 to not align: ', [0,1,2,3,4]);
+                    ans_temp = if_get_input('Enter 1 for xcorr; 2 for peak_onsets; 3 for manual alignment; 4 for manual shift; 5 for regression; 0 to not align: ', [0,1,2,3,4, 5]);
                     if ans_temp == 1
                         temp_method = 'xcorr';
                         align_now = 1;
@@ -84,6 +86,9 @@ if ~isfield(data, 'alignment')
                         fine_shift_adj = if_get_input('Enter number of frames to shift the voltage to the right: ', 'numeric');
                         shift = shift + round(fine_shift_adj);
                         align_now = 0;
+                    elseif ans_temp == 5
+                        temp_method = 'regress';
+                        align_now = 1;
                     elseif ~ans_temp
                         temp_finish_alignment = 1;
                         shift = 0;

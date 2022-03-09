@@ -7,14 +7,14 @@ if ops.waitbar
     wb = f_waitbar_initialize([], 'Loading data...');
 end
 for n_dset = 1:num_dsets
-    temp_proc_data = data.proc_data{n_dset,1};
-    frame_period_sec = temp_proc_data.frame_data.volume_period/1000;
+    ddata = data.proc_data{n_dset,1};
+    frame_period_sec = ddata.frame_data.volume_period/1000;
     
-    data.trial_types{n_dset} = temp_proc_data.trial_types;
-    if isfield(temp_proc_data.stim_params, 'MMN_freq')
-        data.MMN_freq{n_dset} = temp_proc_data.stim_params.MMN_freq;
+    data.trial_types{n_dset} = ddata.trial_types;
+    if isfield(ddata.stim_params, 'MMN_freq')
+        data.MMN_freq{n_dset} = ddata.stim_params.MMN_freq;
     else
-        data.MMN_freq{n_dset} = temp_proc_data.MMN_orientations;
+        data.MMN_freq{n_dset} = ddata.MMN_orientations;
     end
     
 %     data.trial_window{n_dset} = struct();
@@ -33,7 +33,7 @@ for n_dset = 1:num_dsets
     % pull out data
     for n_pl = 1:data.num_planes(n_dset)
         temp_OA_data = data.OA_data{n_dset,n_pl};
-        temp_proc_data = data.proc_data{n_dset};
+        ddata = data.proc_data{n_dset};
         % extra cSNR threshold
         SNR_accept = temp_OA_data.proc.SNR2_vals >= ops.extra_SNR_thresh;
         accept_cell = and(SNR_accept,temp_OA_data.proc.comp_accepted);           
@@ -83,13 +83,13 @@ for n_dset = 1:num_dsets
 %         end
 
         % fill in the cut regions
-        cuts_trace = temp_proc_data.file_cuts_params{n_pl}.vid_cuts_trace;
+        cuts_trace = ddata.file_cuts_params{n_pl}.vid_cuts_trace;
         
         data.traces_raw{n_dset,n_pl} = if_fill_cuts(traces_raw_cut, cuts_trace);
         %data.firing_rate{n_dset,n_pl} = if_fill_cuts(firing_rate_cut, cuts_trace);
         %data.firing_rate_smooth{n_dset,n_pl} = if_fill_cuts(firing_rate_cut_smooth, cuts_trace);
         data.num_cells_pl{n_dset,n_pl} = size(data.traces_raw{n_dset,n_pl},1);
-        data.stim_frame_index{n_dset,n_pl} = temp_proc_data.stim_frame_index{n_pl};
+        data.stim_frame_index{n_dset,n_pl} = ddata.stim_frame_index{n_pl};
         cell_plane_indx_pl{n_dset,n_pl} = ones(data.num_cells_pl{n_dset,n_pl},1)*n_pl;
     end
     data.cell_plane_indx{n_dset} = cat(1, cell_plane_indx_pl{:});   

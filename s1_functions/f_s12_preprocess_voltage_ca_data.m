@@ -36,7 +36,7 @@ function f_s12_preprocess_voltage_ca_data(ops)
 ops.ca_processing = 'onacid';          % options: 'onacid', 'clicktrace', 'raw_movie';
 
 % for multiplane dataset set number of planes, otherwise 1;
-ops.num_planes = 5;   
+%ops.num_planes = 5;   
 
 % plot extra details along the way
 ops.plot_details = 1;
@@ -48,22 +48,27 @@ ops.processing_type = 2;
 % = 3; auditory freq grating; (needs TDT_volt for stim_times)
 
 % DAQ voltage channels recording order
-if ~isfield(ops, 'parameters')
-    ops.parameters.stimchan = 1; % 1
-    ops.parameters.ledchan = 2; % 2
-    ops.parameters.movchan = 3; % 3
-    ops.parameters.TDT_volt_chan = 4; % 4
+if ~isfield(ops, 'volt_chan_order')
+    ops.volt_chan_order = [1 2 3 4];
 end
+
+ops.volt_chan_labels = {'stim type', 'LED', 'Locomotion', 'TDT audio volt', 'SLM pattern', 'Pockel'};
+
 
 % which voltage channel to use for alignment? 1 for video 2 for auditory
 ops.align_to_channel = 2;
 
-ops.alignment_method = 'peak_onsets_scale_only';%'peak_onsets_scale_only'; 
-% options: 'xcorr', 'peak_onsets', 'peak_onsets_shift_only', 'peak_onsets_scale_only', 'manual'
+ops.alignment_method = 'regress';%'peak_onsets_scale_only'; 
+% options: 'xcorr', 'peak_onsets', 'peak_onsets_shift_only',
+% 'peak_onsets_scale_only', 'manual', regress
 % options: 
 
 
 ops.exp_window_selection = 'auto';  % options: 'auto', 'manual'
+
+if ~isfield(ops, 'has_stim') % default
+    ops.has_stim = 1;
+end
 
 % voltage output for jordan
 ops.bin_csv_out = 0;

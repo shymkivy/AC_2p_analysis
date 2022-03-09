@@ -105,14 +105,24 @@ if ops.processing_type == 2 || ops.processing_type == 3
         
         exp_window = data.exp_window_manual;
     elseif strcmp(ops.exp_window_selection, 'auto')
-        pulse_buff = 1; % in sec
-        pulse_buff_frames = round(pulse_buff*1000/data.frame_data.frame_period_ave);
-        [pulses_onset, pulses_offset] = f_get_pulse_times(data.volt_data_binned_superpos(:,ops.align_to_channel), 0.8);
         
-        phase_onset = pulses_offset + pulse_buff_frames;
-        phase_onset(end) = [];
-        phase_offset = pulses_onset - pulse_buff_frames;
-        phase_offset(1) = [];
+        %max(data.volt_data_binned_superpos(:,ops.align_to_channel))/std(data.volt_data_binned_superpos(:,ops.align_to_channel));
+        
+        align_data = data.volt_data_binned_superpos(:,ops.align_to_channel);
+        if sum(align_data == 1) > 3
+        
+            pulse_buff = 1; % in sec
+            pulse_buff_frames = round(pulse_buff*1000/data.frame_data.frame_period_ave);
+            [pulses_onset, pulses_offset] = f_get_pulse_times(data.volt_data_binned_superpos(:,ops.align_to_channel), 0.8);
+
+            phase_onset = pulses_offset + pulse_buff_frames;
+            phase_onset(end) = [];
+            phase_offset = pulses_onset - pulse_buff_frames;
+            phase_offset(1) = [];
+        else
+            phase_onset = 1;
+            phase_offset = numel(align_data);
+        end
         
         exp_window.phase_onset = phase_onset;
         exp_window.phase_offset = phase_offset;

@@ -1,34 +1,34 @@
 function ops = f_mpl_process_ops(ops)
-ops.conditions = fieldnames(ops.file_names);
+%ops.conditions = fieldnames(ops.file_names);
 % check if conditions have any datasets
 
 %% remove empty or anavailable datasets
-remove_cond = false(numel(ops.conditions),1);
-for n_cond = 1:numel(ops.regions_to_analyze)  
-    if ~sum(strcmp(ops.regions_to_analyze{n_cond}, ops.conditions))
-        warning(['Region ' ops.regions_to_analyze{n_cond} ' is not found in file_names'])
-        remove_cond(n_cond) = 1;
-    elseif isempty(ops.file_names.(ops.regions_to_analyze{n_cond}))
-        disp(['Region ' ops.regions_to_analyze{n_cond} ' has no data, removed from analysis'])
-        remove_cond(n_cond) = 1;
-    end
-end
-ops.regions_to_analyze(remove_cond) = []; 
+% remove_cond = false(numel(ops.conditions),1);
+% for n_cond = 1:numel(ops.conditions)  
+%     if ~sum(strcmp(ops.regions_to_analyze{n_cond}, ops.conditions))
+%         warning(['Region ' ops.regions_to_analyze{n_cond} ' is not found in file_names'])
+%         remove_cond(n_cond) = 1;
+%     elseif isempty(ops.file_names.(ops.regions_to_analyze{n_cond}))
+%         disp(['Region ' ops.regions_to_analyze{n_cond} ' has no data, removed from analysis'])
+%         remove_cond(n_cond) = 1;
+%     end
+% end
+% ops.regions_to_analyze(remove_cond) = []; 
 
 %%
 % create freq legend for plots
-ops.context_type_legend = cell(10,3);
-for ii = 1:10
-    ops.context_type_legend{ii,1} = sprintf('Freq %d', ii);
-end
-ops.context_type_legend{1,2} = 'Cont';
-ops.context_type_legend{1,3} = 'ContFlip';
-ops.context_type_legend{10,2} = 'Dev';
-ops.context_type_legend{10,3} = 'DevFlip';
-for ii = 1:8
-    ops.context_type_legend{ii+1,2} = sprintf('Red%d', ii);
-    ops.context_type_legend{ii+1,3} = sprintf('Red%dFlip', ii);
-end
+% ops.context_type_legend = cell(10,3);
+% for ii = 1:10
+%     ops.context_type_legend{ii,1} = sprintf('Freq %d', ii);
+% end
+% ops.context_type_legend{1,2} = 'Cont';
+% ops.context_type_legend{1,3} = 'ContFlip';
+% ops.context_type_legend{10,2} = 'Dev';
+% ops.context_type_legend{10,3} = 'DevFlip';
+% for ii = 1:8
+%     ops.context_type_legend{ii+1,2} = sprintf('Red%d', ii);
+%     ops.context_type_legend{ii+1,3} = sprintf('Red%dFlip', ii);
+% end
 
 %%
 % added 260 and 160 for red sum

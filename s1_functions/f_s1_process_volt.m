@@ -1,5 +1,7 @@
 function data = f_s1_process_volt(data, ops)
 
+%% se
+
 if ops.processing_type == 3
     if and(isfield(data.stim_params, 'stim_index'),isfield(data.stim_params, 'sig_dt'))
         if ~isfield(data, 'fg_first_stim_onset')
@@ -27,64 +29,95 @@ if ops.processing_type == 3
         sig_dt = data.stim_params.sig_dt;
         
         stim_times = round(stim_index*sig_dt*1000 + data.fg_first_stim_onset);
-        stim_times_trace_volt = zeros(size(data.volt_data_all_aligned,1),1);
-        stim_times_trace_volt(stim_times) = 1;
 
         data.stim_times_volt = stim_times;
-        data.stim_times_trace_volt = stim_times_trace_volt;
-
-    %     figure;
-    %     plot(volt_data_all_aligned(:,1));
-    %     hold on;
-    %     plot(volt_data_all_aligned(:,2));
-    %     plot(stim_times_trace);
-    %     title('Check if stim onset times are good');
-    %     legend('DAQ voltage trace', 'Alignment channel', 'Stim onset times');
+        data.stim_chan = 4;
     else
         error('No stim_index or sig_dr for freq grating stim_data available');
-        return;
     end 
 end
 
-%% bin voltage data into frame bins
+%% get stim times
 
-volt_data_binned = cell(1,ops.num_planes);
-if ops.processing_type == 3
-   stim_times_trace = cell(1, ops.num_planes);
-   TDR_trace_binned = cell(1, ops.num_planes);
+% find stim times in volt channels
+stim_chan_align = [1 5 6];
+thresh = 0.2;
+
+volt_data = data.volt_data_all_aligned;
+volt_time = data.volt_time_all;
+[T, num_ch] = size(volt_data);
+
+stim_chan_align = stim_chan_align(stim_chan_align<=num_ch);
+
+stim_times_volt = cell(numel(stim_chan_align),1);
+for ch_idx = 1:numel(stim_chan_align)
+    n_ch = stim_chan_align(ch_idx);
+    stim_trace = volt_data(:,n_ch);
+    stim_times_trace = false(T, 1);
+    for n_t = 2:T
+        if and(stim_trace(n_t) >= thresh, stim_trace(n_t-1) < thresh)
+            stim_times_trace(n_t) = 1;
+        end
+    end
+    stim_times_volt{ch_idx} = volt_time(stim_times_trace);
+    if numel(stim_times_volt{ch_idx})
+        fprintf('Extracted %d stimuli from voltage for chan %d\n', numel(stim_times_volt{ch_idx}),n_ch);
+    end
 end
-data.indexed_volt_data = cell(1,ops.num_planes);
+if isfield(data, 'stim_chan')
+    data.stim_chan = [data.stim_chan, stim_chan_align];
+    data.stim_times_volt = [data.stim_times_volt, stim_times_volt];
+else
+    data.stim_chan = stim_chan_align;
+    data.stim_times_volt = stim_times_volt;
+end
+
+%% bin voltage data into frame bins
+volt_data_binned = cell(1,ops.num_planes);
+if isfield(data, 'stim_chan')
+    stim_times_frame = cell(numel(data.stim_chan), ops.num_planes);
+end
+
+num_vol_lin = data.frame_data.num_volumes_linear;
+volt_data = data.volt_data_all_aligned;
+num_chan = size(volt_data,2);
 
 for n_pl = 1:ops.num_planes
-    volt_data_binned{n_pl} = zeros(data.frame_data.num_volumes_linear, 3);
-    if ops.processing_type == 3
-        stim_times_trace{n_pl} = zeros(data.frame_data.num_volumes_linear, 1);
-        TDR_trace_binned{n_pl} = zeros(data.frame_data.num_volumes_linear, 1);
-    end
-    
+    volt_data_binned{n_pl} = zeros(num_vol_lin, num_chan);
+
     temp_frame_times = data.frame_data.frame_times_mpl{n_pl};
     frame_bin_width = mean(data.frame_data.frame_period_ave);
-    for n_frame=1:data.frame_data.num_volumes_linear
+    for n_frame = 1:num_vol_lin
         
         frame_start_index = round(temp_frame_times(n_frame)-frame_bin_width)+1;
         frame_end_index = round(temp_frame_times(n_frame));
-
+        
         % averages visual stim voltage trigger
-        volt_data_binned{n_pl}(n_frame, 1)=median(data.volt_data_all_aligned(frame_start_index:frame_end_index,1),1);
-        % averages LED voltage trigger 
-        volt_data_binned{n_pl}(n_frame, 2)=median(data.volt_data_all_aligned(frame_start_index:frame_end_index,2),1);
-        % takes the absolute val of first derivative
-        volt_data_binned{n_pl}(n_frame, 3)=mean(data.volt_data_all_aligned(frame_start_index:frame_end_index,3),1);
-
-        if ops.processing_type == 3
-           stim_times_trace{n_pl}(n_frame) = max(stim_times_trace_volt(frame_start_index:frame_end_index));
-           TDR_trace_binned{n_pl}(n_frame) = mean(data.volt_data_all_aligned(frame_start_index:frame_end_index,4),1);
+        for n_ch = 1:num_chan
+            if n_ch == 3
+                volt_data_binned{n_pl}(n_frame, n_ch) = mean(volt_data(frame_start_index:frame_end_index,n_ch));
+            else
+                volt_data_binned{n_pl}(n_frame, n_ch) = median(volt_data(frame_start_index:frame_end_index,n_ch));
+            end
         end
-
+        
     end
     % process the movement channel
-    volt_data_binned{n_pl}(:, 3) = abs(gradient(volt_data_binned{n_pl}(:, 3)));
-    data.indexed_volt_data{n_pl} = round(volt_data_binned{n_pl}(:,1)/max(volt_data_binned{n_pl}(:,1))*data.stim_params.num_freqs);
+    volt_data_binned{n_pl}(:,3) = abs(gradient(volt_data_binned{n_pl}(:, 3)));
+    %data.indexed_volt_data{n_pl} = round(volt_data_binned{n_pl}(:,1)/max(volt_data_binned{n_pl}(:,1))*data.stim_params.num_freqs);
+    
+    if isfield(data, 'stim_chan')
+        for n_ch = 1:numel(data.stim_chan)
+            stim_times_ms = data.stim_times_volt{n_ch};
+            temp_stim_times_frame = zeros(numel(stim_times_ms), 1);
+            for n_st = 1:numel(stim_times_ms)
+                temp_st_time = stim_times_ms(n_st);
+                temp_stim_times_frame(n_st) = find(temp_frame_times>temp_st_time,1);
+            end
+            stim_times_frame{n_ch, n_pl} = temp_stim_times_frame;
+        end
+    end
+    
 end
 
 % combine over multiplane data
@@ -92,16 +125,14 @@ data.volt_data_binned_superpos = f_s1_multiplane_combine(volt_data_binned);
 
 % check if stim start times were binned properly
 if ops.processing_type == 3
-    if sum(stim_times_trace{1}) ~= numel(stim_index)
+    if numel(stim_times_frame{end,1}) ~= numel(stim_index)
         error('ERROR!!! Stim times binning didnt work right, line 447');
     end
-    data.stim_times_trace = stim_times_trace;
-    data.TDR_trace_binned = TDR_trace_binned;
-    data.TDR_trace_binned_superpos = f_s1_multiplane_combine(TDR_trace_binned);
+    
 end
-
-
-
+if isfield(data, 'stim_chan')
+    data.stim_times_frame = stim_times_frame;
+end
 
 %% process locomotion here
 

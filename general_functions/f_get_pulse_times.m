@@ -7,7 +7,7 @@ if ~exist('quant_limit', 'var') || isempty(quant_limit)
     quant_limit = 15; % default 15
 end
 
-norm_trace = if_normalize(trace);
+norm_trace = if_rescale(trace);
 
 % first identify the pulses
 norm_trace(norm_trace<thresh) = 0;
@@ -29,7 +29,7 @@ end
 
 end
 
-function norm_trace = if_normalize(trace)
+function norm_trace = if_rescale(trace)
 
 base = min(trace);
 base_sub = trace - base;

@@ -30,12 +30,10 @@ ops.deconv.smooth_dfdt.params.gauss_kernel_simga = 100;
 ops.deconv.smooth_dfdt.params.normalize = 0;
 ops.deconv.smooth_dfdt.params.rectify = 1;
 
-
 do_MCMC = 1;
-save_MCMC_samp = 0;
+ops.deconv.MCMC.params.save_SAMP = 0;
 
-
-
+do_MCMC_cells = 'accepted'; % 'accepted', 'all'
 
 %%
 flist = dir([data_dir '\*.hdf5']);
@@ -45,7 +43,6 @@ for n_fl = 1:numel(fnames)
     [~, f_core, ext] = fileparts(fnames{n_fl});
     
     file_loc = [data_dir '\' fnames{n_fl}];
-    
     
     if ~exist([data_dir '\' f_core '_sort.mat'], 'file')
     
@@ -115,7 +112,14 @@ for n_fl = 1:numel(fnames)
 
             f = waitbar(0,'Running MCMC...');
             for n_cell = 1:proc.num_cells
-                if proc.comp_accepted_core(n_cell)
+                
+                if strcmpi(do_MCMC_cells, 'accepted')
+                    MCMC_list = proc.comp_accepted_core;
+                elseif strcmpi(do_MCMC_cells, 'all')
+                    MCMC_list = true(proc.num_cells,1);
+                end
+                
+                if MCMC_list(n_cell)
                     if isempty(proc.deconv.MCMC.S{n_cell})
                         params.sn = proc.noise(n_cell);
 
@@ -129,7 +133,7 @@ for n_fl = 1:numel(fnames)
 
                         [SAMP, spikeRaster] = f_cs_compute_MCMC_core(y, params);
 
-                        if save_MCMC_samp
+                        if ops.deconv.MCMC.params.save_SAMP
                             proc.deconv.MCMC.SAMP{n_cell} = SAMP;
                         end
 

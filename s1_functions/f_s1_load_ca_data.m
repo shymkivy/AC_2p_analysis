@@ -20,14 +20,14 @@ if strcmp(ops.ca_processing ,'onacid')
             temp_params = load([ops.file_path_full_ca{n_pl} '_h5cutsinfo']);
             data.file_cuts_params{n_pl} = temp_params.params.cuts_data;
         end
-        data.ave_trace{n_pl} = if_normalize(data.file_cuts_params{n_pl}.ave_trace);
+        data.ave_trace{n_pl} = if_rescale(data.file_cuts_params{n_pl}.ave_trace);
         %data.ave_trace{n_pl} = if_normalize(data.ave_trace{n_pl});
     end
 elseif strcmp(ops.ca_processing ,'raw_movie')
     Y = double(bigread3([ops.file_dir '\' ops.file_core '.tif']));
     data.ave_trace = cell(1,ops.num_planes);
     trace = squeeze(mean(mean(Y,1),2));
-    data.ave_trace{1} = if_normalize(trace);
+    data.ave_trace{1} = f_rescale(trace);
 else
     ops.halo_sub = 1;
     
@@ -35,7 +35,7 @@ else
     data.ave_trace = cell(1,ops.num_planes);
     for n_pl = 1:ops.num_planes
         temp_trace = dlmread([ops.file_dir '\' 'TracesRAW_',ops.file_core,'_REDCHAN.csv'],',',0,0)';
-        data.ave_trace{n_pl}=if_normalize(temp_trace);
+        data.ave_trace{n_pl}=f_rescale(temp_trace);
         
         clicktrate_data{n_pl}.cell_trace = dlmread([ops.file_dir '\' 'TracesRAW_',ops.file_core,'.csv'],',',0,0);
         clicktrate_data{n_pl}.cell_halos = dlmread([ops.file_dir '\' 'halosRAW_',ops.file_core,'.csv'],',',0,0);
@@ -95,12 +95,11 @@ end
 
 end
 
-
-function norm_trace = if_normalize(trace)
+function trace_out = if_rescale(trace)
 
 base = min(trace);
 base_sub = trace - base;
 peak = max(base_sub);
-norm_trace = base_sub/peak;
+trace_out = base_sub/peak;
 
 end

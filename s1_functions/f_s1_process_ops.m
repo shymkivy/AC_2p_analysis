@@ -39,16 +39,4 @@ ops.file_save_path_full_processing_params = [ops.file_save_path_full '_S1_proces
 % collect errors in this
 ops.errors = {};
 
-ops.volt_chan_labels = {'stim type', 'LED', 'Locomotion', 'TDT audio volt'};
-
-% identify rest traces
-ops.is_rest = zeros(ops.num_volt_in_files,1);
-for n_file = 1:ops.num_volt_in_files
-    if ~isempty(strfind(ops.files_volt_in{n_file},'rest'))
-        ops.is_rest(n_file) = 1;
-    else
-        ops.is_rest(n_file) = 0;
-    end
-end
-
 end

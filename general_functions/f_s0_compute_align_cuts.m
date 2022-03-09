@@ -43,10 +43,7 @@ if params.align_pulse_crop_method == 1 % auto find
     hold on; plot(vid_cuts_trace);
     axis tight;
     title(sprintf('Automatic %d frag selected %s', num_frag, params.title_tag), 'interpreter', 'none');
-elseif params.align_pulse_crop_method == 2 % full vid
-    vid_cuts = [1, numel(norm_ave_trace)];
-    vid_cuts_trace(vid_cuts(1):vid_cuts(2)) = 1;
-else
+elseif params.align_pulse_crop_method == 2 % manual
     f1 = figure;
     plot(norm_ave_trace);
     axis tight;
@@ -76,6 +73,9 @@ else
     hold on; plot(vid_cuts_trace);
     axis tight;
     title(sprintf('Manual %d frag selected %s', num_frag, params.title_tag), 'interpreter', 'none');
+else
+    vid_cuts = [1, numel(norm_ave_trace)];
+    vid_cuts_trace(vid_cuts(1):vid_cuts(2)) = 1;
 end
 
 params.vid_cuts = vid_cuts;

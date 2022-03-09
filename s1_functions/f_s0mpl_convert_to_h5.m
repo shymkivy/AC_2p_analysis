@@ -166,8 +166,6 @@ else
     clear Y_full;
 end
 
-
-
 %% compute cuts
 if ~isfield(cuts_data{1}, 'vid_cuts_trace')
     cuts_data = cell(num_planes,1);

@@ -4,7 +4,7 @@ ops = app.gui_ops.ops;
 
 %% from S31 file s31MPL_audio_mmn_analysis.m
 ops.processed_data_tag = 'processed_data';
-ops.OA_output_tag = 'results_sort';
+ops.OA_output_tag = 'cnmf_sort';
 
 %% List of files to load
 
