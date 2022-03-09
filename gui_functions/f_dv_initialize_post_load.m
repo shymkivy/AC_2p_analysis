@@ -1,10 +1,10 @@
 function f_dv_initialize_post_load(app)
 
-app.DatasetDropDown.Items = app.data.experiment;
+app.DatasetDropDown.Items = app.data.dset_name_full;
 
 app.trialtypeDropDown.Items = [{'all'}; {'Freqs'}; {'Context'}; {'Ongoing'}; app.ops.context_types_labels];
 
-app.regiontoplotDropDown.Items = [{'all'} app.ops.regions_to_analyze];
+app.regiontoplotDropDown.Items = [{'all'}; app.ops.regions_to_analyze];
 
 max_planes = max(app.data.num_planes);
 num_dsets = size(app.data,1);

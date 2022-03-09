@@ -21,10 +21,11 @@ end
 if ~isempty(ddata.OA_data{n_pl}.est.S)
     deconv_methods = [deconv_methods, {'OA_deconv'}];
 end
-if ~isempty(cat(1,ddata.OA_data{n_pl}.proc.deconv.c_foopsi.S{:}))
-    deconv_methods = [deconv_methods, {'constrained_foopsi'}];
+if isfield(ddata.OA_data{n_pl}.proc.deconv, 'c_foopsi')
+    if ~isempty(cat(1,ddata.OA_data{n_pl}.proc.deconv.c_foopsi.S{:}))
+        deconv_methods = [deconv_methods, {'constrained_foopsi'}];
+    end
 end
-
 app.DeconvolutionmethodDropDown.Items = deconv_methods;
 
 %% gather C and S

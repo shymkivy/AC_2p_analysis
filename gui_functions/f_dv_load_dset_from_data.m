@@ -1,7 +1,7 @@
 function f_dv_load_dset_from_data(app)
 
 current_dset = app.DatasetDropDown.Value;
-idx1 = strcmpi(app.data.experiment, current_dset);
+idx1 = strcmpi(app.data.dset_name_full, current_dset);
 app.current_data_idx = idx1;
 
 %%

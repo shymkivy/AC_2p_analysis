@@ -22,7 +22,8 @@ elseif strcmpi(params.deconvolution, 'MCMC')
     C = ddata.OA_data{n_pl}.proc.deconv.MCMC.C;
     S = ddata.OA_data{n_pl}.proc.deconv.MCMC.S;
 elseif strcmpi(params.deconvolution, 'smooth_dfdt')
-    sigma1 = ddata.OA_data{n_pl}.proc.deconv.smooth_dfdt.params.gauss_kernel_simga;
+    %sigma1 = ddata.OA_data{n_pl}.proc.deconv.smooth_dfdt.params.gauss_kernel_simga;
+    sigma1 = ddata.OA_data{n_pl}.ops.deconv.smooth_dfdt.params.gauss_kernel_simga;
     sigma_frames = sigma1/1000*fr;
     do_smooth = 1;
     normalize1 = 0;

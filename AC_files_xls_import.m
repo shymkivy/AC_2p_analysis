@@ -23,6 +23,14 @@ if numel(ops.experiment_type)
     AC_data = AC_data(temp_idx,:);
 end
 
+%% 
+num_dsets = size(AC_data,1);
+f_names = cell(num_dsets,1);
+for n_dset = 1:num_dsets
+    f_names{n_dset} = sprintf('%s_im%d_%s_%s', AC_data.mouse_id{n_dset}, AC_data.im_num(n_dset), AC_data.dset_name{n_dset}, AC_data.mouse_tag{n_dset});
+end
+
+AC_data.dset_name_full = f_names;
 %%
 % use_dset = AC_data.im_use_dset;
 % use_dset(isnan(use_dset)) = 0;
