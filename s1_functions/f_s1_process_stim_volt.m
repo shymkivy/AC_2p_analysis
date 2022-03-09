@@ -68,7 +68,7 @@ end
 % MMN redundants are 101 - 140, deviant is 170. 
 % flipMMN redundantts are 201 - 240, deviant is 270
 % which stim patter did we use. row 1 is MMN, row 2 is flip
-if isfield(data, 'cont_trials_seq')
+if exist('cont_trials_seq', 'var')
     if sum(max(MMN_trials_seq)> 2)
         MMN_trials_seq = round(2*MMN_trials_seq/(max(MMN_trials_seq(:))));
     end
