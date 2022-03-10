@@ -30,7 +30,7 @@ ops.extra_SNR_thresh = 0; % 0 = no thresh
 
 
 % ops.redundent_to_analyze = 3;
-% ops.redundent_pool_trials = 2:7;
+ops.redundent_pool_trials = 2:7;
 % ops.dev_cells_ctx = 'ctx_tuned';      % options: 'all', 'ctx_tuned', 'tuned_all'
 % ops.remove_early_dev = 1;
 

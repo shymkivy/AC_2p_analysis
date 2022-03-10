@@ -23,6 +23,9 @@ if numel(ops.experiment_type)
     AC_data = AC_data(temp_idx,:);
 end
 
+
+AC_data = AC_data(AC_data.use_dset ~= 0,:);
+
 %% 
 num_dsets = size(AC_data,1);
 f_names = cell(num_dsets,1);

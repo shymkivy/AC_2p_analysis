@@ -9,10 +9,7 @@ use_color_map = 1;
 
 stats1 = app.ddata.stats{n_pl};
 
-if app.ConverttoZCheckBox.Value
-    pop_mean_val = stats1.pop_mean_val;
-    pop_z_factor = stats1.pop_z_factor;
-end
+
 
 if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'None')
     app.gui_ops.contour_params.visible_set = 0;
@@ -35,6 +32,8 @@ elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning mag')
     resp_cells = stats1.cell_is_resp;
     peak_vals = stats1.peak_val_all;
     if app.ConverttoZCheckBox.Value
+        pop_mean_val = stats1.pop_mean_val;
+        pop_z_factor = stats1.pop_z_factor;
         peak_vals = (peak_vals - pop_mean_val)./pop_z_factor;
     end
     peak_vals(~resp_cells) = 0;

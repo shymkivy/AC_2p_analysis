@@ -44,13 +44,14 @@ if isempty(ddata.stats{1})
     fprintf('Computing stats _/%d planes: ', ddata.num_planes);
 end
 for n_pl2 = 1:ddata.num_planes
-    
-    if isempty(ddata.stats{n_pl2})
-        fprintf('%d..',n_pl2);
-        params.cdata = cdata_all{n_pl2};
-        params.n_pl = n_pl2;
-        app.data(idx1,:).stats{n_pl2} = f_dv_compute_stats_core(app, params);
-        app.ddata = app.data(idx1,:);
+    if isfield(ddata.proc_data{1}, 'trial_types')
+        if isempty(ddata.stats{n_pl2})
+            fprintf('%d..',n_pl2);
+            params.cdata = cdata_all{n_pl2};
+            params.n_pl = n_pl2;
+            app.data(idx1,:).stats{n_pl2} = f_dv_compute_stats_core(app, params);
+            app.ddata = app.data(idx1,:);
+        end
     end
 end
 if isempty(ddata.stats{1})
