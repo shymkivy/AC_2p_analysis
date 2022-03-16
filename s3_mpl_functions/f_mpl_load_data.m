@@ -6,7 +6,12 @@ data = ops.AC_data;
 % gather the file names of specified data
 num_dset = numel(data.area);
 if ops.waitbar
-    wb = f_waitbar_initialize([], 'Loading data...');
+    if isfield(ops, 'app')
+        app = ops.app;
+    else
+        app = [];
+    end
+    wb = f_waitbar_initialize(app, 'Loading data...');
 end
 
 has_data = false(num_dset,1);
@@ -30,6 +35,11 @@ for n_dset = 1:num_dset
         has_data(n_dset) = 1;
         data.num_planes(n_dset) = numel(temp_OA);
         for n_pl = 1:data.num_planes(n_dset)
+            if data.num_planes(n_dset) > 1
+                if isempty(strfind(temp_OA(n_pl).name, ['pl'  num2str(n_pl)]))
+                    error('File name and planes dont match');
+                end
+            end
             data.OA_data{n_dset, n_pl} = load([ops.file_dir '\' temp_OA(n_pl).name]);
         end
     end

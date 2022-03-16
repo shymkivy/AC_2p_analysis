@@ -4,7 +4,12 @@ disp('Preprocessing...');
 
 num_dsets = numel(data.area);
 if ops.waitbar
-    wb = f_waitbar_initialize([], 'Loading data...');
+    if isfield(ops, 'app')
+        app = ops.app;
+    else
+        app = [];
+    end
+    wb = f_waitbar_initialize(app, 'Preprocessing data...');
 end
 for n_dset = 1:num_dsets
     ddata = data(n_dset,:);
@@ -94,7 +99,11 @@ for n_dset = 1:num_dsets
         %data.firing_rate{n_dset,n_pl} = if_fill_cuts(firing_rate_cut, cuts_trace);
         %data.firing_rate_smooth{n_dset,n_pl} = if_fill_cuts(firing_rate_cut_smooth, cuts_trace);
         data.num_cells_pl{n_dset,n_pl} = size(data.traces_raw{n_dset,n_pl},1);
-        data.stim_frame_index{n_dset,n_pl} = proc_data.stim_times_frame{proc_data.stim_chan == 1, n_pl};
+        if isfield(proc_data, 'stim_chan')
+            data.stim_frame_index{n_dset,n_pl} = proc_data.stim_times_frame{proc_data.stim_chan == 1, n_pl};
+        else
+            data.stim_frame_index{n_dset,n_pl} = proc_data.stim_frame_index{n_pl};
+        end
         cell_plane_indx_pl{n_dset,n_pl} = ones(data.num_cells_pl{n_dset,n_pl},1)*n_pl;
     end
     data.cell_plane_indx{n_dset} = cat(1, cell_plane_indx_pl{:});   
@@ -112,7 +121,6 @@ for n_dset = 1:num_dsets
     volume_period(n_dset) = round(10*data.proc_data{n_dset,1}.frame_data.volume_period_ave)/10;
 end
 if_check_parameter_stability(volume_period, 'volume_period');
-
 
 stim_duration = zeros(num_dsets, 1);
 isi = zeros(num_dsets,1);

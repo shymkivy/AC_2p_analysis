@@ -8,10 +8,11 @@
 % AC_data = readtable('AC_data_list.xlsx');
 % ops.paradigm_type = 'ammn'; 
 
+%ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\AC_data_OA_3_16_20';
 ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream';
 AC_data = readtable('AC_data_list_all.xlsx');
 ops.paradigm_type = ''; % 'ammn' 'freq_grating' 'cont'
-ops.experiment_type = 'dream';
+ops.experiment_type = 'dream'; % dream, missmatch
 %%
 if numel(ops.paradigm_type)
     temp_idx = strcmpi(AC_data.paradigm, ops.paradigm_type);
@@ -23,17 +24,22 @@ if numel(ops.experiment_type)
     AC_data = AC_data(temp_idx,:);
 end
 
-
 AC_data = AC_data(AC_data.use_dset ~= 0,:);
 
 %% 
+
 num_dsets = size(AC_data,1);
 f_names = cell(num_dsets,1);
+f_names_dir = cell(num_dsets,1);
 for n_dset = 1:num_dsets
     f_names{n_dset} = sprintf('%s_im%d_%s_%s', AC_data.mouse_id{n_dset}, AC_data.im_num(n_dset), AC_data.dset_name{n_dset}, AC_data.mouse_tag{n_dset});
+    dir_data = dir([ops.file_dir '\*' AC_data.dset_name{n_dset} '*' AC_data.mouse_tag{n_dset} '*_sort.mat']);;
+    f_names_dir{n_dset} = {dir_data.name};
 end
 
 AC_data.dset_name_full = f_names;
+AC_data.dset_name_load = f_names_dir;
+
 %%
 % use_dset = AC_data.im_use_dset;
 % use_dset(isnan(use_dset)) = 0;

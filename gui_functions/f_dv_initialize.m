@@ -6,6 +6,7 @@ app.matdatapathEditField.Value = app.gui_ops.mat_data_path;
 app.gui_plots.A_image = imagesc(app.UIAxes, 0);
 app.gui_plots.A_image.ButtonDownFcn = @(~,~) f_dv_button_down(app, app.gui_plots.A_image);
 app.gui_plots.plot_current_contour = [];
+app.gui_plots.image_roi = imagesc(app.UIAxes_roi, 0);
 axis(app.UIAxes, 'equal');
 axis(app.UIAxes, 'tight');
 
@@ -16,6 +17,7 @@ app.gui_plots.plot_spikes = plot(app.UIAxes2, 0,0, 'color', [0.4940, 0.1840, 0.5
 app.gui_plots.plot_stim_times = plot(app.UIAxes2, 0,0, 'color', [0, 0, 0]);
 axis(app.UIAxes2, 'tight');
 %axis(app.UIAxes2, 'tight');
+
 
 app.gui_plots.freq_resp_fig = [];
 app.gui_plots.ctx_resp_fig = [];

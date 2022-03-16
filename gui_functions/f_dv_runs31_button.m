@@ -4,7 +4,7 @@ ops = app.gui_ops.ops;
 
 %% from S31 file s31MPL_audio_mmn_analysis.m
 ops.processed_data_tag = 'processed_data';
-ops.OA_output_tag = 'cnmf_sort';
+ops.OA_output_tag = '_sort'; % cnmf_sort
 
 %% List of files to load
 
@@ -20,12 +20,15 @@ AC_files_xls_import;
 %%
 ops = f_mpl_process_ops(ops);
 
+ops.app = app;
+
 %%
 [data, ops] = f_mpl_load_data(ops);
 
 %%
 data = f_dv_preprocess_data(data, ops);
 
+ops = rmfield(ops, 'app');
 app.data = data;
 app.ops = ops;
 
