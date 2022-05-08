@@ -58,7 +58,7 @@ if ~isempty(app.DatasetDropDown.Value)
         
         app.SNRcaimanEditField.Value = est1.SNR_comp(acc_idx(n_cell));
         app.SNR2EditField.Value = proc1.SNR2_vals(acc_idx(n_cell));
-        app.CNNprobEditField.Value = est1.cnn_preds(acc_idx(n_cell));
+        app.CNNprobEditField.Value = double(est1.cnn_preds(acc_idx(n_cell)));
         app.RvalueEditField.Value = est1.r_values(acc_idx(n_cell));
     end
 end
