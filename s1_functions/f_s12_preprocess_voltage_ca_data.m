@@ -49,10 +49,10 @@ ops.processing_type = 2;
 
 % DAQ voltage channels recording order
 if ~isfield(ops, 'volt_chan_order')
-    ops.volt_chan_order = [1 2 3 4];
+    ops.volt_chan_order = [3 4 5 6];
 end
 
-ops.volt_chan_labels = {'stim type', 'LED', 'Locomotion', 'TDT audio volt', 'SLM pattern', 'Pockel'};
+ops.volt_chan_labels = {'stim type', 'LED', 'Locomotion', 'TDT audio volt', 'SLM pattern', 'Pockel'}; % 
 
 
 % which voltage channel to use for alignment? 1 for video 2 for auditory

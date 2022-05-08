@@ -1,15 +1,26 @@
 function f_dv_register_cells(app)
 
-fov_idx = [4,7];
+[data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 
-bkg_all = cell(numel(fov_idx),1);
-for n_idx = 1:numel(fov_idx)
-    data = app.data(fov_idx(n_idx),:);
-    est = data.OA_data{1}.est;
+data2 = app.data(strcmpi(data.mouse_id, app.data.mouse_id),:);
+data3 = data2(data.FOV_num == data2.FOV_num,:);
+
+bkg_all = cell(numel(data3.mouse_id),1);
+for n_idx = 1:numel(data3.mouse_id)
+    est = data3(n_idx,:).OA_data{1}.est;
     
     bkg = reshape(mean(est.f)*est.b, [256 256]);
-    figure; imagesc(bkg); title(num2str(fov_idx(n_idx)));
-    bkg_all{n_idx} = bkg;
+    
+    A_orig = est.A * (mean(est.C,2) + mean(est.YrA,2));
+    A_orig = reshape(A_orig, est.dims');
+    
+    ave_im = bkg + A_orig;
+    
+    figure; 
+    imagesc(ave_im); 
+    title(data3(n_idx,:).dset_name_full, 'interpreter', 'none');
+    
+    bkg_all{n_idx} = ave_im;
 end
 
 [d11, d21] = size(bkg_all{1});
@@ -30,10 +41,10 @@ back1 = ifft2(four1.*four2);
 shiftm = m1 - d11;
 shiftn = n1 - d12;
 
-A_all = cell(numel(fov_idx),1);
-A_all3 = cell(numel(fov_idx),1);
-for n_idx = 1:numel(fov_idx)
-    data = app.data(fov_idx(n_idx),:);
+A_all = cell(numel(dset_idx),1);
+A_all3 = cell(numel(dset_idx),1);
+for n_idx = 1:numel(dset_idx)
+    data = app.data(dset_idx(n_idx),:);
     est = data.OA_data{1}.est;
     proc = data.OA_data{1}.proc;
     A_full = reshape(full(est.A(:,proc.comp_accepted)), d11, d12, []);

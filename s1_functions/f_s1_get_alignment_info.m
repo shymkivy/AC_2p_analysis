@@ -5,7 +5,7 @@ if ~isfield(data, 'alignment')
     figure; hold on;
     plot(1:data.num_samp_volt,data.volt_data_all(:,ops.align_to_channel));
     plot((1:data.frame_data.num_frames_all)*data.frame_data.frame_period_ave,data.ave_trace_superpos);
-    %plot(data.frame_data_XML.frame_times_raw{1},data.ave_trace_superpos);
+    plot(data.frame_data_XML.frame_times_raw{1},data.ave_trace_superpos);
     title(sprintf('Do these need to be aligned? [Y/N];\n volt trig mode: %s', data.frame_data_XML.trigger_mode{1}))
     alignment.need_alignment = ask_yes_no_fig();
     close;

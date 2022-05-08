@@ -82,9 +82,9 @@ if ops.processing_type == 2 || ops.processing_type == 3
             plot(data.volt_data_binned_superpos(:,1));
             plot(data.ave_trace_superpos(:,1));
             plot(data.volt_data_binned_superpos(:,2));
-            plot(data.stim_times_trace{1});
+            %plot(data.stim_times_volt{1});
             title('Select phases, control, MMN flipMMN (6 clicks)');
-            legend('DAQ voltage trace', 'Mean Ca trace from video', 'LED', 'stim times');
+            legend('DAQ voltage trace', 'Mean Ca trace from video', 'LED'); % , 'stim times'
             [phase_bounds,~]=ginput(6);
             close;
 

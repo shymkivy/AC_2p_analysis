@@ -22,7 +22,7 @@ if and(norm_trace(1) == 1,numel(offset)>numel(onset))
 end
 
 if numel(onset) > quant_limit
-    figure; plot(ca_traces);
+    figure; plot(norm_trace);
     title(['Stopped because number of pulses is over limit of ' num2str(quant_limit)]);
     error(['Stopped because number of pulses is over limit of ' num2str(quant_limit)]);
 end

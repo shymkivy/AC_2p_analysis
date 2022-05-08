@@ -3,9 +3,13 @@ close all;
 addpath([pwd '\s1_functions']);
 
 %%
-data_dir = {'D:\data\AC\2021\'...
-            'D:\data\AC\2022\'};
-
+%  data_dir = {'D:\data\AC\2022\',...
+%              'D:\data\AC\2022\'};
+         
+data_dir = {'D:\data\AC\2022\'};
+ 
+%data_dir = {'C:\Users\ys2605\Desktop\stuff\AC_data\'};
+        
 save_dir = {'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream\',...
             'D:\data\caiman_data_dream\'};
 
@@ -13,7 +17,7 @@ params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_
 
 experiment_tag = 'dream';
 
-limilt_mouse_id = '';
+limilt_mouse_id = 'M125';
 limit_mouse_tag = '';
 
 %%
@@ -114,13 +118,20 @@ for n_ms = 1:numel(mouse_id_all)
                 params.do_moco = cdset.do_moco;
                 params.do_bidi = cdset.do_bidi;
                 params.dset_name = cdset.dset_name{1};
-
+                
+                if or(cdset.align_pulse_crop_method == 0, cdset.align_pulse_crop_method == 2)
+                    params.align_pulse_crop_method = cdset.align_pulse_crop_method;
+                else
+                    params.align_pulse_crop_method = 1; % default is 1 = auto; 2 = manual; 0 = full movie
+                end
+                
                 params.im_target_fname = '';
                 if params.do_moco
                     if ~isempty(cdset.moco_to_dset)
                         if n_dset ~= cdset.moco_to_dset
                             source_dset = cdset.moco_to_dset;
-                            fname_dset1 = sprintf('%s_im%d_%s_%s', AC_data4.mouse_id{source_dset}, AC_data4.im_num(source_dset), AC_data4.dset_name{source_dset}, AC_data4.mouse_tag{source_dset});
+                            source_dset_idx = AC_data4.im_num == source_dset;
+                            fname_dset1 = sprintf('%s_im%d_%s_%s', AC_data4.mouse_id{source_dset_idx}, AC_data4.im_num(source_dset_idx), AC_data4.dset_name{source_dset_idx}, AC_data4.mouse_tag{source_dset_idx});
                             params.im_target_fname = fname_dset1;
                             fprintf('Using target registration im from %s\n', params.im_target_fname);
                         end

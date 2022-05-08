@@ -40,7 +40,7 @@ end
 %% get stim times
 
 % find stim times in volt channels
-stim_chan_align = [1 5 6];
+stim_chan_align = [1]; % 1 5 6
 thresh = 0.2;
 
 volt_data = data.volt_data_all_aligned;

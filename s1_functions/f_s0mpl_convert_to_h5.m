@@ -35,7 +35,6 @@ save_indiv_h5info = 0;
 
 % this also saves a trimmed version of movie
 params.trim_output_num_frames = 0; %  0 or number of frames to save
-params.align_pulse_crop_method = 1;
 
 % type 1
 %file_type = 'vmmn';close a
@@ -63,15 +62,16 @@ params.align_pulse_crop_method = 1;
 %save_dir = 'C:\Users\ys2605\Desktop\stuff\random_save_path';
 
 %%
+% 
+% if params.align_pulse_crop_method
+%     check3 = strfind(params.fname, 'rest');
+%     if isempty(check3)
+%         params.align_pulse_crop_method = 1;
+%     else
+%         params.align_pulse_crop_method = 2;
+%     end
+% end
 
-if params.align_pulse_crop_method
-    check3 = strfind(params.fname, 'rest');
-    if isempty(check3)
-        params.align_pulse_crop_method = 1;
-    else
-        params.align_pulse_crop_method = 2;
-    end
-end
 
 %%
 params_bidi.smooth_std = [1 2 10];%[1 2 2];
@@ -100,6 +100,7 @@ save_dir_cuts = [save_dir '\preprocessing'];
 save_file_name = params.fname;
 
 disp(save_file_name);
+fprintf('Pulse corp method = %d\n', params.align_pulse_crop_method);
 
 proc_steps = '_cut';
 

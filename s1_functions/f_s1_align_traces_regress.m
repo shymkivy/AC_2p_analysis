@@ -1,12 +1,13 @@
-function [shift, scaling_factor] = f_s1_align_traces_regress(ca_traces, frame_times, volt_data)
+function [shift, scaling_factor] = f_s1_align_traces_regress(ca_traces, frame_times, volt_data, thresh)
 
 %v_times = 1:size(volt_data,1);
 % figure; hold on;
 % plot(v_times, volt_data);
 % plot(frame_times,ca_traces);
 % 
-
-thresh = [.2 .8];
+if ~exist('thresh', 'var')
+    thresh = [.2 .8];
+end
 %%
 on_times_low = [];
 on_times_high = [];

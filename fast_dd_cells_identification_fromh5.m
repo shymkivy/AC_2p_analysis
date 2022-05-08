@@ -9,8 +9,8 @@ save_dir_movie = [proc_data_path '\movies'];
 
 %%
 
-data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\M4465_1_2_22a_dream';
-fname = 'M4465_im1_AC_ammn1_1_2_22a_mpl5';
+data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\M125_bh_1l_4_26_22';
+fname = 'M125_im4_AC_ammn4_4_26_22_mpl5';
  
 multiplane = 5;
 
@@ -147,7 +147,7 @@ n_pl = multiplane;
 base_onset_win = [3 12];
 
 tt_pairs = {170, 270;...
-            3, 6};
+            5, 9};
 
 %%
 
@@ -162,7 +162,7 @@ Y2 = cat(2,Y{:});
 Y2 = reshape(Y2, [d1*d2, T]);
 %figure; imagesc(mean(Y{n_pl},3))
 
-stim_frame_index = proc_data.data.stim_frame_index{1};
+stim_frame_index = proc_data.data.stim_times_frame{1,1};%proc_data.data.stim_frame_index{1};
 trial_types = proc_data.data.trial_types;
 MMN_orientations = proc_data.data.MMN_orientations;
 

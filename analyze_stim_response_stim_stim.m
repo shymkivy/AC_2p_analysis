@@ -4,34 +4,34 @@ clear;
 close all;
 
 fpath_preproc = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream\preprocessing\';
-fpath_cells = 'D:\data\AC\M4460_1_2_22b_dream\cell_traces\';
+fpath_cells = 'C:\Users\ys2605\Desktop\stuff\AC_data\M125_bh_1l_4_26_22\cell_traces\';
 
 base_onset_win = [0 9];
 
 %%
 
-raw_traces_list = {'cell1_ammn1.csv', 'cell2_ammn1.csv', 'cell3_ammn1.csv', 'cell4_ammn1.csv', 'cell5_ammn1.csv', 'cell6_ammn1.csv';...
-                   'cell1_rest2.csv', 'cell2_rest2.csv', 'cell3_rest2.csv', 'cell4_rest2.csv', 'cell5_rest2.csv', 'cell6_rest2.csv';...
-                   'cell1_ammn_stim3.csv', 'cell2_ammn_stim3.csv', 'cell3_ammn_stim3.csv', 'cell4_ammn_stim3.csv', 'cell5_ammn_stim3.csv', 'cell6_ammn_stim3.csv';...
-                   'cell1_rest4.csv', 'cell2_rest4.csv', 'cell3_rest4.csv', 'cell4_rest4.csv', 'cell5_rest4.csv', 'cell6_rest4.csv';...
-                   'cell1_ammn5.csv', 'cell2_ammn5.csv', 'cell3_ammn5.csv', 'cell4_ammn5.csv', 'cell5_ammn5.csv', 'cell6_ammn5.csv'};
+raw_traces_list = {'cell1_im4.csv', 'cell2_im4.csv', 'cell3_im4.csv', 'cell4_im4.csv', 'cell5_im4.csv', 'cell6_im4.csv', 'cell7_im4.csv';...
+                   'cell1_im5.csv', 'cell2_im5.csv', 'cell3_im5.csv', 'cell4_im5.csv', 'cell5_im5.csv', 'cell6_im5.csv', 'cell7_im5.csv';...
+                   'cell1_im7.csv', 'cell2_im7.csv', 'cell3_im7.csv', 'cell4_im7.csv', 'cell5_im7.csv', 'cell6_im7.csv', 'cell7_im7.csv';...
+                   'cell1_im8.csv', 'cell2_im8.csv', 'cell3_im8.csv', 'cell4_im8.csv', 'cell5_im8.csv', 'cell6_im8.csv', 'cell7_im8.csv';...
+                   'cell1_im9.csv', 'cell2_im9.csv', 'cell3_im9.csv', 'cell4_im9.csv', 'cell5_im9.csv', 'cell6_im9.csv', 'cell7_im9.csv'};
                
 trace_type = {'pre', 'ammn';...
               'pre', 'rest';...
               'stim', 'ammn';...
               'post', 'rest';...
               'post', 'ammn'};
-cuts_stim_fname = {'M4460_im1_AC_ammn1_1_2_22b_h5cutsdata.mat';...
-                   'M4460_im2_AC_rest2_1_2_22b_h5cutsdata.mat';...
-                   'M4460_im3_AC_ammn_stim3_1_2_22b_h5cutsdata.mat';...
-                   'M4460_im4_AC_rest4_1_2_22b_h5cutsdata.mat';...
-                   'M4460_im5_AC_ammn5_1_2_22b_h5cutsdata.mat'};
+cuts_stim_fname = {'M125_im4_AC_ammn4_4_26_22_h5cutsdata.mat';...
+                   'M125_im5_AC_rest5_4_26_22_h5cutsdata.mat';...
+                   'M125_im7_AC_ammn_stim7_4_26_22_h5cutsdata.mat';...
+                   'M125_im8_AC_rest8_4_26_22_h5cutsdata.mat';...
+                   'M125_im9_AC_ammn9_4_26_22_h5cutsdata.mat'};
                
-preprocessed_data = {'M4460_im1_AC_ammn1_1_2_22b_processed_data.mat';
+preprocessed_data = {'M125_im4_AC_ammn4_4_26_22_processed_data.mat';
                      '';...
-                     'M4460_im3_AC_ammn_stim3_1_2_22b_processed_data.mat';...
+                     'M125_im7_AC_ammn_stim7_4_26_22_processed_data.mat';...
                      '';...
-                     'M4460_im5_AC_ammn5_1_2_22b_processed_data.mat'};
+                     'M125_im9_AC_ammn9_4_26_22_processed_data.mat'};
 
 %% load traces
 [num_files, num_cells] = size(raw_traces_list);
@@ -48,7 +48,7 @@ for n_file = 1:num_files
 
     traces2 = cell(num_cells, 1);
     for n_cell = 1:num_cells
-        trace_temp = csvread([fpath_cells '/' raw_traces_list{n_file, n_cell}],1,1);
+        trace_temp = csvread([fpath_cells '\' raw_traces_list{n_file, n_cell}],1,1);
         trace_full_temp = zeros(1, numel(cuts_all{n_file}.vid_cuts_trace));
         trace_full_temp(logical(cuts_all{n_file}.vid_cuts_trace)) = trace_temp;
         traces2{n_cell} = trace_full_temp;
@@ -93,7 +93,7 @@ plot_corr = 1;
 plot_rast = 0;
 plot_sig_corr = 1;
 
-corr_trials_check = {4, 270};
+corr_trials_check = {5, 170};
 %                     170, 270,...
 %                      4, 7,... %,...
 %                      201:206};
@@ -117,7 +117,10 @@ norm_noise_corr_mat_all = cell(3,1);
 for n_file_idx = 1:numel(ammn_files)
     n_file = ammn_files(n_file_idx);
     trial_types = proc_data_all{n_file}.data.trial_types;
-    stim_frame_index = proc_data_all{n_file}.data.stim_frame_index{1};
+    %stim_frame_index = proc_data_all{n_file}.data.stim_frame_index{1};
+    
+    stim_frame_index = proc_data_all{n_file}.data.stim_times_frame{1};
+    
     stim_frame_index1 = stim_frame_index(logical(sum(trial_types == trials_to_use_for_norm,2)));
     trace_sort_temp = f_get_stim_trig_resp(traces_all_d{n_file}, stim_frame_index1, base_onset_win);
     
@@ -150,7 +153,8 @@ for n_tt = 1:numel(corr_trials_check)
     for n_file_idx = 1:numel(ammn_files)
         n_file = ammn_files(n_file_idx);
         trial_types = proc_data_all{n_file}.data.trial_types;
-        stim_frame_index = proc_data_all{n_file}.data.stim_frame_index{1};
+        %stim_frame_index = proc_data_all{n_file}.data.stim_frame_index{1};
+        stim_frame_index = proc_data_all{n_file}.data.stim_times_frame{1};
         stim_frame_index1 = stim_frame_index(logical(sum(trial_types == tt1,2)));
         num_trials = numel(stim_frame_index1);
 

@@ -13,7 +13,7 @@ params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_
 limit_title_tag = '';
 
 limit_experiment_tag = 'dream';
-limit_mouse_id = '';
+limit_mouse_id = 'M125';
 limit_mouse_tag = '';
 
 %%
@@ -42,7 +42,7 @@ end
 AC_data2 = AC_data(strcmpi(AC_data.experiment, limit_experiment_tag),:);
 
 AC_data3 = AC_data2;
-if exist('limilt_mouse_id', 'var')
+if exist('limit_mouse_id', 'var')
     if numel(limit_mouse_id)
         AC_data3 = AC_data3(strcmpi(AC_data3.mouse_id, limit_mouse_id),:);
     end
@@ -53,6 +53,8 @@ if exist('limit_mouse_tag', 'var')
         AC_data3 = AC_data3(strcmpi(AC_data3.mouse_tag, limit_mouse_tag),:);
     end
 end
+
+AC_data3 = AC_data3(AC_data3.do_proc == 1,:);
 
 mouse_id_all = unique(AC_data3.mouse_id, 'stable');
 
