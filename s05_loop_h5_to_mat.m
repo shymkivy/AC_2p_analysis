@@ -4,7 +4,7 @@ close all;
 addpath(genpath('C:\Users\ys2605\Desktop\stuff\caiman_sorter\caiman_sorter_functions'));
 
 %%
-data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream';
+data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_cnmf';
 
 ops = struct();
 ops = f_cs_collect_ops_loop(ops);

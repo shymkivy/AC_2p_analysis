@@ -9,10 +9,10 @@
 % ops.paradigm_type = 'ammn'; 
 
 %ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\AC_data_OA_3_16_20';
-ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream';
+ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_cnmf';
 AC_data = readtable('AC_data_list_all.xlsx');
 ops.paradigm_type = ''; % 'ammn' 'freq_grating' 'cont'
-ops.experiment_type = 'dream'; % dream, missmatch
+ops.experiment_type = 'echo'; % dream, missmatch
 %%
 if numel(ops.paradigm_type)
     temp_idx = strcmpi(AC_data.paradigm, ops.paradigm_type);

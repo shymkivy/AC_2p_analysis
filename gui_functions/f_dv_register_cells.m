@@ -5,8 +5,11 @@ function f_dv_register_cells(app)
 data2 = app.data(strcmpi(data.mouse_id, app.data.mouse_id),:);
 data3 = data2(data.FOV_num == data2.FOV_num,:);
 
-bkg_all = cell(numel(data3.mouse_id),1);
-for n_idx = 1:numel(data3.mouse_id)
+num_dsets = numel(data3.mouse_id);
+
+bkg_all = cell(num_dsets,1);
+
+for n_idx = 1:num_dsets
     est = data3(n_idx,:).OA_data{1}.est;
     
     bkg = reshape(mean(est.f)*est.b, [256 256]);
@@ -17,29 +20,47 @@ for n_idx = 1:numel(data3.mouse_id)
     ave_im = bkg + A_orig;
     
     figure; 
-    imagesc(ave_im); 
+    imagesc(ave_im); axis equal tight
     title(data3(n_idx,:).dset_name_full, 'interpreter', 'none');
     
     bkg_all{n_idx} = ave_im;
 end
 
-[d11, d21] = size(bkg_all{1});
-[d12, d22] = size(bkg_all{2});
+[d1, d2] = size(bkg_all{1});
 
-df1 = d11+d12-1;
-df2 = d21+d22-1;
+shifts_zy_all = cell(num_dsets,1);
+shifts_zy_all{1} = [0 0];
+targ = bkg_all{1};
+bkg_all_sf = bkg_all;
+mc_params.zero_sides = 0;
+for n_idx = 2:num_dsets
+    shifts_zy_all{n_idx} = f_mc_compute_frame_shift(targ, bkg_all{n_idx});
+    bkg_all_sf{n_idx} = f_mc_apply_frame_shift(bkg_all{n_idx}, shifts_zy_all{n_idx}, mc_params);
+end
 
-four1 = fft2(bkg_all{1}, df1, df2);
-four2 = fft2(rot90(bkg_all{2},2), df1, df2); % flip in both directions
 
-back1 = ifft2(four1.*four2);
 
-[~, idx] = max(back1(:));
+all_pairs = nchoosek(1:num_dsets, 2);
+im3 = zeros(d1, d2, 3);
+for n_pair = 1:size(all_pairs,1)
+    im3(:,:,1) = bkg_all_sf{all_pairs(n_pair,1)}/max(bkg_all_sf{all_pairs(n_pair,1)}(:))*2;
+    im3(:,:,2) = bkg_all_sf{all_pairs(n_pair,2)}/max(bkg_all_sf{all_pairs(n_pair,2)}(:))*2;
+    figure; imagesc(im3); title(sprintf('pairs %d and %d', all_pairs(n_pair,1), all_pairs(n_pair,2)))
+end
 
-[m1, n1] = ind2sub([df1,df2], idx);
+imsh = f_mc_apply_frame_shift(bkg_all_sf{3}, [10 0], mc_params);
 
-shiftm = m1 - d11;
-shiftn = n1 - d12;
+shifts_zy = f_mc_compute_frame_shift(targ, imsh);
+im_corr = f_mc_apply_frame_shift(imsh, shifts_zy, mc_params);
+
+figure; imagesc(imsh)
+figure; imagesc(im_corr)
+%%
+dsall= f_suite2p_reg_compute(bkg_all{2}, bkg_all{1});
+
+Y_reg = uint16(f_suite2p_reg_apply(Y_reg, dsall{n_iter}));
+
+%%
 
 A_all = cell(numel(dset_idx),1);
 A_all3 = cell(numel(dset_idx),1);
