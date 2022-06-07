@@ -13,8 +13,8 @@ if ~isfield(data, 'frame_data_XML')
     frame_data_XML.volt_start = zeros(ops.num_volt_in_files,1);
     frame_data_XML.frame_start = zeros(ops.num_volt_in_files,1);
     frame_data_XML.num_frames_raw = zeros(ops.num_volt_in_files,1);
-    frame_data_XML.frame_times_raw = {ops.num_volt_in_files,1};
-    frame_data_XML.trigger_mode = {ops.num_volt_in_files,1};
+    frame_data_XML.frame_times_raw = cell(ops.num_volt_in_files,1);
+    frame_data_XML.trigger_mode = cell(ops.num_volt_in_files,1);
     for n_file = 1:ops.num_volt_in_files
         fprintf('Loading file %d of %d...\n', n_file, ops.num_volt_in_files);
         % use frame times from XML file

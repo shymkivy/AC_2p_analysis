@@ -1,7 +1,9 @@
 function [data, ops] = f_s1_load_stim_params(data, ops)
-    
-fpath = [ops.file_dir '\' ops.file_core '_stim_data.mat'];
-if ops.has_stim
+
+if sum(strcmpi(ops.paradigm, {'rest', 'spont', 'spont_stim'}))
+    disp('No stim data expected')
+else
+    fpath = [ops.file_dir '\' ops.file_core '_stim_data.mat'];
     if exist(fpath, 'file')
     %     load([file '_stim_data.mat'], 'cont_trials_seq', 'MMN_trials_seq', 'MMN_orientations');
         stim_params = load(fpath);

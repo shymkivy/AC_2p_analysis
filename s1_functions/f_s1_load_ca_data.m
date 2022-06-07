@@ -88,7 +88,7 @@ data.ave_trace_superpos = f_s1_multiplane_combine(data.ave_trace);
 data.ave_trace_superpos_parts = cell(ops.num_volt_in_files,1);
 current_start_frame = 1;
 for n_file = 1:ops.num_volt_in_files
-    num_frames = data.frame_data_XML.num_frames_raw(n_file);
+    num_frames = sum(data.frame_data.num_frames_mpl(n_file,:));
     data.ave_trace_superpos_parts{n_file} = data.ave_trace_superpos(current_start_frame:(current_start_frame+num_frames-1));
     current_start_frame = current_start_frame + data.frame_data_XML.num_frames_raw(n_file);
 end

@@ -16,38 +16,36 @@ end
 
 % plot the aligned traces with phases and stim times
 %data.t_frames_all = 1:data.num_frames_all;
+num_frames_mpl = data.frame_data.num_frames_mpl(1);
 figure; hold on;
-if ops.processing_type == 1
-    plot(frame_times, volt_data(:,1));
-    plot(frame_times, volt_data(:,2));
-    plot(frame_times, data.ave_trace_superpos);
-    plot(frame_times, data.rest_window);
-    plot(frame_times, data.grating_window);
-    legend('Stim voltage', 'LED', 'Mean Ca trace from video', 'Rest phase', 'Grating phase');
-else
-    
-    legend1 = {'LED', 'Mean Ca trace from video', 'MMN phase'};
-    if ops.processing_type == 2
-        plot(frame_times, volt_data(:,1));
-        legend1 = ['Stim voltage', legend1];
-    elseif ops.processing_type == 3
-        plot(frame_times, volt_data(:,4));
-        legend1 = ['TDT voltage', legend1];
-    end
-    plot(frame_times, volt_data(:,2));
-    plot(frame_times, data.ave_trace_superpos);
-    plot(frame_times, data.mmn_phase);
-    if numel(data.stim_times_frame{1,1})
-        stim_times_trace = zeros(numel(frame_times_mpl{1}),1);
-        stim_times_trace(data.stim_times_frame{1,1}) = 1;
-        plot(frame_times_mpl{1}, stim_times_trace);
-        legend1 = [legend1, 'Stim start times pl1'];
-    end
-    legend(legend1);
+plot(frame_times, volt_data(:,1));
+plot(frame_times, volt_data(:,2));
+plot(frame_times, data.ave_trace_superpos);
+plot(frame_times, data.exp_phase);
+legend1 = {'Stim voltage', 'LED', 'Ca trace', 'exp phase'};
+if sum(strcmpi(ops.paradigm, {'freq_grating'}))
+    plot(frame_times, volt_data(:,4));
+    legend1 = [legend1, {'TDT auditory'}];
 end
-title('Check everything');
+
+num_chan = numel(data.stim_chan_idx);
+for n_ch = 3:num_chan
+    if data.stim_chan_idx(n_ch)
+        scale = (n_ch)/num_chan + 1 - 5/num_chan;
+        stim_times_trace = zeros(num_frames_mpl,1);
+        stim_times_trace(data.stim_times_frame{n_ch}) = 1;
+        stem(data.frame_data.frame_times_mpl{1}, stim_times_trace*scale, '.', 'markersize', 20);
+        legend1 = [legend1, {ops.chan_labels{n_ch}}];
+    end
+end
+axis tight;
+legend(legend1);
+title(sprintf('Check everything; %s', ops.file_core), 'interpreter', 'none');
 
 % check alignments for each plane
+
+%figure; plot(data.volt_data_all)
+
 figure;
 for n_pl = 1:ops.num_planes
     temp_volt_data = data.volt_data_binned{n_pl}(:,ops.align_to_channel);
@@ -55,9 +53,10 @@ for n_pl = 1:ops.num_planes
     baseline_frames = 5;
     stim_frames = 10;
     t_frames = (-baseline_frames+1):stim_frames;
-    
+
     pulse_times_trace = f_s1_get_stim_onsets(temp_volt_data, 0.5);
     pulse_times1 = find(pulse_times_trace);
+    
     if numel(pulse_times1)
         pulse_resp = f_get_stim_trig_resp(data.ave_trace{n_pl}', pulse_times1, [baseline_frames stim_frames]);
 
@@ -67,8 +66,8 @@ for n_pl = 1:ops.num_planes
         title(sprintf('Plane %d', n_pl));
         line([1 1], [0 1],'Color','red');
     end
+    axis tight;
 end
-sgtitle('Pulse triggered responses');
-
+sgtitle(sprintf('Pulse triggered responses; %s', ops.file_core), 'interpreter', 'none');
 
 end

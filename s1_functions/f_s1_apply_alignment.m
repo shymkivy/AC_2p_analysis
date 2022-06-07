@@ -31,12 +31,14 @@ data.volt_data_all_segmented_aligned = volt_data_all_segmented_aligned;
 data.volt_data_all_aligned = cat(1,volt_data_all_segmented_aligned{:});
 
 if ops.plot_details
-    figure; 
+    figure;
     plot(volt_data_all_segmented_aligned{1}(:,1));
+    plot(volt_data_all_segmented_aligned{1}(:,2));
     hold on;
     for n_pl = 1:ops.num_planes
         plot(data.frame_data.frame_times_mpl{n_pl}, data.ave_trace{n_pl})
     end
+    axis tight;
     title('check alignment of all planes');
 end
 

@@ -4,8 +4,9 @@ function data = f_s1_get_alignment_info(data, ops)
 if ~isfield(data, 'alignment')
     figure; hold on;
     plot(1:data.num_samp_volt,data.volt_data_all(:,ops.align_to_channel));
-    plot((1:data.frame_data.num_frames_all)*data.frame_data.frame_period_ave,data.ave_trace_superpos);
-    plot(data.frame_data_XML.frame_times_raw{1},data.ave_trace_superpos);
+    %plot((1:data.frame_data.num_frames_all)*data.frame_data.frame_period_ave,data.ave_trace_superpos);
+    plot(data.frame_data_XML.frame_times_raw{1}(1:data.frame_data.num_frames_all),data.ave_trace_superpos);
+    axis tight;
     title(sprintf('Do these need to be aligned? [Y/N];\n volt trig mode: %s', data.frame_data_XML.trigger_mode{1}))
     alignment.need_alignment = ask_yes_no_fig();
     close;
@@ -63,6 +64,7 @@ if ~isfield(data, 'alignment')
                 plot(1:(size(shifted_scaled_volt_data,1)),shifted_scaled_volt_data);
                 hold on;
                 plot(frame_times, ca_traces);
+                axis tight;
                 title(sprintf('Aligned traces with %s; Is it good? [Y/N]\n shift = %.2fms; scale = %.7f', temp_method,shift,scaling_factor), 'Interpreter', 'none');
                 legend('DAQ voltage trace', 'Alignment Channel');
                 fprintf('Are the alignments good? [Y/N](click on fig to answer)\n');

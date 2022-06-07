@@ -27,9 +27,12 @@ load_type = 1;
 % 3 = h5 stack (needs file name)
 
 % multiplane data?
-params.use_prairie_mpl_tags = 1;
-params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'}; % 
-
+if params.num_planes > 1
+    params.use_prairie_mpl_tags = 1;
+    params.mpl_tags = {'Ch2_000001', 'Ch2_000002', 'Ch2_000003', 'Ch2_000004', 'Ch2_000005'}; % 
+else
+    params.use_prairie_mpl_tags = 0;
+end
 save_all_steps = 0;
 save_indiv_h5info = 0;
 
@@ -81,12 +84,38 @@ params_bidi.plot_stuff = 1;
 params_bidi.use_planes = [1 3];
 
 params_moco.image_target = [];
-params_moco.num_iterations = 2;
 params_moco.plot_stuff = 1;
-params_moco.smooth_std = [0.5 0.5 3];
 
-params.params_bidi = params_bidi;
-params.params_moco = params_moco;
+params_moco.num_iterations = 4; % works with 30hz noisy data
+params_moco.smooth_std = [0.5 0.5 6;...
+                          0.5 0.5 3;...
+                          0.5 0.5 1;...
+                          0.5 0.5 0.5];
+params_moco.reg_lambda = [1 .2;...
+                          2 .2;...
+                          2 .5;...
+                          2 .5];
+
+params_moco.medfilt = 0;
+                      
+% % for better snr
+% params_moco.num_iterations = 5;
+% params_moco.smooth_std = [0.5 0.5 6;...        
+%                           0.5 0.5 3;...
+%                           0 0 2;];       % each row corresponds to smooth iterations
+
+% params_moco.num_iterations = 8;
+% params_moco.smooth_std = [0.5 0.5 12;...
+%                           0.5 0.5 12;...
+%                           0.5 0.5 9;...
+%                           0.5 0.5 9;...
+%                           0.5 0.5 7;...
+%                           0.5 0.5 7;...
+%                           0.5 0.5 5;...
+%                           0.5 0.5 5];       % each row corresponds to smooth iterations
+% params_moco.reg_lambda = [1e0; 1e0; 5e0; 5e0; 5e0; 5e0; 1e1; 1e1];
+%                       
+
 
 %%
 %load_dir = ['J:\mouse\backup\2018\' file_date '_dLGN\' file_type '-00' file_num];
@@ -111,6 +140,12 @@ params.save_path = save_dir_movie;
 if ~isempty(params_moco.im_target_fname)
     moco_init_load = load([save_dir_cuts '\' params_moco.im_target_fname '_h5cutsdata.mat']);
 end
+
+params_moco.save_fname = params.fname;
+params_moco.save_dir = save_dir_movie;
+params.params_bidi = params_bidi;
+params.params_moco = params_moco;
+
 %%
 if ~exist(save_dir_movie, 'dir')
     mkdir(save_dir_movie)
@@ -125,7 +160,7 @@ end
 addpath([pwd '\general_functions']);
 
 %% load cuts data
-mat_name = [save_dir_movie '\' save_file_name '_h5cutsdata.mat'];
+mat_name = [save_dir_cuts '\' save_file_name '_h5cutsdata.mat'];
 if exist(mat_name, 'file')
     load_data = load(mat_name);
     cuts_data = load_data.cuts_data;
@@ -251,7 +286,6 @@ if do_moco
     
     if ~isfield(cuts_data{1}, 'dsall')
         for n_pl = 1:num_planes
-            
             if ~isempty(params_moco.im_target_fname)
                 if ~isempty(moco_init_load.cuts_data{n_pl}.image_target)
                     params_moco.image_target = moco_init_load.cuts_data{n_pl}.image_target;
@@ -263,26 +297,70 @@ if do_moco
         save(mat_name, 'params', 'cuts_data');
     end
     
+    num_it = numel(cuts_data{n_pl}.dsall);
+    it_disp = zeros(num_it,1);
+    for n_it = 1:num_it
+        it_disp(n_it) = mean(sqrt(sum(cuts_data{n_pl}.dsall{n_it}.^2,2)));
+    end
+    figure; plot(it_disp, '-o'); xlabel('iteration'); ylabel('mean disp');
+    title([save_file_name, ' mean fix'], 'interpreter', 'none')
+    
     dsall1 = cell(num_planes, 1);
     for n_pl = 1:num_planes
         dsall1{n_pl} = sum(cat(3,cuts_data{n_pl}.dsall{:}),3);
     end
     dsall1_all = median(cat(3,dsall1{:}),3);
+    dsall1_all_mf = medfilt1(dsall1_all, 3);
     
     figure;
-    subplot(2,1,1); hold on;
+    sp1 = subplot(2,1,1); hold on;
     for n_pl = 1:num_planes
         plot(dsall1{n_pl}(:,1), 'color', colors1(n_pl,:));
     end
     plot(dsall1_all(:,1), 'k');
-    subplot(2,1,2); hold on;
+    plot(dsall1_all_mf(:,1), 'g');
+    ylabel('y motion');
+    title([save_file_name, ' moco'], 'interpreter', 'none');
+    sp2 = subplot(2,1,2); hold on;
     for n_pl = 1:num_planes
         plot(dsall1{n_pl}(:,2), 'color', colors1(n_pl,:));
     end
     plot(dsall1_all(:,2), 'k');
+    plot(dsall1_all_mf(:,2), 'g');
+    ylabel('x motion');
+    linkaxes([sp1 sp2], 'x');  axis tight;
     
+    if params_moco.medfilt
+        dsall1_use = dsall1_all_mf;
+    else
+        dsall1_use = dsall1_all;
+    end
+    
+    dsall1_all_r = round(dsall1_use);
+    
+    %Y2 = Y_pre_moco;
     for n_pl = 1:num_planes
-        Y{n_pl} = uint16(f_suite2p_reg_apply(Y{n_pl}, dsall1_all));
+        Y{n_pl} = uint16(f_suite2p_reg_apply(Y_pre_moco{n_pl}, dsall1_use));
+        %Y2{n_pl} = uint16(f_suite2p_reg_apply(Y_pre_moco{n_pl}, dsall1_all_r));
+    end
+    
+    if params.moco_zero_edge
+        % y-x orientations
+        num_frames = size(dsall1_all,1);
+        for n_fr = 1:num_frames
+            for n_pl = 1:num_planes
+                if dsall1_all_r(n_fr,1) < 0
+                    Y{n_pl}(1:-dsall1_all_r(n_fr,1),:,n_fr) = 0;
+                elseif dsall1_all_r(n_fr,1) > 0
+                    Y{n_pl}((end-dsall1_all_r(n_fr,1)):end,:,n_fr) = 0;
+                end
+                if dsall1_all_r(n_fr,2) < 0
+                    Y{n_pl}(:,1:-dsall1_all_r(n_fr,2),n_fr) = 0;
+                elseif dsall1_all_r(n_fr,2) > 0
+                    Y{n_pl}(:,(end-dsall1_all_r(n_fr,2)):end,n_fr) = 0;
+                end
+            end
+        end
     end
     
     proc_steps = [proc_steps '_moco'];

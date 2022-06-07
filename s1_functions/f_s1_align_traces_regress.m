@@ -19,6 +19,25 @@ for n_fr = 2:numel(ca_traces)
         on_times_high = [on_times_high; n_fr];
     end
 end
+
+while numel(on_times_low) ~= numel(on_times_high)
+    figure; plot(ca_traces); axis tight;
+    title(sprintf('threshhold [%.1f %.1f] failed, select manual (2 clicks)', thresh(1), thresh(2)));
+    [~,thresh] = ginput(2);
+    close;
+    
+    on_times_low = [];
+    on_times_high = [];
+    for n_fr = 2:numel(ca_traces)
+        if and(ca_traces(n_fr) > thresh(1), ca_traces(n_fr-1) < thresh(1))
+            on_times_low = [on_times_low; n_fr-1];
+        end
+        if and(ca_traces(n_fr) > thresh(2), ca_traces(n_fr-1) < thresh(2))
+            on_times_high = [on_times_high; n_fr];
+        end
+    end
+end
+
 pulse_times_on = (frame_times(on_times_high) + frame_times(on_times_low))/2 - mean(diff(frame_times))/2;
 
 %%

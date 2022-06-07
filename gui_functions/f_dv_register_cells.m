@@ -53,6 +53,7 @@ imsh = f_mc_apply_frame_shift(bkg_all_sf{3}, [10 0], mc_params);
 shifts_zy = f_mc_compute_frame_shift(targ, imsh);
 im_corr = f_mc_apply_frame_shift(imsh, shifts_zy, mc_params);
 
+figure; imagesc(targ)
 figure; imagesc(imsh)
 figure; imagesc(im_corr)
 %%

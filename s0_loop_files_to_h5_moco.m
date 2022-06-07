@@ -6,18 +6,19 @@ addpath([pwd '\s1_functions']);
 %  data_dir = {'D:\data\AC\2022\',...
 %              'D:\data\AC\2022\'};
          
-data_dir = {'D:\data\AC\2022\'};
+data_dir = {'G:\data\Auditory\2018\',...
+            'E:\data\AC\2p\2020\'};
  
 %data_dir = {'C:\Users\ys2605\Desktop\stuff\AC_data\'};
         
-save_dir = {'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream\',...
-            'D:\data\caiman_data_dream\'};
+save_dir = {'F:\AC_data\caiman_data_missmatch\'};%,...
+            %'D:\data\caiman_data_dream\'};
 
 params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_list_all.xlsx';
 
-experiment_tag = 'dream';
+experiment_tag = 'missmatch';
 
-limilt_mouse_id = 'M125';
+limilt_mouse_id = '';
 limit_mouse_tag = '';
 
 %%
@@ -47,7 +48,14 @@ end
 
 mouse_id_all = unique(AC_data3.mouse_id, 'stable');
 
+%% set default params
+AC_data3.do_moco(isnan(AC_data3.do_bidi)) = 1;
+AC_data3.do_bidi(isnan(AC_data3.do_bidi)) = 0;
+
+AC_data3.moco_zero_edge(isnan(AC_data3.moco_zero_edge)) = 1;
+
 %%
+
 if iscell(save_dir)
     params.save_dir = save_dir{1};
 else
@@ -116,9 +124,10 @@ for n_ms = 1:numel(mouse_id_all)
             if ~num_match
                 params.num_planes = cdset.mpl;
                 params.do_moco = cdset.do_moco;
+                params.moco_zero_edge = cdset.moco_zero_edge;
                 params.do_bidi = cdset.do_bidi;
                 params.dset_name = cdset.dset_name{1};
-                
+                params.save_dir;
                 if or(cdset.align_pulse_crop_method == 0, cdset.align_pulse_crop_method == 2)
                     params.align_pulse_crop_method = cdset.align_pulse_crop_method;
                 else
@@ -128,7 +137,7 @@ for n_ms = 1:numel(mouse_id_all)
                 params.im_target_fname = '';
                 if params.do_moco
                     if ~isempty(cdset.moco_to_dset)
-                        if n_dset ~= cdset.moco_to_dset
+                        if cdset.im_num ~= cdset.moco_to_dset
                             source_dset = cdset.moco_to_dset;
                             source_dset_idx = AC_data4.im_num == source_dset;
                             fname_dset1 = sprintf('%s_im%d_%s_%s', AC_data4.mouse_id{source_dset_idx}, AC_data4.im_num(source_dset_idx), AC_data4.dset_name{source_dset_idx}, AC_data4.mouse_tag{source_dset_idx});
@@ -146,4 +155,4 @@ for n_ms = 1:numel(mouse_id_all)
     end
 end
 
-fprintf('All done')
+fprintf('All done\n')

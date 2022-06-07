@@ -6,14 +6,14 @@ addpath([pwd '\s1_functions']);
 addpath([pwd '\general_functions'])
 
 %%
-ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream\preprocessing';
+ops.file_dir = 'F:\AC_data\caiman_data_dream3\preprocessing';
 
 params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_list_all.xlsx';
 
 limit_title_tag = '';
 
 limit_experiment_tag = 'dream';
-limit_mouse_id = 'M125';
+limit_mouse_id = 'M108';
 limit_mouse_tag = '';
 
 %%
@@ -69,33 +69,44 @@ for n_ms = 1:numel(mouse_id_all)
     for n_dset = 1:size(AC_data4,1)
         
         cdata = AC_data4(n_dset,:);
-         
-        ops.file_core = sprintf('%s_im%d_%s_%s', cdata.mouse_id{1}, cdata.im_num, cdata.dset_name{1}, cdata.mouse_tag{1});
+        ops1 = ops;
+        ops1.file_core = sprintf('%s_im%d_%s_%s', cdata.mouse_id{1}, cdata.im_num, cdata.dset_name{1}, cdata.mouse_tag{1});
         
-        ops.files_volt_in = {['' ops.file_core '_prairie']};
+        ops1.files_volt_in = {['' ops1.file_core '_prairie']};
         
         do_s12 = 1;
-        if exist([ops.file_dir '\' ops.file_core '_processed_data.mat'], 'file')
+        if exist([ops1.file_dir '\' ops1.file_core '_processed_data.mat'], 'file')
             do_s12 = 0;
-            fprintf('skipping: %s; already exists\n', ops.file_core)
+            fprintf('skipping, already exists: ');
+        else
+            fprintf('Running: ');
         end
+        fprintf('%s\n', ops1.file_core);
         
         if ~isnan(cdata.s12_volt_chan)
-            ops.volt_chan_order = str2double(num2cell(num2str(cdata.s12_volt_chan)));
+            ops1.volt_chan_order = str2double(num2cell(num2str(cdata.s12_volt_chan)));
         else
-            ops.volt_chan_order = [1 2 3 4];
+            ops1.volt_chan_order = [1 2 3 4];
         end
         
-        ops.num_planes = cdata.mpl;
-        
-        if strcmpi(cdata.paradigm, 'spont') || strcmpi(cdata.paradigm, 'rest')
-            ops.has_stim = 0;
-        else
-            ops.has_stim = 1;
+        if ~isnan(cdata.s12_volt_chan_bh)
+            ops1.volt_chan_order_bh = str2double(num2cell(num2str(cdata.s12_volt_chan_bh)));
         end
+        
+        if ~isnan(cdata.s12_volt_chan_stim)
+            ops1.volt_chan_order_stim = str2double(num2cell(num2str(cdata.s12_volt_chan_stim)));
+        end
+        
+        if ~isnan(cdata.s12_exp_win_sel)
+            ops1.exp_win_selection = cdata.s12_exp_win_sel;
+        end
+        
+        ops1.paradigm = cdata.paradigm{1};
+        
+        ops1.num_planes = cdata.mpl;
         
         if do_s12
-            f_s12_preprocess_voltage_ca_data(ops);
+            f_s12_preprocess_voltage_ca_data(ops1);
         end
     end
 end

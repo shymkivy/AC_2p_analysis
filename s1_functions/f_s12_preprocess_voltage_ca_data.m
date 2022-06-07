@@ -42,18 +42,31 @@ ops.ca_processing = 'onacid';          % options: 'onacid', 'clicktrace', 'raw_m
 ops.plot_details = 1;
 
 % What to preprocess
-ops.processing_type = 2;
+if strcmpi(ops.paradigm, {'behavior'})
+    ops.num_exp_phases = 1;
+elseif sum(strcmpi(ops.paradigm, {'ammn', 'mmn', 'vmmn', 'freq_grating', 'ammn_stim'}))
+    ops.num_exp_phases = 3;
+elseif sum(strcmpi(ops.paradigm, {'spont', 'rest', 'spont_stim'}))
+    ops.num_exp_phases = 1;
+elseif strcmpi(ops.paradigm, {'asynch'})
+    ops.num_exp_phases = 1;
+else
+    error('paradigm type not recognized')
+end
+
+%ops.processing_type = 2;
 % = 1; rest vs grating
 % = 2; control, MMN, flipMMN (uses stim chan for getting stim_times)
 % = 3; auditory freq grating; (needs TDT_volt for stim_times)
 
 % DAQ voltage channels recording order
-if ~isfield(ops, 'volt_chan_order')
-    ops.volt_chan_order = [3 4 5 6];
+if ~isfield(ops, 'volt_chan_order') % stim, LED, Loco, TDT
+    ops.volt_chan_order = [1 2 3 4];
 end
 
-ops.volt_chan_labels = {'stim type', 'LED', 'Locomotion', 'TDT audio volt', 'SLM pattern', 'Pockel'}; % 
-
+ops.volt_chan_labels = {'stim type', 'LED', 'Locomotion', 'TDT audio volt'}; % 
+ops.volt_chan_labels_bh = {'Lick', 'Reward', 'LED_bh'}; % 
+ops.volt_chan_labels_stim = {'SLM pattern', 'Pockel'}; % 
 
 % which voltage channel to use for alignment? 1 for video 2 for auditory
 ops.align_to_channel = 2;
@@ -63,11 +76,8 @@ ops.alignment_method = 'regress';%'peak_onsets_scale_only';
 % 'peak_onsets_scale_only', 'manual', regress
 % options: 
 
-
-ops.exp_window_selection = 'auto';  % options: 'auto', 'manual'
-
-if ~isfield(ops, 'has_stim') % default
-    ops.has_stim = 1;
+if ~isfield(ops, 'exp_win_selection')
+    ops.exp_win_selection = 1;  % default is 1 = auto; 2 = manual; 0 = full movie
 end
 
 % voltage output for jordan
@@ -93,7 +103,7 @@ end
 data = f_s1_load_frame_times(data, ops);
 
 %% Load and process voltage traces
-data = f_s1_load_voltage_data(data, ops);
+[data, ops] = f_s1_load_voltage_data(data, ops);
 
 %% Load calcium data
 data = f_s1_load_ca_data(data, ops);

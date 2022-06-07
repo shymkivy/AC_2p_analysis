@@ -3,14 +3,14 @@ close all;
 
 pwd1 = fileparts(which('fast_dd_cells_identification.m'));
 addpath([pwd1 '\general_functions']);
-proc_data_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream';
+proc_data_path = 'F:\AC_data\caiman_data_dream';
 save_dir_movie = [proc_data_path '\movies'];
 
 
 %%
 
-data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\M125_bh_1l_4_26_22';
-fname = 'M125_im4_AC_ammn4_4_26_22_mpl5';
+data_dir = 'F:\AC_data\M168_5_8_22_dream';
+fname = 'M168_im3_AC_ammn3_5_8_22_mpl5';
  
 multiplane = 5;
 

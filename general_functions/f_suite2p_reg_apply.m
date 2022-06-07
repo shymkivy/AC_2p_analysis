@@ -13,7 +13,7 @@ addpath([suite2p_matlab_path '\utils']);
 ops.splitFOV = [1 1];
 ops.NiterPrealign = 20;
 ops.kriging = 1; % subpix align??
-ops.useGPU = 0;
+ops.useGPU = 1;
 ops.planesToProcess = 1;
 ops.alignAcrossPlanes = 0;
 ops.nplanes = 1;

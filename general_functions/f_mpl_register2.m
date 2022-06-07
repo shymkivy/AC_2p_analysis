@@ -7,6 +7,8 @@ end
 
 if isfield(params, 'image_target')
     image_target = params.image_target;
+else
+    image_target = [];
 end
 
 if isfield(params, 'num_iterations')
@@ -21,16 +23,16 @@ else
     smooth_std = [0 0 0];
 end
 
-if isfield(params, 'save_smooth')
-    save_smooth = params.save_smooth;
+if isfield(params, 'reg_lambda')
+    reg_lambda = params.reg_lambda;
 else
-    save_smooth = 0;
+    reg_lambda = [0 0];
 end
 
-if isfield(params, 'save_reg')
-    save_reg = params.save_reg;
+if isfield(params, 'save_smooth')
+    save_all_steps = params.save_all_steps;
 else
-    save_reg = 0;
+    save_all_steps = 0;
 end
 
 if isfield(params, 'save_fname')
@@ -41,8 +43,8 @@ else
     save_fname = ['movie_save_' tag1];
 end
 
-if isfield(params, 'save_path')
-    save_path = params.save_path;
+if isfield(params, 'save_dir')
+    save_path = params.save_dir;
 else
     save_path = '';
 end
@@ -54,62 +56,82 @@ else
 end
 
 %%
-if isempty(image_target)
-    fprintf('Computing target image\n');
-    make_image_targe = 1;
-else
-    make_image_targe = 0;
-end
+
+num_sm_std = size(smooth_std,1);
+num_reg_lambda = size(reg_lambda,1);
 
 dsall = cell(num_iterations,1);
 Y_reg = Y;
+
+if save_all_steps
+    temp_fname = sprintf('%s_pre_moco.h5',save_fname);
+    f_save_mov_YS(Y, [save_path '\' temp_fname], '/mov');
+end
+
 for n_iter = 1:num_iterations
     fprintf('Registering iter %d; ', n_iter)
 
     %%
-    if make_image_targe
-        image_target = mean(Y_reg, 3);
-    end
+%     if make_image_targe
+%         image_target = mean(Y_reg, 3);
+%     end
 
     %% smooth movie
-    if sum(smooth_std>0)
+    
+    smooth_std1 = smooth_std(min(n_iter, num_sm_std),:);
+    reg_lambda1 = reg_lambda(min(n_iter, num_reg_lambda),:);
+   
+    if sum(smooth_std1>0)
         tic;
-        Y_sm = f_smooth_movie(Y_reg, smooth_std);
-        fprintf('smooth duration=%.1fsec; ', toc);
+        Y_sm = f_smooth_movie(Y_reg, smooth_std1); % uses ram
+        %Y_sm = f_smooth_movie2(Y_reg, smooth_std); % uses GPU
+        fprintf('smooth [%.1f %.1f %.1f] duration=%.1fsec; ', smooth_std1(1), smooth_std1(2), smooth_std1(3), toc);
     else
         Y_sm = Y_reg;
     end
 
     %%
-    if save_smooth
-        temp_fname_sm = sprintf('%s_sm_iter%d.h5',save_fname, n_iter);
-        f_save_mov_YS(Y_sm, [save_path '\' temp_fname_sm], '/mov');
+    if save_all_steps
+        temp_fname = sprintf('%s_sm_iter%d.h5',save_fname, n_iter);
+        f_save_mov_YS(Y_sm, [save_path '\' temp_fname], '/mov');
     end
     %%
     tic;
-    dsall{n_iter} = f_suite2p_reg_compute(Y_sm, image_target);
+    [dsall{n_iter}, reg_input] = f_suite2p_reg_compute(Y_sm, [], reg_lambda1);
     fprintf('compute duration=%.1fsec; ', toc);
     clear Y_sm;
-
+    
+    
     %%
     tic;
     Y_reg = uint16(f_suite2p_reg_apply(Y_reg, dsall{n_iter}));
     fprintf('apply durration=%.1fsec\n', toc);
 
-    if save_reg
+    if save_all_steps
         temp_fname_reg = sprintf('%s_reg_iter%d.h5',save_fname, n_iter);
         f_save_mov_YS(Y_reg, [save_path '\' temp_fname_reg], '/mov');
     end
 end
 
+%% compute for target input
+
+if ~isempty(image_target)
+    ds_base = f_suite2p_reg_compute(reg_input, image_target);
+    dsall{1} = dsall{1} + ds_base;
+end
+
+
+
 %%
 if plot_stuff
+    sp_all = cell(num_iterations,1);
     figure;
-    for n_iter = 1:num_iterations
-        subplot(num_iterations,1, n_iter); hold on;
-        plot(dsall{n_iter})
-        title(sprintf('%s xy shifts, iter %d',save_fname, n_iter), 'interpreter', 'none');
+    for n_iter2 = 1:num_iterations
+        sp_all{n_iter2} = subplot(num_iterations,1, n_iter2); hold on;
+        plot(dsall{n_iter2})
+        title(sprintf('%s xy shifts, iter %d',save_fname, n_iter2), 'interpreter', 'none');
     end
+    linkaxes([sp_all{:}], 'x'); axis tight;
 end
 
 end
