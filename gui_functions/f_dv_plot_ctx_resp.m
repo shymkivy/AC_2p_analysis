@@ -108,6 +108,6 @@ for n_stim = 1:(m*n)
     end
     title(sprintf('%s', title2))
 end
-sgtitle(sprintf('Dset %s; Cell %d', app.ddata.experiment{1}, n_cell), 'Interpreter', 'none')
+sgtitle(sprintf('Dset %s; Cell %d', app.ddata.dset_name_full{1}, n_cell), 'Interpreter', 'none')
 
 end

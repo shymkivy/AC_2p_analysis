@@ -10,7 +10,7 @@ shuffle_trials = 1;
 % **params** are best params
 estimate_params = 0;    % do estimation?
 include_shuff_version = 1;
-est_params.ensamble_method = 'svd';              % options: svd, nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
+est_params.ensemble_method = 'svd';              % options: svd, nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
 est_params.normalize = 'norm_mean_std'; % **'norm_mean_std'**, 'norm_mean' 'none'   % either way, need to normalize the power of signal in each cell, otherwise dimred will pull out individual cells
 est_params.shuffle_data_chunks = 0;   % 1 or 0, keeping cell correlations   % if the sequence of trial presentation contains information, you will need to shuffle. Also need to do in chunks because adjacent time bins are slightly correlated
 % ---- input one or range of values to estimate across following
@@ -30,14 +30,14 @@ end
 % for NMF best to use norm_rms(keep values positive), otherwise can also use norm_mean_std
 % NMF 14 comp
 % SVD 11-14 comp?
-ens_params.ensamble_method = 'nmf'; % options: svd, **nmf**, ica     % here NMF is
+ens_params.ensemble_method = 'nmf'; % options: svd, **nmf**, ica     % here NMF is
 ens_params.num_comp = 11;
 ens_params.smooth_SD = 100; % 110 is better?
 ens_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'
-ens_params.ensamble_extraction = 'thresh'; %  **'thresh'(only for nmf)** 'clust'(for all)
-ens_params.ensamble_extraction_thresh = 'shuff'; % 'shuff' 'signal_z' 'signal_clust_thresh'
+ens_params.ensemble_extraction = 'thresh'; %  **'thresh'(only for nmf)** 'clust'(for all)
+ens_params.ensemble_extraction_thresh = 'shuff'; % 'shuff' 'signal_z' 'signal_clust_thresh'
 % --- for thresh detection (only nmf)
-ens_params.ensamble_extraction_thresh = 'signal_z'; % 'shuff' 'signal_z' 'signal_clust_thresh'
+ens_params.ensemble_extraction_thresh = 'signal_z'; % 'shuff' 'signal_z' 'signal_clust_thresh'
 ens_params.signal_z_thresh = 2.5;
 ens_params.shuff_thresh_percent = 95;
 % --- for clust detection and general sorting 
@@ -115,7 +115,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         if estimate_params
             est_params_list = f_ens_estimate_dim_params(firing_rate_norm, est_params_list, vol_period)
             [~, min_ind] = min([est_params_list.test_err]);
-            fprintf('From provided range, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', est_params_list(min_ind).smooth_SD, est_params.ensamble_method, est_params_list(min_ind).num_comp);
+            fprintf('From provided range, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', est_params_list(min_ind).smooth_SD, est_params.ensemble_method, est_params_list(min_ind).num_comp);
 
             if include_shuff_version
                 fprintf('Estimating params shuff n/%d reps: ',numel(est_params_list_s));
@@ -134,11 +134,11 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 end
                 fprintf('\nDone\n');
                 [~, min_ind] = min([est_params_list_s.test_err]);
-                fprintf('From provided range, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', est_params_list_s(min_ind).smooth_SD, est_params.ensamble_method, est_params_list(min_ind).num_comp);
+                fprintf('From provided range, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', est_params_list_s(min_ind).smooth_SD, est_params.ensemble_method, est_params_list(min_ind).num_comp);
             end
             f_plot_cv_error_3D(est_params_list, est_params_list_s, 'smooth_SD', 'num_comp', 'test_err');
             ax1 = gca;
-            ax1.Title.String = sprintf('%s, dset%d; %s L2 error from raw, (%s)',cond_name,n_dset,est_params.ensamble_method, ax1.Title.String);          
+            ax1.Title.String = sprintf('%s, dset%d; %s L2 error from raw, (%s)',cond_name,n_dset,est_params.ensemble_method, ax1.Title.String);          
         end
         
         est_params_list_d = est_params_list;
@@ -146,7 +146,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
         %% Smooth data
         firing_rate_sm = f_smooth_gauss(firing_rate_est, ens_params.smooth_SD/vol_period);
 
-        %% extract ensambles
+        %% extract ensembles
         ens_out = f_ensemble_analysis_YS_raster(firing_rate_sm, ens_params);
         
         %% evaluate components
@@ -188,8 +188,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             trials1 = ens_out.trials.ens_list{n_comp};
             scores1 = ens_out.cells.ens_scores(n_comp,:);
             
-            f_plot_ensamble_deets(firing_rate_sm, cells1, trials1, scores1);
-            title([ens_params.ensamble_method ' ensamble ' num2str(n_comp) '; ' num2str(tn')]);
+            f_plot_ensemble_deets(firing_rate_sm, cells1, trials1, scores1);
+            title([ens_params.ensemble_method ' ensemble ' num2str(n_comp) '; ' num2str(tn')]);
         end
         
 

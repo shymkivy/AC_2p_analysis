@@ -9,45 +9,12 @@ use_color_map = 1;
 
 stats1 = app.ddata.stats{n_pl};
 
+app.gui_ops.contour_params.visible_set = 0;
+app.gui_ops.contour_params.contour_mag = zeros(num_cells,1);
+app.gui_ops.contour_params.c_lim = [0 0];
+app.gui_ops.contour_params.c_abs_lim = [0, 0];
 
-
-if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'None')
-    app.gui_ops.contour_params.visible_set = 0;
-    app.gui_ops.contour_params.contour_mag = zeros(num_cells,1);
-    app.gui_ops.contour_params.c_lim = [0 0];
-    app.gui_ops.contour_params.c_abs_lim = [0, 0];
-elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type')
-    tn_all = f_dv_get_trial_number(app);
-    tuning_freq = stats1.peak_val_all(:,tn_all);
-    resp_cells = stats1.cell_is_resp(:,tn_all);
-    tuning_freq(~resp_cells) = 0;
-    [max_val, max_idx] = max(tuning_freq, [], 2);
-    app.gui_ops.contour_params.visible_set = logical(max_val);
-    app.gui_ops.contour_params.contour_mag = max_idx;
-    app.gui_ops.contour_params.c_abs_lim = [min(max_idx) max(max_idx)];
-    app.gui_ops.contour_params.c_lim = [min(max_idx) max(max_idx)];
-    use_color_map = 0;
-elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning mag')
-    tn_all = f_dv_get_trial_number(app);
-    resp_cells = stats1.cell_is_resp;
-    peak_vals = stats1.peak_val_all;
-    if app.ConverttoZCheckBox.Value
-        pop_mean_val = stats1.pop_mean_val;
-        pop_z_factor = stats1.pop_z_factor;
-        peak_vals = (peak_vals - pop_mean_val)./pop_z_factor;
-    end
-    peak_vals(~resp_cells) = 0;
-    peak_vals2 = max(peak_vals(:,tn_all),[],2);
-    app.gui_ops.contour_params.visible_set = peak_vals2>0;
-
-    app.gui_ops.contour_params.contour_mag = peak_vals2; % factor to resize magnitudes to fir color
-    app.gui_ops.contour_params.c_abs_lim = [min(peak_vals2) max(peak_vals2)];
-    if isfield(app.gui_ops, 'tuning_lim')
-        app.gui_ops.contour_params.c_lim = app.gui_ops.tuning_lim;
-    else
-        app.gui_ops.contour_params.c_lim = app.gui_ops.contour_params.c_abs_lim;
-    end
-elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'SNR')
+if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'SNR')
     app.gui_ops.contour_params.visible_set = 1;
     SNR_list = app.ddata.OA_data{n_pl}.proc.SNR2_vals(accepted_cells);
     app.gui_ops.contour_params.contour_mag = SNR_list; % factor to resize magnitudes to fir color
@@ -57,8 +24,44 @@ elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'SNR')
     else
         app.gui_ops.contour_params.c_lim = app.gui_ops.contour_params.c_abs_lim;
     end
-end    
+elseif ~isempty(stats1)
+    if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type')
+        tn_all = f_dv_get_trial_number(app);
 
+        tuning_freq = stats1.peak_val_all(:,tn_all);
+        resp_cells = stats1.cell_is_resp(:,tn_all);
+        tuning_freq(~resp_cells) = 0;
+        [max_val, max_idx] = max(tuning_freq, [], 2);
+        app.gui_ops.contour_params.visible_set = logical(max_val);
+        app.gui_ops.contour_params.contour_mag = max_idx;
+        app.gui_ops.contour_params.c_abs_lim = [min(max_idx) max(max_idx)];
+        app.gui_ops.contour_params.c_lim = [min(max_idx) max(max_idx)];
+
+        use_color_map = 0;
+    elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning mag')
+        tn_all = f_dv_get_trial_number(app);
+
+        resp_cells = stats1.cell_is_resp;
+        peak_vals = stats1.peak_val_all;
+        if app.ConverttoZCheckBox.Value
+            pop_mean_val = stats1.pop_mean_val;
+            pop_z_factor = stats1.pop_z_factor;
+            peak_vals = (peak_vals - pop_mean_val)./pop_z_factor;
+        end
+        peak_vals(~resp_cells) = 0;
+        peak_vals2 = max(peak_vals(:,tn_all),[],2);
+        app.gui_ops.contour_params.visible_set = peak_vals2>0;
+
+        app.gui_ops.contour_params.contour_mag = peak_vals2; % factor to resize magnitudes to fir color
+        app.gui_ops.contour_params.c_abs_lim = [min(peak_vals2) max(peak_vals2)];
+
+        if isfield(app.gui_ops, 'tuning_lim')
+            app.gui_ops.contour_params.c_lim = app.gui_ops.tuning_lim;
+        else
+            app.gui_ops.contour_params.c_lim = app.gui_ops.contour_params.c_abs_lim;
+        end
+    end    
+end
 visible_set = app.gui_ops.contour_params.visible_set;
 
 if use_color_map

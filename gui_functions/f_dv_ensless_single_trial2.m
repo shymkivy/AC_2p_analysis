@@ -67,7 +67,7 @@ if sort_trials
 
     figure; 
     im1 = imagesc(1-hclust_out_trial.dist); axis equal tight;
-    title(sprintf('%s, trial %d, Mean corr = %.3f', app.ddata.experiment{1}, tn_all, mean(SI_vals)), 'interpreter', 'none');
+    title(sprintf('%s, trial %d, Mean corr = %.3f', app.ddata.dset_name_full{1}, tn_all, mean(SI_vals)), 'interpreter', 'none');
     im1.Parent.CLim(2) = 0.6;
     colorbar;
 else

@@ -12,9 +12,9 @@ fpath = app.matdatapathEditField.Value;
 %     end
 % end
 
-var_list = app.gui_ops.save_var_list;
+var_list = [app.gui_ops.save_var_list_pl, app.gui_ops.save_var_list];
 
-idx1 = strcmpi(app.data.Properties.VariableNames, 'experiment');
+idx1 = strcmpi(app.data.Properties.VariableNames, 'dset_name_full');
 
 for n_var = 1:numel(var_list)
     idx1 = idx1 + strcmpi(app.data.Properties.VariableNames, var_list{n_var});

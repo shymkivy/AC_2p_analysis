@@ -33,7 +33,7 @@ if strcmpi(ops.paradigm, {'freq_grating'})
     trial_types_all{1} = data.cont_trials_seq;
     trial_types_all{2} = data.MMN_trials_seq(:,1);
     trial_types_all{3} = data.MMN_trials_seq(:,2);
-elseif sum(strcmpi(ops.paradigm, {'ammn', 'vmmn', 'mmn', 'ammn_stim', 'behavior'}))
+elseif sum(strcmpi(ops.paradigm, {'ammn', 'vmmn', 'mmn', 'ammn_stim', 'behavior', 'cont'}))
     % normalize the trigger voltage to index
     stim_ch_idx = strcmpi(ops.chan_labels, 'stim type');
     stim_frames = data.stim_times_frame{stim_ch_idx,1};
@@ -137,10 +137,10 @@ if sum(strcmpi(ops.paradigm, {'ammn', 'vmmn', 'mmn', 'ammn_stim'}))
         end
         trial_types_all{n_ph} = MMN_trials_seq_indexed;
     end
-    data.trial_types_all = trial_types_all;
-    data.trial_types = cat(1,trial_types_all{:});
 end
 
+data.trial_types_all = trial_types_all;
+data.trial_types = cat(1,trial_types_all{:});
 % if exist('cont_trials_seq', 'var')
 %     if sum(max(MMN_trials_seq)> 2)
 %         MMN_trials_seq = round(2*MMN_trials_seq/(max(MMN_trials_seq(:))));

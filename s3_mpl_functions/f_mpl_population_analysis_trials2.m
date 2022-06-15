@@ -106,7 +106,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             end
             
             %% ensemble analysis
-            if ops.dred_params.do_ensamble_analysis
+            if ops.dred_params.do_ensemble_analysis
                 dr_params.trial_win_t = cdata.trial_window{n_dset}.trial_window_t;
                 [~, dr_params.on_bin] = min(abs(ops.ensemb.onset_time-dr_params.trial_win_t));
                 [~, dr_params.off_bin] = min(abs(ops.ensemb.offset_time-dr_params.trial_win_t));

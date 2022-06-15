@@ -1,4 +1,4 @@
-function ens = f_extract_ensamble_from_scores(dred_factors, ens_thresh)
+function ens = f_extract_ensemble_from_scores(dred_factors, ens_thresh)
 
 rectify_ens_score = 1;
 plot_stuff = 1;
@@ -97,7 +97,7 @@ end
 
 % plot_cells = randsample(num_comps,example_plot);
 % 
-% if strcmpi(ensamble_method, 'PCA')
+% if strcmpi(ensemble_method, 'PCA')
 % 
 %     %% PCA extracted components
 %     % projecting columns(time bins) of Z(spiking raster) onto the
@@ -124,7 +124,7 @@ end
 %     
 %     
 % 
-% elseif strcmpi(ensamble_method, 'AV')
+% elseif strcmpi(ensemble_method, 'AV')
 %     %% assembly vector estimation method
 % 
 %     % project data to lower D space
@@ -171,7 +171,7 @@ end
 %     figure; imagesc(1-M_binary)
 % 
 % 
-% elseif strcmp(ensamble_method, 'ICA')
+% elseif strcmp(ensemble_method, 'ICA')
 %     %% ICA assembly estimation
 %     n_pc = 1:num_comps;
 %     w = d_coeff(:,n_pc)/norm(d_coeff(:,n_pc)); % normalize
@@ -193,7 +193,7 @@ end
 %     end
 % 
 % 
-% elseif strcmp(ensamble_method, 'NMF')
+% elseif strcmp(ensemble_method, 'NMF')
 %     
 %     plot_comp_num = 1:3;
 %     
@@ -299,7 +299,7 @@ end
 %     title(['NNMF shuffled Components ' num2str(plot_comp_num)]);
 %     subplot(4,1,4); plot(s_W(:,plot_comp_num));
 % 
-% elseif strcmp(ensamble_method, 'SPCA')
+% elseif strcmp(ensemble_method, 'SPCA')
 %     %spca(X, Gram, K, delta, stop, maxSteps, convergenceCriterion, verbose)
 %     % gram is X'*X covariance
 %     % K is desired number of components

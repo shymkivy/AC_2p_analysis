@@ -1,4 +1,4 @@
-function f_plot_ensamble(ens1, trial_data_sort_act, trial_types_dred, n_comp1)
+function f_plot_ensemble(ens1, trial_data_sort_act, trial_types_dred, n_comp1)
 
 tt1 = unique(trial_types_dred);
 figure;

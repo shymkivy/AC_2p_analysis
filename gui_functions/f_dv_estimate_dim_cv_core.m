@@ -1,6 +1,6 @@
 function data_dim_cv = f_dv_estimate_dim_cv_core(params)
 
-cv_corr_dim = ceil(params.data_dim_pca.dimensionality_corr);
+%cv_corr_dim = ceil(params.data_dim_pca.dimensionality_corr);
 
 %% input parameters for cross validation estimation of smooth window and number of correlated components / ensembles
 %params_ens = f_dv_ensemble_params(cv_corr_dim);
@@ -33,7 +33,7 @@ est_params_list = f_ens_estimate_dim_params(firing_rate_norm, est_params_list, v
 test_err_data = reshape([est_params_list.test_err]', [], est_params_list(1).reps);
 [~, min_ind] = min(mean(test_err_data,2));
 sd_all = mean(test_err_data,2);
-fprintf('Optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', sd_all(min_ind), est_params_cv.ensamble_method, est_params_list(min_ind).num_comp);
+fprintf('Optimal smooth_SD; error = %.1f; Number of CV %s num_comp = %d\n', sd_all(min_ind), est_params_cv.ensemble_method, est_params_list(min_ind).num_comp);
 
 if est_params_cv.include_shuff_version
     fprintf('Now shuff version...\n');
@@ -41,17 +41,16 @@ if est_params_cv.include_shuff_version
     est_params_list_s = f_ens_estimate_dim_params(firing_rate_norm_s, est_params_list_s, volume_period);
     [~, min_ind] = min(mean(reshape([est_params_list_s.test_err]', [], est_params_list_s(1).reps),2));
     sd_all = mean(reshape([est_params_list_s.smooth_SD]', [], est_params_list_s(1).reps),2);
-    fprintf('For shuff, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', sd_all(min_ind), est_params_cv.ensamble_method, est_params_list(min_ind).num_comp);
-
-    fig1 = f_plot_cv_error_3D(est_params_list, est_params_list_s, 'smooth_SD', 'num_comp', 'test_err');
+    fprintf('For shuff, optimal smooth_SD = %d; Number of CV %s num_comp = %d\n', sd_all(min_ind), est_params_cv.ensemble_method, est_params_list(min_ind).num_comp);
 else
-    fig1 = f_plot_cv_error_3D(est_params_list, [], 'smooth_SD', 'num_comp', 'test_err');
+    est_params_list_s = [];
 end
-
-fig1.Children(2).Title.String = sprintf('dset %s', params.ddata.experiment{1});          
 
 data_dim_cv.test_err_data = test_err_data;
 data_dim_cv.num_comp = est_params_cv.num_comp';
 data_dim_cv.dimensionality_corr = est_params_cv.num_comp(min_ind);
+data_dim_cv.test_err_shuff = est_params_list_s;
+%fig1 = f_plot_cv_error_3D(est_params_list, est_params_list_s, 'smooth_SD', 'num_comp', 'test_err');
+%fig1.Children(2).Title.String = sprintf('dset %s', params.ddata.experiment{1});          
 
 end

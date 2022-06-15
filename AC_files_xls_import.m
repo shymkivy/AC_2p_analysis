@@ -10,13 +10,23 @@
 
 %ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\AC_data_OA_3_16_20';
 
-ops.file_dir = 'F:\AC_data\caiman_data_cnmf';
-%ops.file_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\caiman_data_dream';
-%ops.file_dir = 'C:\Users\shymk\Desktop\stuff\AC_data\caiman_data_echo';
+ops.experiment_type = app.ExperimentDropDown.Value;
+
+idx1 = strcmpi(ops.experiment_type, {ops.experiments.name});
+
+ops.file_dir = ops.experiments(idx1).data_path;
+
+app.regdatapathEditField.Value = [app.gui_ops.gui_save_dir '\' ops.experiments(idx1).save_reg_fname];
+app.matdatapathEditField.Value = [app.gui_ops.gui_save_dir '\' ops.experiments(idx1).save_mat_fname];
+
+
+fprintf('Loading %s data from %s...\n', app.ExperimentDropDown.Value, ops.file_dir);
 
 AC_data = readtable('AC_data_list_all.xlsx');
+
 ops.paradigm_type = ''; % 'ammn' 'freq_grating' 'cont'
-ops.experiment_type = 'echo'; % dream, missmatch
+
+
 %%
 if numel(ops.paradigm_type)
     temp_idx = strcmpi(AC_data.paradigm, ops.paradigm_type);

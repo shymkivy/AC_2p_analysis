@@ -229,7 +229,7 @@ for n_cond = 1:numel(ops.regions_to_analyze)
 %         
 %         for n_comp = 1:plot_num_comp
 %             ens1 = dred_factors1.dred_factors.d_W(:,n_comp)>2*rms(dred_factors1.dred_factors.d_W(:,n_comp));
-%             f_plot_ensamble(ens1, trial_data_sort_act, trial_types_dred, n_comp)
+%             f_plot_ensemble(ens1, trial_data_sort_act, trial_types_dred, n_comp)
 %         end
 %         
         
@@ -241,8 +241,8 @@ for n_cond = 1:numel(ops.regions_to_analyze)
 %         ens1 = t_fact1.U{1}(:,n_comp1)>(mean(t_fact1.U{1}(:,n_comp1))+3*std(t_fact1.U{1}(:,n_comp1)));
 %         ens2 = t_fact1.U{1}(:,n_comp1)<(mean(t_fact1.U{1}(:,n_comp1))-3*std(t_fact1.U{1}(:,n_comp1)));
 %        
-%         f_plot_ensamble(ens1, trial_data_sort_act, trial_types_dred, n_comp1)
-%         f_plot_ensamble(ens2, trial_data_sort_act, trial_types_dred, n_comp1)
+%         f_plot_ensemble(ens1, trial_data_sort_act, trial_types_dred, n_comp1)
+%         f_plot_ensemble(ens2, trial_data_sort_act, trial_types_dred, n_comp1)
 %         
 %         
         

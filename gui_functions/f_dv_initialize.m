@@ -1,7 +1,6 @@
 function f_dv_initialize(app)
 
-app.regdatapathEditField.Value = app.gui_ops.reg_data_path;
-app.matdatapathEditField.Value = app.gui_ops.mat_data_path;
+app.ExperimentDropDown.Items = {app.gui_ops.ops.experiments.name};
 
 app.gui_plots.A_image = imagesc(app.UIAxes, 0);
 app.gui_plots.A_image.ButtonDownFcn = @(~,~) f_dv_button_down(app, app.gui_plots.A_image);
@@ -77,7 +76,7 @@ app.dimestpca_PlotstuffCheckBox.Value = est_params_pca.plot_stuff;
 %% load default dim est cv
 
 app.dimestcv_normalizeDropDown.Value = est_params_cv.normalize;
-app.dimestcv_ensmethodDropDown.Value = est_params_cv.ensamble_method;
+app.dimestcv_ensmethodDropDown.Value = est_params_cv.ensemble_method;
 app.dimestcv_shuffledatachunksCheckBox.Value = est_params_cv.shuffle_data_chunks;
 
 app.dimestcv_sm_centerEditField.Value = est_params_cv.smooth_SD_center;
@@ -96,10 +95,10 @@ app.dimestcv_includeshuffversionCheckBox.Value = est_params_cv.include_shuff_ver
 
 %% default ensemble params
 
-app.ens_ensemethodDropDown.Value = ens_params.ensamble_method;
+app.ens_ensemethodDropDown.Value = ens_params.ensemble_method;
 app.ens_normalizeDropDown.Value = ens_params.normalize;
-app.ens_ensextractionDropDown.Value = ens_params.ensamble_extraction;
-app.ens_extractionthreshDropDown.Value = ens_params.ensamble_extraction_thresh;
+app.ens_ensextractionDropDown.Value = ens_params.ensemble_extraction;
+app.ens_extractionthreshDropDown.Value = ens_params.ensemble_extraction_thresh;
 app.ens_signalzthreshEditField.Value = ens_params.signal_z_thresh;
 app.ens_shuffthreshprcEditField.Value = ens_params.shuff_thresh_percent;
 app.ens_hclustmethodDropDown.Value = ens_params.hcluster_method;
@@ -108,18 +107,21 @@ app.ens_plotstuffCheckBox.Value = ens_params.plot_stuff;
  
 %%
 
+
 app.plotfeatureDropDown.Items = {'peak loc', 'resp mag'};
 app.plottypeDropDown.Items = {'kde', 'ecdf', 'histogram'};
 
-app.gui_ops.save_var_list_pl = {'stats'};
+app.gui_ops.save_var_list_pl = {'stats', 'stats_within', 'registration',...
+                    'registration_caiman'};
 app.gui_ops.save_var_list = {'data_dim_pca', 'data_dim_cv',...
                     'ensembles', 'ensemble_stats', 'ensemble_tuning_stats',...
                     'ensless_dim_est'};
                 
+app.PlottuningtypeDropDown.Items = {'cell', 'ensemble', 'cell to self'};
                 
 app.RunallDropDown.Items = [app.gui_ops.save_var_list_pl app.gui_ops.save_var_list];
 
-app.regiontoplotDropDown.Items = {'All', 'A1', 'A2', 'AAF', 'UF'};
+app.regiontoplotDropDown.Items = {'All', 'A1', 'A2', 'AAF', 'UF', 'AC'};
 
 app.DeconvolutionmethodDropDown.Items = {'smooth_dfdt'};
 

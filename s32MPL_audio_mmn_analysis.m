@@ -66,7 +66,7 @@ ops.dred_params.kernSD = 200;    % ms
 ops.dred_params.cv_num_folds = 4; % for train test
 ops.dred_params.sort_trial_before = false;
 %-----------------
-ops.dred_params.do_ensamble_analysis = 1;
+ops.dred_params.do_ensemble_analysis = 1;
 %
 ops.dred_params.do_trial_dist = 1;
 ops.dred_params.trial_types_for_dist = {[1:10], 'mmn12'};

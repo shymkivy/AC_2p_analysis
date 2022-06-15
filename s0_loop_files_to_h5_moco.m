@@ -2,24 +2,25 @@ clear;
 close all;
 addpath([pwd '\s1_functions']);
 
-%%
+% %%
 %  data_dir = {'D:\data\AC\2022\',...
 %              'D:\data\AC\2022\'};
          
-data_dir = {'G:\data\Auditory\2018\',...
-            'E:\data\AC\2p\2020\'};
+% data_dir = {'G:\data\Auditory\2018\',...
+%             'E:\data\AC\2p\2020\'};
  
-%data_dir = {'C:\Users\ys2605\Desktop\stuff\AC_data\'};
+data_dir = {'F:\AC_data\'};
         
-save_dir = {'F:\AC_data\caiman_data_missmatch\'};%,...
-            %'D:\data\caiman_data_dream\'};
+%save_dir = {'F:\AC_data\caiman_data_missmatch\'};%,...
+save_dir = {'F:\AC_data\caiman_data_dream3\'};
 
 params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_list_all.xlsx';
 
-experiment_tag = 'missmatch';
+experiment_tag = 'dream';
 
-limilt_mouse_id = '';
+limilt_mouse_id = 'M125';
 limit_mouse_tag = '';
+limit_dset_name = 'AC_ammn4';
 
 %%
 AC_data = readtable(params.dset_table_fpath);
@@ -43,6 +44,12 @@ end
 if exist('limit_mouse_tag', 'var')
     if numel(limit_mouse_tag)
         AC_data3 = AC_data3(strcmpi(AC_data3.mouse_tag, limit_mouse_tag),:);
+    end
+end
+
+if exist('limit_dset_name', 'var')
+    if numel(limit_dset_name)
+        AC_data3 = AC_data3(strcmpi(AC_data3.dset_name, limit_dset_name),:);
     end
 end
 

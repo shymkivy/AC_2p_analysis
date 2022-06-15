@@ -46,7 +46,7 @@ if strcmpi(ops.paradigm, {'behavior'})
     ops.num_exp_phases = 1;
 elseif sum(strcmpi(ops.paradigm, {'ammn', 'mmn', 'vmmn', 'freq_grating', 'ammn_stim'}))
     ops.num_exp_phases = 3;
-elseif sum(strcmpi(ops.paradigm, {'spont', 'rest', 'spont_stim'}))
+elseif sum(strcmpi(ops.paradigm, {'spont', 'rest', 'spont_stim', 'cont'}))
     ops.num_exp_phases = 1;
 elseif strcmpi(ops.paradigm, {'asynch'})
     ops.num_exp_phases = 1;
@@ -66,7 +66,7 @@ end
 
 ops.volt_chan_labels = {'stim type', 'LED', 'Locomotion', 'TDT audio volt'}; % 
 ops.volt_chan_labels_bh = {'Lick', 'Reward', 'LED_bh'}; % 
-ops.volt_chan_labels_stim = {'SLM pattern', 'Pockel'}; % 
+ops.volt_chan_labels_stim = {'Pockel', 'SLM pattern'}; % 
 
 % which voltage channel to use for alignment? 1 for video 2 for auditory
 ops.align_to_channel = 2;

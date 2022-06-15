@@ -7,13 +7,14 @@ addpath([pwd '\general_functions'])
 
 %%
 ops.file_dir = 'F:\AC_data\caiman_data_dream3\preprocessing';
+%ops.file_dir = 'F:\AC_data\caiman_data_echo\preprocessing';
 
 params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_list_all.xlsx';
 
 limit_title_tag = '';
 
 limit_experiment_tag = 'dream';
-limit_mouse_id = 'M108';
+limit_mouse_id = 'M125';
 limit_mouse_tag = '';
 
 %%
@@ -111,4 +112,4 @@ for n_ms = 1:numel(mouse_id_all)
     end
 end
 
-fprintf('All done')
+fprintf('All done\n')

@@ -1,6 +1,6 @@
 function clust_out = f_ensemble_clust_cell(coeffs, scores, raster_norm, params)
 
-ensamble_method = f_get_param(params, 'ensamble_method', 'nmf');
+ensemble_method = f_get_param(params, 'ensemble_method', 'nmf');
 cluster_method = f_get_param(params, 'cluster_method', 'hclust');    % 'hclust' or 'gmm'
 shuffle_method = f_get_param(params, 'shuffle_method', 'circ_shift');
 corr_cell_thresh_percent = f_get_param(params, 'corr_cell_thresh_percent', 95);

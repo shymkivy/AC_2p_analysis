@@ -10,18 +10,18 @@ normalize1 = f_get_param(params, 'normalize', 'norm_mean_std'); % 'norm_mean_std
 shuffle_method = f_get_param(params, 'shuffle_method', 'circ_shift');     % 'circ_shift' or 'scramble'
 total_dim_thresh = f_get_param(params, 'total_dim_thresh', .7);
 dim_est_num_reps = f_get_param(params, 'dim_est_num_reps', 50);
-ensamble_method = f_get_param(params, 'ensamble_method', 'nmf'); % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
-ensamble_extraction = f_get_param(params, 'ensamble_extraction', 'thresh'); % clust 'thresh'
+ensemble_method = f_get_param(params, 'ensemble_method', 'nmf'); % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
+ensemble_extraction = f_get_param(params, 'ensemble_extraction', 'thresh'); % clust 'thresh'
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
 
 num_comps = f_get_param(params, 'num_comp');
 
-if ~strcmpi(ensamble_method, 'nmf') && strcmpi(ensamble_extraction, 'thresh')
+if ~strcmpi(ensemble_method, 'nmf') && strcmpi(ensemble_extraction, 'thresh')
     fprintf('Thresh detection is only for nmf dummy...\n');
-    ensamble_extraction = 'clust';
+    ensemble_extraction = 'clust';
 end
 
-fprintf('Detecting ensembles with %s and %s...',ensamble_method, ensamble_extraction);
+fprintf('Detecting ensembles with %s and %s...',ensemble_method, ensemble_extraction);
 
 %%
 ndims1 = ndims(firing_rate);
@@ -127,24 +127,24 @@ if sort_tr
 end
 %% real data 
 if num_comps > 0
-    fprintf('Dim reduction with %s, %d comps...\n', ensamble_method, num_comps);
+    fprintf('Dim reduction with %s, %d comps...\n', ensemble_method, num_comps);
     num_ens_comps = num_comps;
     firing_rate_ensemb = firing_rate_norm;
     
-    [dred_factors1, ~] = f_dred_train2(firing_rate_ensemb, num_ens_comps, ensamble_method, 0);
+    [dred_factors1, ~] = f_dred_train2(firing_rate_ensemb, num_ens_comps, ensemble_method, 0);
     [coeffs, scores] = f_dred_get_coeffs(dred_factors1);
 
-    ens_out.ensamble_method = ensamble_method;
+    ens_out.ensemble_method = ensemble_method;
     ens_out.num_ens_comps = num_ens_comps;
     ens_out.dred_factors = dred_factors1;
     ens_out.coeffs = coeffs;
     ens_out.scores = scores;
     %%
     %disp('Extraction...')
-    if strcmpi(ensamble_extraction, 'clust')
+    if strcmpi(ensemble_extraction, 'clust')
         ens_out1 = f_ensemble_clust_cell(coeffs, scores, firing_rate_norm, params);
         %ens_out1 = f_ensemble_extract_clust(coeffs, scores, num_ens_comps, firing_rate_norm, params);
-    elseif strcmpi(ensamble_extraction, 'thresh')
+    elseif strcmpi(ensemble_extraction, 'thresh')
         [thresh_coeffs, thresh_scores] = f_ens_get_thresh(firing_rate_ensemb, coeffs, scores, num_ens_comps, params);
         ens_out1 = f_ensemble_apply_thresh(coeffs, scores, thresh_coeffs, thresh_scores, num_ens_comps);
         ens_out1.cells.ens_scores = ens_out.scores;
@@ -176,7 +176,7 @@ if plot_stuff
     n_comp = 1:num_ens_comps;
     firing_rate_LR2 = coeffs(:,n_comp)*scores(n_comp,:);
     f_plot_raster_mean(firing_rate_LR2(ord_cell,:), 1)
-    title(['raster ' ensamble_method ' LR2 cell sort'])
+    title(['raster ' ensemble_method ' LR2 cell sort'])
         
     if sort_tr
         f_plot_raster_mean(firing_rate_norm(ord_cell,ord_tr), 1)
@@ -186,7 +186,7 @@ if plot_stuff
         title('raster SVD LR cell trial sort')
 
         f_plot_raster_mean(firing_rate_LR2(ord_cell,ord_tr), 1)
-        title(['raster ' ensamble_method ' LR2 cell trial sort'])
+        title(['raster ' ensemble_method ' LR2 cell trial sort'])
     end
 end
 

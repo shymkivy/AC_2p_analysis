@@ -2,6 +2,10 @@ function hclust_out = f_hcluster_wrap(X, params)
 % input X (samples x features)
 % clusters into types of samples
 
+if ~exist('params', 'var')
+    params = struct();
+end
+
 num_clust = f_get_param(params, 'num_clust');
 estimate_clust_num = f_get_param(params, 'estimate_clust_num', 0);
 method = f_get_param(params, 'method', 'average'); % ward(inner square), average, single(shortest)
@@ -54,6 +58,7 @@ hclust_out.dend_order = dend_order;
 hclust_out.clust_ident = clust_ident;
 hclust_out.Z = Z;
 hclust_out.num_clust = num_clust;
+hclust_out.params = params;
 
 if plot_dist_mat
     image_Z = 1-dist1;

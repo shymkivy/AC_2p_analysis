@@ -14,8 +14,8 @@ total_dim_thresh = f_get_param(params, 'total_dim_thresh', .7);
 shuffle_method = f_get_param(params, 'shuffle_method', 'scramble');     % 'circ_shift' or 'scramble'
 %corr_comp_thresh = f_get_param(params, 'corr_comp_thresh', .90);
 use_LR_proj = f_get_param(params, 'use_LR_proj', 0);
-ensamble_method = f_get_param(params, 'ensamble_method', 'nmf'); % 'svd', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
-ensamble_extraction = f_get_param(params, 'ensamble_extraction', 'thresh'); % clust 'thresh'
+ensemble_method = f_get_param(params, 'ensemble_method', 'nmf'); % 'svd', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
+ensemble_extraction = f_get_param(params, 'ensemble_extraction', 'thresh'); % clust 'thresh'
 % NMF is best with thresh extration or clustering may be ok too
 % ICA or SVD extraction best with clustering
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
@@ -136,18 +136,18 @@ end
 %% further reduce data 
 if num_comps > 0
     num_LR_comps = num_comps;
-    if strcmpi(ensamble_method, 'nmf')
+    if strcmpi(ensemble_method, 'nmf')
         num_LR_comps = round(num_comps*1.5);
     end
 
-    [dred_factors1, ~] = f_dred_train2(firing_rate_ensemb, num_LR_comps, ensamble_method, 0);
+    [dred_factors1, ~] = f_dred_train2(firing_rate_ensemb, num_LR_comps, ensemble_method, 0);
     [coeffs, scores] = f_dred_get_coeffs(dred_factors1);
 
 
     %%
-    if strcmpi(ensamble_extraction, 'clust')
+    if strcmpi(ensemble_extraction, 'clust')
         ens_out = f_ensemble_extract_clust(coeffs, scores, num_comps, [], params);
-    elseif strcmpi(ensamble_extraction, 'thresh')
+    elseif strcmpi(ensemble_extraction, 'thresh')
         [thresh_coeffs, thresh_scores] = f_ens_get_thresh(firing_rate_ensemb, coeffs, scores, num_comps, params);
         ens_out = f_ensemble_apply_thresh(coeffs, scores, thresh_coeffs, thresh_scores, num_comps);
     end

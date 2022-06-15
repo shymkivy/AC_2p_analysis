@@ -17,7 +17,7 @@ firing_rate(~active_cells,:) = [];
 %num_cells = size(firing_rate,1);
 %firing_rate = firing_rate(randperm(num_cells),:);
 
-%% extract ensambles
+%% extract ensembles
 firing_rate_sm = f_smooth_gauss(firing_rate, ens_params.smooth_SD/ens_params.vol_period);
 firing_rate_sm_norm = f_smooth_gauss(firing_rate_sm, ens_params.smooth_SD/ens_params.vol_period);
 ens_out = f_ensemble_analysis_YS_raster(firing_rate_sm_norm, ens_params);

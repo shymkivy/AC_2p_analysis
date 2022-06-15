@@ -5,7 +5,7 @@ shuffle_method = 'circ_shift'; % 'circ_shift' or 'scramble'
 plot_stuff = 0;
 var_thresh_prc = .95; % circular shift thresh (95 or 99; from Detecting cell assemblies in large neuronal populations)
 %num_comp = 100;
-%ensamble_method = 'tca'; % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
+%ensemble_method = 'tca'; % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
 %example_plot = 20;
 
 %%
@@ -157,18 +157,18 @@ end
 % if use_projection_mat
 %     firing_rate_norm_dred = 
 % end
-%ensamble_method = 'spca';
+%ensemble_method = 'spca';
 
-%[dred_factors1, ~] = f_dred_train2(firing_rate_norm, num_comps, num_trials, ensamble_method);
-%[dred_factors_shuff, ~] = f_dred_train2(firing_rate_shuff, num_comps, num_trials, ensamble_method);
+%[dred_factors1, ~] = f_dred_train2(firing_rate_norm, num_comps, num_trials, ensemble_method);
+%[dred_factors_shuff, ~] = f_dred_train2(firing_rate_shuff, num_comps, num_trials, ensemble_method);
 
 %f_dred_plot_factors(dred_data_list3,trial_types_dred, test_data_ind);
 
 
-%% extract ensambles
+%% extract ensembles
 
-%ens = f_extract_ensamble_from_scores(dred_factors1);
-%ens = f_extract_ensamble_from_scores(dred_factors_shuff);
+%ens = f_extract_ensemble_from_scores(dred_factors1);
+%ens = f_extract_ensemble_from_scores(dred_factors_shuff);
 
 
 

@@ -32,6 +32,13 @@ stat_window_num_baseline_resp_frames = [sum(stat_window_t<=0) sum(stat_window_t>
 %%
 win1 = stat_window_num_baseline_resp_frames;
 firing_rate = cat(1,params.cdata.S_sm);
+
+num_t = size(firing_rate,2);
+
+rem_idx = stim_times>(num_t-win1(2)-1);
+stim_times(rem_idx) = [];
+trial_types(rem_idx) = [];
+
 trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, win1);
 if ~isempty(MMN_freq)
     [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, MMN_freq, app.ops);

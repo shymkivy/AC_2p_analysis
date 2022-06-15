@@ -1,5 +1,5 @@
 function ens_out = f_ensemble_extract_clust(coeffs, scores, num_ens, raster_norm, params)
-ensamble_method = f_get_param(params, 'ensamble_method', 'nmf');
+ensemble_method = f_get_param(params, 'ensemble_method', 'nmf');
 cluster_method = f_get_param(params, 'cluster_method', 'hclust');    % 'hclust' or 'gmm'
 cluster_method_cell = f_get_param(params, 'cluster_method_cell', 'hclust');
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
@@ -158,7 +158,7 @@ clust_params_cell = if_get_clust_params(X, clust_out_cell);
 
 %% align to trial clusts
 
-if strcmpi(ensamble_method, 'nmf')
+if strcmpi(ensemble_method, 'nmf')
     [cells_clust_al, trials_clust_al] = if_align_clusters_to_pc(coeffs, scores, clust_params_cell, clust_params_tr, plot_stuff);
 else
     [cells_clust_al, trials_clust_al] = if_align_trials_to_cells(coeffs, scores, clust_params_cell, clust_params_tr, plot_stuff);
@@ -169,12 +169,12 @@ ens_out.trials = trials_clust_al;
 %%
 if plot_stuff
     f_plot_comp_scatter(coeffs(:,1:min(num_comps,3)), ens_out.cells.clust_ident);
-    title(sprintf('Identified ensamble cells, %s space, %s',ensamble_method, cluster_method));
+    title(sprintf('Identified ensemble cells, %s space, %s',ensemble_method, cluster_method));
     xlabel('comp1');
     ylabel('comp2');
     zlabel('comp3');
     f_plot_comp_scatter(scores(1:min(num_comps,3),:)', ens_out.trials.clust_ident);
-    title(sprintf('Identified ensamble trials, %s space, %s',ensamble_method, cluster_method));
+    title(sprintf('Identified ensemble trials, %s space, %s',ensemble_method, cluster_method));
     xlabel('comp1');
     ylabel('comp2');
     zlabel('comp3');
@@ -302,7 +302,7 @@ if plot_stuff
     title('post'); axis equal tight;
 end
 
-%% align best components to ensamble traces and populations
+%% align best components to ensemble traces and populations
 scores_alignment = zeros(num_comps,1);
 for n_ens1 = 1:num_comps
     ens_trace = mean(coeffs(cells_clust.ens_list{n_ens1},:)*scores);

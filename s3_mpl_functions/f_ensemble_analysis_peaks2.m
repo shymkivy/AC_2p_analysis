@@ -17,7 +17,7 @@ plot_stuff = 0;
 plot_stuff_extra = 0;
 plot_ens_details = 0;
 var_thresh_prc = ops.ensemb.pca_var_thresh; % circular shift thresh (95 or 99; from Detecting cell assemblies in large neuronal populations)
-ensamble_method = ops.ensemb.method; % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
+ensemble_method = ops.ensemb.method; % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
 % so far NMF and ICA seems to work
 
 total_dim_thresh = .7;
@@ -135,14 +135,14 @@ clust_est = f_hclust_estimate_num_clust(firing_rate_LR);
 
 %% real data 
 
-ensamble_method = 'ica';
+ensemble_method = 'ica';
 
 num_LR_comps = num_comps;
-if strcmpi(ensamble_method, 'nmf')
+if strcmpi(ensemble_method, 'nmf')
     num_LR_comps = round(num_comps*1.5);
 end
 
-[dred_factors1, ~] = f_dred_train2(firing_rate_LR, num_LR_comps, ensamble_method, 0);
+[dred_factors1, ~] = f_dred_train2(firing_rate_LR, num_LR_comps, ensemble_method, 0);
 [coeffs, scores] = f_dred_get_coeffs(dred_factors1);
 
 %% Visualize traces
@@ -176,7 +176,7 @@ if strcmpi(cluster_method, 'hclust')
     params2.num_clust = num_comps+1;
     hclust_out = f_hcluster_trial3(firing_rate_LR', params2);
     f_plot_comp_scatter(X(:,1:3), hclust_out.clust_ident);
-    title('Identified ensambles hclust');
+    title('Identified ensembles hclust');
     %gscatter(X(:,1),X(:,2),hclust_out.clust_ident);
     eval_hclust = f_evaluate_ens_result(hclust_out.clust_ident, trial_list);
     suptitle(sprintf('hclust sorting, mean acc = %.2f', mean(eval_hclust.accuracy)));
@@ -192,7 +192,7 @@ elseif strcmpi(cluster_method, 'gmm')
         params3.num_clust = num_comps+1;
         gmmclust_out = f_gmmcluster_trial(X, params3);
         f_plot_comp_scatter(X(:,1:3), gmmclust_out.clust_ident);
-        title('Identified ensambles gmm');
+        title('Identified ensembles gmm');
         %gscatter(X(:,1),X(:,2),gmmclust_out.clust_ident);
         eval_gmm = f_evaluate_ens_result(gmmclust_out.clust_ident, trial_list);
         mean_acc(n_rg) = mean(eval_gmm.accuracy);
@@ -208,7 +208,7 @@ end
 %f_measure_temp_similarity(scores, trial_types, tt_to_dred);
 
 %%
-if strcmpi(ensamble_method, 'tca')
+if strcmpi(ensemble_method, 'tca')
     tn_seq = sum((trial_types == tt_to_dred').*tn_to_dred,2);
     [~, tt_idx] = sort(tn_seq, 'ascend');
     trial_types_dred_sort = trial_types(tt_idx);
@@ -260,7 +260,7 @@ for n_rep = 1:shuff_rep
     train_done = 0;
     while ~train_done
         try
-            [dred_factors_shuff, ~] = f_dred_train2(firing_rate_LR_shuff, num_ens_comps, ensamble_method, 0);
+            [dred_factors_shuff, ~] = f_dred_train2(firing_rate_LR_shuff, num_ens_comps, ensemble_method, 0);
             train_done = 1;
         catch
             disp('Error train, will repeat');
@@ -277,11 +277,11 @@ else
 end
 
 
-%% extract ensambles
-ens = f_extract_ensamble_from_scores(dred_factors1, ens_thresh);
-%suptitle([cond_name ' dset' num2str(n_dset) ' ' ensamble_method]);
-%ens = f_extract_ensamble_from_scores(dred_factors_shuff);
-data_dim_est.ensambles = ens;
+%% extract ensembles
+ens = f_extract_ensemble_from_scores(dred_factors1, ens_thresh);
+%suptitle([cond_name ' dset' num2str(n_dset) ' ' ensemble_method]);
+%ens = f_extract_ensemble_from_scores(dred_factors_shuff);
+data_dim_est.ensembles = ens;
 
 %[~, e_scores] = f_ens_get_coeffs(dred_factors1);
 
@@ -312,7 +312,7 @@ if plot_ens_details
     end
 end
 
-% ensambles
+% ensembles
 if plot_ens_details
     % sort according to context and make color map for trial labels
     if numel(intersect(params.ctx_mmn,trial_types))>= 6
@@ -354,7 +354,7 @@ if plot_ens_details
             figure;
             ax1 = subplot(4,1,1);
             imagesc(firing_rate_norm(ens(n_ens).ens_cell_num,:));
-            title(['Full rank data; ensamble ' num2str(n_ens)]);
+            title(['Full rank data; ensemble ' num2str(n_ens)]);
             ax2 = subplot(5,1,2);
             plot(mean(firing_rate_norm(ens(n_ens).ens_cell_num,:)));
             title('mean full rank')
@@ -366,7 +366,7 @@ if plot_ens_details
             title('Reconstructed from sig');
             ax5 = subplot(5,1,5);
             plot(ens(n_ens).ens_score); 
-            title([ensamble_method ' ensamble']);
+            title([ensemble_method ' ensemble']);
             linkaxes([ax1,ax2, ax3, ax4, ax5],'x');
             axis tight;
         end
@@ -385,7 +385,7 @@ if plot_ens_details
             sp1 = subplot(2*(m+3),n,2*m*n+(1:2*n));
             h = imagesc(firing_rate_norm_3d_cont(ens(n_ens).ens_cell_num,:));
             if_add_trials_to_plot(sp1, h, trace_map_cont)
-            title(['cont trials ensamble ' num2str(n_ens)]);
+            title(['cont trials ensemble ' num2str(n_ens)]);
             sp2 = subplot(2*(m+3),n,2*m*n+2*n+[1 n]);
             plot(mean(firing_rate_norm_3d_cont(ens(n_ens).ens_cell_num,:)));
             linkaxes([sp1,sp2],'x'); axis tight;
@@ -411,7 +411,7 @@ if plot_ens_details
             sp1 = subplot(8,2,5:8);
             h = imagesc(firing_rate_norm_3d_ctx(ens(n_ens).ens_cell_num,:));
             if_add_trials_to_plot(sp1, h, trace_map_ctx)
-            title(['ctx trials ensamble ' num2str(n_ens)])
+            title(['ctx trials ensemble ' num2str(n_ens)])
             sp2 = subplot(8,2,[9 10]);
             plot(mean(firing_rate_norm_3d_ctx(ens(n_ens).ens_cell_num,:)));
             linkaxes([sp1,sp2],'x'); axis tight;

@@ -11,6 +11,8 @@ end
 range1 = app.dimestcv_nc_rangeEditField.Value;
 count1 = app.dimestcv_nc_countEditField.Value;
 
-array_out = round(linspace(max(cent1-range1, 1), cent1+range1, count1));
+shift = (min(cent1-range1,1)-1);
+
+array_out = unique(round((linspace(cent1-range1+shift, cent1+range1+shift, count1))));
 
 end

@@ -20,10 +20,10 @@ ens_params.normalize = 'norm_full'; %'norm_full' 'norm_mean' 'none'
 ens_params.corr_comp_thresh = .85;
 ens_params.num_comps = [];
 ens_params.plot_stuff = 0;
-ens_params.ensamble_method = 'nmf';
+ens_params.ensemble_method = 'nmf';
 ens_params.use_LR_proj = 0;
-ens_params.ensamble_extraction = 'thresh'; % 'thresh', 'clust'
-ens_params.ensamble_extraction_thresh = 'signal_clust_thresh'; % 'shuff'. 'clust_thresh', 'signal_z'
+ens_params.ensemble_extraction = 'thresh'; % 'thresh', 'clust'
+ens_params.ensemble_extraction_thresh = 'signal_clust_thresh'; % 'shuff'. 'clust_thresh', 'signal_z'
 
 %load('reliability_dd12')
 

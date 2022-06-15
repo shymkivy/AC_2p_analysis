@@ -44,10 +44,10 @@ est_params_cv.reps = app.dimestcv_repsEditField.Value;
 est_params_cv.include_shuff_version = app.dimestcv_includeshuffversionCheckBox.Value;
 
 %%
-ens_params.ensamble_method = app.ens_ensemethodDropDown.Value;
+ens_params.ensemble_method = app.ens_ensemethodDropDown.Value;
 ens_params.normalize = app.ens_normalizeDropDown.Value;
-ens_params.ensamble_extraction = app.ens_ensextractionDropDown.Value;
-ens_params.ensamble_extraction_thresh = app.ens_extractionthreshDropDown.Value;
+ens_params.ensemble_extraction = app.ens_ensextractionDropDown.Value;
+ens_params.ensemble_extraction_thresh = app.ens_extractionthreshDropDown.Value;
 ens_params.signal_z_thresh = app.ens_signalzthreshEditField.Value;
 ens_params.shuff_thresh_percent = app.ens_shuffthreshprcEditField.Value;
 ens_params.hcluster_method = app.ens_hclustmethodDropDown.Value;

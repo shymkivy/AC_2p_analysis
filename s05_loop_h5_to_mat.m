@@ -18,7 +18,7 @@ ops.eval_params2.EvalMinSigFrac =           0;
 ops.eval_params2.EvalFiringStability =      0;
 
 ops.eval_params2.RejThrSNRCaiman =          2;
-ops.eval_params2.RejThrSNR2 =               3.5;
+ops.eval_params2.RejThrSNR2 =               3;
 ops.eval_params2.RejThrCNN =                0.5;
 ops.eval_params2.RejThrRvalues =            0.5;
 ops.eval_params2.RejThrMinSigFrac =         0.5;

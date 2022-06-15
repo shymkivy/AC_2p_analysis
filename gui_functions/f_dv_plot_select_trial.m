@@ -69,6 +69,6 @@ if app.ConverttoZCheckBox.Value
 else
     ylabel('Normalized response');
 end
-title(sprintf('Stim %s; Dset %s; Cell %d', app.trialtypeDropDown.Value, app.ddata.experiment{1}, n_cell), 'Interpreter', 'none')
+title(sprintf('Stim %s; Dset %s; Cell %d', app.trialtypeDropDown.Value, app.ddata.dset_name_full{1}, n_cell), 'Interpreter', 'none')
 
 end

@@ -104,17 +104,17 @@ for n_dset = 1:num_dsets
         params_dd.normalize = ops.ensemb.normalize; %; %'norm_full' 'norm_mean' 'none'
         data_dim_est_full{n_dset} = f_ensemble_comp_data_dim2(trial_peaks_dred, params_dd);
         %% extract ensembles? 
-        if ops.dred_params.do_ensamble_analysis
+        if ops.dred_params.do_ensemble_analysis
             params_ens.cond_name = dr_params.cond_name;
             params_ens.n_dset = dr_params.n_dset;
-            params_ens.ensamble_method = ops.ensemb.method;
+            params_ens.ensemble_method = ops.ensemb.method;
             params_ens.corr_comp_thresh = ops.ensemb.corr_comp_thresh;
             params_ens.normalize = ops.ensemb.normalize; %; %'norm_full' 'norm_mean' 'none'
             params_ens.num_comps = [];
             params_ens.plot_stuff = 0;
             params_ens.use_LR_proj = 0;
-            params_ens.ensamble_extraction = 'thresh'; % 'thresh', 'clust'
-            params_ens.ensamble_extraction_thresh = 'signal_clust_thresh'; % 'shuff'. 'clust_thresh', 'signal_z'
+            params_ens.ensemble_extraction = 'thresh'; % 'thresh', 'clust'
+            params_ens.ensemble_extraction_thresh = 'signal_clust_thresh'; % 'shuff'. 'clust_thresh', 'signal_z'
             params_ens.hcluster_method = 'average';
             params_ens.hcluster_distance_metric = 'cosine';
             ens_out_full{n_dset} = f_ensemble_analysis_peaks3(trial_peaks_dred, params_ens);

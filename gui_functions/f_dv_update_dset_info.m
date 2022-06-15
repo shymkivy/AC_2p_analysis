@@ -3,6 +3,8 @@ function f_dv_update_dset_info(app)
 idx1 = app.current_data_idx;
 
 ddata = app.data(idx1,:);
+
+app.ParadigmEditField.Value = ddata.proc_ops{1}.paradigm;
 %%
 app.mplSpinner.Value = min([app.mplSpinner.Value, ddata.num_planes]);
 app.MMNfreqEditField.Value = num2str(ddata.MMN_freq{1});
@@ -15,8 +17,10 @@ deconv_methods = {};
 if ~isempty(ddata.OA_data{n_pl}.proc.deconv.smooth_dfdt.S)
     deconv_methods = [deconv_methods, {'smooth_dfdt'}];
 end
-if ~isempty(cat(1,ddata.OA_data{n_pl}.proc.deconv.MCMC.S{:}))
-    deconv_methods = [deconv_methods, {'MCMC'}];
+if isfield(ddata.OA_data{n_pl}.proc.deconv, 'MCMC')
+    if ~isempty(cat(1,ddata.OA_data{n_pl}.proc.deconv.MCMC.S{:}))
+        deconv_methods = [deconv_methods, {'MCMC'}];
+    end
 end
 if ~isempty(ddata.OA_data{n_pl}.est.S)
     deconv_methods = [deconv_methods, {'OA_deconv'}];

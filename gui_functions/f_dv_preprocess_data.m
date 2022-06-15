@@ -22,7 +22,7 @@ for n_dset = 1:num_dsets
     if isfield(proc_data, 'stim_params')
         if isfield(proc_data.stim_params, 'MMN_freq')
             data.MMN_freq{n_dset} = proc_data.stim_params.MMN_freq;
-        else
+        elseif isfield(proc_data, 'MMN_orientations')
             data.MMN_freq{n_dset} = proc_data.MMN_orientations;
         end
     end
@@ -39,7 +39,7 @@ for n_dset = 1:num_dsets
 %     data.trial_window{n_dset}.offset_window_frames = and(data.trial_window{n_dset}.trial_window_t>ops.offset_window(1),data.trial_window{n_dset}.trial_window_t<ops.offset_window(2)); 
 
     cell_plane_indx_pl = cell(data.num_planes(n_dset),1);
-    
+    disp(ddata.dset_name_full{1})
     % pull out data
     for n_pl = 1:data.num_planes(n_dset)
         temp_OA_data = data.OA_data{n_dset,n_pl};
@@ -94,14 +94,13 @@ for n_dset = 1:num_dsets
 
         % fill in the cut regions
         cuts_trace = proc_data.file_cuts_params{n_pl}.vid_cuts_trace;
-        
         data.traces_raw{n_dset,n_pl} = if_fill_cuts(traces_raw_cut, cuts_trace);
         %data.firing_rate{n_dset,n_pl} = if_fill_cuts(firing_rate_cut, cuts_trace);
         %data.firing_rate_smooth{n_dset,n_pl} = if_fill_cuts(firing_rate_cut_smooth, cuts_trace);
         data.num_cells_pl{n_dset,n_pl} = size(data.traces_raw{n_dset,n_pl},1);
-        if isfield(proc_data, 'stim_chan')
-            data.stim_frame_index{n_dset,n_pl} = proc_data.stim_times_frame{proc_data.stim_chan == 1, n_pl};
-        else
+        if isfield(proc_data, 'stim_times_frame')
+            data.stim_frame_index{n_dset,n_pl} = proc_data.stim_times_frame{1, n_pl};
+        elseif isfield(proc_data, 'stim_frame_index')
             data.stim_frame_index{n_dset,n_pl} = proc_data.stim_frame_index{n_pl};
         end
         cell_plane_indx_pl{n_dset,n_pl} = ones(data.num_cells_pl{n_dset,n_pl},1)*n_pl;

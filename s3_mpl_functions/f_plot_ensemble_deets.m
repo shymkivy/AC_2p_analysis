@@ -1,4 +1,4 @@
-function f_plot_ensamble_deets(firing_rate_sm, cells1, trials, scores, coeffs)
+function f_plot_ensemble_deets(firing_rate_sm, cells1, trials, scores, coeffs)
 
 [coeffs_sort, coeff_idx] = sort(coeffs, 'descend');
 cells2 = cells1(coeff_idx);

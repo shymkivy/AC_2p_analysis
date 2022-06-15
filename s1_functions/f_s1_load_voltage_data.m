@@ -120,7 +120,7 @@ if ops.plot_details
             plot(dattmp2(:,unused_chan(n_plt)));
             title(sprintf('chan %d', unused_chan(n_plt)));
         end
-        sgtitle(sprintf('Unused channels; %s', num2str(ops.align_to_channel), ops.file_core), 'interpreter', 'none');
+        sgtitle(sprintf('Unused channels; %s', ops.file_core), 'interpreter', 'none');
     end
     
     figure;
@@ -132,7 +132,7 @@ if ops.plot_details
         title(sprintf('%s; %s; chan %d', ops.chan_labels{n_plt}, ops.chan_type{n_plt}, ops.chan_list(n_plt)), 'interpreter', 'none')
         axis tight;
     end
-    sgtitle(sprintf('Using channel %d for alignment; %s', num2str(ops.align_to_channel), ops.file_core), 'interpreter', 'none');
+    sgtitle(sprintf('Using channel %d for alignment; %s', ops.align_to_channel, ops.file_core), 'interpreter', 'none');
     drawnow();
     linkaxes(cat(1,sp1{:}), 'x')
 

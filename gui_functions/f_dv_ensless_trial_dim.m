@@ -126,7 +126,7 @@ for n_tt = 1:num_tn
             figure; 
             subplot(9,11,[1:3 11*1+(1:3) 11*2+(1:3)]);
             imagesc(data2_2d);
-            title(sprintf('%s, trial=%d, corr=%.2f', app.ddata.experiment{1}, tt, dim_est_tr(n_tt)), 'Interpreter', 'none');
+            title(sprintf('%s, trial=%d, corr=%.2f', app.ddata.dset_name_full{1}, tt, dim_est_tr(n_tt)), 'Interpreter', 'none');
             ylabel('Sorted cells')
             xlabel('frames');
             
@@ -227,7 +227,7 @@ for n_tt = 1:num_tn
                 for n_stim = 1:numel(stim_times_clust)
                     line([n_stim n_stim]*num_bins, [0.5 num_freqs+0.5], 'color','r');
                 end
-                title(sprintf('%s, trial=%d, corr=%.2f, clust=%d', app.ddata.experiment{1}, tt, dim_est_tr(n_tt),app.ClustertouseEditField.Value), 'Interpreter', 'none');
+                title(sprintf('%s, trial=%d, corr=%.2f, clust=%d', app.ddata.dset_name_full{1}, tt, dim_est_tr(n_tt),app.ClustertouseEditField.Value), 'Interpreter', 'none');
                 subplot(1,10,9);
                 imagesc(clust_trig_ave);
                 title('clust trig ave');
@@ -254,7 +254,7 @@ if app.PlotcorrtotalsCheckBox.Value
     figure; 
     subplot(2,1,1);
     bar(c2,dim_est_tr)
-    title(sprintf('%s', app.ddata.experiment{1}), 'Interpreter', 'none');
+    title(sprintf('%s', app.ddata.dset_name_full{1}), 'Interpreter', 'none');
     subplot(2,1,2);
     bar(c2,num_cells_all)
     title('Num cells');

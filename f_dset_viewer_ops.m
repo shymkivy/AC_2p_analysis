@@ -1,14 +1,36 @@
 function f_dset_viewer_ops(app)
 
-app.gui_ops.reg_data_path = ...
-    'C:\Users\ys2605\Desktop\stuff\AC_data\wf_registration_data\reg_save_6_10_21.mat';
-
-app.gui_ops.mat_data_path = 'C:\Users\ys2605\Desktop\stuff\AC_data\echo_save_12_19_21.mat.mat';
+app.gui_ops.gui_save_dir = 'F:\AC_data\dset_viewer_save';
 
 ops = struct();
 
 %% preprocessing params
 
+idx1 = 1;
+ops.experiments(idx1).name = 'dream';
+ops.experiments(idx1).data_path = 'F:\AC_data\caiman_data_dream3';
+ops.experiments(idx1).save_mat_fname = 'dream_save_6_9_22.mat';
+ops.experiments(idx1).save_reg_fname = '';
+
+idx1 = 2;
+ops.experiments(idx1).name = 'echo';
+ops.experiments(idx1).data_path  = 'F:\AC_data\caiman_data_echo';
+ops.experiments(idx1).save_mat_fname = '';
+ops.experiments(idx1).save_reg_fname = '';
+
+idx1 = 3;
+ops.experiments(idx1).name = 'missmatch';
+ops.experiments(idx1).data_path = 'F:\AC_data\caiman_data_missmatch';
+ops.experiments(idx1).save_mat_fname = '';
+ops.experiments(idx1).save_reg_fname = 'reg_save_6_10_21.mat';
+
+idx1 = 4;
+ops.experiments(idx1).name = 'missmatch_grating';
+ops.experiments(idx1).data_path = '';
+ops.experiments(idx1).save_mat_fname = '';
+ops.experiments(idx1).save_reg_fname = '';
+
+%%
 % ----------- process ops params ----------
 ops.regions_to_analyze = {'A1','AAF','A2','UF'}; %,, ,,     % choose from fieldnames above 
 
@@ -92,7 +114,7 @@ est_params_pca.plot_stuff = 0;
 
 %% dim est CV
 
-est_params_cv.ensamble_method = 'pca';              % options: svd, pca (faster than svd), nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
+est_params_cv.ensemble_method = 'pca';              % options: svd, pca (faster than svd), nmf, ica                % SVD is most optimal for encoding, NMF rotates components into something that is real and interpretable
 est_params_cv.normalize = 'norm_mean_std'; % **'norm_mean_std'**, 'norm_mean' 'none'   % either way, need to normalize the power of signal in each cell, otherwise dimred will pull out individual cells
 est_params_cv.shuffle_data_chunks = 1;   % 1 or 0, keeping cell correlations   % if the sequence of trial presentation contains information, you will need to shuffle. Also need to do in chunks because adjacent time bins are slightly correlated
 % ---- input one or range of values to estimate across following
@@ -103,23 +125,23 @@ est_params_cv.smooth_SD_count = 1;
 
 est_params_cv.num_comp_center_around_dim_pca = 1;
 est_params_cv.num_comp_center = 8;     
-est_params_cv.num_comp_range = 5;
-est_params_cv.num_comp_count = 10;
+est_params_cv.num_comp_range = 4;
+est_params_cv.num_comp_count = 9;
 
-est_params_cv.reps = 5;              % how many repeats per param 
+est_params_cv.reps = 2;              % how many repeats per param 
 est_params_cv.include_shuff_version = 0;
 
 %% ensemble extract default params
 
-ens_params.ensamble_method = 'nmf'; % options: svd, **nmf**, ica     % here NMF is
+ens_params.ensemble_method = 'nmf'; % options: svd, **nmf**, ica     % here NMF is
 ens_params.num_comp_use_dim_pca = 1;
 %ens_params.num_comp = corr_dim;
 ens_params.num_comp = 10;
 ens_params.smooth_SD = 0; % 110 is better?
 ens_params.normalize = 'norm_mean_std'; % 'norm_mean_std', 'norm_mean' 'none'
-ens_params.ensamble_extraction = 'thresh'; %  **'thresh'(only for nmf)** 'clust'(for all)
+ens_params.ensemble_extraction = 'thresh'; %  **'thresh'(only for nmf)** 'clust'(for all)
 % --- for thresh detection (only nmf)
-ens_params.ensamble_extraction_thresh = 'signal_z'; % 'shuff' 'signal_z' 'signal_clust_thresh'
+ens_params.ensemble_extraction_thresh = 'signal_z'; % 'shuff' 'signal_z' 'signal_clust_thresh'
 ens_params.signal_z_thresh = 2;
 ens_params.shuff_thresh_percent = 95;
 % --- for clust detection and general sorting 

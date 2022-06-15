@@ -6,7 +6,7 @@ ens_list = ens_out.cells.ens_list;
 
 eval_params = params;
 eval_params.num_comp = num_comp;
-eval_params.ensamble_method = 'pca';
+eval_params.ensemble_method = 'pca';
 
 comp_test_err = zeros(numel(ens_list),1);
 

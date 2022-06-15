@@ -96,6 +96,6 @@ for n_tr = 1:10
     end
     title(sprintf('Freq %d', n_tr))
 end
-sgtitle(sprintf('Dset %s; Cell %d', app.ddata.experiment{1}, n_cell), 'Interpreter', 'none');
+sgtitle(sprintf('Dset %s; Cell %d', app.ddata.dset_name_full{1}, n_cell), 'Interpreter', 'none');
 
 end

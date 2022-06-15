@@ -4,7 +4,9 @@ cent1 = app.dimestcv_sm_centerEditField.Value;
 range1 = app.dimestcv_sm_rangeEditField.Value;
 count1 = app.dimestcv_sm_countEditField.Value;
 
-array_out = round(linspace(max(cent1-range1, 0), cent1+range1, count1));
+shift = (min(cent1-range1,0));
+
+array_out = round(linspace(cent1-range1+shift, cent1+range1+shift, count1));
 
 
 end
