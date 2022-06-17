@@ -104,7 +104,8 @@ app.ens_shuffthreshprcEditField.Value = ens_params.shuff_thresh_percent;
 app.ens_hclustmethodDropDown.Value = ens_params.hcluster_method;
 app.ens_hclustmetricDropDown.Value = ens_params.hcluster_distance_metric;
 app.ens_plotstuffCheckBox.Value = ens_params.plot_stuff;
- 
+app.ensshuffrepsEditField.Value = ens_params.acc_shuff_reps;
+
 %%
 
 

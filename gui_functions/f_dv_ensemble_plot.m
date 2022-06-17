@@ -3,23 +3,26 @@ function f_dv_ensemble_plot(app)
 ddata = app.ddata;
 ens_stats = ddata.ensemble_stats{1};
 
+
 if isempty(ens_stats)
-    disp('Run ensemble stats first')
+    disp('Run ensemble detection and stats first')
 else
     
+    ensembles = ddata.ensembles{1};
+    ens_params = ens_stats.ens_params;
+
     cdata = f_dv_get_cdata(app);
     firing_rate = cat(1,cdata.S_sm);
     active_cells = sum(firing_rate,2) ~= 0;
     firing_rate(~active_cells,:) = [];
 
-    firing_rate_sm = f_smooth_gauss(firing_rate, ens_stats.smooth_SD/ddata.proc_data{1}.frame_data.volume_period);
+    firing_rate_sm = f_smooth_gauss(firing_rate, ens_params.smooth_SD/ddata.proc_data{1}.frame_data.volume_period);
     
-    acc_out_d = ens_stats.acc_out_d;
+    acc_out_d = ensembles.acc_out_d;
     acc_out_s = ens_stats.acc_out_shuff;
     acc_out_full = cat(1,acc_out_s{:});
     thresh = ens_stats.acc_out_thresh;
-    ens_out = ens_stats.ens_out;
-    
+   
     %%
     figure; 
     subplot(2,1,1); hold on;
@@ -47,20 +50,20 @@ else
     xlabel('test error');
     ylabel('component number')
 
-    fprintf('%.1f%% (%d) ensembles are above shuff %.1f%% thresh\n', sum(acc_out_d<thresh)/numel(acc_out_d)*100, sum(acc_out_d<thresh), ens_stats.shuff_thresh_percent);
+    fprintf('%.1f%% (%d) ensembles are above shuff %.1f%% thresh\n', sum(acc_out_d<thresh)/numel(acc_out_d)*100, sum(acc_out_d<thresh), ens_params.shuff_thresh_percent);
 
     %% analyze ensembles
-    f_plot_raster_mean(firing_rate_sm(ens_out.ord_cell,:), 1);
+    f_plot_raster_mean(firing_rate_sm(ensembles.ord_cell,:), 1);
     title('raster cell sorted');
 
-    for n_comp = 1:numel(ens_out.cells.ens_list)
-        cells1 = ens_out.cells.ens_list{n_comp};
-        trials1 = ens_out.trials.ens_list{n_comp};
-        scores1 = ens_out.cells.ens_scores(n_comp,:);
-        coeffs1 = ens_out.coeffs(cells1,n_comp);
+    for n_comp = 1:numel(ensembles.cells.ens_list)
+        cells1 = ensembles.cells.ens_list{n_comp};
+        trials1 = ensembles.trials.ens_list{n_comp};
+        scores1 = ensembles.cells.ens_scores(n_comp,:);
+        coeffs1 = ensembles.coeffs(cells1,n_comp);
 
         f_plot_ensemble_deets(firing_rate_sm, cells1, trials1, scores1, coeffs1);
-        title(sprintf('%s ensemble %d; test error=%.1f/%.1f', ens_stats.ensemble_method, n_comp, acc_out_d(n_comp), thresh));
+        title(sprintf('%s ensemble %d; test error=%.1f/%.1f', ens_params.ensemble_method, n_comp, acc_out_d(n_comp), thresh));
     end
 
 

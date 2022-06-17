@@ -18,7 +18,11 @@ if strcmpi(app.RunallDropDown.Value, 'stats')
             params.n_pl = n_pl;
             if or(isempty(ddata.stats{n_pl}), app.OverwriteCheckBox.Value)
                 params.cdata = f_dv_compute_cdata(app, params);
-                app.data(n_dset,:).stats{n_pl} = f_dv_compute_stats_core(app, params);
+                if isfield(params.ddata.proc_data{1}, 'stim_params')
+                    app.data(n_dset,:).stats{n_pl} = f_dv_compute_stats_core(app, params);
+                else
+                    fprintf('skipping %s; no stim_params\n', params.ddata.dset_name_full{1});
+                end
             end
         end
     end
@@ -65,7 +69,7 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensembles')
                 app.data(n_dset,:).data_dim_pca{1} = f_dv_estimate_dim_pca_core(params);
             end
             params.data_dim_pca = app.data(n_dset,:).data_dim_pca{1};
-            app.data(n_dset,:).ensembles{1} = f_dv_ensemble_extract_core(app, params);
+            app.data(n_dset,:).ensembles{1} = f_dv_ensemble_extract_core(params);
         end
     end
     fprintf('\n');
@@ -83,10 +87,10 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensemble_stats')
             end
             params.data_dim_pca = app.data(n_dset,:).data_dim_pca{1};
             if isempty(app.data(n_dset,:).ensembles{1})
-                app.data(n_dset,:).ensembles{1} = f_dv_ensemble_extract_core(app, params);
+                app.data(n_dset,:).ensembles{1} = f_dv_ensemble_extract_core(params);
             end
             params.ensembles = app.data(n_dset,:).ensembles{1};
-            app.data(n_dset,:).ensemble_stats{1} = f_dv_ensemble_stats_core(app, params);
+            app.data(n_dset,:).ensemble_stats{1} = f_dv_ensemble_stats_core(params);
         end
     end
     fprintf('\n');
@@ -104,7 +108,7 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensemble_tuning_stats')
             end
             params.data_dim_pca = app.data(n_dset,:).data_dim_pca{1};
             if isempty(app.data(n_dset,:).ensembles{1})
-                app.data(n_dset,:).ensembles{1} = f_dv_ensemble_extract_core(app, params);
+                app.data(n_dset,:).ensembles{1} = f_dv_ensemble_extract_core(params);
             end
             if ~isempty(app.data(n_dset,:).ensemble_stats{1})
                 params.ensemble_stats = app.data(n_dset,:).ensemble_stats{1};

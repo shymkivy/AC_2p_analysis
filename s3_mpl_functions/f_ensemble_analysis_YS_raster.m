@@ -13,6 +13,7 @@ dim_est_num_reps = f_get_param(params, 'dim_est_num_reps', 50);
 ensemble_method = f_get_param(params, 'ensemble_method', 'nmf'); % 'PCA', 'AV', 'ICA', 'NMF', 'SPCA', 'tca', 'fa', 'gpfa'
 ensemble_extraction = f_get_param(params, 'ensemble_extraction', 'thresh'); % clust 'thresh'
 plot_stuff = f_get_param(params, 'plot_stuff', 0);
+quiet1 = f_get_param(params, 'quiet', 0);
 
 num_comps = f_get_param(params, 'num_comp');
 
@@ -21,8 +22,9 @@ if ~strcmpi(ensemble_method, 'nmf') && strcmpi(ensemble_extraction, 'thresh')
     ensemble_extraction = 'clust';
 end
 
-fprintf('Detecting ensembles with %s and %s...',ensemble_method, ensemble_extraction);
-
+if ~quiet1
+    fprintf('Detecting ensembles with %s and %s...',ensemble_method, ensemble_extraction);
+end
 %%
 ndims1 = ndims(firing_rate);
 if ndims1 == 3
@@ -64,7 +66,9 @@ ens_out.d_explained = d_explained(1:num_comps);
 
 %% shuff and PCA
 if isempty(num_comps)
-    fprintf('Estimating dimensionality...\n');
+    if ~quiet1
+        fprintf('Estimating dimensionality...\n');
+    end
     dim_est_num_reps = 50;
     max_lamb_shuff = zeros(dim_est_num_reps,1);
     dim_total_shuff = zeros(dim_est_num_reps,1);
@@ -88,9 +92,13 @@ if isempty(num_comps)
     
     ens_out.dimensionality_total_norm_shuff = dimensionality_total_norm_shuff;
     ens_out.dimensionality_corr = dimensionality_corr;
-    fprintf('; estimated %d dimensions...\n',num_comps);
+    if ~quiet1
+        fprintf('; estimated %d dimensions...\n',num_comps);
+    end
 else
-    fprintf('; using %d components\n', num_comps);
+    if ~quiet1
+        fprintf('; using %d components\n', num_comps);
+    end
 end
 ens_out.num_comps = num_comps;
 
@@ -127,7 +135,9 @@ if sort_tr
 end
 %% real data 
 if num_comps > 0
-    fprintf('Dim reduction with %s, %d comps...\n', ensemble_method, num_comps);
+    if ~quiet1
+        fprintf('Dim reduction with %s, %d comps...\n', ensemble_method, num_comps);
+    end
     num_ens_comps = num_comps;
     firing_rate_ensemb = firing_rate_norm;
     

@@ -53,6 +53,8 @@ ens_params.shuff_thresh_percent = app.ens_shuffthreshprcEditField.Value;
 ens_params.hcluster_method = app.ens_hclustmethodDropDown.Value;
 ens_params.hcluster_distance_metric = app.ens_hclustmetricDropDown.Value;
 ens_params.plot_stuff = app.ens_plotstuffCheckBox.Value;
+ens_params.acc_shuff_reps = app.ensshuffrepsEditField.Value;
+ens_params.smooth_SD = app.ens_extrasmoothSDEditField.Value;
 
 %%
 params.stats = stats;

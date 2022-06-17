@@ -47,9 +47,11 @@ else
 end
 
 data_dim_cv.test_err_data = test_err_data;
+data_dim_cv.est_params_list = est_params_list;
 data_dim_cv.num_comp = est_params_cv.num_comp';
 data_dim_cv.dimensionality_corr = est_params_cv.num_comp(min_ind);
-data_dim_cv.test_err_shuff = est_params_list_s;
+data_dim_cv.est_params_list_shuff = est_params_list_s;
+
 %fig1 = f_plot_cv_error_3D(est_params_list, est_params_list_s, 'smooth_SD', 'num_comp', 'test_err');
 %fig1.Children(2).Title.String = sprintf('dset %s', params.ddata.experiment{1});          
 

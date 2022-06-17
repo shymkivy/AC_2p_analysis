@@ -13,6 +13,6 @@ count1 = app.dimestcv_nc_countEditField.Value;
 
 shift = (min(cent1-range1,1)-1);
 
-array_out = unique(round((linspace(cent1-range1+shift, cent1+range1+shift, count1))));
+array_out = unique(round((linspace(cent1-range1-shift, cent1+range1-shift, count1))));
 
 end

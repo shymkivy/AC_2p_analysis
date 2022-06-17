@@ -72,4 +72,12 @@ if ~isempty(ddata.data_dim_cv{1})
 else
     app.DimCVEditField.Value = 0;
 end
+
+if ~isempty(ddata.ensemble_stats{1})
+    app.numsigensEditField.Value = sum(ddata.ensemble_stats{1}.accepted_ensembles);
+else
+    app.numsigensEditField.Value = 0;
+end
+
+
 end
