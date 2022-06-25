@@ -6,13 +6,13 @@ addpath('C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\general_functions');
 
 data_dir = 'D:\data\caiman_data_dream';
 %data_dir = 'F:\AC_data\caiman_data_dream3';
-dset_name = 'M125_im7_AC_ammn_stim7_4_26_22';
+dset_name = 'M4421_im3_AC_ammn_stim2_12_24_21b';
 
-save_dir = 'F:\AC_data\M125_4_26_22_dream';
+save_dir = 'D:\data\AC\2021\M4421_12_24_21b_dream';
+%save_dir = 'F:\AC_data\M108_2_4_22a_dream';
 
-stim_chan = 7;
 
-n_pl = 1;
+%stim_chan = 7;
 
 %%
 
@@ -35,7 +35,11 @@ proc_data = load([dir_proc dset_name '_processed_data.mat']);
 
 if exist([dir_proc dset_name '_mpl_scan.mat'], 'file')
     data_mplscan = load([dir_proc dset_name '_mpl_scan.mat']);
-    same_stim = 1;
+    if isfield(data_mplscan.scan_data, 'custom_stim_data')
+        same_stim = 1;
+    else
+        same_stim = 0;
+    end
 else
     same_stim = 0;
 end
@@ -46,7 +50,7 @@ end
 
 %data_xml = extract_frame_data_from_XML2([dir_proc dset_name '_prairie.xml']);
 
-%%
+%% fill vid cuts
 
 [d1, d2, num_frames_cut] = size(Y{1});
 
@@ -72,19 +76,23 @@ if same_stim
     stim_idx = data_mplscan.scan_data.custom_stim_data.stim_patterns_index;
     stim_pat_id = data_mplscan.scan_data.custom_stim_data.stim_patterns_id;
     stim_tab = data_mplscan.scan_data.group_table_stim;
+else
+    num_patterns = 1;
 end
 
 
 stim_resp_frames = 20;
 base_frames = 10;
 
-for n_cell = 1 % 31:50
+for n_pat = 1 % 31:50
     if same_stim
-        pat_tab = stim_tab(stim_tab.Pattern == stim_pat_id(n_cell),:);
-        stim_times = onset_times_plockle(stim_idx == n_cell);
+        pat_tab = stim_tab(stim_tab.Pattern == stim_pat_id(n_pat),:);
+        stim_times = onset_times_plockle(stim_idx == n_pat);
     else
         stim_times = onset_times_plockle;
     end
+    stim_times(stim_times<base_frames) = [];
+    
     
     num_stim = numel(stim_times);
 
@@ -118,7 +126,7 @@ for n_cell = 1 % 31:50
     frame_st_ave_mpl_base = cat(2,frame_st_ave_base{:});
     framse_all_all_cat_mpl = cat(2,framse_all_ave_cat{:});
     
-    f_save_tif_stack2_YS(framse_all_all_cat_mpl, sprintf('%s\\test_cell%d.tiff', save_dir, n_cell));
+    f_save_tif_stack2_YS(framse_all_all_cat_mpl, sprintf('%s\\stim_resp_pat%d.tiff', save_dir, n_pat));
     
     figure; 
     subplot(3,1,1); axis equal tight;
@@ -127,7 +135,7 @@ for n_cell = 1 % 31:50
     imagesc(frame_st_ave_mpl_base);
     subplot(3,1,3); axis equal tight;
     imagesc(frame_st_ave_mpl - frame_st_ave_mpl_base);
-    sgtitle(sprintf('cell stim %d; x=%.1f, y=%.1f, z=%d', n_cell, pat_tab.X(1), pat_tab.Y(1), pat_tab.Z(1)));
+    %sgtitle(sprintf('cell stim %d; x=%.1f, y=%.1f, z=%d', n_cell, pat_tab.X(1), pat_tab.Y(1), pat_tab.Z(1)));
 end
 
 
@@ -141,8 +149,24 @@ figure; imagesc(mean(frames_im,3))
 
 
 
+%%
+zoom = 1.2;
+foc_size = 511;
+z_range = 1;
 
+gr_data_stim = data_mplscan.scan_data.group_table_stim;
 
+pl_ave = cell(num_planes,1);
+for n_pl = 1:num_planes
+    pl_ave{n_pl} = mean(Y{n_pl},3);
+end
+
+pl_ave_all = cat(2, pl_ave{:});
+
+figure;
+imagesc(pl_ave_all);
+axis equal tight;
+title(sprintf('planes 1 - %d', num_planes))
 %%
 
 figure; imagesc(mean(Y{1},3))

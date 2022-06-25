@@ -139,8 +139,10 @@ if sum(strcmpi(ops.paradigm, {'ammn', 'vmmn', 'mmn', 'ammn_stim'}))
     end
 end
 
-data.trial_types_all = trial_types_all;
-data.trial_types = cat(1,trial_types_all{:});
+if exist('trial_types_all', 'var')
+    data.trial_types_all = trial_types_all;
+    data.trial_types = cat(1,trial_types_all{:});
+end
 % if exist('cont_trials_seq', 'var')
 %     if sum(max(MMN_trials_seq)> 2)
 %         MMN_trials_seq = round(2*MMN_trials_seq/(max(MMN_trials_seq(:))));

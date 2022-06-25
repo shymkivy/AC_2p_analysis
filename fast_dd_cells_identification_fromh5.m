@@ -3,14 +3,14 @@ close all;
 
 pwd1 = fileparts(which('fast_dd_cells_identification.m'));
 addpath([pwd1 '\general_functions']);
-proc_data_path = 'F:\AC_data\caiman_data_dream';
+proc_data_path = 'F:\AC_data\caiman_data_dream3';
 save_dir_movie = [proc_data_path '\movies'];
 
 
 %%
 
-data_dir = 'F:\AC_data\M168_5_8_22_dream';
-fname = 'M168_im3_AC_ammn3_5_8_22_mpl5';
+data_dir = 'F:\AC_data\M166_6_20_22_pt2_dream';
+fname = 'M166_im2_AC_ammn2_6_20_22_pt2_mpl5';
  
 multiplane = 5;
 
@@ -147,7 +147,7 @@ n_pl = multiplane;
 base_onset_win = [3 12];
 
 tt_pairs = {170, 270;...
-            5, 9};
+            3, 5};
 
 %%
 
@@ -166,7 +166,7 @@ stim_frame_index = proc_data.data.stim_times_frame{1,1};%proc_data.data.stim_fra
 trial_types = proc_data.data.trial_types;
 MMN_orientations = proc_data.data.MMN_orientations;
 
-sig_z_thresh =3;
+sig_z_thresh =2.5;
 
 %%   
 
@@ -186,7 +186,7 @@ for n_pairs = 1:size(tt_pairs,2)
 
         f_save_tif_stack2_YS(Y_ave, [data_dir, '\' sprintf('mpl%d_tt%d_trial_ave',n_pl, tt1)])
 
-        ave_resp_on = mean(Y_ave(:,:,4:9),3);
+        ave_resp_on = mean(Y_ave(:,:,5:9),3);
         ave_resp2_on = ave_resp_on - mean(ave_resp_on(:));
         ave_resp2_on = ave_resp2_on/std(ave_resp2_on(:));
         ave_resp_on_all{n_tt} = ave_resp2_on>sig_z_thresh;

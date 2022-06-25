@@ -9,7 +9,7 @@ if ~isempty(app.DatasetDropDown.Value)
     
     info = get(src);
     coord = round(info.Parent.CurrentPoint(1,1:2));
-    indx_current =  sub2ind(proc1.dims', coord(2), coord(1));
+    indx_current =  sub2ind(proc1.dims', coord(1), coord(2));
     %selection_type = app.UIFigure.SelectionType;
     %app.last_cell_num = app.current_cell_num;
     
@@ -28,13 +28,13 @@ if ~isempty(app.DatasetDropDown.Value)
         end
 
         hold(app.UIAxes, 'on');
-        app.gui_plots.plot_current_contour = plot(app.UIAxes, temp_contours(:,1), temp_contours(:,2), 'color', [0.75, 0, 0.75], 'LineWidth', 2);
+        app.gui_plots.plot_current_contour = plot(app.UIAxes, temp_contours(:,2), temp_contours(:,1), 'color', [0.75, 0, 0.75], 'LineWidth', 2);
         hold(app.UIAxes, 'off');
         
         app.CellSpinner.Value = n_cell;
         f_dv_update_cell(app);
         
-        A_im = reshape(A_acc(:,n_cell), proc1.dims');
+        A_im = reshape(A_acc(:,n_cell), proc1.dims')';
         app.gui_plots.image_roi.CData = A_im;
         title(app.UIAxes_roi, sprintf('Cell %d', n_cell));
         

@@ -47,7 +47,8 @@ elseif strcmpi(method, 'pca')
     dred_factors.coeffs = coeffs2;
 elseif strcmpi(method, 'nmf')
     data_means = zeros(num_cells,1);
-    [d_W,d_H] = nnmf(data_2d,num_comp,'options',statset('Display','off'),'replicates',1,'algorithm','als');
+    opt1 = statset('Display','off', 'MaxIter', 500, 'TolFun', 1e-6, 'TolX', 1e-6);
+    [d_W,d_H] = nnmf(data_2d, num_comp,'options', opt1,'replicates',5,'algorithm','mult');
     dred_data = d_W * d_H+data_means;
     dred_factors.d_W = d_W;
     dred_factors.d_H = d_H;

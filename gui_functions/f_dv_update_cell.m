@@ -64,7 +64,7 @@ if isgraphics(app.gui_plots.plot_current_contour)
 end
 
 hold(app.UIAxes, 'on');
-app.gui_plots.plot_current_contour = plot(app.UIAxes, temp_contours(:,1), temp_contours(:,2), 'color', [0.75, 0, 0.75], 'LineWidth', 2);
+app.gui_plots.plot_current_contour = plot(app.UIAxes, temp_contours(:,2), temp_contours(:,1), 'color', [0.75, 0, 0.75], 'LineWidth', 2);
 hold(app.UIAxes, 'off');
 
 SNR_accepted = app.ddata.OA_data{n_pl}.proc.SNR2_vals(accepted_cells);

@@ -32,8 +32,8 @@ for n_ens = 1:numel(ens_cells2)
         rem_ens(n_ens) = 1;
     end
 end
-ens_cells2(rem_ens) = [];
-ens_trials2(rem_ens) = [];
+%ens_cells2(rem_ens) = [];
+%ens_trials2(rem_ens) = [];
 
 %all_ens_cells = cat(1,ens_cells2{:});
 clust_ident_cell = zeros(size(coeffs,1),1);
@@ -56,6 +56,7 @@ trials.non_ens_list = find(clust_ident_tr == 0);
 
 ens_out.trials = trials;
 ens_out.cells = cells;
+ens_out.low_count_ens = rem_ens;
 
 end
 

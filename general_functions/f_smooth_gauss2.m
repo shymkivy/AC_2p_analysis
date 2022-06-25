@@ -8,7 +8,7 @@ if ~exist('normalize', 'var') || isempty(normalize)
     normalize = 0; % default
 end
 
-if sigma_frames>1
+if sigma_frames>0
     % make kernel
     kernel_half_size = ceil(sqrt(-log(0.05)*2*sigma_frames^2));
     gaus_win = -kernel_half_size:kernel_half_size;

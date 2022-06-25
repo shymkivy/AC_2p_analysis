@@ -1,14 +1,8 @@
-function [Y_reg, dsall, image_target] = f_mpl_register2(Y, params)
+function [Y_reg, dsall, out_frame] = f_mpl_register2(Y, params)
 % all inputs and outputs should be 1d cells
 
 if ~exist('params', 'var')
     params = struct();
-end
-
-if isfield(params, 'image_target')
-    image_target = params.image_target;
-else
-    image_target = [];
 end
 
 if isfield(params, 'num_iterations')
@@ -97,10 +91,9 @@ for n_iter = 1:num_iterations
     end
     %%
     tic;
-    [dsall{n_iter}, reg_input] = f_suite2p_reg_compute(Y_sm, [], reg_lambda1);
+    [dsall{n_iter}] = f_suite2p_reg_compute(Y_sm, [], reg_lambda1);
     fprintf('compute duration=%.1fsec; ', toc);
     clear Y_sm;
-    
     
     %%
     tic;
@@ -113,14 +106,7 @@ for n_iter = 1:num_iterations
     end
 end
 
-%% compute for target input
-
-if ~isempty(image_target)
-    ds_base = f_suite2p_reg_compute(reg_input, image_target);
-    dsall{1} = dsall{1} + ds_base;
-end
-
-
+out_frame = mean(Y_reg,3);
 
 %%
 if plot_stuff

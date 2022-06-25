@@ -18,7 +18,7 @@ addpath([ pwd '\s1_functions']);
 params.data_dir = 'F:\AC_data\M168_5_8_22_dream\';
 %data_dir = 'C:\Users\ys2605\Desktop\stuff\AC_data\11_24_21_pt3\';
 
-save_prefix = 'M168_im3_';
+save_prefix = 'M166_im3_';
 fname = 'AC_ammn'; %
 file_num = '3';
 file_date = '5_8_22';

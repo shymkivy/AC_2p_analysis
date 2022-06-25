@@ -18,9 +18,9 @@ params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_
 
 experiment_tag = 'dream';
 
-limilt_mouse_id = 'M125';
-limit_mouse_tag = '';
-limit_dset_name = 'AC_ammn4';
+limilt_mouse_id = 'M166';
+limit_mouse_tag = '6_20_22_pt2';
+limit_dset_name = '';
 
 %%
 AC_data = readtable(params.dset_table_fpath);

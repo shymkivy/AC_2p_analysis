@@ -57,13 +57,27 @@ else
     title('raster cell sorted');
 
     for n_comp = 1:numel(ensembles.cells.ens_list)
+        plot1 = 0;
+        if app.ensonlysignificantCheckBox.Value
+            if ens_stats.accepted_ensembles(n_comp)
+                plot1 = 1;
+            end
+        else
+            plot1 = 1;
+        end
         cells1 = ensembles.cells.ens_list{n_comp};
-        trials1 = ensembles.trials.ens_list{n_comp};
-        scores1 = ensembles.cells.ens_scores(n_comp,:);
-        coeffs1 = ensembles.coeffs(cells1,n_comp);
+        if numel(cells1) < 2
+            plot1 = 0;
+        end
+            
+        if plot1
+            trials1 = ensembles.trials.ens_list{n_comp};
+            scores1 = ensembles.cells.ens_scores(n_comp,:);
+            coeffs1 = ensembles.coeffs(cells1,n_comp);
 
-        f_plot_ensemble_deets(firing_rate_sm, cells1, trials1, scores1, coeffs1);
-        title(sprintf('%s ensemble %d; test error=%.1f/%.1f', ens_params.ensemble_method, n_comp, acc_out_d(n_comp), thresh));
+            f_plot_ensemble_deets(firing_rate_sm, cells1, trials1, scores1, coeffs1);
+            title(sprintf('%s ensemble %d; test error=%.1f/%.1f, %.1f%%', ens_params.ensemble_method, n_comp, acc_out_d(n_comp), thresh, acc_out_d(n_comp)/thresh*100));
+        end
     end
 
 
