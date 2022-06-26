@@ -1,14 +1,14 @@
-function Y_alln = f_s4_remove_mov_bkg(Y_all)
+function Y_alln = f_s4_remove_mov_bkg(Y_all, method)
 
 [d1, d2, T] = size(Y_all);
 
 Y_all = single(reshape(Y_all, d1*d2, T));
 
-if 1
+if method == 1
     % either simple mean removal from each axis
     Y_alln = Y_all - mean(Y_all,1);
     Y_alln = Y_alln - mean(Y_alln,2);
-else
+elseif method == 2
     % or compute a rank 1 background component with some iterating
     num_it = 4;
 

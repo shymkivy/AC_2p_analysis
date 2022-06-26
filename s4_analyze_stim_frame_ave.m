@@ -6,9 +6,9 @@ addpath('C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\general_functions');
 
 data_dir = 'D:\data\caiman_data_dream';
 %data_dir = 'F:\AC_data\caiman_data_dream3';
-dset_name = 'M4421_im3_AC_ammn_stim2_12_24_21b';
+dset_name = 'M125_im7_AC_ammn_stim7_4_26_22';
 
-save_dir = 'D:\data\AC\2021\M4421_12_24_21b_dream';
+save_dir = 'D:\data\AC\2021\M125_4_26_22_dream';
 %save_dir = 'F:\AC_data\M108_2_4_22a_dream';
 
 
