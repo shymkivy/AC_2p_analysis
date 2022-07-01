@@ -1,4 +1,4 @@
-close all
+%close all
 clear
 
 %%
@@ -16,8 +16,8 @@ params.data_dir = 'D:\data\caiman_data_dream';
 % these have to be same as column names in excel
 params.limit.dset_name =        '';
 params.limit.experiment =       'dream';
-params.limit.mouse_id =         'M125';
-params.limit.mouse_tag =        '4_26_22';
+params.limit.mouse_id =         'M4463';
+params.limit.mouse_tag =        '11_24_21_pt4';
 params.limit.dset_name =        '';
 
 roi_half_size = 6;
@@ -201,4 +201,4 @@ data.proc_data = proc_data;
 %%  
 save_name = [params.data_dir '\preprocessing\' AC_data.mouse_id{n_dset} '_' AC_data.dset_name{n_dset} '_' AC_data.mouse_tag{n_dset} '_manual_roi.mat'];
     
-save(save_name, 'data', 'params');
+save(save_name, 'data', 'params', '-v7.3');
