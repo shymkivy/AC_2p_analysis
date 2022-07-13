@@ -1,4 +1,4 @@
-function [dsall, input_frame] = f_suite2p_reg_compute(data, input_frame, reg_lambda)
+function [dsall, input_frame, ops1] = f_suite2p_reg_compute(data, input_frame, reg_lambda)
 
 %% register Y
 

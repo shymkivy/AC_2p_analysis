@@ -80,28 +80,69 @@ params.trim_output_num_frames = 0; %  0 or number of frames to save
 params_bidi.smooth_std = [1 2 10];%[1 2 2];
 params_bidi.fix_range = -50:10;
 params_bidi.num_iterations = 1;
-params_bidi.plot_stuff = 1;
+params_bidi.plot_stuff = 0;
 params_bidi.use_planes = [1 3];
 
 params_moco.image_target = [];
-params_moco.plot_stuff = 1;
+params_moco.plot_stuff = 0;
+params_moco.overwrite_dsall = 1;
 
-params_moco.num_iterations = 2; % 4 was for mmn data works with 30hz noisy data
 
-% params_moco.smooth_std = [0.5 0.5 12;...
-%                           0.5 0.5 12;... % was 3 for missmatch
-%                           0.5 0.5 1;...
-%                           0.5 0.5 0.5];
+if params.moco_smooth_method == 1 % regular multiplane
+    params_moco.num_iterations = 2;
+    
+    params_moco.smooth_std = [0.5 0.5 6;...
+                              0.5 0.5 3;... % was 3 for missmatch
+                              0.5 0.5 1;...
+                              0.5 0.5 0.5];
 
-params_moco.smooth_std = [0.5 0.5 6;...
-                          0.5 0.5 6;... % was 3 for missmatch
-                          0.5 0.5 1;...
-                          0.5 0.5 0.5];
-params_moco.reg_lambda = [1 .2;...
-                          2 .2;...
-                          2 .5;...
-                          2 .5];
+    params_moco.reg_lambda = [1 .2;...
+                              2 .2;...
+                              2 .5;...
+                              2 .5];
+                          
+elseif params.moco_smooth_method == 2 % missmatch 30 hz
+    
+    params_moco.num_iterations = 4; % 4 was for mmn data works with 30hz noisy data
 
+    params_moco.smooth_std = [0.5 0.5 12;...
+                              0.5 0.5 3;... % was 3 for missmatch
+                              0.5 0.5 1;...
+                              0.5 0.5 0.5];
+                          
+    params_moco.reg_lambda = [1 .2;...
+                              2 .2;...
+                              2 .5;...
+                              2 .5];
+                          
+elseif params.moco_smooth_method == 3 % multiplane super noisy; dream/chrmine
+    
+    params_moco.num_iterations = 4; % 
+
+    params_moco.smooth_std = [0.5 0.5 12;...
+                              0.5 0.5 6;... % was 3 for missmatch
+                              0.5 0.5 3;...
+                              0.5 0.5 3];
+                          
+    params_moco.reg_lambda = [1 .2;...
+                              2 .2;...
+                              2 .5;...
+                              2 .5];
+                          
+elseif params.moco_smooth_method == 4 % even more super noisy; dream/chrmine
+    
+    params_moco.num_iterations = 2; % 
+
+    params_moco.smooth_std = [1 1 6;...
+                              1 1 6;... 
+                              0.5 0.5 6;...
+                              0.5 0.5 3];
+                          
+    params_moco.reg_lambda = [1 .2;...
+                              2 .2;...
+                              2 .5;...
+                              2 .5];
+end
 params_moco.medfilt = 0;
                       
 % % for better snr
@@ -290,46 +331,40 @@ end
 if do_moco
     Y_pre_moco = Y;
     
-    
     for n_pl = 1:num_planes
-        if ~isfield(cuts_data{n_pl}, 'dsall')
+        if ~isfield(cuts_data{n_pl}, 'dsall') || params_moco.overwrite_dsall
             fprintf('%s %s\n', save_file_name, cuts_data{n_pl}.title_tag);
-            [~, cuts_data{n_pl}.dsall, cuts_data{n_pl}.image_target] = f_mpl_register2(Y{n_pl}, params_moco);
+            [~, cuts_data{n_pl}.dsall, ~] = f_mpl_register2(Y{n_pl}, params_moco);
         end
     end
     
-    ds_base_all = zeros(num_planes, 2);
-    for n_pl = 1:num_planes
-        cuts_data{n_pl}.ds_base = [0 0];
-        if ~isempty(params_moco.im_target_fname)
-            if ~isempty(moco_init_load.cuts_data{n_pl}.image_target)
-                cuts_data{n_pl}.image_target_external = moco_init_load.cuts_data{n_pl}.image_target;
-                cuts_data{n_pl}.ds_base = f_suite2p_reg_compute(cuts_data{n_pl}.image_target, cuts_data{n_pl}.image_target_external);
-            end
-        end
-        ds_base_all(n_pl, :) = cuts_data{n_pl}.ds_base;
-    end
-            
     save(mat_name, 'params', 'cuts_data');
-    
     num_it = numel(cuts_data{n_pl}.dsall);
-    it_disp = zeros(num_it,1);
-    for n_it = 1:num_it
-        it_disp(n_it) = mean(sqrt(sum(cuts_data{n_pl}.dsall{n_it}.^2,2)));
+    it_disp = zeros(num_it,num_planes);
+    figure; hold on;
+    for n_pl = 1:num_planes
+        for n_it = 1:num_it
+            it_disp(n_it, n_pl) = mean(sqrt(sum(cuts_data{n_pl}.dsall{n_it}.^2,2)));
+        end
     end
-    figure; plot(it_disp, '-o'); xlabel('iteration'); ylabel('mean disp');
-    title([save_file_name, ' mean fix'], 'interpreter', 'none')
+    plot(it_disp, '-o'); xlabel('iteration'); ylabel('mean disp');
+    title([save_file_name, ' mean fix'], 'interpreter', 'none');
+    for n_pl = 1:num_planes
+        figure;
+        for n_it = 1:num_it
+            subplot(num_it, 1, n_it);
+            plot(cuts_data{n_pl}.dsall{n_it});
+            axis tight;
+        end
+        sgtitle(sprintf('Fix per iteration; pl%d; %s', n_pl, save_file_name), 'interpreter', 'none')
+    end
     
     dsall1 = cell(num_planes, 1);
     for n_pl = 1:num_planes
-        dsall1{n_pl} = sum(cat(3,cuts_data{n_pl}.dsall{:}),3) + cuts_data{n_pl}.ds_base;
+        dsall1{n_pl} = sum(cat(3,cuts_data{n_pl}.dsall{:}),3);
     end
     dsall1_all = median(cat(3,dsall1{:}),3);
     dsall1_all_mf = medfilt1(dsall1_all, 3);
-    
-    if ~isempty(params_moco.im_target_fname)
-        figure; plot(ds_base_all); title('correction to external input database');
-    end
     
     figure;
     sp1 = subplot(2,1,1); hold on;
@@ -354,29 +389,58 @@ if do_moco
     else
         dsall1_use = dsall1_all;
     end
-    
-    dsall1_all_r = round(dsall1_use);
-    
+
     %Y2 = Y_pre_moco;
     for n_pl = 1:num_planes
         Y{n_pl} = uint16(f_suite2p_reg_apply(Y_pre_moco{n_pl}, dsall1_use));
         %Y2{n_pl} = uint16(f_suite2p_reg_apply(Y_pre_moco{n_pl}, dsall1_all_r));
     end
     
+    for n_pl = 1:num_planes
+        Y_temp = single(Y{n_pl});
+        cuts_data{n_pl}.image_target = mean(Y_temp,3);
+        cuts_data{n_pl}.image_target_std = std(Y_temp,0,3);
+    end
+
+    ds_base_all = zeros(num_planes, 2);
+    for n_pl = 1:num_planes
+        cuts_data{n_pl}.ds_base = [0 0];
+        if ~isempty(params_moco.im_target_fname)
+            if ~isempty(moco_init_load.cuts_data{n_pl}.image_target)
+                cuts_data{n_pl}.image_target_external = moco_init_load.cuts_data{n_pl}.image_target;
+                cuts_data{n_pl}.ds_base = f_suite2p_reg_compute(cuts_data{n_pl}.image_target, cuts_data{n_pl}.image_target_external);
+            end
+        end
+        ds_base_all(n_pl, :) = cuts_data{n_pl}.ds_base;
+    end
+            
+    save(mat_name, 'params', 'cuts_data');
+
+    if ~isempty(params_moco.im_target_fname)
+        figure; plot(ds_base_all); title('correction to external input database');
+    end
+    
+    dsall1_use2 = ones(size(dsall1_use));
+    for n_pl = 1:num_planes
+        Y{n_pl} = uint16(f_suite2p_reg_apply(Y{n_pl}, dsall1_use2.*ds_base_all(n_pl, :)));
+        %Y2{n_pl} = uint16(f_suite2p_reg_apply(Y_pre_moco{n_pl}, dsall1_all_r));
+    end
+     
     if params.moco_zero_edge
         % y-x orientations
         num_frames = size(dsall1_all,1);
         for n_fr = 1:num_frames
             for n_pl = 1:num_planes
-                if dsall1_all_r(n_fr,1) < 0
-                    Y{n_pl}(1:-dsall1_all_r(n_fr,1),:,n_fr) = 0;
-                elseif dsall1_all_r(n_fr,1) > 0
-                    Y{n_pl}((end-dsall1_all_r(n_fr,1)):end,:,n_fr) = 0;
+                dsall1_use_r = round(dsall1_use(n_fr, :) + ds_base_all(n_pl, :));
+                if dsall1_use_r(1) < 0
+                    Y{n_pl}(1:-dsall1_use_r(1),:,n_fr) = 0;
+                elseif dsall1_use_r(1) > 0
+                    Y{n_pl}((end-dsall1_use_r(1)):end,:,n_fr) = 0;
                 end
-                if dsall1_all_r(n_fr,2) < 0
-                    Y{n_pl}(:,1:-dsall1_all_r(n_fr,2),n_fr) = 0;
-                elseif dsall1_all_r(n_fr,2) > 0
-                    Y{n_pl}(:,(end-dsall1_all_r(n_fr,2)):end,n_fr) = 0;
+                if dsall1_use_r(2) < 0
+                    Y{n_pl}(:,1:-dsall1_use_r(2),n_fr) = 0;
+                elseif dsall1_use_r(2) > 0
+                    Y{n_pl}(:,(end-dsall1_use_r(2)):end,n_fr) = 0;
                 end
             end
         end

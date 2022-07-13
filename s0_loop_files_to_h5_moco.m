@@ -1,15 +1,15 @@
 clear;
-close all;
+close all; 
 addpath([pwd '\s1_functions']);
 
 % %%
-%  data_dir = {'D:\data\AC\2022\',...
-%              'D:\data\AC\2022\'};
+data_dir = {'D:\data\AC\2021\',...
+            'D:\data\AC\2022\'};
          
 % data_dir = {'G:\data\Auditory\2018\',...
 %             'E:\data\AC\2p\2020\'};
  
-data_dir = {'F:\AC_data\'};
+% data_dir = {'F:\AC_data\'};
         
 %save_dir = {'F:\AC_data\caiman_data_missmatch\'};%,...
 save_dir = {'F:\AC_data\caiman_data_dream3\'};
@@ -17,9 +17,8 @@ save_dir = {'F:\AC_data\caiman_data_dream3\'};
 params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_list_all.xlsx';
 
 experiment_tag = 'dream';
-
 limilt_mouse_id = 'M166';
-limit_mouse_tag = '6_20_22_pt2';
+limit_mouse_tag = '';
 limit_dset_name = '';
 
 %%
@@ -58,8 +57,8 @@ mouse_id_all = unique(AC_data3.mouse_id, 'stable');
 %% set default params
 AC_data3.do_moco(isnan(AC_data3.do_bidi)) = 1;
 AC_data3.do_bidi(isnan(AC_data3.do_bidi)) = 0;
-
 AC_data3.moco_zero_edge(isnan(AC_data3.moco_zero_edge)) = 1;
+AC_data3.moco_smooth_met(isnan(AC_data3.moco_smooth_met)) = 1;
 
 %%
 
@@ -75,6 +74,10 @@ for n_ms = 1:numel(mouse_id_all)
     AC_data4 = AC_data3(strcmpi(AC_data3.mouse_id, mouse_id_all{n_ms}),:);
     fprintf('Mouse id %s; %d dsets...\n', mouse_id_all{n_ms}, size(AC_data4,1));
     % check if folder exists
+    
+    % set moco target as first in list
+    idx2 = logical(sum(AC_data4.im_num == unique(AC_data4.moco_to_dset)',2));
+    AC_data4 = [AC_data4(idx2,:); AC_data4(~idx2,:)];
     
     for n_dset = 1:size(AC_data4,1)
         do_s0 = true;
@@ -133,6 +136,7 @@ for n_ms = 1:numel(mouse_id_all)
                 params.do_moco = cdset.do_moco;
                 params.moco_zero_edge = cdset.moco_zero_edge;
                 params.do_bidi = cdset.do_bidi;
+                params.moco_smooth_method = cdset.moco_smooth_met;
                 params.dset_name = cdset.dset_name{1};
                 params.save_dir;
                 if or(cdset.align_pulse_crop_method == 0, cdset.align_pulse_crop_method == 2)
