@@ -37,6 +37,46 @@ for n_ch = 1:numel(stim_chan_idx)
     end
 end
 
+%%
+% for old style data M1-M4
+if strcmpi(ops.paradigm, {'freq_grating'})
+    if and(isfield(data.stim_params, 'stim_index'),isfield(data.stim_params, 'sig_dt'))
+        if ~isfield(data, 'fg_first_stim_onset')
+            figure;
+            dcm_obj = datacursormode;
+            set(dcm_obj,'UpdateFcn', @NewCallback_YS)
+            plot(data.volt_data_all_aligned(:,4));
+            hold on;
+            plot(data.volt_data_all_aligned(:,ops.align_to_channel));
+            title('What is the point of first stimulus onset');
+            legend('DAQ voltage trace', 'Alignment channel');
+
+            % ask how many points to use for alignment
+            fg_first_stim_onset = input('What is the point of first stimulus onset?:');
+            close;
+            
+            data.fg_first_stim_onset = fg_first_stim_onset;
+            if exist(ops.file_save_path_full_processing_params, 'file')
+                save(ops.file_save_path_full_processing_params, 'fg_first_stim_onset', '-append')
+            else
+                save(ops.file_save_path_full_processing_params, 'fg_first_stim_onset')
+            end
+        end
+        stim_index = data.stim_params.stim_index;
+        sig_dt = data.stim_params.sig_dt;
+        
+        stim_times = round(stim_index*sig_dt*1000 + data.fg_first_stim_onset);
+        
+        idx1 = strcmpi(ops.chan_labels, 'stim type');
+        stim_times_volt{idx1} = stim_times;
+        
+        %idx1 = strcmpi(ops.chan_labels, 'TDT audio volt');
+        %data.stim_chan = 4;
+    end 
+end
+
+%%
+
 if isfield(data, 'stim_chan_idx')
     data.stim_chan_idx = [data.stim_chan_idx; stim_chan_idx];
     data.stim_times_volt = [data.stim_times_volt; stim_times_volt];
@@ -73,7 +113,6 @@ for n_pl = 1:ops.num_planes
                 volt_data_binned{n_pl}(n_frame, n_ch) = median(volt_data(frame_start_index:frame_end_index,n_ch));
             end
         end
-        
     end
     % process the movement channel
     volt_data_binned{n_pl}(:,3) = abs(gradient(volt_data_binned{n_pl}(:, 3)));
@@ -96,50 +135,14 @@ end
 % combine over multiplane data
 data.volt_data_binned_superpos = f_s1_multiplane_combine(volt_data_binned);
 
-%%
 
-if strcmpi(ops.paradigm, {'freq_grating'})
-    if and(isfield(data.stim_params, 'stim_index'),isfield(data.stim_params, 'sig_dt'))
-        if ~isfield(data, 'fg_first_stim_onset')
-            figure;
-            dcm_obj = datacursormode;
-            set(dcm_obj,'UpdateFcn', @NewCallback_YS)
-            plot(data.volt_data_all_aligned(:,4));
-            hold on;
-            plot(data.volt_data_all_aligned(:,ops.align_to_channel));
-            title('What is the point of first stimulus onset');
-            legend('DAQ voltage trace', 'Alignment channel');
-
-            % ask how many points to use for alignment
-            fg_first_stim_onset = input('What is the point of first stimulus onset?:');
-            close;
-            
-            data.fg_first_stim_onset = fg_first_stim_onset;
-            if exist(ops.file_save_path_full_processing_params, 'file')
-                save(ops.file_save_path_full_processing_params, 'fg_first_stim_onset', '-append')
-            else
-                save(ops.file_save_path_full_processing_params, 'fg_first_stim_onset')
-            end
-        end
-        stim_index = data.stim_params.stim_index;
-        sig_dt = data.stim_params.sig_dt;
-        
-        stim_times = round(stim_index*sig_dt*1000 + data.fg_first_stim_onset);
-
-        data.stim_times_volt = stim_times;
-        data.stim_chan = 4;
-    else
-        error('No stim_index or sig_dr for freq grating stim_data available');
-    end 
-end
 
 % check if stim start times were binned properly
-if strcmpi(ops.paradigm, {'freq_grating'})
-    if numel(stim_times_frame{end,1}) ~= numel(stim_index)
-        error('ERROR!!! Stim times binning didnt work right, line 447');
-    end
-    
-end
+% if strcmpi(ops.paradigm, {'freq_grating'})
+%     if numel(stim_times_frame{end,1}) ~= numel(stim_index)
+%         error('ERROR!!! Stim times binning didnt work right, line 447');
+%     end
+% end
 
 if isfield(data, 'stim_chan_idx')
     data.stim_times_frame = stim_times_frame;

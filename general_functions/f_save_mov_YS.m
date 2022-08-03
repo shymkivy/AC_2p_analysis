@@ -2,7 +2,10 @@ function f_save_mov_YS(data, file, h5tag)
 
 [filepath,~,ext] = fileparts(file);
 
-
+if isempty(filepath)
+    filepath = pwd;
+end
+    
 if ~exist(filepath, 'dir')
     mkdir(filepath)
 end

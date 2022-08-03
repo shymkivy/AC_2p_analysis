@@ -86,7 +86,7 @@ params_bidi.use_planes = [1 3];
 params_moco.image_target = [];
 params_moco.plot_stuff = 0;
 params_moco.overwrite_dsall = 1;
-
+params_moco.reg_lambda_base = [1 .2];
 
 if params.moco_smooth_method == 1 % regular multiplane
     params_moco.num_iterations = 2;
@@ -101,19 +101,49 @@ if params.moco_smooth_method == 1 % regular multiplane
                               2 .5;...
                               2 .5];
                           
-elseif params.moco_smooth_method == 2 % missmatch 30 hz
+elseif params.moco_smooth_method == 2 % regular missmatch 30 hz
     
-    params_moco.num_iterations = 4; % 4 was for mmn data works with 30hz noisy data
+    params_moco.num_iterations = 5; % 4 was for mmn data works with 30hz noisy data
 
     params_moco.smooth_std = [0.5 0.5 12;...
-                              0.5 0.5 3;... % was 3 for missmatch
-                              0.5 0.5 1;...
-                              0.5 0.5 0.5];
+                              0.5 0.5 6;... % was 3 for missmatch
+                              0.5 0.5 3;...
+                              0 0 0.5];
+                          
+    params_moco.reg_lambda = [0 .2;... % 1
+                              2 .2;...
+                              2 .5;...
+                              2 .5];
+elseif params.moco_smooth_method == 22 % noisy missmatch 30 hz, 
+    
+    params_moco.num_iterations = 5; % 4 was for mmn data works with 30hz noisy data
+
+    params_moco.smooth_std = [0.5 0.5 12;...
+                              0.5 0.5 6;... % was 3 for missmatch
+                              0.5 0.5 3;...
+                              0.5 0.5 2;...
+                              0.5 0.5 2];
                           
     params_moco.reg_lambda = [1 .2;...
                               2 .2;...
                               2 .5;...
                               2 .5];
+                          
+elseif params.moco_smooth_method == 23 % even more noisy missmatch 30 hz, 
+    
+    params_moco.num_iterations = 5; % 4 was for mmn data works with 30hz noisy data
+
+    params_moco.smooth_std = [0.5 0.5 12;...
+                              0.5 0.5 6;... % was 3 for missmatch
+                              0.5 0.5 3;...
+                              0.5 0.5 .5;...
+                              0.5 0.5 0];
+                          
+    params_moco.reg_lambda = [1 .2;...
+                              2 .2;...
+                              2 .5;...
+                              4 1;...
+                              4 1];
                           
 elseif params.moco_smooth_method == 3 % multiplane super noisy; dream/chrmine
     
@@ -177,6 +207,7 @@ save_file_name = params.fname;
 
 disp(save_file_name);
 fprintf('Pulse corp method = %d\n', params.align_pulse_crop_method);
+fprintf('Smooth method = %d\n', params.moco_smooth_method);
 
 proc_steps = '_cut';
 
@@ -314,9 +345,29 @@ if do_bidi
     plot(mean_bidi_shifts, 'k');
     title(['computed bidi shifts all planes; black-average pl ' mean_tag])
     
+
     % apply
     for n_pl = 1:num_planes
-        Y{n_pl} = f_bidi_apply_shift(Y{n_pl}, bidi_shifts_all);
+        [d1, d2, T] = size(Y{n_pl});
+        Y_temp = single(Y{n_pl});
+        if cuts_data{n_pl}.bidi_out.params.do_interp
+            deg_per_fov = 180 * cuts_data{n_pl}.bidi_out.params.laser_open_frac;
+            y0 = 1:d1;
+            z0 = 1:T;
+            deg0 = linspace(-deg_per_fov/2, deg_per_fov/2, d2);
+            x0 = sin(deg0/360*2*pi);
+            x0n = x0 - min(x0);
+            x0n = x0n/max(x0n)*(d2-1)+1;
+            x_coords = 1:d2;
+            [X_corr, Y0, Z0] = meshgrid(x_coords, y0, z0);
+            [X_real, ~, ~] = meshgrid(x0n, y0, z0);
+            Y_temp = interp3(X_corr, Y0, Z0, Y_temp, X_real, Y0, Z0);
+        end
+        Y_temp = f_bidi_apply_shift(Y_temp, bidi_shifts_all);
+        if cuts_data{n_pl}.bidi_out.params.do_interp
+            Y_temp = interp3(X_real, Y0, Z0, Y_temp, X_corr, Y0, Z0);
+        end
+        Y{n_pl} = uint16(Y_temp);
     end
     proc_steps = [proc_steps '_bidi'];
     
@@ -408,7 +459,7 @@ if do_moco
         if ~isempty(params_moco.im_target_fname)
             if ~isempty(moco_init_load.cuts_data{n_pl}.image_target)
                 cuts_data{n_pl}.image_target_external = moco_init_load.cuts_data{n_pl}.image_target;
-                cuts_data{n_pl}.ds_base = f_suite2p_reg_compute(cuts_data{n_pl}.image_target, cuts_data{n_pl}.image_target_external);
+                cuts_data{n_pl}.ds_base = f_suite2p_reg_compute(cuts_data{n_pl}.image_target, cuts_data{n_pl}.image_target_external, params_moco.reg_lambda_base);
             end
         end
         ds_base_all(n_pl, :) = cuts_data{n_pl}.ds_base;

@@ -28,12 +28,12 @@ function data = f_s1_process_stim_volt(data, ops)
 
 %%
 
-if strcmpi(ops.paradigm, {'freq_grating'})
+if and(strcmpi(ops.paradigm, {'freq_grating'}), isfield(data, 'cont_trials_seq'))
     trial_types_all = cell(3,1);
     trial_types_all{1} = data.cont_trials_seq;
     trial_types_all{2} = data.MMN_trials_seq(:,1);
     trial_types_all{3} = data.MMN_trials_seq(:,2);
-elseif sum(strcmpi(ops.paradigm, {'ammn', 'vmmn', 'mmn', 'ammn_stim', 'behavior', 'cont'}))
+elseif sum(strcmpi(ops.paradigm, {'ammn', 'vmmn', 'mmn', 'ammn_stim', 'behavior', 'cont', 'freq_grating'}))
     % normalize the trigger voltage to index
     stim_ch_idx = strcmpi(ops.chan_labels, 'stim type');
     stim_frames = data.stim_times_frame{stim_ch_idx,1};
@@ -64,10 +64,16 @@ elseif sum(strcmpi(ops.paradigm, {'ammn', 'vmmn', 'mmn', 'ammn_stim', 'behavior'
             temp_frame_end = min(temp_frame+stim_dur_frames-1, num_frames);
             trial_types(n_trial) = median(volt_data(temp_frame:temp_frame_end));
         end
+        
         if n_ph == 1
             trial_types_all{n_ph} = round(trial_types/4*num_freqs);
         else
-            trial_types_all{n_ph} = round(trial_types);
+            temp_tt = round(trial_types*10);
+            temp_tt2 = temp_tt/max(temp_tt)*2;
+            if mode(temp_tt2) == 2
+                temp_tt2 = 3 - temp_tt2;
+            end
+            trial_types_all{n_ph} = temp_tt2;
         end
         
     end
@@ -109,7 +115,7 @@ end
 % flipMMN redundantts are 201 - 240, deviant is 270
 % which stim patter did we use. row 1 is MMN, row 2 is flip
 
-if sum(strcmpi(ops.paradigm, {'ammn', 'vmmn', 'mmn', 'ammn_stim'}))
+if sum(strcmpi(ops.paradigm, {'ammn', 'vmmn', 'mmn', 'ammn_stim', 'freq_grating'}))
     
     stim_params.red_dev_stim_patten = zeros(2, 2);
     for n_ph = 2:3

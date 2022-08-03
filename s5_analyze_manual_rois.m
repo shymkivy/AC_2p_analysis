@@ -9,7 +9,7 @@ addpath([pwd '\general_functions'])
 %ops.file_dir = 'F:\AC_data\caiman_data_dream3\preprocessing';
 %ops.file_dir = 'F:\AC_data\caiman_data_echo\preprocessing';
 
-params.data_dir = 'C:\Users\shymk\Desktop\stuff\AC_data\extracted_data';
+params.data_dir = 'F:\AC_data\extracted_data';
 
 base_onset_win = [0 15];
 
@@ -26,6 +26,7 @@ imprint_stim_key = {'M4463', '11_24_21_pt3', 'spont_stim';...
                     'M142', '6_11_22b', 270;...
                     'M166', '6_20_22', 170;
                     'M166', '6_20_22_pt2', 170};
+                
 
 %%
 flist = dir([params.data_dir '\*_manual_roi.mat']);
@@ -95,8 +96,98 @@ ammn_stim_nobh = ammn_stim;
 ammn_stim_nobh(bh_stim) = 0;
 %% look throguh all targeted cells and throw away that did not activate
 
-win1 = [10 10];
+z_thresh = 4;
+peak_bin_size = 3;
+num_samp = 1000;
+peak_prcntle = normcdf(z_thresh)*100;
 
+
+trials_analysis = [1:10, 170, 270];
+trials_sample = [1:10, 170, 270];
+
+num_tt = numel(trials_analysis);
+
+win2 = [5 12];
+num_t = sum(win2);
+
+fl_resp_cells = cell(num_fl,1);
+fl_resp_thresh = cell(num_fl,1);
+fl_resp_cells_z = cell(num_fl,1);
+for n_fl = 1:num_fl
+    AC_data = fl_AC_data{n_fl};
+    
+    num_parad = numel(fl_cell_traces_prsd{n_fl});
+    
+    fl_resp_cells{n_fl} = cell(num_parad,1);
+    fl_resp_thresh{n_fl} = cell(num_parad,1);
+    fl_resp_cells_z{n_fl} = cell(num_parad,1);
+    for n_pr = 1:num_parad
+        if sum(strcmpi(AC_data.paradigm{n_pr}, {'ammn', 'ammn_stim'}))
+            % compute tuning
+            firing_rate = fl_cell_traces_prsd{n_fl}{n_pr};
+            proc_data2 = fl_proc_data{n_fl}{n_pr};
+            
+            num_cells = size(firing_rate,1);
+            
+            stim_times = proc_data2.data.stim_times_frame{1,1};
+            trial_types = proc_data2.data.trial_types;
+            
+            
+            trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, win2);
+            
+            num_trial_per_stim = min(sum(trial_types == trials_sample,1));
+            
+            
+            stat_idx = logical(sum(trial_types == trials_sample,2));
+            pop_stim_times = stim_times(stat_idx);
+            trial_data_sort_stat = trial_data_sort(:,:,stat_idx);
+            trial_data_stat_mean = mean(trial_data_sort_stat,3);
+            trial_data_stat_sem = std(trial_data_sort_stat,[],3)/sqrt(num_trial_per_stim-1);
+
+            num_trials = numel(pop_stim_times);
+            
+            peak_vals = nan(num_cells, num_tt);
+            peak_locs = nan(num_cells, num_tt);
+            for n_tt = 1:num_tt
+                trial_data_sort2 = trial_data_sort(:,:, trial_types==trials_sample(n_tt));
+                if ~isempty(trial_data_sort2)
+                    [peak_vals(:,n_tt), peak_locs(:,n_tt)] = f_get_trial_peak(mean(trial_data_sort2,3), peak_bin_size);
+                end
+            end
+            
+            if 1
+                samp_peak_vals = zeros(num_cells, num_samp);
+                samp_peak_locs = zeros(num_cells, num_samp);
+                for n_cell = 1:num_cells
+                    samp_idx = randsample(num_trials, num_trial_per_stim*num_samp, 1);
+                    samp_trial_data_sort = mean(reshape(trial_data_sort(n_cell, :, samp_idx), [num_t, num_samp, num_trial_per_stim]),3)';
+                    [samp_peak_vals(n_cell,:), samp_peak_locs(n_cell,:)] = f_get_trial_peak(samp_trial_data_sort, peak_bin_size);
+                end
+                
+                resp_thresh = repmat(prctile(samp_peak_vals', peak_prcntle)', [1 num_t]);
+                resp_cells = peak_vals>resp_thresh(:,1);
+                resp_cells_z = peak_vals./resp_thresh(:,1);
+                
+            else
+                resp_thresh = zeros(num_cells, num_t);
+                resp_cells = zeros(num_cells, num_tt);
+                for n_cell = 1:num_cells
+                    trial_data1 = squeeze(trial_data_sort_stat(n_cell,:,:));
+                    resp_thresh(n_cell,:) = mean(trial_data1,2) + z_thresh*std(trial_data1,[],2)/sqrt(num_trial_per_stim-1);
+                    for n_tt = 1:num_tt
+                        resp_cells(n_cell, n_tt) = peak_vals(n_cell, n_tt) > resp_thresh(n_cell,peak_locs(n_cell,n_tt));
+                    end
+                end
+            end
+            fl_resp_cells{n_fl}{n_pr} = resp_cells;
+            fl_resp_thresh{n_fl}{n_pr} = resp_thresh;
+            fl_resp_cells_z{n_fl}{n_pr} = resp_cells_z;
+        end
+    end
+end
+
+%% find list of tuned cells in ammn
+win1 = [10 10];
 for n_fl = 1:num_fl
     AC_data = fl_AC_data{n_fl};
     
@@ -134,7 +225,7 @@ for n_fl = 1:num_fl
         stim_tuning = (resp1./base1);
         
         
-        fl_cell_type_stim{n_fl}(targ_cells(stim_tuning > 1)) = 1;
+        fl_cell_type_stim{n_fl}(targ_cells(stim_tuning > 2)) = 1;
         
         if 0
             for n_cell = 1:num_cells
@@ -155,12 +246,14 @@ for n_fl = 1:num_fl
                     plot(mean(cell_sorted_trialsd,2), 'Linewidth', 2, 'color', 'k');
                     axis tight;
                     title('trig ave deconvolved');
-                    sgtitle(sprintf('%s; cell %d, %s; opto tuning %.2f',stim_chan, n_cell, AC_data.paradigm{stim_idx}, stim_tuning(n_cell)));
+                    sgtitle(sprintf('%s; cell %d, %s; opto tuning %.2f',stim_chan, n_cell, AC_data.paradigm{stat_idx}, stim_tuning(n_cell)));
                 end
             end
         end
     end
 end
+
+
 
 %% first ammn no bh
 
@@ -168,6 +261,8 @@ fl_cell_traces_prsd2 = fl_cell_traces_prsd(ammn_stim_nobh);
 fl_proc_data2 = fl_proc_data(ammn_stim_nobh);
 fl_AC_data2 = fl_AC_data(ammn_stim_nobh);
 fl_cell_type_stim2 = fl_cell_type_stim(ammn_stim_nobh);
+fl_cell_type_idx_cat2 = fl_cell_type_idx_cat(ammn_stim_nobh);
+fl_resp_cells2 = fl_resp_cells(ammn_stim_nobh);
 
 num_fl = sum(ammn_stim_nobh);
 
@@ -188,14 +283,20 @@ params.set_sig_corr_ylim = [0 .5];
 
 corr_sig_ammn_nobh = cell(num_fl,1);
 corr_noise_ammn_nobh = cell(num_fl,1);
+corr_sig_ammn_nobh_samedd = cell(num_fl,1);
+corr_noise_ammn_nobh_samedd = cell(num_fl,1);
+corr_sig_ammn_nobh_otherdd = cell(num_fl,1);
+corr_noise_ammn_nobh_otherdd = cell(num_fl,1);
 rest_corr_all = cell(num_fl, 1);
 rest_corr_to_other = cell(num_fl, 1);
 for n_fl = 1:num_fl
     if sum(fl_cell_type_stim2{n_fl})
         
-        stim_idx = strcmpi([fl_AC_data2{n_fl}.paradigm], {'ammn_stim'});
-        if sum(stim_idx) > 1
-            idx2 = find(stim_idx,1);
+        ammn_idx = find(strcmpi([fl_AC_data2{n_fl}.paradigm], {'ammn'}),1);
+        
+        stat_idx = strcmpi([fl_AC_data2{n_fl}.paradigm], {'ammn_stim'});
+        if sum(stat_idx) > 1
+            idx2 = find(stat_idx,1);
             fl_cell_traces_prsd2{n_fl}(idx2) = [];
             fl_proc_data2{n_fl}(idx2) = [];
             fl_AC_data2{n_fl}(idx2,:) = [];
@@ -206,25 +307,40 @@ for n_fl = 1:num_fl
         params.cell_type_idx = fl_cell_type_stim2{n_fl};
         
         idx1 = strcmpi(fl_AC_data2{n_fl}.mouse_tag{1}, imprint_stim_key(:,2));
-        
-        params.corr_trials_check = {imprint_stim_key{idx1,3}};
         params.trials_to_use_for_norm = [1:10 170 270];
-        %                     170, 270,...
+         %                     170, 270,...
         %                      4, 7,... %,...
         %                      201:206};
                              %1, 2, 3, 5, 6, 8, 9,...
                              %1 2 3 4 5 6 8 9 10,...
                              %201:206};%,...
                              %101:106};
-
-
+                             
+        params.corr_trials_check = {imprint_stim_key{idx1,3}};
+        
+        params_samedd = params;
+        params_samedd.cell_type_idx = fl_resp_cells2{n_fl}{ammn_idx}(:,trials_analysis==params_samedd.corr_trials_check{1});
+        
+        params_otherdd = params;
+        params_otherdd.corr_trials_check = {440 - imprint_stim_key{idx1,3}};
+        params_otherdd.cell_type_idx = fl_resp_cells2{n_fl}{ammn_idx}(:,trials_analysis==params_otherdd.corr_trials_check{1});
+        
         data_out = f_s5_sig_noise_corr_within(fl_cell_traces_prsd2{n_fl}, fl_proc_data2{n_fl}, fl_AC_data2{n_fl}, params);
         corr_sig_ammn_nobh{n_fl} = data_out.sig_corr.pairs_all;
         corr_noise_ammn_nobh{n_fl} = data_out.noise_corr.pairs_all;
         sig_corr_labels = data_out.sig_corr.labels_ammn;
         noise_corr_labels = data_out.noise_corr.labels_ammn;
         
-        
+        if sum(params_samedd.cell_type_idx)>1
+            data_out = f_s5_sig_noise_corr_within(fl_cell_traces_prsd2{n_fl}, fl_proc_data2{n_fl}, fl_AC_data2{n_fl}, params_samedd);
+            corr_sig_ammn_nobh_samedd{n_fl} = data_out.sig_corr.pairs_all;
+            corr_noise_ammn_nobh_samedd{n_fl} = data_out.noise_corr.pairs_all;
+        end
+        if sum(params_otherdd.cell_type_idx)>1
+            data_out = f_s5_sig_noise_corr_within(fl_cell_traces_prsd2{n_fl}, fl_proc_data2{n_fl}, fl_AC_data2{n_fl}, params_otherdd);
+            corr_sig_ammn_nobh_otherdd{n_fl} = data_out.sig_corr.pairs_all;
+            corr_noise_ammn_nobh_otherdd{n_fl} = data_out.noise_corr.pairs_all;
+        end
         num_cells = sum(fl_cell_type_stim2{n_fl});
         rest_files = find(strcmpi([fl_AC_data2{n_fl}.paradigm], 'spont'));
 
@@ -250,7 +366,7 @@ for n_fl = 1:num_fl
 
         for n_file = 1:numel(rest_files)
             vec1 = fl_cell_traces_prsd2{n_fl}{rest_files(n_file)}(fl_cell_type_stim2{n_fl},:);
-            vec2 = fl_cell_traces_prsd2{n_fl}{rest_files(n_file)}(fl_cell_type_idx_cat{n_fl}==3,:);
+            vec2 = fl_cell_traces_prsd2{n_fl}{rest_files(n_file)}(fl_cell_type_idx_cat2{n_fl}==3,:);
             tempsi = 1-pdist2(vec1,vec2, 'cosine');
             SI_all{n_file} = tempsi(:);
         end
@@ -319,6 +435,50 @@ ylim([.2 .35])
 
 rest_corr_to_other{n_fl} = SI_all;
 
+
+%%
+
+corr_sig_ammn_nobh_samedd2 = cat(1,corr_sig_ammn_nobh_samedd{:});
+corr_noise_ammn_nobh_samedd2 = cat(1,corr_noise_ammn_nobh_samedd{:});
+
+corr_sig_ammn_nobh_otherdd2 = cat(1,corr_sig_ammn_nobh_otherdd{:});
+corr_noise_ammn_nobh_otherdd2 = cat(1,corr_noise_ammn_nobh_otherdd{:});
+
+
+
+[~,p] = ttest(corr_sig_ammn_nobh_samedd2(:,1),corr_sig_ammn_nobh_samedd2(:,end));
+figure; hold on;
+plot(sig_corr_labels, corr_sig_ammn_nobh_samedd2', 'o-', 'Linewidth', 1, 'color', [.6 .6 .6])
+errorbar(sig_corr_labels, mean(corr_sig_ammn_nobh_samedd2,1),std(corr_sig_ammn_nobh_samedd2,[],1)./sqrt(size(corr_sig_ammn_nobh_samedd2,1)-1), 'o-', 'Linewidth', 2, 'color', [.2 .2 .2])
+ylabel('cosine similarity')
+title(sprintf('same dd signal correlations ammn pre-post; pval=%.2f', p));
+
+[~,p] = ttest(corr_sig_ammn_nobh_otherdd2(:,1),corr_sig_ammn_nobh_otherdd2(:,end));
+figure; hold on;
+plot(sig_corr_labels, corr_sig_ammn_nobh_otherdd2', 'o-', 'Linewidth', 1, 'color', [.6 .6 .6])
+errorbar(sig_corr_labels, mean(corr_sig_ammn_nobh_otherdd2,1),std(corr_sig_ammn_nobh_otherdd2,[],1)./sqrt(size(corr_sig_ammn_nobh_otherdd2,1)-1), 'o-', 'Linewidth', 2, 'color', [.2 .2 .2])
+ylabel('cosine similarity')
+title(sprintf('other dd signal correlations ammn pre-post; pval=%.2f', p));
+
+
+
+figure; hold on;
+errorbar(sig_corr_labels, mean(corr_sig_ammn_nobh2,1),std(corr_sig_ammn_nobh2,[],1)./sqrt(size(corr_sig_ammn_nobh2,1)-1), 'o-', 'Linewidth', 2)
+errorbar(sig_corr_labels, mean(corr_sig_ammn_nobh_samedd2,1),std(corr_sig_ammn_nobh_samedd2,[],1)./sqrt(size(corr_sig_ammn_nobh_samedd2,1)-1), 'o-', 'Linewidth', 2)
+errorbar(sig_corr_labels, mean(corr_sig_ammn_nobh_otherdd2,1),std(corr_sig_ammn_nobh_otherdd2,[],1)./sqrt(size(corr_sig_ammn_nobh_otherdd2,1)-1), 'o-', 'Linewidth', 2)
+legend('stim cells', 'same dd', 'other dd')
+title('signal corr')
+
+figure; hold on;
+errorbar(sig_corr_labels, mean(corr_noise_ammn_nobh2,1),std(corr_noise_ammn_nobh2,[],1)./sqrt(size(corr_noise_ammn_nobh2,1)-1), 'o-', 'Linewidth', 2)
+errorbar(sig_corr_labels, mean(corr_noise_ammn_nobh_samedd2,1),std(corr_noise_ammn_nobh_samedd2,[],1)./sqrt(size(corr_noise_ammn_nobh_samedd2,1)-1), 'o-', 'Linewidth', 2)
+errorbar(sig_corr_labels, mean(corr_noise_ammn_nobh_otherdd2,1),std(corr_noise_ammn_nobh_otherdd2,[],1)./sqrt(size(corr_noise_ammn_nobh_otherdd2,1)-1), 'o-', 'Linewidth', 2)
+legend('stim cells', 'same dd', 'other dd')
+title('noise corr')
+
+
+
+
 %% now with bh
 
 fl_cell_traces_prsd2 = fl_cell_traces_prsd(bh_stim);
@@ -350,9 +510,9 @@ rest_corr_all = cell(num_fl, 1);
 for n_fl = 1:num_fl
     if sum(fl_cell_type_stim2{n_fl})
         
-        stim_idx = strcmpi([fl_AC_data2{n_fl}.paradigm], {'ammn_stim'});
-        if sum(stim_idx) > 1
-            idx2 = find(stim_idx,1);
+        stat_idx = strcmpi([fl_AC_data2{n_fl}.paradigm], {'ammn_stim'});
+        if sum(stat_idx) > 1
+            idx2 = find(stat_idx,1);
             fl_cell_traces_prsd2{n_fl}(idx2) = [];
             fl_proc_data2{n_fl}(idx2) = [];
             fl_AC_data2{n_fl}(idx2,:) = [];
@@ -516,9 +676,9 @@ rest_corr_all = cell(num_fl, 1);
 for n_fl = 1:num_fl
     if sum(fl_cell_type_stim2{n_fl})
         
-        stim_idx = strcmpi([fl_AC_data2{n_fl}.paradigm], {'ammn_stim'});
-        if sum(stim_idx) > 1
-            idx2 = find(stim_idx,1);
+        stat_idx = strcmpi([fl_AC_data2{n_fl}.paradigm], {'ammn_stim'});
+        if sum(stat_idx) > 1
+            idx2 = find(stat_idx,1);
             fl_cell_traces_prsd2{n_fl}(idx2) = [];
             fl_proc_data2{n_fl}(idx2) = [];
             fl_AC_data2{n_fl}(idx2,:) = [];
@@ -648,9 +808,9 @@ rest_corr_all = cell(num_fl, 1);
 for n_fl = 1:num_fl
     if sum(fl_cell_type_stim2{n_fl})
         
-        stim_idx = strcmpi([fl_AC_data2{n_fl}.paradigm], {'ammn_stim'});
-        if sum(stim_idx) > 1
-            idx2 = find(stim_idx,1);
+        stat_idx = strcmpi([fl_AC_data2{n_fl}.paradigm], {'ammn_stim'});
+        if sum(stat_idx) > 1
+            idx2 = find(stat_idx,1);
             fl_cell_traces_prsd2{n_fl}(idx2) = [];
             fl_proc_data2{n_fl}(idx2) = [];
             fl_AC_data2{n_fl}(idx2,:) = [];
@@ -845,15 +1005,15 @@ num_dsets = numel(AC_data.paradigm);
 
 
 if sum(strcmpi([AC_data.paradigm], 'ammn_stim'))
-    stim_idx = find(strcmpi([AC_data.paradigm], 'ammn_stim'));
+    stat_idx = find(strcmpi([AC_data.paradigm], 'ammn_stim'));
 elseif sum(strcmpi([AC_data.paradigm], 'spont_stim'))
-    stim_idx = find(strcmpi([AC_data.paradigm], 'spont_stim'));
+    stat_idx = find(strcmpi([AC_data.paradigm], 'spont_stim'));
 end
 trace_type1 = cell(num_dsets,1);
 for n_dset = 1:num_dsets
-    if n_dset < stim_idx
+    if n_dset < stat_idx
         trace_type1{n_dset} = 'Pre';
-    elseif n_dset > stim_idx
+    elseif n_dset > stat_idx
         trace_type1{n_dset} = 'Post';
     else
         trace_type1{n_dset} = 'Stim';

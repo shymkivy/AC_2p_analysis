@@ -29,9 +29,9 @@ if sum(strcmpi(ops.paradigm, {'freq_grating'}))
 end
 
 num_chan = numel(data.stim_chan_idx);
-for n_ch = 3:num_chan
+for n_ch = 1:num_chan
     if data.stim_chan_idx(n_ch)
-        scale = (n_ch)/num_chan + 1 - 5/num_chan;
+        scale = (n_ch)/num_chan + 1;
         stim_times_trace = zeros(num_frames_mpl,1);
         stim_times_trace(data.stim_times_frame{n_ch}) = 1;
         stem(data.frame_data.frame_times_mpl{1}, stim_times_trace*scale, '.', 'markersize', 20);

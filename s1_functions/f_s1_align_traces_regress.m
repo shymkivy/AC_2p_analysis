@@ -6,7 +6,7 @@ function [shift, scaling_factor] = f_s1_align_traces_regress(ca_traces, frame_ti
 % plot(frame_times,ca_traces);
 % 
 if ~exist('thresh', 'var')
-    thresh = [.2 .8];
+    thresh = [.3 .8];
 end
 %%
 on_times_low = [];

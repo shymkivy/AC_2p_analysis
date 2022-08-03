@@ -79,11 +79,15 @@ if ops.exp_win_selection == 2
     if ~isfield(data, 'exp_window_manual')
         figure;
         hold on;
-        plot(data.volt_data_binned_superpos(:,1));
+        if strcmpi(ops.paradigm, 'freq_grating')
+        	plot(data.volt_data_binned_superpos(:,4));
+        else
+            plot(data.volt_data_binned_superpos(:,1));
+        end
         plot(data.ave_trace_superpos(:,1));
         plot(data.volt_data_binned_superpos(:,2));
         axis tight;
-        %plot(data.stim_times_volt{1});
+        %plot(data.stim_times_frame{1});
         title('How many exp windows to select?');
         num_win = input('How many exp windows to select?: ');
         title(sprintf('Select %d phases (%d clicks)', num_win, 2*num_win));

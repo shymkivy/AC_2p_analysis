@@ -3,62 +3,37 @@ close all;
 addpath([pwd '\s1_functions']);
 
 % %%
-data_dir = {'D:\data\AC\2021\',...
-            'D:\data\AC\2022\'};
-         
-% data_dir = {'G:\data\Auditory\2018\',...
-%             'E:\data\AC\2p\2020\'};
- 
+% data_dir = {'H:\data\AC\2021\',...
+%             'H:\data\AC\2022\'};
+%          
+data_dir = {'D:\data\AC\2p\2020';...
+            'I:\mouse\auditory\2018'};
+%data_dir = {'G:\data\Auditory\2018'};
+
 % data_dir = {'F:\AC_data\'};
         
-%save_dir = {'F:\AC_data\caiman_data_missmatch\'};%,...
-save_dir = {'F:\AC_data\caiman_data_dream3\'};
+save_dir = {'F:\AC_data\caiman_data_missmatch\'};%,...
+%save_dir = {'F:\AC_data\caiman_data_dream3\'};
 
 params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_list_all.xlsx';
 
-experiment_tag = 'dream';
-limilt_mouse_id = 'M166';
-limit_mouse_tag = '';
-limit_dset_name = '';
+params.limit.dset_name =        '';
+params.limit.experiment =       'missmatch';
+params.limit.mouse_id =         'M10';
+params.limit.mouse_tag =        '';
+params.limit.dset_name =        '';
+params.limit.FOV_num =          1;
 
 %%
-AC_data = readtable(params.dset_table_fpath);
+AC_data = f_s0_parse_tab_data(params);
 
-%%
-
-AC_data = AC_data(~isnan(AC_data.idx),:);
-
-AC_data = AC_data(AC_data.do_proc == 1,:);
-
-%%
-AC_data2 = AC_data(strcmpi(AC_data.experiment, experiment_tag),:);
-
-AC_data3 = AC_data2;
-if exist('limilt_mouse_id', 'var')
-    if numel(limilt_mouse_id)
-        AC_data3 = AC_data3(strcmpi(AC_data3.mouse_id, limilt_mouse_id),:);
-    end
-end
-
-if exist('limit_mouse_tag', 'var')
-    if numel(limit_mouse_tag)
-        AC_data3 = AC_data3(strcmpi(AC_data3.mouse_tag, limit_mouse_tag),:);
-    end
-end
-
-if exist('limit_dset_name', 'var')
-    if numel(limit_dset_name)
-        AC_data3 = AC_data3(strcmpi(AC_data3.dset_name, limit_dset_name),:);
-    end
-end
-
-mouse_id_all = unique(AC_data3.mouse_id, 'stable');
+mouse_id_all = unique(AC_data.mouse_id, 'stable');
 
 %% set default params
-AC_data3.do_moco(isnan(AC_data3.do_bidi)) = 1;
-AC_data3.do_bidi(isnan(AC_data3.do_bidi)) = 0;
-AC_data3.moco_zero_edge(isnan(AC_data3.moco_zero_edge)) = 1;
-AC_data3.moco_smooth_met(isnan(AC_data3.moco_smooth_met)) = 1;
+AC_data.do_moco(isnan(AC_data.do_bidi)) = 1;
+AC_data.do_bidi(isnan(AC_data.do_bidi)) = 0;
+AC_data.moco_zero_edge(isnan(AC_data.moco_zero_edge)) = 1;
+AC_data.moco_smooth_met(isnan(AC_data.moco_smooth_met)) = 1;
 
 %%
 
@@ -68,21 +43,21 @@ else
     params.save_dir = save_dir;
 end
 
-fprintf('Running %d dsets total...\n', size(AC_data3,1))
+fprintf('Running %d dsets total...\n', size(AC_data,1))
 
 for n_ms = 1:numel(mouse_id_all)
-    AC_data4 = AC_data3(strcmpi(AC_data3.mouse_id, mouse_id_all{n_ms}),:);
-    fprintf('Mouse id %s; %d dsets...\n', mouse_id_all{n_ms}, size(AC_data4,1));
+    AC_data2 = AC_data(strcmpi(AC_data.mouse_id, mouse_id_all{n_ms}),:);
+    fprintf('Mouse id %s; %d dsets...\n', mouse_id_all{n_ms}, size(AC_data2,1));
     % check if folder exists
     
     % set moco target as first in list
-    idx2 = logical(sum(AC_data4.im_num == unique(AC_data4.moco_to_dset)',2));
-    AC_data4 = [AC_data4(idx2,:); AC_data4(~idx2,:)];
+    idx2 = logical(sum(AC_data2.im_num == unique(AC_data2.moco_to_dset)',2));
+    AC_data2 = [AC_data2(idx2,:); AC_data2(~idx2,:)];
     
-    for n_dset = 1:size(AC_data4,1)
+    for n_dset = 1:size(AC_data2,1)
         do_s0 = true;
         
-        fold_name = sprintf('%s_%s_%s', AC_data4.mouse_id{n_dset}, AC_data4.mouse_tag{n_dset}, experiment_tag);
+        fold_name = sprintf('%s_%s_%s', AC_data2.mouse_id{n_dset}, AC_data2.mouse_tag{n_dset}, AC_data2.experiment{n_dset});
         
         if isstring(data_dir)
             data_dir = {data_dir};
@@ -104,7 +79,7 @@ for n_ms = 1:numel(mouse_id_all)
         end
         
         if do_s0
-            cdset = AC_data4(n_dset,:);
+            cdset = AC_data2(n_dset,:);
             params.fname = sprintf('%s_im%d_%s_%s', cdset.mouse_id{1}, cdset.im_num, cdset.dset_name{1}, cdset.mouse_tag{1});
 
             % check it output already exists
@@ -150,8 +125,8 @@ for n_ms = 1:numel(mouse_id_all)
                     if ~isempty(cdset.moco_to_dset)
                         if cdset.im_num ~= cdset.moco_to_dset
                             source_dset = cdset.moco_to_dset;
-                            source_dset_idx = AC_data4.im_num == source_dset;
-                            fname_dset1 = sprintf('%s_im%d_%s_%s', AC_data4.mouse_id{source_dset_idx}, AC_data4.im_num(source_dset_idx), AC_data4.dset_name{source_dset_idx}, AC_data4.mouse_tag{source_dset_idx});
+                            source_dset_idx = AC_data2.im_num == source_dset;
+                            fname_dset1 = sprintf('%s_im%d_%s_%s', AC_data2.mouse_id{source_dset_idx}, AC_data2.im_num(source_dset_idx), AC_data2.dset_name{source_dset_idx}, AC_data2.mouse_tag{source_dset_idx});
                             params.im_target_fname = fname_dset1;
                             fprintf('Using target registration im from %s\n', params.im_target_fname);
                         end

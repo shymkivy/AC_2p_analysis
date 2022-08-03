@@ -13,16 +13,17 @@ average_dsbase =0;
 %ops.file_dir = 'F:\AC_data\caiman_data_echo\preprocessing';
 
 params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_list_all.xlsx';
-params.data_dir = 'F:\AC_data\caiman_data_dream3';
+%params.data_dir = 'F:\AC_data\caiman_data_dream3';
 %params.data_dir = 'D:\data\caiman_data_dream';
+params.data_dir = 'F:\AC_data\caiman_data_missmatch';
 
 % these have to be same as column names in excel
 params.limit.dset_name =        '';
-params.limit.experiment =       'dream';
-params.limit.mouse_id =         'M124';
+params.limit.experiment =       'missmatch';
+params.limit.mouse_id =         'M10';
 params.limit.mouse_tag =        '';
 params.limit.dset_name =        '';
-
+params.limit.FOV_num =          1;
 
 
 %%
@@ -57,6 +58,20 @@ for n_ms1 = 1:numel(mouse_id_all)
                 leg_plane{n_pl} = sprintf('plane %d', n_pl);
             end
             
+            for n_dset = 1:num_dsets
+                dset_fname = sprintf('%s_im%d_%s', AC_data4.mouse_id{n_dset}, AC_data4.im_num(n_dset), AC_data4.dset_name{n_dset});
+                figure;
+                for n_pl = 1:num_planes
+                    subplot(num_planes, 1, n_pl); hold on;
+                    ave_tr = load_cuts_all{n_dset}.cuts_data{n_pl}.ave_trace;
+                    ave_tr = ave_tr - min(ave_tr);
+                    ave_tr = ave_tr/max(ave_tr);
+                    plot(ave_tr);
+                    plot(load_cuts_all{n_dset}.cuts_data{n_pl}.vid_cuts_trace);
+                end
+                sgtitle(sprintf('vid cuts; %s', dset_fname), 'interpreter', 'none');
+            end
+            
             for n_pl = 1:num_planes
                 figure;
                 for n_dset = 1:num_dsets
@@ -81,7 +96,11 @@ for n_ms1 = 1:numel(mouse_id_all)
                     im_target_dset = load_cuts_all{n_dset}.cuts_data{n_pl}.image_target;
                     [ds_base1, ~, ops_ds] = f_suite2p_reg_compute(im_target_dset, im_target);
                     ds_base_all(n_pl, n_dset, :) = ds_base1;
-                    ds_base_load(n_pl, n_dset, :) = load_cuts_all{n_dset}.cuts_data{n_pl}.ds_base;
+                    if isfield(load_cuts_all{n_dset}.cuts_data{n_pl}, 'ds_base')
+                        ds_base_load(n_pl, n_dset, :) = load_cuts_all{n_dset}.cuts_data{n_pl}.ds_base;
+                    else
+                        ds_base_load(n_pl, n_dset, :) = [0, 0];
+                    end
                     corr_all(n_pl, n_dset) = ops_ds{1}.CorrFrame;
                     im_reg_pre{n_pl, n_dset} = im_target_dset;
                 end
@@ -163,7 +182,7 @@ for n_ms1 = 1:numel(mouse_id_all)
                     imagesc(im3_pre*2); title('pre')
                     subplot(1,2,2);
                     imagesc(im3_post*2); title('post')
-                    sgtitle(sprintf('plane %d, dsets 1, %d, %d', n_pl, n_plt+1, n_plt+2))
+                    sgtitle(sprintf('plane %d, dsets 1, %d, %d', n_pl, (n_plt-1)*2 + 1 +1, (n_plt-1)*2 + 2 +1))
                 end
             end
             
@@ -194,11 +213,17 @@ for n_ms1 = 1:numel(mouse_id_all)
                     title([AC_data4.dset_name{n_dset}, ' mean fix'], 'interpreter', 'none');
                     for n_pl = 1:num_planes
                         figure;
+                        sp_all = cell(num_it+1,1);
                         for n_it = 1:num_it
-                            subplot(num_it, 1, n_it);
+                            sp_all{n_it} = subplot(num_it+1, 1, n_it);
                             plot(cuts_data1{n_pl}.dsall{n_it});
                             axis tight;
                         end
+                        sp_all{n_it+1} = subplot(num_it+1, 1, n_it+1);
+                        plot(sum(cat(3,cuts_data1{n_pl}.dsall{:}),3));
+                        axis tight;
+                        ylabel('total fix')
+                        linkaxes([sp_all{:}], 'x')
                         sgtitle(sprintf('Fix per iteration; pl%d; %s', n_pl, dset_fname), 'interpreter', 'none')
                     end
                 end
@@ -209,7 +234,12 @@ for n_ms1 = 1:numel(mouse_id_all)
                 ave_im_all = cell(num_planes, num_dsets);
                 for n_pl = 1:num_planes
                     for n_dset = 1:num_dsets
-                        flist = dir(sprintf('%s*%s*%s*%s*_pl%d*', data_dir, AC_data4.mouse_id{n_dset},  AC_data4.dset_name{n_dset}, AC_data4.mouse_tag{n_dset}, n_pl));
+                        if num_planes > 1
+                            fsearch = sprintf('%s*%s*%s*%s*_pl%d*', data_dir, AC_data4.mouse_id{n_dset},  AC_data4.dset_name{n_dset}, AC_data4.mouse_tag{n_dset}, n_pl);
+                        else
+                            fsearch = sprintf('%s*%s*%s*%s*', data_dir, AC_data4.mouse_id{n_dset},  AC_data4.dset_name{n_dset}, AC_data4.mouse_tag{n_dset});
+                        end
+                        flist = dir(fsearch);
                         temp_fpath = [data_dir '\' flist.name];
                         Y_temp = single(h5read(temp_fpath,'/mov'));
                         ave_im_all{n_pl, n_dset} = mean(Y_temp,3);
@@ -234,3 +264,4 @@ for n_ms1 = 1:numel(mouse_id_all)
         end
     end
 end
+disp('Done')

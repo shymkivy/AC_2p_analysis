@@ -13,13 +13,13 @@ ops = f_cs_collect_ops_loop(ops);
 %% evaluate params
 ops.eval_params2.EvalSNRcaiman =            0;
 ops.eval_params2.EvalSNR2 =                 1;
-ops.eval_params2.EvalCNN =                  1;
-ops.eval_params2.EvalRvalues =              0;
+ops.eval_params2.EvalCNN =                  0;
+ops.eval_params2.EvalRvalues =              1;
 ops.eval_params2.EvalMinSigFrac =           0;
 ops.eval_params2.EvalFiringStability =      0;
 
 ops.eval_params2.RejThrSNRCaiman =          2;
-ops.eval_params2.RejThrSNR2 =               5;
+ops.eval_params2.RejThrSNR2 =               4;
 ops.eval_params2.RejThrCNN =                .97;
 ops.eval_params2.RejThrRvalues =            0.5;
 ops.eval_params2.RejThrMinSigFrac =         0.5;
