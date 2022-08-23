@@ -63,7 +63,7 @@ if app.poolregionsCheckBox.Value
     title([title_tag ' ' app.regiontoplotDropDown.Value  ' tuning distribution; ' num2str(sum(num_cells1)) ' cells'], 'Interpreter', 'none');
     ylabel('Cell fraction');
 else
-    resp1 = squeeze(sum(resp_cell_all2,1));
+    resp1 = reshape(sum(resp_cell_all2,1), [], numel(reg_all));
     num_cells2 = sum(num_cells_all,1);
     resp2 = resp1./num_cells2;
     figure;
@@ -108,7 +108,7 @@ if app.poolregionsCheckBox.Value
     loco_cell3 = sum(loco_cell2,2);
     num_cells1 = sum(num_cells_all,2);
     loco_frac = sum(loco_cell3,1)./sum(num_cells1,1);
-    figure; bar(categorical(reg_all,reg_all), loco_frac);
+    figure; bar(categorical({'All regions'}), loco_frac);
     title([title_tag ' locomotion tuned cells ' app.regiontoplotDropDown.Value], 'Interpreter', 'none')
     ylabel('Fraction');
 else

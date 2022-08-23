@@ -17,9 +17,13 @@ if strcmpi(app.RunallDropDown.Value, 'stats')
         for n_pl = 1:ddata.num_planes
             params.n_pl = n_pl;
             if or(isempty(ddata.stats{n_pl}), app.OverwriteCheckBox.Value)
-                params.cdata = f_dv_compute_cdata(app, params);
+                params.cdata = f_dv_compute_cdata(app.data(n_dset,:), params);
                 if isfield(params.ddata.proc_data{1}, 'stim_params')
-                    app.data(n_dset,:).stats{n_pl} = f_dv_compute_stats_core(app, params);
+                    if ~strcmpi(params.ddata.paradigm, 'behavior')
+                        app.data(n_dset,:).stats{n_pl} = f_dv_compute_stats_core(app, params);
+                    else
+                        fprintf('skipping %s; behavior\n', params.ddata.dset_name_full{1});
+                    end
                 else
                     fprintf('skipping %s; no stim_params\n', params.ddata.dset_name_full{1});
                 end

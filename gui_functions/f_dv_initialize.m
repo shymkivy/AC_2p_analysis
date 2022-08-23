@@ -108,8 +108,12 @@ app.ensshuffrepsEditField.Value = ens_params.acc_shuff_reps;
 
 %%
 
+data_variables = {'peak loc', 'resp mag', 'resp mag z', 'resp thresh', 'trial sem val'};
+app.plotfeatureDropDown.Items = data_variables;
+app.xvarDropDown.Items = data_variables;
+app.yvarDropDown.Items = data_variables;
+app.yvarDropDown.Value = data_variables{2};
 
-app.plotfeatureDropDown.Items = {'peak loc', 'resp mag'};
 app.plottypeDropDown.Items = {'kde', 'ecdf', 'histogram'};
 
 app.gui_ops.save_var_list_pl = {'stats', 'stats_within', 'registration',...

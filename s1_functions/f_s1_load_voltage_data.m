@@ -57,7 +57,7 @@ for n_file = 1:ops.num_volt_in_files
     % 8 pockel
     % 9 slm_stim_type
     
-    med_filt_list = [1 2 5 6 7 8 9]; 
+    med_filt_list = [1 2 6 7 8 9]; 
     remove_base_list = [1 2 4 5 6 7 8 9];
     cap_lim = 2;
     

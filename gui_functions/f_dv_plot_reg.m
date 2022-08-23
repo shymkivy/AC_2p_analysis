@@ -51,8 +51,8 @@ for n_dset = 1:num_dsets
     if ~isempty(ddata.registered_data{n_pl})
         num_cells = ddata.cdata{n_pl}.num_cells;
         stats1 = ddata.stats{n_pl};
-        pop_mean_val = stats1.pop_mean_val;
-        pop_z_factor = stats1.pop_z_factor;
+        trial_ave_val = stats1.trial_ave_val;
+        trial_sem_val = stats1.trial_sem_val;
 
 
         if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'None')
@@ -71,7 +71,7 @@ for n_dset = 1:num_dsets
             resp_cells = stats1.cell_is_resp(:,tn_all);
             peak_vals = stats1.peak_val_all(:,tn_all);
             if app.ConverttoZCheckBox.Value
-                peak_vals = (peak_vals - pop_mean_val)./pop_z_factor;
+                peak_vals = (peak_vals - trial_ave_val)./trial_sem_val;
             end
             peak_vals(~resp_cells) = 0;
             peak_vals2 = max(peak_vals,[],2);

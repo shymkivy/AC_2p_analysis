@@ -19,12 +19,11 @@ ops.file_dir = ops.experiments(idx1).data_path;
 app.regdatapathEditField.Value = [app.gui_ops.gui_save_dir '\' ops.experiments(idx1).save_reg_fname];
 app.matdatapathEditField.Value = [app.gui_ops.gui_save_dir '\' ops.experiments(idx1).save_mat_fname];
 
-
 fprintf('Loading %s data from %s...\n', app.ExperimentDropDown.Value, ops.file_dir);
 
 AC_data = readtable('AC_data_list_all.xlsx');
 
-ops.paradigm_type = ''; % 'ammn' 'freq_grating' 'cont'
+ops.paradigm_type = ops.experiments(idx1).paradigm; % 'ammn' 'freq_grating' 'cont'
 
 
 %%

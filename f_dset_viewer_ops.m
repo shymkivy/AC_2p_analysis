@@ -8,27 +8,31 @@ ops = struct();
 
 idx1 = 1;
 ops.experiments(idx1).name = 'dream';
-ops.experiments(idx1).data_path = 'F:\AC_data\caiman_data_dream3';
+ops.experiments(idx1).data_path = 'F:\AC_data\caiman_data_dream';
 ops.experiments(idx1).save_mat_fname = 'dream_save_6_9_22.mat';
 ops.experiments(idx1).save_reg_fname = '';
+ops.experiments(idx1).name_tag = '';
 
 idx1 = 2;
 ops.experiments(idx1).name = 'echo';
 ops.experiments(idx1).data_path  = 'F:\AC_data\caiman_data_echo';
 ops.experiments(idx1).save_mat_fname = '';
 ops.experiments(idx1).save_reg_fname = '';
+ops.experiments(idx1).name_tag = '';
 
 idx1 = 3;
 ops.experiments(idx1).name = 'missmatch';
 ops.experiments(idx1).data_path = 'F:\AC_data\caiman_data_missmatch';
-ops.experiments(idx1).save_mat_fname = '';
+ops.experiments(idx1).save_mat_fname = 'mat_save_8_10_22.mat';
 ops.experiments(idx1).save_reg_fname = 'reg_save_6_10_21.mat';
+ops.experiments(idx1).paradigm = 'ammn';
 
 idx1 = 4;
 ops.experiments(idx1).name = 'missmatch_grating';
 ops.experiments(idx1).data_path = '';
 ops.experiments(idx1).save_mat_fname = '';
 ops.experiments(idx1).save_reg_fname = '';
+ops.experiments(idx1).paradigm = 'freq_grating';
 
 %%
 % ----------- process ops params ----------

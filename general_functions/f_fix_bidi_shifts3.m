@@ -1,40 +1,17 @@
 function [Y_bidi, bidi_out] = f_fix_bidi_shifts3(Y, params)
 
-if ~exist('params', 'var')
-    params = struct();
-end
-
-if ~isfield(params, 'fix_range')
-    params.fix_range = -20:20;
-end
-
-if ~isfield(params, 'smooth_std')
-    params.smooth_std = [0 0.5 2]; 
-end
-
-if ~isfield(params, 'num_iterations')
-    params.num_iterations = 1;
-end
-
-if ~isfield(params, 'plot_stuff')
-    params.plot_stuff = 0;
-end
-
-if ~isfield(params, 'title_tag')
-    params.title_tag = 0;
-end
+if ~exist('params', 'var'); params = struct(); end
+if ~isfield(params, 'fix_range'); params.fix_range = -20:20; end
+if ~isfield(params, 'smooth_std'); params.smooth_std = [0 0.5 2]; end
+if ~isfield(params, 'num_iterations'); params.num_iterations = 1; end
+if ~isfield(params, 'plot_stuff'); params.plot_stuff = 0; end
+if ~isfield(params, 'title_tag'); params.title_tag = 0; end
+if ~isfield(params, 'do_interp'); params.do_interp = 1; end
+if ~isfield(params, 'normalize'); params.normalize = 1; end
 
 if ~isfield(params, 'laser_open_frac')
     % prairie version 5
     params.laser_open_frac = .65;%.797; % measured 51us up 13us down (says 63 total)28.8; % 14.4
-end
-
-if ~isfield(params, 'do_interp')
-    params.do_interp = 1;
-end
-
-if ~isfield(params, 'normalize')
-    params.normalize = 1;
 end
 
 smooth_std = params.smooth_std;
@@ -45,6 +22,7 @@ title_tag = params.title_tag;
 laser_open_frac = params.laser_open_frac;
 do_interp = params.do_interp;
 normalize = params.normalize;
+dens1 = 1;
 
 %%
 num_range = numel(fix_range);
@@ -54,12 +32,13 @@ deg_per_fov = 180 * laser_open_frac;
 y0 = 1:d1;
 z0 = 1:T;
 
-deg0 = linspace(-deg_per_fov/2, deg_per_fov/2, d2);
+deg0 = linspace(-deg_per_fov/2, deg_per_fov/2, d2/dens1);
 x0 = sin(deg0/360*2*pi);
 x0n = x0 - min(x0);
 x0n = x0n/max(x0n)*(d2-1)+1;
 
-x_coords = 1:d2;
+
+x_coords = 1:dens1:d2;
 
 [X_corr, Y0, Z0] = meshgrid(x_coords, y0, z0);
 [X_real, ~, ~] = meshgrid(x0n, y0, z0);   

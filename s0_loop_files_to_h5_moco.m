@@ -8,12 +8,13 @@ addpath([pwd '\s1_functions']);
 %          
 data_dir = {'D:\data\AC\2p\2020';...
             'I:\mouse\auditory\2018'};
+
 %data_dir = {'G:\data\Auditory\2018'};
 
 % data_dir = {'F:\AC_data\'};
         
 save_dir = {'F:\AC_data\caiman_data_missmatch\'};%,...
-%save_dir = {'F:\AC_data\caiman_data_dream3\'};
+%save_dir = {'F:\AC_data\caiman_data_dream\'};
 
 params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_list_all.xlsx';
 
@@ -30,11 +31,12 @@ AC_data = f_s0_parse_tab_data(params);
 mouse_id_all = unique(AC_data.mouse_id, 'stable');
 
 %% set default params
-AC_data.do_moco(isnan(AC_data.do_bidi)) = 1;
+AC_data.do_mc(isnan(AC_data.do_bidi)) = 1;
 AC_data.do_bidi(isnan(AC_data.do_bidi)) = 0;
-AC_data.moco_zero_edge(isnan(AC_data.moco_zero_edge)) = 1;
-AC_data.moco_smooth_met(isnan(AC_data.moco_smooth_met)) = 1;
-
+AC_data.mc_zero_edge(isnan(AC_data.mc_zero_edge)) = 1;
+AC_data.mc_rigid_met(isnan(AC_data.mc_rigid_met)) = 1;
+AC_data.mc_do_nonrigid(isnan(AC_data.mc_do_nonrigid)) = 0;
+AC_data.mc_nonrigid_met(isnan(AC_data.mc_nonrigid_met)) = 1;
 %%
 
 if iscell(save_dir)
@@ -51,7 +53,7 @@ for n_ms = 1:numel(mouse_id_all)
     % check if folder exists
     
     % set moco target as first in list
-    idx2 = logical(sum(AC_data2.im_num == unique(AC_data2.moco_to_dset)',2));
+    idx2 = logical(sum(AC_data2.im_num == unique(AC_data2.mc_to_dset)',2));
     AC_data2 = [AC_data2(idx2,:); AC_data2(~idx2,:)];
     
     for n_dset = 1:size(AC_data2,1)
@@ -108,10 +110,12 @@ for n_ms = 1:numel(mouse_id_all)
 
             if ~num_match
                 params.num_planes = cdset.mpl;
-                params.do_moco = cdset.do_moco;
-                params.moco_zero_edge = cdset.moco_zero_edge;
+                params.do_moco = cdset.do_mc;
+                params.do_nonrigid = cdset.mc_do_nonrigid;
+                params.moco_zero_edge = cdset.mc_zero_edge;
                 params.do_bidi = cdset.do_bidi;
-                params.moco_smooth_method = cdset.moco_smooth_met;
+                params.moco_rigid_method = cdset.mc_rigid_met;
+                params.moco_nonrigid_method = cdset.mc_nonrigid_met;
                 params.dset_name = cdset.dset_name{1};
                 params.save_dir;
                 if or(cdset.align_pulse_crop_method == 0, cdset.align_pulse_crop_method == 2)
@@ -122,9 +126,9 @@ for n_ms = 1:numel(mouse_id_all)
                 
                 params.im_target_fname = '';
                 if params.do_moco
-                    if ~isempty(cdset.moco_to_dset)
-                        if cdset.im_num ~= cdset.moco_to_dset
-                            source_dset = cdset.moco_to_dset;
+                    if ~isempty(cdset.mc_to_dset)
+                        if cdset.im_num ~= cdset.mc_to_dset
+                            source_dset = cdset.mc_to_dset;
                             source_dset_idx = AC_data2.im_num == source_dset;
                             fname_dset1 = sprintf('%s_im%d_%s_%s', AC_data2.mouse_id{source_dset_idx}, AC_data2.im_num(source_dset_idx), AC_data2.dset_name{source_dset_idx}, AC_data2.mouse_tag{source_dset_idx});
                             params.im_target_fname = fname_dset1;

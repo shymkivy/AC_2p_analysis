@@ -9,7 +9,7 @@ firing_rate = cat(1,params.cdata.S_sm);
 trial_types = params.ddata.trial_types{1};
 stim_times = params.ddata.stim_frame_index{1};
 trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
-[~, trial_frames] = f_dv_compute_window_t(app, trial_window);
+[~, trial_frames] = f_dv_compute_window_t(trial_window, params.cdata.volume_period);
 
 mmn_freq = params.ddata.MMN_freq{1};
 

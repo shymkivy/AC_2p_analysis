@@ -44,9 +44,9 @@ elseif ~isempty(stats1)
         resp_cells = stats1.cell_is_resp;
         peak_vals = stats1.peak_val_all;
         if app.ConverttoZCheckBox.Value
-            pop_mean_val = stats1.pop_mean_val;
-            pop_z_factor = stats1.pop_z_factor;
-            peak_vals = (peak_vals - pop_mean_val)./pop_z_factor;
+            trial_ave_val = stats1.trial_ave_val;
+            trial_sem_val = stats1.trial_sem_val;
+            peak_vals = (peak_vals - trial_ave_val)./trial_sem_val;
         end
         peak_vals(~resp_cells) = 0;
         peak_vals2 = max(peak_vals(:,tn_all),[],2);
@@ -82,7 +82,7 @@ if use_color_map
     axis(app.UIAxesColorPallet, 'tight');
 else
     contour_mag = app.gui_ops.contour_params.contour_mag;
-    imagesc(app.UIAxesColorPallet, []);
+    imagesc(app.UIAxesColorPallet, reshape([app.ops.context_types_all_colors2{1:10}]', 1, 10, 3));
 end
 
 % update colors

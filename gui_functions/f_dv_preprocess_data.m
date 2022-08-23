@@ -24,20 +24,12 @@ for n_dset = 1:num_dsets
             data.MMN_freq{n_dset} = proc_data.stim_params.MMN_freq;
         elseif isfield(proc_data, 'MMN_orientations')
             data.MMN_freq{n_dset} = proc_data.MMN_orientations;
+        else
+            sprintf('No mmn freq in %s', ddata.dset_name_full{1});
         end
+        
     end
     
-%     data.trial_window{n_dset} = struct();
-%     data.trial_window{n_dset}.trial_window_t = (ceil(ops.trial_window(1)/frame_period_sec):floor(ops.trial_window(2)/frame_period_sec))*frame_period_sec;
-%     %data.trial_window_t_long{n_dset} = (ceil(ops.trial_window_long(1)/frame_period_sec):floor(ops.trial_window_long(2)/frame_period_sec))*frame_period_sec;
-%     data.trial_window{n_dset}.trial_num_baseline_resp_frames = [sum(data.trial_window{n_dset}.trial_window_t<=0) sum(data.trial_window{n_dset}.trial_window_t>0)];     
-%     %data.trial_num_baseline_resp_frames_long{n_dset} = [sum(data.trial_window_t_long{n_dset}<=0) sum(data.trial_window_t_long{n_dset}>0)];  
-%     data.trial_window{n_dset}.baseline_window_frames = data.trial_window{n_dset}.trial_window_t<=0;
-%     data.trial_window{n_dset}.resp_window_frames = and(data.trial_window{n_dset}.trial_window_t>ops.resp_window_time(1),data.trial_window{n_dset}.trial_window_t<ops.resp_window_time(2));       
-%     data.trial_window{n_dset}.resp_window_t = data.trial_window{n_dset}.trial_window_t(data.trial_window{n_dset}.resp_window_frames);
-%     data.trial_window{n_dset}.onset_window_frames = and(data.trial_window{n_dset}.trial_window_t>ops.onset_window(1),data.trial_window{n_dset}.trial_window_t<ops.onset_window(2)); 
-%     data.trial_window{n_dset}.offset_window_frames = and(data.trial_window{n_dset}.trial_window_t>ops.offset_window(1),data.trial_window{n_dset}.trial_window_t<ops.offset_window(2)); 
-
     cell_plane_indx_pl = cell(data.num_planes(n_dset),1);
     disp(ddata.dset_name_full{1})
     % pull out data
@@ -48,49 +40,6 @@ for n_dset = 1:num_dsets
         SNR_accept = temp_OA_data.proc.SNR2_vals >= ops.extra_SNR_thresh;
         accept_cell = and(SNR_accept,temp_OA_data.proc.comp_accepted);           
         traces_raw_cut = temp_OA_data.est.C(accept_cell,:)+temp_OA_data.est.YrA(accept_cell,:);
-
-%         try
-%             firing_rate_cut = if_get_deconvolved_data(temp_OA_data,accept_cell, ops,temp_proc_data.frame_data.volume_period_ave);
-%         catch
-%             error([data.experiment{n_dset} ' deconvolution incomplete'])
-%         end
-% 
-%         if ops.normalize_firing_rate
-%             firing_rate_cut = (firing_rate_cut - min(firing_rate_cut,[],2))./max((firing_rate_cut - min(firing_rate_cut,[],2)),[],2);
-%         end
-% 
-%         if ops.signal_extra_smooth_sig
-%             % additional smooth 
-%             kernel_sigma_frames = ops.signal_extra_smooth_sig/frame_period_sec;
-%             kernel_half_size = ceil(sqrt(-log(0.05)*2*kernel_sigma_frames^2));
-%             gaus_win = -kernel_half_size:kernel_half_size;
-%             gaus_kernel = exp(-((gaus_win).^2)/(2*kernel_sigma_frames^2));
-%             gaus_kernel = gaus_kernel/sum(gaus_kernel);
-% 
-%             if sum(ops.signal_extra_smooth_plot_examples)
-%                 if (n_dset == 1) && (n_pl == 1)
-%                     figure; 
-%                     plot(gaus_win*frame_period_sec, gaus_kernel);
-%                     title(['Gaussian kernel; sigma=' num2str(ops.signal_extra_smooth_sig) 'ms']);
-%                     xlabel('Time (ms)');
-%                 end
-%             end
-% 
-%             firing_rate_cut_smooth = conv2(firing_rate_cut, gaus_kernel, 'same');
-%         else
-%             firing_rate_cut_smooth = firing_rate_cut;
-%         end
-% 
-%         if sum(ops.signal_extra_smooth_plot_examples)
-%             samp_cells = randsample(1:size(firing_rate_cut,1),ops.signal_extra_smooth_plot_examples);
-%             for n_cell_ind = 1:ops.signal_extra_smooth_plot_examples
-%                 n_cell = samp_cells(n_cell_ind);
-%                 figure; hold on;
-%                 plot(firing_rate_cut(n_cell,:))
-%                 plot(firing_rate_cut_smooth(n_cell,:))
-%                 title(sprintf('Dset %d, plane %d, cell %d', n_dset, n_pl, n_cell));
-%             end
-%         end
 
         % fill in the cut regions
         cuts_trace = proc_data.file_cuts_params{n_pl}.vid_cuts_trace;
@@ -221,7 +170,7 @@ if ~prod(mode(parameter) == parameter)
     figure;
     plot(parameter, 'o-');
     title(['Warning: ' tag ' varies across datasets'], 'interpreter', 'none');
-    ylabel('Stim duration');
+    ylabel(tag, 'interpreter', 'none');
     xlabel('Dataset number');
 end
 

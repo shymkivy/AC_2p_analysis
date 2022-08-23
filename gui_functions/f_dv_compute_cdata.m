@@ -1,12 +1,10 @@
-function cdata = f_dv_compute_cdata(app, params)
+function cdata = f_dv_compute_cdata(ddata, params)
 
-n_dset = params.n_dset;
-ddata = app.data(n_dset,:);
 n_pl = params.n_pl;
 fr = 1000/double(ddata.proc_data{1}.frame_data.volume_period);
 
 %%
-accepted_cells = ddata.OA_data{n_pl}.proc.comp_accepted;
+accepted_cells = logical(ddata.OA_data{n_pl}.proc.comp_accepted);
 sig_frac = 1 - ddata.OA_data{n_pl}.proc.num_zeros/ddata.OA_data{n_pl}.proc.num_frames;
 accepted_cells(sig_frac<.9) = 0;
 num_cells = sum(accepted_cells);

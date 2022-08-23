@@ -20,6 +20,7 @@ data_dir = params.data_dir;
 save_dir = params.save_dir;
 
 params_moco.im_target_fname = [params.im_target_fname];
+params_moco.do_nonrigid = params.do_nonrigid;
 %%
 load_type = 1; 
 % 1 = Prairie tiffs
@@ -38,6 +39,9 @@ save_indiv_h5info = 0;
 
 % this also saves a trimmed version of movie
 params.trim_output_num_frames = 0; %  0 or number of frames to save
+
+params.overwrite_moco_rigid = 1;
+params.overwrite_moco_nonrigid = 1;
 
 % type 1
 %file_type = 'vmmn';close a
@@ -85,10 +89,10 @@ params_bidi.use_planes = [1 3];
 
 params_moco.image_target = [];
 params_moco.plot_stuff = 0;
-params_moco.overwrite_dsall = 1;
 params_moco.reg_lambda_base = [1 .2];
+params_moco.high_val_cut_thresh = 0.01;
 
-if params.moco_smooth_method == 1 % regular multiplane
+if params.moco_rigid_method == 1 % regular multiplane
     params_moco.num_iterations = 2;
     
     params_moco.smooth_std = [0.5 0.5 6;...
@@ -101,7 +105,7 @@ if params.moco_smooth_method == 1 % regular multiplane
                               2 .5;...
                               2 .5];
                           
-elseif params.moco_smooth_method == 2 % regular missmatch 30 hz
+elseif params.moco_rigid_method == 2 % regular missmatch 30 hz
     
     params_moco.num_iterations = 5; % 4 was for mmn data works with 30hz noisy data
 
@@ -114,7 +118,21 @@ elseif params.moco_smooth_method == 2 % regular missmatch 30 hz
                               2 .2;...
                               2 .5;...
                               2 .5];
-elseif params.moco_smooth_method == 22 % noisy missmatch 30 hz, 
+elseif params.moco_rigid_method == 21 % regular missmatch 30 hz
+    
+    params_moco.num_iterations = 5; % 4 was for mmn data works with 30hz noisy data
+
+    params_moco.smooth_std = [0.5 0.5 12;...
+                              0.5 0.5 6;... % was 3 for missmatch
+                              0.5 0.5 3;...
+                              0 0 0.5];
+                          
+    params_moco.reg_lambda = [1 .2;... % 1
+                              2 .2;...
+                              2 .5;...
+                              2 .5];
+                          
+elseif params.moco_rigid_method == 22 % noisy missmatch 30 hz, 
     
     params_moco.num_iterations = 5; % 4 was for mmn data works with 30hz noisy data
 
@@ -129,7 +147,7 @@ elseif params.moco_smooth_method == 22 % noisy missmatch 30 hz,
                               2 .5;...
                               2 .5];
                           
-elseif params.moco_smooth_method == 23 % even more noisy missmatch 30 hz, 
+elseif params.moco_rigid_method == 23 % even more noisy missmatch 30 hz, 
     
     params_moco.num_iterations = 5; % 4 was for mmn data works with 30hz noisy data
 
@@ -144,8 +162,39 @@ elseif params.moco_smooth_method == 23 % even more noisy missmatch 30 hz,
                               2 .5;...
                               4 1;...
                               4 1];
+elseif params.moco_rigid_method == 24 % even more noisy missmatch 30 hz, 
+    
+    params_moco.num_iterations = 2; % 4 was for mmn data works with 30hz noisy data
+
+    params_moco.smooth_std = [0.5 0.5 12;...
+                              0.5 0.5 6;... % was 3 for missmatch
+                              0.5 0.5 3;...
+                              0.5 0.5 .5;...
+                              0.5 0.5 0];
                           
-elseif params.moco_smooth_method == 3 % multiplane super noisy; dream/chrmine
+    params_moco.reg_lambda = [5 .5;...
+                              2 .2;...
+                              2 .5;...
+                              4 1;...
+                              4 1];
+                          
+elseif params.moco_rigid_method == 25 % noisy missmatch 30 hz, 
+    
+    params_moco.num_iterations = 6; % 4 was for mmn data works with 30hz noisy data
+
+    params_moco.smooth_std = [0.5 0.5 6;...
+                              0.5 0.5 3;... % was 3 for missmatch
+                              0.5 0.5 2;...
+                              0.5 0.5 1;...
+                              0.5 0.5 0;...
+                              0.5 0.5 0];
+                          
+    params_moco.reg_lambda = [.1 .01;...
+                              .1 .01;...
+                              .1 .01;...
+                              .1 .01];
+                                                
+elseif params.moco_rigid_method == 3 % multiplane super noisy; dream/chrmine
     
     params_moco.num_iterations = 4; % 
 
@@ -159,13 +208,13 @@ elseif params.moco_smooth_method == 3 % multiplane super noisy; dream/chrmine
                               2 .5;...
                               2 .5];
                           
-elseif params.moco_smooth_method == 4 % even more super noisy; dream/chrmine
+elseif params.moco_rigid_method == 32 % even more super noisy; dream/chrmine
     
-    params_moco.num_iterations = 2; % 
+    params_moco.num_iterations = 3; % 
 
-    params_moco.smooth_std = [1 1 6;...
-                              1 1 6;... 
-                              0.5 0.5 6;...
+    params_moco.smooth_std = [1 1 12;...
+                              1 1 7;... 
+                              1 1 5;...
                               0.5 0.5 3];
                           
     params_moco.reg_lambda = [1 .2;...
@@ -193,6 +242,29 @@ params_moco.medfilt = 0;
 % params_moco.reg_lambda = [1e0; 1e0; 5e0; 5e0; 5e0; 5e0; 1e1; 1e1];
 %                       
 
+if params.moco_nonrigid_method == 1
+    params_moco.nonrigid_smooth_std = [0.5 0.5 6];
+    params_moco.nonrigid_reg_lambda = [2 .5];
+    params_moco.nonrigid_block_size = 60;
+    params_moco.nonrigid_block_overlap = 40;
+    params_moco.nonrigid_block_smooth = [0.5 0.5 3];
+    
+elseif params.moco_nonrigid_method == 2
+    params_moco.nonrigid_smooth_std = [0.5 0.5 1];
+    params_moco.nonrigid_reg_lambda = [2 .5];
+    params_moco.nonrigid_block_size = 50;
+    params_moco.nonrigid_block_overlap = 30;
+    params_moco.nonrigid_block_smooth = [0.5 0.5 1];
+
+elseif params.moco_nonrigid_method == 3
+    params_moco.nonrigid_smooth_std = [0.5 0.5 3];
+    params_moco.nonrigid_reg_lambda = [2 .5];
+    params_moco.nonrigid_block_size = 40;
+    params_moco.nonrigid_block_overlap = 30;
+    params_moco.nonrigid_block_smooth = [0.5 0.5 3]; % [0 0 025]
+    
+end
+
 
 %%
 %load_dir = ['J:\mouse\backup\2018\' file_date '_dLGN\' file_type '-00' file_num];
@@ -207,11 +279,12 @@ save_file_name = params.fname;
 
 disp(save_file_name);
 fprintf('Pulse corp method = %d\n', params.align_pulse_crop_method);
-fprintf('Smooth method = %d\n', params.moco_smooth_method);
+fprintf('Moco rigid method = %d\n', params.moco_rigid_method);
+if params.do_nonrigid
+    fprintf('Moco nonrigind method = %d\n', params.moco_nonrigid_method);
+end
 
 proc_steps = '_cut';
-
-colors1 = parula(num_planes);
 
 params.save_path = save_dir_movie;
 
@@ -312,8 +385,8 @@ end
 
 %% bidi fix
 if do_bidi
-    Y_pre_bidi = Y;
-    % Y = Y_pre_bidi;
+    Y_pre_corr = Y;
+    % Y = Y_pre_corr;
     if ~isfield(cuts_data{1}, 'bidi_out')
         % compute
         for n_pl = 1:num_planes
@@ -380,73 +453,37 @@ end
 
 %% moco
 if do_moco
-    Y_pre_moco = Y;
+    Y_pre_corr = Y;
+    %Y = Y_pre_corr;
     
+    % correct movie to itself
     for n_pl = 1:num_planes
-        if ~isfield(cuts_data{n_pl}, 'dsall') || params_moco.overwrite_dsall
+        if ~isfield(cuts_data{n_pl}, 'dsall') || params.overwrite_moco_rigid
             fprintf('%s %s\n', save_file_name, cuts_data{n_pl}.title_tag);
-            [~, cuts_data{n_pl}.dsall, ~] = f_mpl_register2(Y{n_pl}, params_moco);
+            [~, mc_out] = f_mc_rigid(Y{n_pl}, params_moco);
+            cuts_data{n_pl}.dsall = mc_out.dsall;
         end
     end
     
     save(mat_name, 'params', 'cuts_data');
-    num_it = numel(cuts_data{n_pl}.dsall);
-    it_disp = zeros(num_it,num_planes);
-    figure; hold on;
-    for n_pl = 1:num_planes
-        for n_it = 1:num_it
-            it_disp(n_it, n_pl) = mean(sqrt(sum(cuts_data{n_pl}.dsall{n_it}.^2,2)));
-        end
-    end
-    plot(it_disp, '-o'); xlabel('iteration'); ylabel('mean disp');
-    title([save_file_name, ' mean fix'], 'interpreter', 'none');
-    for n_pl = 1:num_planes
-        figure;
-        for n_it = 1:num_it
-            subplot(num_it, 1, n_it);
-            plot(cuts_data{n_pl}.dsall{n_it});
-            axis tight;
-        end
-        sgtitle(sprintf('Fix per iteration; pl%d; %s', n_pl, save_file_name), 'interpreter', 'none')
-    end
     
-    dsall1 = cell(num_planes, 1);
-    for n_pl = 1:num_planes
-        dsall1{n_pl} = sum(cat(3,cuts_data{n_pl}.dsall{:}),3);
-    end
-    dsall1_all = median(cat(3,dsall1{:}),3);
-    dsall1_all_mf = medfilt1(dsall1_all, 3);
-    
-    figure;
-    sp1 = subplot(2,1,1); hold on;
-    for n_pl = 1:num_planes
-        plot(dsall1{n_pl}(:,1), 'color', colors1(n_pl,:));
-    end
-    plot(dsall1_all(:,1), 'k');
-    plot(dsall1_all_mf(:,1), 'g');
-    ylabel('y motion');
-    title(sprintf('%s moco',save_file_name), 'interpreter', 'none');
-    sp2 = subplot(2,1,2); hold on;
-    for n_pl = 1:num_planes
-        plot(dsall1{n_pl}(:,2), 'color', colors1(n_pl,:));
-    end
-    plot(dsall1_all(:,2), 'k');
-    plot(dsall1_all_mf(:,2), 'g');
-    ylabel('x motion');
-    linkaxes([sp1 sp2], 'x');  axis tight;
+    % add all coorection and use median actoss planes
+    [~, dsall1_all, dsall1_all_mf] = f_mc_dsall_proc(cuts_data);
     
     if params_moco.medfilt
         dsall1_use = dsall1_all_mf;
     else
         dsall1_use = dsall1_all;
     end
-
+    f_mc_plot_cuts_data(cuts_data, save_file_name);
+    
     %Y2 = Y_pre_moco;
     for n_pl = 1:num_planes
-        Y{n_pl} = uint16(f_suite2p_reg_apply(Y_pre_moco{n_pl}, dsall1_use));
+        Y{n_pl} = uint16(f_suite2p_reg_apply(Y{n_pl}, dsall1_use));
         %Y2{n_pl} = uint16(f_suite2p_reg_apply(Y_pre_moco{n_pl}, dsall1_all_r));
     end
     
+    % apply global offset to while movie
     for n_pl = 1:num_planes
         Y_temp = single(Y{n_pl});
         cuts_data{n_pl}.image_target = mean(Y_temp,3);
@@ -478,31 +515,42 @@ if do_moco
     end
      
     if params.moco_zero_edge
-        % y-x orientations
-        num_frames = size(dsall1_all,1);
-        for n_fr = 1:num_frames
-            for n_pl = 1:num_planes
-                dsall1_use_r = round(dsall1_use(n_fr, :) + ds_base_all(n_pl, :));
-                if dsall1_use_r(1) < 0
-                    Y{n_pl}(1:-dsall1_use_r(1),:,n_fr) = 0;
-                elseif dsall1_use_r(1) > 0
-                    Y{n_pl}((end-dsall1_use_r(1)):end,:,n_fr) = 0;
-                end
-                if dsall1_use_r(2) < 0
-                    Y{n_pl}(:,1:-dsall1_use_r(2),n_fr) = 0;
-                elseif dsall1_use_r(2) > 0
-                    Y{n_pl}(:,(end-dsall1_use_r(2)):end,n_fr) = 0;
-                end
-            end
+        for n_pl = 1:num_planes
+            Y{n_pl} = f_mc_zero_edges(Y{n_pl}, dsall1_use, ds_base_all(n_pl, :));
         end
     end
     
     proc_steps = [proc_steps '_moco'];
-    if save_all_steps
+    if 1%save_all_steps
         for n_pl = 1:num_planes
-            f_save_mov_YS(Y{n_pl}, [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov')
+            f_save_mov_YS(Y{n_pl}(:,:,1:min(20000, size(Y{n_pl},3))), [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov')
         end
     end
+    
+    if params.do_nonrigid
+        Y_pre_corr = Y;
+        %Y = Y_pre_corr;
+        
+        for n_pl = 1:num_planes
+            if ~isfield(cuts_data{n_pl}, 'nr_corr_data') || params.overwrite_moco_nonrigid
+                [~, mc_out2] = f_mc_nonrigid(Y{n_pl}, params_moco);
+                cuts_data{n_pl}.nr_corr_data = mc_out2.nr_corr;
+            end
+        end
+
+        f_mc_plot_nrcuts_data(cuts_data, save_file_name)
+        
+        for n_pl = 1:num_planes
+            Y{n_pl} = f_mc_apply_nonrigid_corr(Y{n_pl}, cuts_data{n_pl}.nr_corr_data);
+        end
+        proc_steps = [proc_steps '_nonrigid'];
+        if 1%save_all_steps
+            for n_pl = 1:num_planes
+                f_save_mov_YS(Y{n_pl}(:,:,1:min(20000, size(Y{n_pl},3))), [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov')
+            end
+        end
+    end
+    
 end
 
 %% save

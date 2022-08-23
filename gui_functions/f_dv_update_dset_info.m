@@ -39,7 +39,7 @@ params.ddata = ddata;
 cdata_all = cell(5,1);
 for n_pl2 = 1:ddata.num_planes
     params.n_pl = n_pl2;
-    cdata_all{n_pl2} = f_dv_compute_cdata(app, params);
+    cdata_all{n_pl2} = f_dv_compute_cdata(ddata, params);
 end
 app.cdata = cdata_all;
 

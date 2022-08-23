@@ -87,7 +87,7 @@ else
 %     trial_types = ddata.trial_types{1};
 % 
 %     trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
-%     [~, trial_frames] = f_dv_compute_window_t(app, trial_window);
+%     [~, trial_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
 % 
 % 
 %     figure; imagesc(ens_out.cells.ens_scores)

@@ -13,17 +13,17 @@ average_dsbase =0;
 %ops.file_dir = 'F:\AC_data\caiman_data_echo\preprocessing';
 
 params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_list_all.xlsx';
-%params.data_dir = 'F:\AC_data\caiman_data_dream3';
+%params.data_dir = 'F:\AC_data\caiman_data_dream';
 %params.data_dir = 'D:\data\caiman_data_dream';
 params.data_dir = 'F:\AC_data\caiman_data_missmatch';
 
 % these have to be same as column names in excel
 params.limit.dset_name =        '';
 params.limit.experiment =       'missmatch';
-params.limit.mouse_id =         'M10';
+params.limit.mouse_id =         'M6';
 params.limit.mouse_tag =        '';
 params.limit.dset_name =        '';
-params.limit.FOV_num =          1;
+params.limit.FOV_num =          3;
 
 
 %%
@@ -83,7 +83,7 @@ for n_ms1 = 1:numel(mouse_id_all)
                 sgtitle(sprintf('plane %d', n_pl))
             end
             
-            moco_to_dset1 = unique(AC_data4.moco_to_dset, 'stable');
+            moco_to_dset1 = unique(AC_data4.mc_to_dset, 'stable');
             idx1 = AC_data4.im_num == moco_to_dset1;
             ds_base_all = zeros(num_planes, num_dsets,2);
             ds_base_load = zeros(num_planes, num_dsets,2);
@@ -255,7 +255,11 @@ for n_ms1 = 1:numel(mouse_id_all)
 
                         figure;
                         imagesc(im3_pre*2); 
-                        title(sprintf('from h5; plane %d, dsets 1, %d, %d', n_pl, n_plt+1, n_plt+2))
+                        if num_col > 1
+                            title(sprintf('from h5; plane %d, dsets 1, %d, %d', n_pl, (n_plt-1)*2+2, (n_plt-1)*2+3));
+                        else
+                            title(sprintf('from h5; plane %d, dsets 1, %d', n_pl, (n_plt-1)*2+2));
+                        end
                     end
                     
                 end

@@ -5,7 +5,7 @@ n_pl = app.mplSpinner.Value;
 params = f_dv_gather_params(app);
 params.ddata = app.ddata;
 
-cdata = f_dv_compute_cdata(app, params);
+cdata = f_dv_compute_cdata(app.ddata, params);
 app.cdata{n_pl} = cdata;
 
 num_cells = cdata.num_cells;

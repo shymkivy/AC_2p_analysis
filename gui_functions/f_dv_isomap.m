@@ -10,10 +10,12 @@ tt_all = app.ops.context_types_all(tn_all)';
 stim_times = app.ddata.stim_frame_index{n_pl};
 mmn_freq = app.ddata.MMN_freq{1};
 trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
-[~, trial_frames] = f_dv_compute_window_t(app, trial_window);
+
 trial_types = app.ddata.trial_types{1};
 
 cdata = f_dv_get_cdata(app);
+
+[~, trial_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
 
 firing_rate = cat(1,cdata.S_sm);
 num_cells = size(firing_rate,1);

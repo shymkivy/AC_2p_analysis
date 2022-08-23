@@ -7,9 +7,9 @@ n_pl = app.mplSpinner.Value;
 num_dsets = numel(data.experiment);
 
 trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
-[plot_t, trial_frames] = f_dv_compute_window_t(app, trial_window);
+[plot_t, trial_frames] = f_dv_compute_window_t(trial_window, app.ddata.proc_data{1}.frame_data.volume_period_ave);
 
-num_t = sum(trial_window);
+num_t = sum(trial_frames);
 
 ctx_plot_list = [18, 19, 20; ...
                      28, 29, 30]';
@@ -44,7 +44,7 @@ for n_flip = 1:num_flip
         stats1 = data1.stats{n_pl};
         params.n_dset = find(data1.idx == app.data.idx);
 
-        cdata = f_dv_compute_cdata(app, params);
+        cdata = f_dv_compute_cdata(app.ddata, params);
 
         firing_rate = cdata.S_sm;
         trial_types = data1.trial_types{1};
@@ -66,14 +66,14 @@ for n_flip = 1:num_flip
         [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
 
         if app.ConverttoZCheckBox.Value
-            pop_mean_val = stats1.pop_mean_val;
-            pop_z_factor = stats1.pop_z_factor;
+            trial_ave_val = stats1.trial_ave_val;
+            trial_sem_val = stats1.trial_sem_val;
         else
-            pop_mean_val = zeros(cdata.num_cells,1);
-            pop_z_factor = ones(cdata.num_cells,1);
+            trial_ave_val = zeros(cdata.num_cells,1);
+            trial_sem_val = ones(cdata.num_cells,1);
         end
 
-        trial_data_sort_wctx = (trial_data_sort_wctx - pop_mean_val)./pop_z_factor;
+        trial_data_sort_wctx = (trial_data_sort_wctx - trial_ave_val)./trial_sem_val;
         
         % get resp cells
         resp_cell_idx = logical(sum(cell_is_resp(:,tn_all),2).*reg_cell_idx);

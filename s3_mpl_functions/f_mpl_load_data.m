@@ -40,10 +40,27 @@ for n_dset = 1:num_dset
                     error('File name and planes dont match');
                 end
             end
-            data.OA_data{n_dset, n_pl} = load([ops.file_dir '\' temp_OA(n_pl).name]);
+            temp_data1 = load([ops.file_dir '\' temp_OA(n_pl).name]);
+            
+            % for throw bad components for memory effic
+            idx_acc = logical(temp_data1.proc.comp_accepted);
+            temp_data1.est = if_cut_bad_comp(temp_data1.est, idx_acc);
+            temp_data1.proc = if_cut_bad_comp(temp_data1.proc, idx_acc);
+            temp_data1.proc.deconv.smooth_dfdt = if_cut_bad_comp(temp_data1.proc.deconv.smooth_dfdt, idx_acc);
+            if isfield(temp_data1.proc.deconv, 'df_f')
+                temp_data1.proc.deconv.df_f = if_cut_bad_comp(temp_data1.proc.deconv.df_f, idx_acc);
+            end
+            if isfield(temp_data1.proc.deconv, 'c_foopsi')
+                temp_data1.proc.deconv.c_foopsi = if_cut_bad_comp(temp_data1.proc.deconv.c_foopsi, idx_acc);
+            end
+            if isfield(temp_data1.proc.deconv, 'MCMC')
+                temp_data1.proc.deconv.MCMC = if_cut_bad_comp(temp_data1.proc.deconv.MCMC, idx_acc);
+            end
+                
+            
+            data.OA_data{n_dset, n_pl} = temp_data1;
         end
     end
-    
     
     if ops.waitbar
         f_waitbar_update(wb, n_dset/num_dset, sprintf('Loading %d/%d',n_dset,num_dset));
@@ -54,5 +71,26 @@ if ops.waitbar
     f_waitbar_close(wb);
 end
 data = data(has_data,:);
+
+end
+
+%%
+function struct_out = if_cut_bad_comp(struct_in, comp_idx)
+
+struct_out = struct_in;
+
+num_comp = numel(comp_idx);
+            
+fields1 = fields(struct_in);
+for n_fl = 1:numel(fields1)
+    field_temp = fields1{n_fl};
+    siz1 = size(struct_in.(field_temp));
+    if siz1(1) == num_comp
+        struct_out.(field_temp) = struct_in.(field_temp)(comp_idx,:);
+    elseif siz1(2) == num_comp
+        struct_out.(field_temp) = struct_in.(field_temp)(:,comp_idx);
+    end
+end
+
 
 end

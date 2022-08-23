@@ -16,10 +16,6 @@ peak_stats = 'shuff_pool'; % 'shuff_pool', 'shuff_locwise', 'z_thresh'
 peak_bin_time = .250; % sec
 
 num_samp = 2000;
-
-stat_window = f_str_to_array(app.stats_BaserespwinEditField.Value);
-[stat_window_t, stat_frames] = f_dv_compute_window_t(app, stat_window);
-
 %stat_resp_window = [.05 1];
 %stat_resp_window = [-2 3];
 
@@ -37,6 +33,10 @@ trial_types = ddata.trial_types{1};
 MMN_freq = ddata.MMN_freq{1};
 fr = 1000/double(ddata.proc_data{1}.frame_data.volume_period);
 peak_bin_size = ceil(peak_bin_time*fr);
+
+stat_window = f_str_to_array(app.stats_BaserespwinEditField.Value);
+[stat_window_t, stat_frames] = f_dv_compute_window_t(stat_window, ddata.proc_data{1}.frame_data.volume_period_ave);
+
 
 %%
 win1 = stat_frames;
@@ -170,10 +170,10 @@ loco_corr = cell_corr;
 loco_z = cell_corr/z_factor;
 
 %%
-ens_tuning.pop_mean_trace = trial_data_stat_mean;
-ens_tuning.pop_sem_trace = trial_data_stat_sem;
-ens_tuning.pop_mean_val = mean(trial_data_stat_mean,2);
-ens_tuning.pop_z_factor = mean(trial_data_stat_sem,2);
+ens_tuning.trial_ave_trace = trial_data_stat_mean;
+ens_tuning.trial_sem_trace = trial_data_stat_sem;
+ens_tuning.trial_ave_val = mean(trial_data_stat_mean,2);
+ens_tuning.trial_sem_val = mean(trial_data_stat_sem,2);
 ens_tuning.cell_is_resp = resp_cells;
 ens_tuning.resp_thresh = resp_thresh;
 ens_tuning.peak_val_all = peak_vals;

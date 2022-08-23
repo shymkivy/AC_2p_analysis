@@ -195,7 +195,7 @@ end
 %         peak_t_all(n_cell, n_tt) = stat_window_t(max_idx);
 %         peak_val_all(n_cell, n_tt) = peak_val;
 %         peak_in_win(n_cell, n_tt) = and(stat_window_t(max_idx)>=stat_resp_window(1),stat_window_t(max_idx)<=stat_resp_window(2));
-%         peak_is_sig(n_cell, n_tt) = peak_val>(pop_mean{n_cell}(max_idx)+pop_z_factor{n_cell}(max_idx)*z_thresh);
+%         peak_is_sig(n_cell, n_tt) = peak_val>(pop_mean{n_cell}(max_idx)+trial_sem_val{n_cell}(max_idx)*z_thresh);
 %                 
 %         if and(peak_in_win(n_cell, n_tt),peak_is_sig(n_cell, n_tt))
 %             cell_is_resp(n_cell, n_tt) = 1;
@@ -250,10 +250,10 @@ for n_tt = 1:num_tt
     end
 end
 %%
-stats.pop_mean_trace = trial_data_stat_mean;
-stats.pop_sem_trace = trial_data_stat_sem;
-stats.pop_mean_val = mean(trial_data_stat_mean,2);
-stats.pop_z_factor = mean(trial_data_stat_sem,2);
+stats.trial_ave_trace = trial_data_stat_mean;
+stats.trial_sem_trace = trial_data_stat_sem;
+stats.trial_ave_val = mean(trial_data_stat_mean,2);
+stats.trial_sem_val = mean(trial_data_stat_sem,2);
 stats.cell_is_resp = resp_cells;
 stats.resp_thresh = resp_thresh;
 stats.peak_val_all = peak_vals;

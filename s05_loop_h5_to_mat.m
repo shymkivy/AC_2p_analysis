@@ -4,27 +4,45 @@ close all;
 addpath(genpath('C:\Users\ys2605\Desktop\stuff\caiman_sorter\caiman_sorter_functions'));
 
 %%
-%data_dir = 'F:\AC_data\caiman_data_dream3';
-data_dir = 'F:\AC_data\caiman_data_missmatch';
 
 ops = struct();
 ops = f_cs_collect_ops_loop(ops);
 
-%% evaluate params
-ops.eval_params2.EvalSNRcaiman =            0;
-ops.eval_params2.EvalSNR2 =                 1;
-ops.eval_params2.EvalCNN =                  0;
-ops.eval_params2.EvalRvalues =              1;
-ops.eval_params2.EvalMinSigFrac =           0;
-ops.eval_params2.EvalFiringStability =      0;
+if 1
+    data_dir = 'F:\AC_data\caiman_data_dream';
 
-ops.eval_params2.RejThrSNRCaiman =          2;
-ops.eval_params2.RejThrSNR2 =               4;
-ops.eval_params2.RejThrCNN =                .97;
-ops.eval_params2.RejThrRvalues =            0.5;
-ops.eval_params2.RejThrMinSigFrac =         0.5;
-ops.eval_params2.FiringStability =          0.01;
+    % evaluate params
+    ops.eval_params2.EvalSNRcaiman =            0;
+    ops.eval_params2.EvalSNR2 =                 1;
+    ops.eval_params2.EvalCNN =                  0;
+    ops.eval_params2.EvalRvalues =              1;
+    ops.eval_params2.EvalMinSigFrac =           0;
+    ops.eval_params2.EvalFiringStability =      0;
 
+    ops.eval_params2.RejThrSNRCaiman =          2;
+    ops.eval_params2.RejThrSNR2 =               2;
+    ops.eval_params2.RejThrCNN =                0.5;
+    ops.eval_params2.RejThrRvalues =            0.6;
+    ops.eval_params2.RejThrMinSigFrac =         0.5;
+    ops.eval_params2.FiringStability =          0.01;
+else
+    data_dir = 'F:\AC_data\caiman_data_missmatch';
+
+    % evaluate params
+    ops.eval_params2.EvalSNRcaiman =            0;
+    ops.eval_params2.EvalSNR2 =                 1;
+    ops.eval_params2.EvalCNN =                  0;
+    ops.eval_params2.EvalRvalues =              1;
+    ops.eval_params2.EvalMinSigFrac =           0;
+    ops.eval_params2.EvalFiringStability =      0;
+
+    ops.eval_params2.RejThrSNRCaiman =          2;
+    ops.eval_params2.RejThrSNR2 =               4;
+    ops.eval_params2.RejThrCNN =                0.97;
+    ops.eval_params2.RejThrRvalues =            0.7;
+    ops.eval_params2.RejThrMinSigFrac =         0.5;
+    ops.eval_params2.FiringStability =          0.01;
+end
 %% deconv params
 ops.deconv.smooth_dfdt.params.convolve_gaus = 1;
 ops.deconv.smooth_dfdt.params.gauss_kernel_simga = 100;
@@ -110,7 +128,7 @@ for n_fl = 1:numel(fnames)
         if ops.eval_params2.EvalFiringStability
             proc.comp_accepted_core = ((proc.firing_stab_vals >= ops.eval_params2.FiringStability).*proc.comp_accepted_core);
         end
-
+        proc.comp_accepted = proc.comp_accepted_core;
 
         %% smoothdfdt
         proc.deconv.smooth_dfdt.S = zeros(proc.num_cells, proc.num_frames);

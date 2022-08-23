@@ -84,7 +84,7 @@ for n_dset = 1:num_dsets
         est = data4.OA_data{n_pl}.est;
         proc = data4.OA_data{n_pl}.proc;
         num_cells(n_pl, n_dset) = sum(proc.comp_accepted);
-        A_full = reshape(full(est.A(:,proc.comp_accepted)), est.dims(1), est.dims(2), []);
+        A_full = reshape(full(est.A(:,logical(proc.comp_accepted))), est.dims(1), est.dims(2), []);
         A_flat = sum(A_full,3);
         %figure; imagesc(A_flat);
         %title(num2str(fov_idx(n_idx)));
@@ -95,50 +95,86 @@ end
 
 
 throw_thresh = 0.5;
-match_stats_id_all = cell(num_planes,1);
-num_cells_common = zeros(num_planes,1);
+match_stats_id_all = cell(num_planes,num_dsets);
+num_cells_common = zeros(num_planes,num_dsets);
+match_stats_scores_all = cell(num_planes,num_dsets);
+match_stats_max_scores_all = cell(num_planes,num_dsets);
+dsets_all = 1:num_dsets;
 for n_pl = 1:num_planes
-    A_full = A_all3{n_pl, 1};
-    num_cells1 = num_cells(n_pl, n_dset);
-    match_stats_id = zeros(num_cells1, num_dsets);
-    match_stats_num = zeros(num_cells1, num_dsets);
-    match_stats_vals = cell(num_cells1, num_dsets);
-    match_stats_max_val = zeros(num_cells1, num_dsets);
-    match_stats_id(:,1) = 1:num_cells1;
-    for n_dset2 = 2:num_dsets
-        A_full2 = A_all3{n_pl, n_dset2};
-        for n_cell = 1:num_cells1
-            score1 = squeeze(sum(sum(A_full(:,:,n_cell) .* A_full2,1),2));
-            match_stats_num(n_cell, n_dset2) = sum(logical(score1));
-            if match_stats_num(n_cell, n_dset2)
-                [match_stats_max_val(n_cell, n_dset2), match_stats_id(n_cell, n_dset2)] = max(score1);
-                match_stats_vals{n_cell, n_dset2} = score1(logical(score1));
-            end
-        end
-        for n_cell = 1:num_cells1
-            idx1 = match_stats_id(n_cell,n_dset2) == match_stats_id(:,n_dset2);
-            if sum(idx1) > 1
-                id1 = find(idx1);
-                [max_val1 , id2] = max(match_stats_max_val(id1, n_dset2));
-                throw = id1;
-                if max_val1 > throw_thresh
-                    throw(id2) = [];
-                end
-                match_stats_id(throw,n_dset2) = 0;
-            else
-                if match_stats_max_val(n_cell, n_dset2) < throw_thresh
-                    match_stats_id(n_cell,n_dset2) = 0;
+    for n_dset = 1:num_dsets
+        dsets_use = dsets_all;
+        dsets_use(n_dset) = [];
+        % first dset 1
+        A_full = A_all3{n_pl, n_dset};
+        num_cells1 = num_cells(n_pl, n_dset);
+        match_stats_id = zeros(num_cells1, num_dsets);
+        match_stats_num = zeros(num_cells1, num_dsets);
+        match_stats_vals = cell(num_cells1, num_dsets);
+        match_stats_max_val = zeros(num_cells1, num_dsets);
+        match_stats_id(:,n_dset) = 1:num_cells1;
+        for dset_idx = 1:(num_dsets-1)
+            % compute scores of overlapping rois
+            n_dset2 = dsets_use(dset_idx);
+            A_full2 = A_all3{n_pl, n_dset2};
+            for n_cell = 1:num_cells1
+                score1 = squeeze(sum(sum(A_full(:,:,n_cell) .* A_full2,1),2));
+                match_stats_num(n_cell, n_dset2) = sum(logical(score1));
+                if match_stats_num(n_cell, n_dset2)
+                    [match_stats_max_val(n_cell, n_dset2), match_stats_id(n_cell, n_dset2)] = max(score1);
+                    match_stats_vals{n_cell, n_dset2} = score1(logical(score1));
                 end
             end
+            for n_cell = 1:num_cells1
+                % for multiple overlaps pick highest
+                idx1 = match_stats_id(n_cell,n_dset2) == match_stats_id(:,n_dset2);
+                if sum(idx1) > 1
+                    id1 = find(idx1);
+                    [max_val1 , id2] = max(match_stats_max_val(id1, n_dset2));
+                    throw = id1;
+                    if max_val1 > throw_thresh
+                        throw(id2) = [];
+                    end
+                    match_stats_id(throw,n_dset2) = 0;
+                else
+                    % discard low scores
+                    if match_stats_max_val(n_cell, n_dset2) < throw_thresh
+                        match_stats_id(n_cell,n_dset2) = 0;
+                    end
+                end
+            end
         end
+
+        idx_all = logical(prod(logical(match_stats_id),2));
+        match_stats_id2 = match_stats_id(idx_all,:);
+        
+        match_stats_scores_all{n_pl, n_dset} = match_stats_vals;
+        match_stats_max_scores_all{n_pl, n_dset} = match_stats_max_val;
+        match_stats_id_all{n_pl, n_dset} = match_stats_id;
+        num_cells_common(n_pl, n_dset) = size(match_stats_id2,1);
     end
-    
-    idx_all = logical(prod(logical(match_stats_id),2));
-    match_stats_id2 = match_stats_id(idx_all,:);
-    
-    match_stats_id_all{n_pl} = match_stats_id2;
-    num_cells_common(n_pl) = size(match_stats_id2,1);
 end
+
+n_pl = 1;
+dset_idx = cell(num_dsets,1);
+for n_dset = 1:num_dsets
+    dset_idx{n_dset} = ones(num_cells(n_pl, n_dset),1)*n_dset;
+end
+dset_idx2 = cat(1, dset_idx{:});
+
+% remove duplicates
+temp_match = cat(1,match_stats_id_all{1,:});
+temp_match2 = [(1:size(temp_match,1))', dset_idx2, temp_match];
+num_rows = size(temp_match2,1);
+n_row = 1;
+while n_row <= num_rows
+    score1 = sum(temp_match2(n_row,3:end) == temp_match2(:,3:end),2);
+    score1(n_row) = 0;
+    rem_idx = score1 == 4;
+    temp_match2(rem_idx,:) = [];
+    num_rows = size(temp_match2,1);
+    n_row = n_row + 1;
+end
+
 
 A_rgb_all = cell(num_planes,1);
 for n_pl = 1:num_planes
@@ -160,123 +196,5 @@ idx1 = logical(strcmpi(ddata.mouse_id, app.data.mouse_id).*(ddata.FOV_num == app
 idx2 = find(idx1, 1);
 app.data(idx2,:).registration{1} = reg_out;
 
-% 
-% A_rgb2 = cat(3,A_full_flat, A_full_flat2, zeros(d1, d2));
-% figure; imagesc(A_rgb2*4)
-% figure; imagesc(A_full_flat)
-% figure; imagesc(A_full_flat2)
-% 
-% 
-% A_rgb3 = cat(3,A_full(:,:,15), A_full2(:,:,63), zeros(d1, d2));
-% figure; imagesc(A_rgb3*4)
-% 
-% A_all3_n = A_all3;
-% for n_dset = 1:numel(A_all3)
-%     A = A_all3{n_dset};
-%     A_n = A;
-%     for n_cell = 1:size(A_n,3)
-%         A_cell = A(:,:,n_cell);
-%         mask1 = A_cell>0;
-%         A_cell_n = A_cell;
-%         A_cell_n(mask1) = A_cell_n(mask1) - mean(A_cell_n(mask1));
-%         A_cell_n(mask1) = A_cell_n(mask1)/std(A_cell_n(mask1));
-%         A_n(:,:,n_cell) = A_cell_n;
-%     end
-%     A_all3_n{n_dset} = A_n;
-% end
-% 
-% dset1 = A_all3_n{1};
-% dset2 = A_all3_n{1};
-% 
-% num_cells1 = size(dset1,3);
-% num_cells2 = size(dset2,3);
-% 
-% c_vals = zeros(num_cells1, num_cells2);
-% c_dist = zeros(num_cells1, num_cells2);
-% 
-% for n_cell1 = 1:num_cells1
-%     for n_cell2 = 1:num_cells2
-%         cell1 = dset1(:,:,n_cell1);
-%         cell2 = dset2(:,:,n_cell2);
-%         convvv = ifft2(fft2(cell1, 511, 511).*fft2(rot90(cell2,2), 511, 511));
-%         
-%         [c_vals(n_cell1, n_cell2), max_idx] = max(convvv(:));
-%         [m1c, n1c] = ind2sub(size(convvv), max_idx);
-%         
-%         c_dist(n_cell1, n_cell2) = sqrt((m1c-d11)^2 + (n1c-d12)^2);
-%     end
-% end
-% 
-% dset1 = A_all3_n{1};
-% dset2 = A_all3_n{2};
-% 
-% num_cells1 = size(dset1,3);
-% num_cells2 = size(dset2,3);
-% 
-% c_vals2 = zeros(num_cells1, num_cells2);
-% c_dist2 = zeros(num_cells1, num_cells2);
-% 
-% for n_cell1 = 1:num_cells1
-%     for n_cell2 = 1:num_cells2
-%         cell1 = dset1(:,:,n_cell1);
-%         cell2 = dset2(:,:,n_cell2);
-%         convvv = ifft2(fft2(cell1, 511, 511).*fft2(rot90(cell2,2), 511, 511));
-%         
-%         [c_vals2(n_cell1, n_cell2), max_idx] = max(convvv(:));
-%         [m1c, n1c] = ind2sub(size(convvv), max_idx);
-%         
-%         c_dist2(n_cell1, n_cell2) = sqrt((m1c-d11)^2 + (n1c-d12)^2);
-%         
-%         if c_dist2(n_cell1, n_cell2) < 5
-%             c_rgb = cat(3,cell1/max(cell1(:))*1.2, circshift(cell2, 20, 2)/max(cell2(:))*1.2, zeros(256, 256));
-%             figure; imagesc(c_rgb);
-%             title(sprintf('cell %d, cell %d, c val %.2f', n_cell1, n_cell2, c_vals2(n_cell1, n_cell2)))
-%         end
-%     end
-% end
-% 
-% 
-% 
-% figure; imagesc(c_vals)
-% figure; imagesc(c_dist)
-% 
-% figure; hold on;
-% plot(c_vals(:), c_dist(:), 'o', 'color', [.4 .4 .4])
-% plot(c_vals2(:), c_dist2(:), 'o', 'color', 'b')
-% 
-% 
-% cell1 = A_all3_n{1}(:,:,1);
-% cell2 = A_all3_n{1}(:,:,2);
-% convvv = ifft2(fft2(cell1, 511, 511).*fft2(rot90(cell2,2), 511, 511));
-% 
-% [max_val, max_idx] = max(convvv(:));
-% [m1c, n1c] = ind2sub(size(convvv), max_idx);
-% 
-% 
-% 
-% 
-% 
-% m1 - m2
-% n1 - n2
-% 
-% m1*2-1
-% 
-% 
-% figure; imagesc(cell1)
-% figure; imagesc(convvv)
-% 
-% figure; imagesc(c2)
-% 
-% norm(A_cell(mask1)-mean(A_cell(mask1)), 'fro')
-% 
-% var(A_cell(mask1))
-% 
-% A_cell2 = A(:,:,1);
-% A_cell2_n = A_cell2/norm(A_cell2, 'fro');
-% 
-% max(max(ifft2(fft2(A_cell_n, 511, 511).*fft2(A_cell_n, 511, 511))))
-% 
-% 
-% figure; imagesc(ifft2(fft2(A_n(:,:,1), 511, 511).*fft2(A_n(:,:,3), 511, 511)))
 
 end

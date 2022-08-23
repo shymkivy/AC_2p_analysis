@@ -23,11 +23,13 @@ else
 end
 
 %%
+
 trial_types = app.ddata.trial_types{1};
 stim_frame_index = app.ddata.stim_frame_index{1};
-trial_num_baseline_resp_frames = app.ddata.trial_window{1}.trial_num_baseline_resp_frames;
+trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
+[~, trial_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
 
-trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_num_baseline_resp_frames);
+trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_frames);
 if ~isempty(app.ddata.MMN_freq{1})
     [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, app.ddata.MMN_freq{1}, app.ops);
 else

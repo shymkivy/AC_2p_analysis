@@ -26,6 +26,17 @@ function data = f_s1_process_stim_volt(data, ops)
 %     data.num_trials_extracted(n_pl) = sum(data.stim_times_trace{n_pl});
 % end
 
+%% remove stim times outside of exp windows
+num_stim_chan = size(data.stim_times_frame,1);
+exp_phase = data.exp_phase_mpl{1};
+for n_st = 1:num_stim_chan
+    if ~isempty(data.stim_times_frame{n_st,1})
+        idx1 =  exp_phase(data.stim_times_frame{n_st,1}) == 0;
+        data.stim_times_frame{n_st,1}(idx1) = [];
+        data.stim_times_volt{n_st,1}(idx1) = [];
+    end
+end
+
 %%
 
 if and(strcmpi(ops.paradigm, {'freq_grating'}), isfield(data, 'cont_trials_seq'))
