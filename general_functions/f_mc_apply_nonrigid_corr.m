@@ -45,8 +45,6 @@ for n_bl = 1:num_blocks
 end
 fprintf('\nDone with nonrigid apply; compute time = %.1f\n', toc);
 
-1
-
 % clear dsall_m_sm_ip dsall_n_sm_ip X_out Y_out;
 % 
 % dsall_m_sm_ip = interp3(X_in, Y_in, Z_in, single(dsall_m_sm2), X_out, Y_out, Z_out);

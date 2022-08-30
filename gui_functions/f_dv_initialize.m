@@ -116,8 +116,8 @@ app.yvarDropDown.Value = data_variables{2};
 
 app.plottypeDropDown.Items = {'kde', 'ecdf', 'histogram'};
 
-app.gui_ops.save_var_list_pl = {'stats', 'stats_within', 'registration',...
-                    'registration_caiman'};
+app.gui_ops.save_var_list_pl = {'stats', 'stats_within', 'register_roi',...
+                    'register_roi_caiman_load', 'opto_data'};
 app.gui_ops.save_var_list = {'data_dim_pca', 'data_dim_cv',...
                     'ensembles', 'ensemble_stats', 'ensemble_tuning_stats',...
                     'ensless_dim_est'};
@@ -129,5 +129,7 @@ app.RunallDropDown.Items = [app.gui_ops.save_var_list_pl app.gui_ops.save_var_li
 app.regiontoplotDropDown.Items = {'All', 'A1', 'A2', 'AAF', 'UF', 'AC'};
 
 app.DeconvolutionmethodDropDown.Items = {'smooth_dfdt'};
+
+app.regdatatouseDropDown.Items = {'gui reg', 'caiman reg'};
 
 end

@@ -1,4 +1,4 @@
-function f_dv_register_cells(app)
+function f_dv_register_cells_bkp2(app)
 
 ddata = app.ddata;
 
@@ -6,7 +6,7 @@ ddata = app.ddata;
 
 idx1 = logical(strcmpi(ddata.mouse_id, app.data.mouse_id).*(ddata.FOV_num == app.data.FOV_num));
 
-data3 = app.data(idx1,:);
+data2 = app.data(idx1,:);
 
 input1 = app.regdsetuseEditField.Value;
 if ~isempty(input1)
@@ -15,10 +15,10 @@ if ~isempty(input1)
     for n_char = 1:numel(input1)
         dsets_use(n_char) = str2double(input1(n_char));
     end
-    data3 = data3(dsets_use,:);
+    data2 = data2(dsets_use,:);
 end
 
-num_dsets = numel(data3.mouse_id);
+num_dsets = numel(data2.mouse_id);
 num_planes = ddata.num_planes;
 % 
 % bkg_all = cell(num_dsets,1);
@@ -80,9 +80,9 @@ A_all3 = cell(num_planes, num_dsets);
 num_cells = zeros(num_planes, num_dsets);
 for n_dset = 1:num_dsets
     for n_pl = 1:num_planes
-        data4 = data3(n_dset,:);
-        est = data4.OA_data{n_pl}.est;
-        proc = data4.OA_data{n_pl}.proc;
+        data3 = data2(n_dset,:);
+        est = data3.OA_data{n_pl}.est;
+        proc = data3.OA_data{n_pl}.proc;
         num_cells(n_pl, n_dset) = sum(proc.comp_accepted);
         A_full = reshape(full(est.A(:,logical(proc.comp_accepted))), est.dims(1), est.dims(2), []);
         A_flat = sum(A_full,3);

@@ -54,6 +54,20 @@ ops.deconv.MCMC.params.save_SAMP = 0;
 
 do_MCMC_cells = 'accepted'; % 'accepted', 'all'
 
+% component merge params
+
+params_merge.apply_merge = 1;
+params_merge.merge_method = 'Combine and reject other';
+params_merge.plot_stuff = 1;
+params_merge.spac_thr = .3;
+params_merge.temp_thr = .3;
+params_merge.use_accepted = 1;
+
+% for deconfolution of merged
+dc_params.use_manual_params = 0;
+dc_params.p = 2;
+dc_params.fudge_factor = .99;
+params_merge.dc_params = dc_params;
 %%
 flist = dir([data_dir '\*.hdf5']);
 fnames = {flist.name}';
@@ -65,7 +79,7 @@ for n_fl = 1:numel(fnames)
     
     f_sort_path = [data_dir '\' f_core '_sort.mat'];
     
-    updates = 0;
+    updates = 1;
     
     if exist(f_sort_path, 'file')
         fprintf('Updating %s... sort\n', f_core);
@@ -75,6 +89,10 @@ for n_fl = 1:numel(fnames)
         
         ops.eval_params_caiman = est.eval_params_caiman;
         ops.init_params_caiman = est.init_params_caiman;
+        
+        if ~isfield(est, 'num_cells_original')
+            est.num_cells_original = size(est.C,1);
+        end
     else
     
         fprintf('Creating new %s... sort\n', f_core);
@@ -92,6 +110,7 @@ for n_fl = 1:numel(fnames)
         
         updates = 1;
     end 
+
     if ~updates
         flnames=fieldnames(ops.eval_params2);
         for n_field = 1:numel(flnames)
@@ -109,7 +128,10 @@ for n_fl = 1:numel(fnames)
     
     %% evaluate comp
     if updates
-        proc.comp_accepted_core = true(proc.num_cells,1);
+        
+        [est, proc] = f_cs_reset_est_proc(est, proc);
+        
+        proc.comp_accepted_core = true(size(proc.comp_accepted_core));
         if ops.eval_params2.EvalSNRcaiman
             proc.comp_accepted_core = ((est.SNR_comp >= ops.eval_params2.RejThrSNRCaiman).*proc.comp_accepted_core);
         end
@@ -128,9 +150,17 @@ for n_fl = 1:numel(fnames)
         if ops.eval_params2.EvalFiringStability
             proc.comp_accepted_core = ((proc.firing_stab_vals >= ops.eval_params2.FiringStability).*proc.comp_accepted_core);
         end
-        proc.comp_accepted = proc.comp_accepted_core;
+        proc.comp_accepted = logical(proc.comp_accepted_core);
 
         %% smoothdfdt
+        if params_merge.use_accepted
+            params_merge.comp_acc = proc.comp_accepted;
+        else
+            params_merge.comp_acc = true(proc.num_cells,1);
+        end
+
+        [est, proc] = f_cs_find_similar_comp_core(est, proc, params_merge);
+        
         proc.deconv.smooth_dfdt.S = zeros(proc.num_cells, proc.num_frames);
         smdfdt_params = ops.deconv.smooth_dfdt.params;
 

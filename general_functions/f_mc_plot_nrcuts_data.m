@@ -32,7 +32,29 @@ for n_pl = 1:num_planes
         end
         axis tight;
         ylabel(sprintf('blocks size = %d; overlap = %d', block_size, block_overlap))
-        title(sprintf('%s, pl%d\nnonrigid raw vs block smooth [%.1f %.1f %.1f]',title_tag, n_pl, block_smooth(1), block_smooth(2), block_smooth(3)), 'interpreter', 'none');
+        title(sprintf('%s, pl%d\nonrigid raw vs block smooth [%.1f %.1f %.1f]',title_tag, n_pl, block_smooth(1), block_smooth(2), block_smooth(3)), 'interpreter', 'none');
+        
+        
+        m_mean = mean(cuts_data{n_pl}.nr_corr_data.dsall_m,3);
+        n_mean = mean(cuts_data{n_pl}.nr_corr_data.dsall_n,3);
+        %max_mag = max(max(sqrt(n_mean.^2 + m_mean.^2)));
+        max_mag = 1;
+        f1 = figure; 
+        quiver(n_mean/max_mag, m_mean/max_mag); axis tight;
+        title(sprintf('%s, pl%d mean nonrigid fix in pix',title_tag, n_pl), 'interpreter', 'none');
+        xlabel('blocks n'); ylabel('blocks m');
+        f1.Children.YDir = 'reverse';
+        
+        m_std = std(cuts_data{n_pl}.nr_corr_data.dsall_m,0,3);
+        n_std = std(cuts_data{n_pl}.nr_corr_data.dsall_n,0,3);
+        %max_mag = max(max(sqrt(m_std.^2 + m_std.^2)));
+        max_mag = 1;
+        f1 = figure; 
+        quiver(n_std/max_mag, m_std/max_mag); axis tight;
+        title(sprintf('%s, pl%d std nonrigid fix in pix',title_tag, n_pl), 'interpreter', 'none');
+        xlabel('blocks n'); ylabel('blocks m');
+        f1.Children.YDir = 'reverse';
+        
     end
 end
 

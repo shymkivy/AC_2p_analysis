@@ -1,5 +1,7 @@
 function f_dv_load_mat_data(app)
 
+disp('Loading mat data');
+
 fpath = app.matdatapathEditField.Value;
 
 data1 = load(fpath);
@@ -26,5 +28,6 @@ for n_dset = 1:num_dsets
 end
 
 f_dv_initialize_post_load(app);
+disp('Done');
 
 end

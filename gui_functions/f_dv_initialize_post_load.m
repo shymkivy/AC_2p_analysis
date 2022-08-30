@@ -27,6 +27,5 @@ end
 app.data.registered_data = cell(num_dsets,max_planes);
 
 f_dv_load_dset_from_data(app);
-disp('Loaded')
 
 end

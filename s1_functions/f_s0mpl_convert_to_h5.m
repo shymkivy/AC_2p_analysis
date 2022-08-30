@@ -262,6 +262,12 @@ elseif params.moco_nonrigid_method == 3
     params_moco.nonrigid_block_size = 40;
     params_moco.nonrigid_block_overlap = 30;
     params_moco.nonrigid_block_smooth = [0.5 0.5 3]; % [0 0 025]
+elseif params.moco_nonrigid_method == 4
+    params_moco.nonrigid_smooth_std = [0.5 0.5 3];
+    params_moco.nonrigid_reg_lambda = [2 .5];
+    params_moco.nonrigid_block_size = 30;
+    params_moco.nonrigid_block_overlap = 15;
+    params_moco.nonrigid_block_smooth = [0.5 0.5 3]; % [0 0 025]
     
 end
 
@@ -523,7 +529,7 @@ if do_moco
     proc_steps = [proc_steps '_moco'];
     if 1%save_all_steps
         for n_pl = 1:num_planes
-            f_save_mov_YS(Y{n_pl}(:,:,1:min(20000, size(Y{n_pl},3))), [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov')
+            f_save_mov_YS(Y{n_pl}(:,:,1:min(25000, size(Y{n_pl},3))), [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov')
         end
     end
     
@@ -546,7 +552,7 @@ if do_moco
         proc_steps = [proc_steps '_nonrigid'];
         if 1%save_all_steps
             for n_pl = 1:num_planes
-                f_save_mov_YS(Y{n_pl}(:,:,1:min(20000, size(Y{n_pl},3))), [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov')
+                f_save_mov_YS(Y{n_pl}(:,:,1:min(25000, size(Y{n_pl},3))), [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov')
             end
         end
     end

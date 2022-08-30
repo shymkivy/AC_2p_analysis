@@ -135,6 +135,46 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensless_dim_est')
         end
     end
     fprintf('\n');
+elseif strcmpi(app.RunallDropDown.Value, 'register_roi')
+    data = app.data;
+    mice_all = unique(data.mouse_id, 'stable');
+    num_mice = numel(mice_all);
+    fprintf('Running all register roi, mouse_/%d: ', num_mice)
+    for n_mouse = 1:num_mice
+        fprintf('%d..', n_mouse);
+        mouse_id = mice_all{n_mouse};
+        data2 = data(strcmpi(data.mouse_id, mouse_id),:);
+        fov_all = unique(data2.FOV_num, 'stable');
+        for n_fov = 1:numel(fov_all)
+            fov1 = fov_all(n_fov);
+            data3 = data2(data2.FOV_num == fov1,:);      
+            idx1 = logical(sum(data.idx == data3.idx',2));
+            if sum(idx1) > 1
+                app.data(idx1,:).register_roi = f_dv_register_roi_core(data3, app.regscoretreshEditField.Value);
+            end
+        end
+    end
+    fprintf('\n');
+elseif strcmpi(app.RunallDropDown.Value, 'register_roi_caiman_load')
+    data = app.data;
+    mice_all = unique(data.mouse_id, 'stable');
+    num_mice = numel(mice_all);
+    fprintf('Running all load caiman roi registration, mouse_/%d: ', num_mice)
+    for n_mouse = 1:num_mice
+        fprintf('%d..', n_mouse);
+        mouse_id = mice_all{n_mouse};
+        data2 = data(strcmpi(data.mouse_id, mouse_id),:);
+        fov_all = unique(data2.FOV_num, 'stable');
+        for n_fov = 1:numel(fov_all)
+            fov1 = fov_all(n_fov);
+            data3 = data2(data2.FOV_num == fov1,:);      
+            idx1 = logical(sum(data.idx == data3.idx',2));
+            if sum(idx1) > 1
+                app.data(idx1,:).register_roi_caiman_load = f_dv_load_caiman_roi_reg_core(data3, app.ops.file_dir);
+            end
+        end
+    end
+    fprintf('\n');
 end
 disp('Done')
 end
