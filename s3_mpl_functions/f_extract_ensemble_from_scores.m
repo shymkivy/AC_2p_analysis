@@ -171,7 +171,7 @@ end
 %     figure; imagesc(1-M_binary)
 % 
 % 
-% elseif strcmp(ensemble_method, 'ICA')
+% elseif strcmpi(ensemble_method, 'ICA')
 %     %% ICA assembly estimation
 %     n_pc = 1:num_comps;
 %     w = d_coeff(:,n_pc)/norm(d_coeff(:,n_pc)); % normalize
@@ -193,7 +193,7 @@ end
 %     end
 % 
 % 
-% elseif strcmp(ensemble_method, 'NMF')
+% elseif strcmpi(ensemble_method, 'NMF')
 %     
 %     plot_comp_num = 1:3;
 %     
@@ -299,7 +299,7 @@ end
 %     title(['NNMF shuffled Components ' num2str(plot_comp_num)]);
 %     subplot(4,1,4); plot(s_W(:,plot_comp_num));
 % 
-% elseif strcmp(ensemble_method, 'SPCA')
+% elseif strcmpi(ensemble_method, 'SPCA')
 %     %spca(X, Gram, K, delta, stop, maxSteps, convergenceCriterion, verbose)
 %     % gram is X'*X covariance
 %     % K is desired number of components

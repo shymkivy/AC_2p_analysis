@@ -2,7 +2,7 @@ function f_dv_plot_dist(app)
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 
-if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
     n_pl = app.mplSpinner.Value;
 else
     n_pl = 1:max([data.num_planes]);
@@ -15,6 +15,8 @@ num_tn = numel(tn_all);
 
 features1 = f_dv_get_feature(app.plotfeatureDropDown.Value, data, tn_all, n_pl, app.LimitresptrialsCheckBox.Value, app.RespthreshEditField.Value);
 
+plot_lims = f_str_to_array(app.analysis_BaserespwinEditField.Value);
+n_bins = round(diff(plot_lims)/data.cdata{1}.volume_period*1000/2);
 figure; hold on; axis tight;
 if app.MarginalizedistCheckBox.Value
     features_pool2 = cat(1, features1{:});
@@ -26,7 +28,7 @@ if app.MarginalizedistCheckBox.Value
             [f, xi] = ecdf(features_pool2);
             plot(xi, f, 'LineWidth', 2);
         elseif strcmpi(app.plottypeDropDown.Value, 'histogram')
-            histogram(features_pool2);
+            histogram(features_pool2, linspace(plot_lims(1),plot_lims(2),n_bins));
         end
     end
 else
@@ -40,7 +42,7 @@ else
                 [f, xi] = ecdf(features1{n_tn});
                 plot(xi, f, 'color', color2, 'LineWidth', 2);
             elseif strcmpi(app.plottypeDropDown.Value, 'histogram')
-                histogram(features1{n_tn});
+                histogram(features1{n_tn}, linspace(plot_lims(1),plot_lims(2),n_bins));
             end
         end
     end

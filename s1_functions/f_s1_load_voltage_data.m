@@ -13,7 +13,7 @@ for n_file = 1:ops.num_volt_in_files
     [T, num_volt_rec] = size(dattmp2);
 
     % syncs the start of voltage recording with start of frame
-    %~strcmp(data.frame_data_XML.trigger_mode{n_file}, 'Start with next scan (PFI0)')
+    %~strcmpi(data.frame_data_XML.trigger_mode{n_file}, 'Start with next scan (PFI0)')
     if ~sum(strfind(data.frame_data_XML.trigger_mode{n_file}, 'next scan'), strfind(data.frame_data_XML.trigger_mode{n_file}, 'external trigger'))
         dattmp2 = dattmp2(round((frame_data_XML.frame_start(n_file)-frame_data_XML.volt_start(n_file))+1):end,:);
     end

@@ -19,7 +19,7 @@ num_cells_all = zeros(num_dsets, numel(tn_all));
 for n_dset = 1:num_dsets
     ddata = data(n_dset,:);
     
-    if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+    if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
         cdata = f_dv_compute_cdata(ddata, params);
         stats1 = ddata.stats{app.mplSpinner.Value};
     else
@@ -41,7 +41,7 @@ for n_dset = 1:num_dsets
         
         
         
-%         if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+%         if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
 %             resp_cell = logical(sum(stats1{n_pl}.cell_is_resp(:,tn_all),2));
 %         else
 %             resp_cells_all = cell(numel(stats1),1);

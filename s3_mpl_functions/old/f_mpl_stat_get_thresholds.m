@@ -80,7 +80,7 @@ z_factors_out = zeros(num_cells, num_bins, num_trial_cat);
 means_out = zeros(num_cells, num_bins, num_trial_cat);
 for n_cell = 1:num_cells
     
-    if sum(n_cell == plot_examples) && ~strcmp(thresh_method, 'zscore_around_mean')
+    if sum(n_cell == plot_examples) && ~strcmpi(thresh_method, 'zscore_around_mean')
         figure; hold on;
     end    
     
@@ -91,7 +91,7 @@ for n_cell = 1:num_cells
         
         [~, bin_ind] = max(data_mean+data_SEM_est);
         
-        if strcmp(thresh_method, 'zscore_around_mean')
+        if strcmpi(thresh_method, 'zscore_around_mean')
             sig_thresh(n_cell, :, n_trial) = data_mean + z_scores_thresh*data_SEM_est;
             z_factors_out(n_cell, :, n_trial) = data_SEM_est;
             means_out(n_cell, :, n_trial) = data_mean;
@@ -122,18 +122,18 @@ for n_cell = 1:num_cells
             samp_data_sort = sort(samp_data);
             ecdf_thresh = samp_data_sort(round(ecdf_percentile_thresh/100*num_samples_drawn),:);
             
-            if strcmp(thresh_method, 'ecdf_percentile')
+            if strcmpi(thresh_method, 'ecdf_percentile')
                 sig_thresh(n_cell, :, n_trial) = ecdf_thresh;
                 z_factors_out(n_cell, :, n_trial) = (samp_data_sort(round(0.95*num_samples_drawn),:)-samp_data_median)/2;
                 means_out(n_cell, :, n_trial) = samp_data_median;
-            elseif strcmp(thresh_method, 'zscore_around_median')
+            elseif strcmpi(thresh_method, 'zscore_around_median')
                 sig_thresh(n_cell, :, n_trial) = samp_data_median + z_scores_thresh*samp_data_SEM_ar_median;
                 z_factors_out(n_cell, :, n_trial) = samp_data_SEM_ar_median;
                 means_out(n_cell, :, n_trial) = samp_data_median;
             end
             
             
-            if sum(n_cell == plot_examples) && ~strcmp(thresh_method, 'zscore_around_mean')
+            if sum(n_cell == plot_examples) && ~strcmpi(thresh_method, 'zscore_around_mean')
                 % compute SEM around mean
                 samp_data_mean = mean(samp_data);
                 samp_data_mean_sub = samp_data - samp_data_mean;
@@ -161,7 +161,7 @@ for n_cell = 1:num_cells
             
         end
     end
-    if sum(n_cell == plot_examples) && ~strcmp(thresh_method, 'zscore_around_mean')
+    if sum(n_cell == plot_examples) && ~strcmpi(thresh_method, 'zscore_around_mean')
         legend('ECDF', 'CDF SEMarMed', 'CDF SEMarMean', 'median', 'mean', sprintf('%d%s ecdf thresh',95, '%'), sprintf('%d%s ecdf thresh',99.7, '%'), sprintf('SEMarMed %dz',2), sprintf('SEMarMed %dz',3), sprintf('SEMarMean %dz',2),sprintf('SEMarMean %dz',3),sprintf('est SEM %dz',2),sprintf('est SEM %dz',3),'FontSize',8);
         suptitle(sprintf('cell %d, %d samples',n_cell, num_samples_drawn))
     end

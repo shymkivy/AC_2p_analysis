@@ -44,6 +44,8 @@ for n_dset = 1:num_dset
             
             % for throw bad components for memory effic
             idx_acc = logical(temp_data1.proc.comp_accepted);
+            idx_acc(temp_data1.proc.idx_manual_bad) = 0;
+            idx_acc(temp_data1.proc.idx_manual) = 1;
             temp_data1.est = if_cut_bad_comp(temp_data1.est, idx_acc);
             temp_data1.proc = if_cut_bad_comp(temp_data1.proc, idx_acc);
             temp_data1.proc.deconv.smooth_dfdt = if_cut_bad_comp(temp_data1.proc.deconv.smooth_dfdt, idx_acc);

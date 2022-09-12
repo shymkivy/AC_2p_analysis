@@ -63,6 +63,9 @@ app.stats_PvalEditField.Value = (1 - normcdf(app.stats_ZthreshEditField.Value));
 app.stats_PeakbintimesecEditField.Value = stats.peak_bin_time;
 app.stats_NumshuffsampEditField.Value = stats.num_shuff_samp;
 app.stats_BaserespwinEditField.Value = f_array_to_str(stats.base_resp_win);
+app.stats_LimSigRespwinEditField.Value = f_array_to_str(stats.lim_sig_resp_win);
+app.stats_OnsetRespwinEditField.Value = f_array_to_str(stats.resp_win_onset);
+app.stats_OffsetRespwinEditField.Value = f_array_to_str(stats.resp_win_offset);
 app.stats_LocothreshEditField.Value = stats.loco_thresh;
 
 %% load default dim est pca 
@@ -107,6 +110,10 @@ app.ens_plotstuffCheckBox.Value = ens_params.plot_stuff;
 app.ensshuffrepsEditField.Value = ens_params.acc_shuff_reps;
 
 %%
+app.SelectdatagroupDropDown.Items = {'Plane', 'Dataset', 'Mouse', 'Region', 'All'};
+app.SelectdatagroupDropDown.Value = 'Dataset';
+
+app.ContoursDropDown.Items = {'None', 'Tuning type', 'Tuning magnitude', 'Onset offset', 'SNR', 'Skewness', 'Locomotion'};
 
 data_variables = {'peak loc', 'resp mag', 'resp mag z', 'resp thresh', 'trial sem val'};
 app.plotfeatureDropDown.Items = data_variables;

@@ -8,7 +8,7 @@ addpath(genpath('C:\Users\ys2605\Desktop\stuff\caiman_sorter\caiman_sorter_funct
 ops = struct();
 ops = f_cs_collect_ops_loop(ops);
 
-if 1
+if 0
     data_dir = 'F:\AC_data\caiman_data_dream';
 
     % evaluate params
@@ -18,13 +18,15 @@ if 1
     ops.eval_params2.EvalRvalues =              1;
     ops.eval_params2.EvalMinSigFrac =           0;
     ops.eval_params2.EvalFiringStability =      0;
-
+    ops.eval_params2.EvalSkewness =             1;
+    
     ops.eval_params2.RejThrSNRCaiman =          2;
     ops.eval_params2.RejThrSNR2 =               2;
     ops.eval_params2.RejThrCNN =                0.5;
     ops.eval_params2.RejThrRvalues =            0.6;
     ops.eval_params2.RejThrMinSigFrac =         0.5;
     ops.eval_params2.FiringStability =          0.01;
+    ops.eval_params2.RejThrSkewness =           0;
 else
     data_dir = 'F:\AC_data\caiman_data_missmatch';
 
@@ -35,13 +37,15 @@ else
     ops.eval_params2.EvalRvalues =              1;
     ops.eval_params2.EvalMinSigFrac =           0;
     ops.eval_params2.EvalFiringStability =      0;
+    ops.eval_params2.EvalSkewness =             1;
 
     ops.eval_params2.RejThrSNRCaiman =          2;
     ops.eval_params2.RejThrSNR2 =               4;
     ops.eval_params2.RejThrCNN =                0.97;
-    ops.eval_params2.RejThrRvalues =            0.7;
+    ops.eval_params2.RejThrRvalues =            0.6;
     ops.eval_params2.RejThrMinSigFrac =         0.5;
     ops.eval_params2.FiringStability =          0.01;
+    ops.eval_params2.RejThrSkewness =           0;
 end
 %% deconv params
 ops.deconv.smooth_dfdt.params.convolve_gaus = 1;
@@ -57,7 +61,7 @@ do_MCMC_cells = 'accepted'; % 'accepted', 'all'
 % component merge params
 
 params_merge.apply_merge = 1;
-params_merge.merge_method = 'Combine and reject other';
+params_merge.merge_method = 'weighted ave'; % 'weighted ave'; full mean corr; svd; nmf; choose better;
 params_merge.plot_stuff = 1;
 params_merge.spac_thr = .3;
 params_merge.temp_thr = .3;
@@ -72,7 +76,9 @@ params_merge.dc_params = dc_params;
 flist = dir([data_dir '\*.hdf5']);
 fnames = {flist.name}';
 
-for n_fl = 1:numel(fnames)
+num_files = numel(fnames);
+
+for n_fl = 1:num_files
     [~, f_core, ext] = fileparts(fnames{n_fl});
     
     file_loc = [data_dir '\' fnames{n_fl}];
@@ -81,8 +87,8 @@ for n_fl = 1:numel(fnames)
     
     updates = 1;
     
-    if exist(f_sort_path, 'file')
-        fprintf('Updating %s... sort\n', f_core);
+    if 0%exist(f_sort_path, 'file')
+        fprintf('%d/%d Updating %s... sort\n', n_fl, num_files, f_core);
         load_data = load(f_sort_path);
         est = load_data.est;
         proc = load_data.proc;
@@ -95,7 +101,7 @@ for n_fl = 1:numel(fnames)
         end
     else
     
-        fprintf('Creating new %s... sort\n', f_core);
+        fprintf('%d/%d Creating new %s... sort\n', n_fl, num_files, f_core);
         %% load data
         %if strcmpi(ext,'.hdf5') || strcmpi(ext,'.hdf') || strcmpi(ext,'.h5')
         temp_dims = h5read(file_loc,'/estimates/dims');
@@ -149,6 +155,9 @@ for n_fl = 1:numel(fnames)
         end
         if ops.eval_params2.EvalFiringStability
             proc.comp_accepted_core = ((proc.firing_stab_vals >= ops.eval_params2.FiringStability).*proc.comp_accepted_core);
+        end
+        if ops.eval_params2.EvalSkewness
+            proc.comp_accepted_core = ((proc.skewness >= ops.eval_params2.RejThrSkewness).*proc.comp_accepted_core);
         end
         proc.comp_accepted = logical(proc.comp_accepted_core);
 

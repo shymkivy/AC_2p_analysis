@@ -8,10 +8,10 @@ resp_cells = cell(num_trials,1);
 for n_tn = 1:num_trials
     tn1 = tn_all(n_tn);
     if limit_resp_trials
-        peak_vals = stats1.peak_val_all(:,tn1);
+        peak_vals = stats1.peak_val_all(:,tn1).*stats1.peak_in_lim(:,tn1);
         resp_cells{n_tn} = logical(sum(peak_vals > resp_thr2,2));
     else
-        peak_vals = stats1.peak_val_all(:,tn_all);
+        peak_vals = stats1.peak_val_all(:,tn_all).*stats1.peak_in_lim(:,tn_all);
         resp_cells{n_tn} = logical(sum(peak_vals > resp_thr2,2));
     end
 end

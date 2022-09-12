@@ -1,6 +1,6 @@
 function ops = f_s1_process_ops(ops)
 
-if strcmp(ops.ca_processing ,'onacid')
+if strcmpi(ops.ca_processing ,'onacid')
     ops.OnACID = 1;
     oa_tag = ''; % _OA
 else
@@ -11,7 +11,7 @@ end
 ops.num_volt_in_files = length(ops.files_volt_in);
 
 ops.file_path_full_ca = cell(ops.num_planes,1); 
-if strcmp(ops.ca_processing ,'onacid')
+if strcmpi(ops.ca_processing ,'onacid')
     if ops.num_planes > 1
         for n_pl = 1:ops.num_planes
             %ops.file_path_full_ca{n_pl} = [ops.file_dir '\' ops.file_core oa_tag '_mpl' num2str(n_pl)];

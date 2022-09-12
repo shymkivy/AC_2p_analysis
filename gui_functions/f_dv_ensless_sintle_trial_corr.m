@@ -17,7 +17,7 @@ for n_dset = 1:numel(dset_list)
         ddata = app.data(dset_idx,:);
         tn_all = tn_list(n_tn);
         
-        if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+        if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
             cdata = ddata.cdata{1}{n_pl};
         else
             cdata = cat(1,ddata.cdata{1}{:});
@@ -27,7 +27,7 @@ for n_dset = 1:numel(dset_list)
         firing_rate = cat(1,cdata.S_sm);
         
         stats1 = ddata.stats;
-        if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+        if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
             resp_cell = logical(sum(stats1{n_pl}.cell_is_resp(:,tn_all),2));
         else
             resp_cells_all = cell(numel(stats1),1);

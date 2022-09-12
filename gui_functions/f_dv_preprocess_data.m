@@ -98,7 +98,7 @@ num_cells = size(traces_raw,1);
 % so smooth dfdt with default params use for aligning the deconvolution
 smooth_dfdt = f_smooth_dfdt3(traces_raw);
 
-if strcmp(ops.signal_inference, 'smooth_dfdt')
+if strcmpi(ops.signal_inference, 'smooth_dfdt')
     load_params = temp_data.proc.deconv.smooth_dfdt.params;
     params = struct;
     params.do_smooth = load_params.convolve_gaus;
@@ -112,7 +112,7 @@ if strcmp(ops.signal_inference, 'smooth_dfdt')
         params.threshold = 0;
     end
     firing_rate = f_smooth_dfdt3(traces_raw, params);
-elseif strcmp(ops.signal_inference, 'df_f')
+elseif strcmpi(ops.signal_inference, 'df_f')
     A = temp_data.est.A(:,accepted_cells);
     b = temp_data.est.b;
     C = temp_data.est.C(accepted_cells,:);
@@ -120,10 +120,10 @@ elseif strcmp(ops.signal_inference, 'df_f')
     YrA = temp_data.est.YrA(accepted_cells,:);
     [firing_rate,~] = detrend_df_f_auto_YS(A,b',C,f',YrA);
 
-elseif strcmp(ops.signal_inference, 'c_foopsi') || strcmp(ops.signal_inference, 'MCMC')
-    if strcmp(ops.signal_inference, 'c_foopsi')
+elseif strcmpi(ops.signal_inference, 'c_foopsi') || strcmpi(ops.signal_inference, 'MCMC')
+    if strcmpi(ops.signal_inference, 'c_foopsi')
         firing_rate = temp_data.proc.deconv.c_foopsi.S(accepted_cells,:);
-    elseif strcmp(ops.signal_inference, 'MCMC')
+    elseif strcmpi(ops.signal_inference, 'MCMC')
         firing_rate = temp_data.proc.deconv.MCMC.S(accepted_cells,:);
     end
     
@@ -153,7 +153,7 @@ elseif strcmp(ops.signal_inference, 'c_foopsi') || strcmp(ops.signal_inference, 
     firing_rate(no_deconv_data,:) = [];
 
     
-elseif strcmp(ops.signal_inference, 'raw')
+elseif strcmpi(ops.signal_inference, 'raw')
     firing_rate = traces_raw;
 end
 

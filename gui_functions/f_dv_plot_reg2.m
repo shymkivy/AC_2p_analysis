@@ -41,18 +41,19 @@ end
 
 comb_im_fov = image_wf_in;
 comb_im_A = image_wf_in;
+plot_contours = app.ContoursDropDown.Value;
 
 if plot_fov
     figure;
     comb_im_fov_fig = imagesc(comb_im_fov); hold on; axis equal tight;
-    title(['mouse ' mouse_tag ' fov ' app.ContoursButtonGroup.SelectedObject.Text], 'interpreter', 'none');
+    title(['mouse ' mouse_tag ' fov ' plot_contours], 'interpreter', 'none');
     %plot(current_means_in3(:,1),current_means_in3(:,2), 'or')
 end
 
 if plot_cell_contours
     figure;
     comb_im_A_fig = imagesc(comb_im_A); hold on; axis equal tight;
-    title(['mouse ' mouse_tag ' cell contours ' app.ContoursButtonGroup.SelectedObject.Text], 'interpreter', 'none');
+    title(['mouse ' mouse_tag ' cell contours ' plot_contours], 'interpreter', 'none');
     %plot(current_means_in3(:,1),current_means_in3(:,2), 'or')
 end
 
@@ -70,7 +71,7 @@ if ~white_bkg
     imagesc(comb_im_fov); 
 end
 hold on; axis equal tight;
-title(['mouse ' mouse_tag ' tuning ' app.ContoursButtonGroup.SelectedObject.Text], 'interpreter', 'none');
+title(['mouse ' mouse_tag ' tuning ' plot_contours], 'interpreter', 'none');
 
 %%
 
@@ -195,10 +196,10 @@ for n_ms = 1:numel(data_mouse_tag)
             %% plot tuning
 
 
-            if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'None')
+            if strcmpi(plot_contours, 'None')
                 contour_vals = zeros(num_cells,1);
                 use_mag_color_map = 0;
-            elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type')
+            elseif strcmpi(plot_contours, 'Tuning type')
                 tn_all = f_dv_get_trial_number(app);
                 tuning_freq = stats1.peak_val_all(:,tn_all);
                 resp_cells = stats1.cell_is_resp(:,tn_all);
@@ -208,7 +209,7 @@ for n_ms = 1:numel(data_mouse_tag)
                 contour_mag = max_idx;
                 c_lim = [min(max_idx) max(max_idx)];
                 use_mag_color_map = 0;
-            elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning mag')
+            elseif strcmpi(plot_contours, 'Tuning magnitude')
                 tn_all = f_dv_get_trial_number(app);
                 resp_cells = stats1.cell_is_resp;
                 peak_vals = stats1.peak_val_all;
@@ -221,12 +222,17 @@ for n_ms = 1:numel(data_mouse_tag)
                 contour_mag = peak_vals2; % factor to resize magnitudes to fir color
                 c_lim = [min(contour_mag) max(contour_mag)];
                 use_mag_color_map = 1;
-            elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'SNR')
+            elseif strcmpi(plot_contours, 'SNR')
                 SNR_list = mdata2.OA_data{n_pl}.proc.SNR2_vals(accepted_cells);
                 contour_mag = SNR_list; % factor to resize magnitudes to fir color
                 contour_vals = ones(num_cells,1);
                 use_mag_color_map = 1;
-            elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Locomotion')
+            elseif strcmpi(plot_contours, 'Skewness')
+                skew_list = mdata2.OA_data{n_pl}.proc.skewness(accepted_cells);
+                contour_mag = skew_list; % factor to resize magnitudes to fir color
+                contour_vals = ones(num_cells,1);
+                use_mag_color_map = 1;
+            elseif strcmpi(plot_contours, 'Locomotion')
                 resp_cells = stats1.loco_cell;
                 if app.ConverttoZCheckBox.Value
                     peak_vals = stats1.loco_z;

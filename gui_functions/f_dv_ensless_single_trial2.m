@@ -12,7 +12,7 @@ cdata = f_dv_get_cdata(app);
 num_cells = sum([cdata.num_cells]);
 firing_rate = cat(1,cdata.S_sm);
 
-if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
     resp_cell = logical(sum(app.ddata.stats{n_pl}.cell_is_resp(:,tn_all),2));
 else
     resp_cells_all = cell(numel(app.ddata.stats),1);

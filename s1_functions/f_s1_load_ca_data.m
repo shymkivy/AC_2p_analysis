@@ -6,7 +6,7 @@ function data = f_s1_load_ca_data(data, ops)
 %frame_data = data.frame_data;
 
 % ca videos are assumed to be all concatinated into one
-if strcmp(ops.ca_processing ,'onacid')
+if strcmpi(ops.ca_processing ,'onacid')
     
     data.ave_trace = cell(1,ops.num_planes);
     if exist([ops.file_save_path_full '_h5cutsdata.mat'], 'file')
@@ -23,7 +23,7 @@ if strcmp(ops.ca_processing ,'onacid')
         data.ave_trace{n_pl} = if_rescale(data.file_cuts_params{n_pl}.ave_trace);
         %data.ave_trace{n_pl} = if_normalize(data.ave_trace{n_pl});
     end
-elseif strcmp(ops.ca_processing ,'raw_movie')
+elseif strcmpi(ops.ca_processing ,'raw_movie')
     Y = double(bigread3([ops.file_dir '\' ops.file_core '.tif']));
     data.ave_trace = cell(1,ops.num_planes);
     trace = squeeze(mean(mean(Y,1),2));

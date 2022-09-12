@@ -35,18 +35,18 @@ if ~isfield(data, 'alignment')
             while ~temp_finish_alignment
 
                 if align_now
-                    if strcmp(temp_method, 'xcorr')
+                    if strcmpi(temp_method, 'xcorr')
                         shift = f_s1_align_traces_xcor(ca_traces, frame_times, volt_data);
                         scaling_factor = 1;
-                    elseif strcmp(temp_method, 'peak_onsets')
+                    elseif strcmpi(temp_method, 'peak_onsets')
                         [shift, scaling_factor] = f_s1_align_traces_peak_onesets(ca_traces, frame_times, volt_data);
-                    elseif strcmp(temp_method, 'peak_onsets_shift_only')
+                    elseif strcmpi(temp_method, 'peak_onsets_shift_only')
                         [shift, ~] = f_s1_align_traces_peak_onesets(ca_traces, frame_times, volt_data);
                         scaling_factor = 1;
-                    elseif strcmp(temp_method, 'peak_onsets_scale_only')
+                    elseif strcmpi(temp_method, 'peak_onsets_scale_only')
                         [~, scaling_factor] = f_s1_align_traces_peak_onesets(ca_traces, frame_times, volt_data);
                         shift = 0;
-                    elseif strcmp(temp_method, 'manual')
+                    elseif strcmpi(temp_method, 'manual')
                         [shift, scaling_factor] = f_s1_align_traces_manual(ca_traces, frame_times, volt_data);
                     elseif strcmpi(temp_method, 'regress')
                         [shift, scaling_factor] = f_s1_align_traces_regress(ca_traces, frame_times, volt_data);
@@ -150,7 +150,7 @@ function inp_answer = if_get_input(question, outputs)
 got_answer = 0;
 while ~got_answer
     inp_answer = input(question);
-    if strcmp(outputs,'numeric')
+    if strcmpi(outputs,'numeric')
         if isnumeric(inp_answer)
             got_answer = 1;
         else

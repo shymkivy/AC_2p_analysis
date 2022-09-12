@@ -8,6 +8,7 @@ stat_source = params.stats.stat_source; % 'All', 'Freqs', 'Freqs_dd'
 peak_bin_time = params.stats.peak_bin_time; % sec, .250
 num_samp = params.stats.num_shuff_samp; % 1000 before
 stat_window = params.stats.base_resp_win;
+lim_sig_resp_win = params.stats.lim_sig_resp_win;
 z_thresh = params.stats.z_thresh;
 loco_thresh_prc = params.stats.loco_thresh;
 
@@ -16,7 +17,6 @@ loco_thresh_prc = params.stats.loco_thresh;
 n_pl = params.n_pl;
 ddata = params.ddata;
 
-num_cells = params.cdata.num_cells;
 stim_times = ddata.stim_frame_index{n_pl};
 trial_types = ddata.trial_types{1};
 MMN_freq = ddata.MMN_freq{1};
@@ -29,13 +29,15 @@ peak_prcntle = normcdf(z_thresh)*100;
 stat_window_t = (ceil(stat_window(1)*fr):floor(stat_window(2)*fr))/fr;
 stat_window_num_baseline_resp_frames = [sum(stat_window_t<=0) sum(stat_window_t>0)];   
 
+lim_win_frames = logical((stat_window_t >= lim_sig_resp_win(1)) .* (stat_window_t <= lim_sig_resp_win(2)));
+
 %%
 win1 = stat_window_num_baseline_resp_frames;
 firing_rate = cat(1,params.cdata.S_sm);
 
-num_t = size(firing_rate,2);
+[num_cells, T] = size(firing_rate);
 
-rem_idx = stim_times>(num_t-win1(2)-1);
+rem_idx = stim_times>(T-win1(2)-1);
 stim_times(rem_idx) = [];
 trial_types(rem_idx) = [];
 
@@ -106,10 +108,12 @@ trial_data_stat_sem = std(trial_data_sort_stat,[],3)/sqrt(num_trial_per_stim-1);
 
 peak_vals = nan(num_cells, num_tt);
 peak_locs = nan(num_cells, num_tt);
+trial_ave_trace1 = zeros(num_cells, num_t, num_tt);
 for n_tt = 1:num_tt
     trial_data_sort2 = trial_data_sort_wctx(:,:, trial_types_wctx==ctx_types_all(n_tt));
     if ~isempty(trial_data_sort2)
         [peak_vals(:,n_tt), peak_locs(:,n_tt)] = f_get_trial_peak(mean(trial_data_sort2,3), peak_bin_size);
+        trial_ave_trace1(:,:,n_tt) = mean(trial_data_sort2,3);
     end
 end
 
@@ -142,9 +146,17 @@ end
 
 %% get resp cell
 
+idx1 = ~isnan(peak_locs);
+peak_locs_t = double(idx1);
+peak_locs_t(idx1) = stat_window_t(peak_locs(idx1));
+peak_in_lim = (peak_locs_t >= lim_sig_resp_win(1)) .* (peak_locs_t <= lim_sig_resp_win(2));
+
 if strcmpi(peak_stats, 'shuff_pool')
     resp_thresh = repmat(prctile(samp_peak_vals', peak_prcntle)', [1 num_t]);
-    resp_cells = peak_vals>resp_thresh(:,1);
+    % do this crap to ignore nan if any
+    resp_cells = double(idx1);
+    resp_cells(idx1) = peak_vals(idx1) > resp_thresh(peak_locs(idx1));
+    resp_cells = resp_cells .* peak_in_lim;
 elseif strcmpi(peak_stats, 'shuff_locwise')
     resp_thresh = zeros(num_cells, num_t);
     resp_cells = zeros(num_cells, num_tt);
@@ -253,11 +265,14 @@ end
 stats.trial_ave_trace = trial_data_stat_mean;
 stats.trial_sem_trace = trial_data_stat_sem;
 stats.trial_ave_val = mean(trial_data_stat_mean,2);
+stats.trial_ave_trace_tt = trial_ave_trace1;
+stats.trial_ave_trace_tt_lim_win_val = mean(trial_ave_trace1(:,lim_win_frames,:),2);
 stats.trial_sem_val = mean(trial_data_stat_sem,2);
 stats.cell_is_resp = resp_cells;
 stats.resp_thresh = resp_thresh;
 stats.peak_val_all = peak_vals;
 stats.peak_t_all = peak_t_all;
+stats.peak_in_lim = peak_in_lim;
 stats.stat_window_t = stat_window_t; % stat_window_t
 stats.num_cells = num_cells;
 stats.accepted_cells = params.cdata.accepted_cells;

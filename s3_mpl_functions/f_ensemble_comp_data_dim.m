@@ -30,11 +30,11 @@ num_trials = num_frames;
 
 %% random shuffle in time
 firing_rate_shuff = zeros(num_cells, num_frames);
-if strcmp(shuffle_method, 'circ_shift')
+if strcmpi(shuffle_method, 'circ_shift')
     for n_cell = 1:num_cells
         firing_rate_shuff(n_cell,:) = circshift(firing_rate_norm(n_cell,:),ceil(rand(1)*num_frames));
     end
-elseif strcmp(shuffle_method, 'scramble')
+elseif strcmpi(shuffle_method, 'scramble')
     % or do also scramble shuffle
     for n_cell = 1:num_cells
         firing_rate_shuff(n_cell,:) = firing_rate_norm(n_cell, randperm(num_frames,num_frames));

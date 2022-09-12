@@ -106,6 +106,9 @@ stats.z_thresh = 3;
 stats.peak_bin_time = 0.250; % in sec
 stats.num_shuff_samp = 2000;
 stats.base_resp_win = [-1 3];
+stats.lim_sig_resp_win = [0 1.2];
+stats.resp_win_onset = [.1, .4];
+stats.resp_win_offset = [.6, .9];
 stats.loco_thresh = 99; % in percent;
 
 %% est dim pca default params

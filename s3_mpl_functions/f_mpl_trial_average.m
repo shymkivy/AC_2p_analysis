@@ -9,7 +9,7 @@ function [trial_ave, trial_std, num_trials, baseline] = f_mpl_trial_average(tria
 %   outputs:
 %       trial_ave(n_cell,trial_frame,trial_type_ave)
 %       baseline that was removed
-if ~exist('baseline_removal_method', 'var') || ~sum(strcmp(baseline_removal_method, {'kde', 'mean', 'min', 'none'}))
+if ~exist('baseline_removal_method', 'var') || ~sum(strcmpi(baseline_removal_method, {'kde', 'mean', 'min', 'none'}))
     baseline_removal_method = 'kde';
 end
  
@@ -43,15 +43,15 @@ for n_cell = 1:num_cells
     end
 
 
-    if strcmp(baseline_removal_method, 'kde')
+    if strcmpi(baseline_removal_method, 'kde')
         % find the baseline to subtract. Use KDE and find peak
         [f,xi] = ksdensity(reshape(trial_ave(n_cell,:,:),[],1));
         baseline = mean(xi(f == max(f)));  % added mean not sure if is ok
-    elseif strcmp(baseline_removal_method, 'mean')
+    elseif strcmpi(baseline_removal_method, 'mean')
         baseline = mean(mean(trial_ave(n_cell, baseline_window_frames,:)));
-    elseif strcmp(baseline_removal_method, 'min')
+    elseif strcmpi(baseline_removal_method, 'min')
         baseline = min(min(trial_ave(n_cell, baseline_window_frames,:)));
-    elseif strcmp(baseline_removal_method, 'none')
+    elseif strcmpi(baseline_removal_method, 'none')
         baseline = 0;
     end
     trial_ave(n_cell,:,:) = trial_ave(n_cell,:,:) - baseline;

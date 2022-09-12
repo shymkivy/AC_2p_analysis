@@ -5,7 +5,7 @@ function ops = f_mpl_process_ops(ops)
 %% remove empty or anavailable datasets
 % remove_cond = false(numel(ops.conditions),1);
 % for n_cond = 1:numel(ops.conditions)  
-%     if ~sum(strcmp(ops.regions_to_analyze{n_cond}, ops.conditions))
+%     if ~sum(strcmpi(ops.regions_to_analyze{n_cond}, ops.conditions))
 %         warning(['Region ' ops.regions_to_analyze{n_cond} ' is not found in file_names'])
 %         remove_cond(n_cond) = 1;
 %     elseif isempty(ops.file_names.(ops.regions_to_analyze{n_cond}))

@@ -14,7 +14,9 @@ app.gui_ops.contour_params.contour_mag = zeros(num_cells,1);
 app.gui_ops.contour_params.c_lim = [0 0];
 app.gui_ops.contour_params.c_abs_lim = [0, 0];
 
-if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'SNR')
+contour_val = app.ContoursDropDown.Value;
+
+if strcmpi(contour_val, 'SNR')
     app.gui_ops.contour_params.visible_set = 1;
     SNR_list = app.ddata.OA_data{n_pl}.proc.SNR2_vals(accepted_cells);
     app.gui_ops.contour_params.contour_mag = SNR_list; % factor to resize magnitudes to fir color
@@ -24,8 +26,18 @@ if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'SNR')
     else
         app.gui_ops.contour_params.c_lim = app.gui_ops.contour_params.c_abs_lim;
     end
+elseif strcmpi(contour_val, 'Skewness')
+    app.gui_ops.contour_params.visible_set = 1;
+    skew_list = app.ddata.OA_data{n_pl}.proc.skewness(accepted_cells);
+    app.gui_ops.contour_params.contour_mag = skew_list; % factor to resize magnitudes to fir color
+    app.gui_ops.contour_params.c_abs_lim = [min(skew_list) max(skew_list)];
+    if isfield(app.gui_ops, 'skew_lim')
+        app.gui_ops.contour_params.c_lim = app.gui_ops.skew_lim;
+    else
+        app.gui_ops.contour_params.c_lim = app.gui_ops.contour_params.c_abs_lim;
+    end
 elseif ~isempty(stats1)
-    if strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning type')
+    if strcmpi(contour_val, 'Tuning type')
         tn_all = f_dv_get_trial_number(app);
 
         tuning_freq = stats1.peak_val_all(:,tn_all);
@@ -38,7 +50,7 @@ elseif ~isempty(stats1)
         app.gui_ops.contour_params.c_lim = [min(max_idx) max(max_idx)];
 
         use_color_map = 0;
-    elseif strcmp(app.ContoursButtonGroup.SelectedObject.Text,'Tuning mag')
+    elseif strcmpi(contour_val, 'Tuning magnitude')
         tn_all = f_dv_get_trial_number(app);
 
         resp_cells = stats1.cell_is_resp;

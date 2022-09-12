@@ -4,7 +4,7 @@ function [data_flat, num_elem] = f_concat_dsets(dset, field_name, dim_cat)
 
 f_names = fieldnames(dset{1});
 
-if ~sum(strcmp(field_name, f_names))
+if ~sum(strcmpi(field_name, f_names))
     warning([field_name ' is not a field in the array']);
     return;
 end
@@ -43,7 +43,7 @@ num_elem = sum(num_indx);
 % if ~isempty(varargin)
 %     f_names2 = varargin';
 %     for n_arg = numel(f_names2):-1:1
-%         if ~sum(strcmp(varargin{n_arg},f_names))
+%         if ~sum(strcmpi(varargin{n_arg},f_names))
 %             warning([f_names2{n_arg} ' input to f_combine_dsets() does not exist'])
 %             f_names2(n_arg) = [];
 %             
@@ -56,9 +56,9 @@ num_elem = sum(num_indx);
 
 % for n_field = 1:numel(f_names2)
 %     
-%     if strcmp(f_names2(n_field),'data_vec')
+%     if strcmpi(f_names2(n_field),'data_vec')
 %         data_flat.(f_names2{n_field}) = zeros(siz_d, 'single');
-%     elseif strcmp(f_names2(n_field),'trial_types')
+%     elseif strcmpi(f_names2(n_field),'trial_types')
 %     end
 %     
 %     siz_d = size(dset.c_data{1}.(f_names2{n_field}));

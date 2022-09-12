@@ -11,7 +11,7 @@ if ~exist(filepath, 'dir')
 end
 
 
-if strcmp(ext,'.bin')
+if strcmpi(ext,'.bin')
     ops.RegFile = fullfile(file);
     fid = fopen(ops.RegFile, 'w');
     dwrite = int16(data);
@@ -19,7 +19,7 @@ if strcmp(ext,'.bin')
     fclose(fid);
 end
 
-if strcmp(ext,'.h5') || strcmp(ext,'.hdf5')
+if strcmpi(ext,'.h5') || strcmpi(ext,'.hdf5')
     if ~exist('h5tag', 'var')
         h5tag = '/Y';
     end

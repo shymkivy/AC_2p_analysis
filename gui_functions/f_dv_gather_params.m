@@ -2,7 +2,7 @@ function params = f_dv_gather_params(app)
 
 params.n_pl = app.mplSpinner.Value;
 
-if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
     params.planes = app.mplSpinner.Value;
 else
     params.planes = 1:app.data(app.current_data_idx,:).num_planes;
@@ -24,6 +24,7 @@ stats.z_thresh = app.stats_ZthreshEditField.Value;
 stats.peak_bin_time = app.stats_PeakbintimesecEditField.Value;
 stats.num_shuff_samp = app.stats_NumshuffsampEditField.Value;
 stats.base_resp_win = f_str_to_array(app.stats_BaserespwinEditField.Value);
+stats.lim_sig_resp_win = f_str_to_array(app.stats_LimSigRespwinEditField.Value);
 stats.loco_thresh = app.stats_LocothreshEditField.Value;
 
 %%

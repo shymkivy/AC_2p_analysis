@@ -2,7 +2,7 @@ function f_dv_plot_cont_dev_red(app)
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 
-if strcmpi(app.SelectdatagroupButtonGroup.SelectedObject.Text, 'plane')
+if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
     n_pl = app.mplSpinner.Value;
 else
     n_pl = 1:max([data.num_planes]);

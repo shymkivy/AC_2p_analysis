@@ -44,7 +44,11 @@ end
 if app.StimtimesButton.Value
     tn_all = f_dv_get_trial_number(app);
     tt = app.ops.context_types_all(tn_all)';
-    idx_stim = app.ddata.stim_frame_index{n_pl}(logical(sum(app.ddata.trial_types{1} == tt,2)));
+    if isempty(app.ddata.stim_frame_index{n_pl}) || isempty(app.ddata.trial_types{1})
+        idx_stim = [];
+    else
+        idx_stim = app.ddata.stim_frame_index{n_pl}(logical(sum(app.ddata.trial_types{1} == tt,2)));
+    end
     
     stim_trace = zeros(numel(plot_t),1);
     stim_trace(idx_stim) = 1;

@@ -8,7 +8,7 @@ end
 
 % check extension
 [~,~,ext] = fileparts(name);
-if ~(strcmp(ext, '.tif') || strcmp(ext, '.tiff'))
+if ~(strcmpi(ext, '.tif') || strcmpi(ext, '.tiff'))
     name = [name '.tif'];
 end
 

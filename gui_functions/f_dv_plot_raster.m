@@ -5,8 +5,7 @@ n_pl = app.mplSpinner.Value;
 tn_all = f_dv_get_trial_number(app);
 tt_all = app.ops.context_types_all(tn_all)';
 
-params = f_dv_gather_params(app);
-cdata = f_dv_compute_cdata(app.ddata, params);
+cdata = f_dv_get_cdata(app);
 
 %cdata = f_dv_get_cdata(app);
 firing_rate = cat(1,cdata.S_sm);
