@@ -11,7 +11,8 @@ stat_window = params.stats.base_resp_win;
 lim_sig_resp_win = params.stats.lim_sig_resp_win;
 z_thresh = params.stats.z_thresh;
 loco_thresh_prc = params.stats.loco_thresh;
-
+onset_win = params.stats.onset_resp_win;
+offset_win = params.stats.offset_resp_win;
 
 %%
 n_pl = params.n_pl;
@@ -27,21 +28,22 @@ peak_prcntle = normcdf(z_thresh)*100;
 
 %%
 stat_window_t = (ceil(stat_window(1)*fr):floor(stat_window(2)*fr))/fr;
-stat_window_num_baseline_resp_frames = [sum(stat_window_t<=0) sum(stat_window_t>0)];   
+num_baseline_resp_frames = [sum(stat_window_t<=0) sum(stat_window_t>0)];   
 
 lim_win_frames = logical((stat_window_t >= lim_sig_resp_win(1)) .* (stat_window_t <= lim_sig_resp_win(2)));
+onset_win_frames = logical((stat_window_t >= onset_win(1)) .* (stat_window_t <= onset_win(2)));
+offset_win_frames = logical((stat_window_t >= offset_win(1)) .* (stat_window_t <= offset_win(2)));
 
 %%
-win1 = stat_window_num_baseline_resp_frames;
 firing_rate = cat(1,params.cdata.S_sm);
 
 [num_cells, T] = size(firing_rate);
 
-rem_idx = stim_times>(T-win1(2)-1);
+rem_idx = stim_times>(T-num_baseline_resp_frames(2)-1);
 stim_times(rem_idx) = [];
 trial_types(rem_idx) = [];
 
-trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, win1);
+trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, num_baseline_resp_frames);
 if ~isempty(MMN_freq)
     [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, MMN_freq, app.ops);
 else
@@ -93,13 +95,12 @@ ctx_types_all = app.ops.context_types_all;
 num_tt = numel(app.ops.context_types_all);
 num_trials = numel(pop_stim_times);
 num_trial_per_stim = round(sum(logical(sum(trial_types == (1:num_freqs),2)))/num_freqs);
-num_t = sum(win1);
+num_t = sum(num_baseline_resp_frames);
 
 %trial_data_sort_stat_mean = squeeze(mean(trial_data_sort_stat,2));
 %% convert to z scores
-
-trial_data_stat_mean = mean(trial_data_sort_stat,3);
-trial_data_stat_sem = std(trial_data_sort_stat,[],3)/sqrt(num_trial_per_stim-1);
+stat_trials_mean = mean(trial_data_sort_stat,3);
+stat_trials_sem = std(trial_data_sort_stat,[],3)/sqrt(num_trial_per_stim-1);
 
 %% get peak resp of trial average trace
 
@@ -108,12 +109,17 @@ trial_data_stat_sem = std(trial_data_sort_stat,[],3)/sqrt(num_trial_per_stim-1);
 
 peak_vals = nan(num_cells, num_tt);
 peak_locs = nan(num_cells, num_tt);
+onset_vals = nan(num_cells, num_tt);
+offset_vals = nan(num_cells, num_tt);
 trial_ave_trace1 = zeros(num_cells, num_t, num_tt);
 for n_tt = 1:num_tt
     trial_data_sort2 = trial_data_sort_wctx(:,:, trial_types_wctx==ctx_types_all(n_tt));
     if ~isempty(trial_data_sort2)
-        [peak_vals(:,n_tt), peak_locs(:,n_tt)] = f_get_trial_peak(mean(trial_data_sort2,3), peak_bin_size);
-        trial_ave_trace1(:,:,n_tt) = mean(trial_data_sort2,3);
+        temp_trial_ave = mean(trial_data_sort2,3);
+        [peak_vals(:,n_tt), peak_locs(:,n_tt)] = f_get_trial_peak(temp_trial_ave, peak_bin_size);
+        trial_ave_trace1(:,:,n_tt) = temp_trial_ave;
+        onset_vals(:,n_tt) = mean(temp_trial_ave(:,onset_win_frames),2);
+        offset_vals(:,n_tt) = mean(temp_trial_ave(:,offset_win_frames),2);
     end
 end
 
@@ -144,47 +150,73 @@ end
 % figure; histogram(samp_peak_locs(n_cell,:))
 % figure; histogram(samp_peak_vals(n_cell,:))
 
-%% get resp cell
+%% get peak resp cell
 
 idx1 = ~isnan(peak_locs);
 peak_locs_t = double(idx1);
 peak_locs_t(idx1) = stat_window_t(peak_locs(idx1));
-peak_in_lim = (peak_locs_t >= lim_sig_resp_win(1)) .* (peak_locs_t <= lim_sig_resp_win(2));
+peak_in_resp_win = (peak_locs_t >= lim_sig_resp_win(1)) .* (peak_locs_t <= lim_sig_resp_win(2));
 
 if strcmpi(peak_stats, 'shuff_pool')
-    resp_thresh = repmat(prctile(samp_peak_vals', peak_prcntle)', [1 num_t]);
+    resp_thresh_peak = repmat(prctile(samp_peak_vals', peak_prcntle)', [1 num_t]);
     % do this crap to ignore nan if any
-    resp_cells = double(idx1);
-    resp_cells(idx1) = peak_vals(idx1) > resp_thresh(peak_locs(idx1));
-    resp_cells = resp_cells .* peak_in_lim;
+    resp_cells_peak = double(idx1);
+    resp_cells_peak(idx1) = peak_vals(idx1) > resp_thresh_peak(peak_locs(idx1));
+    resp_cells_peak = resp_cells_peak .* peak_in_resp_win;
 elseif strcmpi(peak_stats, 'shuff_locwise')
-    resp_thresh = zeros(num_cells, num_t);
-    resp_cells = zeros(num_cells, num_tt);
+    resp_thresh_peak = zeros(num_cells, num_t);
+    resp_cells_peak = zeros(num_cells, num_tt);
     for n_cell = 1:num_cells
         for n_loc = 1:num_t
             temp_th = prctile(samp_peak_vals(n_cell,samp_peak_locs(n_cell,:) == n_loc), peak_prcntle);
             if isnan(temp_th)
-                resp_thresh(n_cell, n_loc) = 0;
+                resp_thresh_peak(n_cell, n_loc) = 0;
             else
-                resp_thresh(n_cell, n_loc) = temp_th;
+                resp_thresh_peak(n_cell, n_loc) = temp_th;
             end
         end
         for n_tt = 1:num_tt
-            resp_cells(n_cell, n_tt) = peak_vals(n_cell, n_tt) > resp_thresh(n_cell,peak_locs(n_cell,n_tt));
+            resp_cells_peak(n_cell, n_tt) = peak_vals(n_cell, n_tt) > resp_thresh_peak(n_cell,peak_locs(n_cell,n_tt));
         end
     end
 else
-    resp_thresh = zeros(num_cells, num_t);
-    resp_cells = zeros(num_cells, num_tt);
+    resp_thresh_peak = zeros(num_cells, num_t);
+    resp_cells_peak = zeros(num_cells, num_tt);
     for n_cell = 1:num_cells
         trial_data1 = squeeze(trial_data_sort_stat(n_cell,:,:));
-        resp_thresh(n_cell,:) = mean(trial_data1,2) + z_thresh*std(trial_data1,[],2)/sqrt(num_trial_per_stim-1);
+        resp_thresh_peak(n_cell,:) = mean(trial_data1,2) + z_thresh*std(trial_data1,[],2)/sqrt(num_trial_per_stim-1);
         for n_tt = 1:num_tt
-            resp_cells(n_cell, n_tt) = peak_vals(n_cell, n_tt) > resp_thresh(n_cell,peak_locs(n_cell,n_tt));
+            resp_cells_peak(n_cell, n_tt) = peak_vals(n_cell, n_tt) > resp_thresh_peak(n_cell,peak_locs(n_cell,n_tt));
         end
     end
 end
 
+%% onset offset responses
+
+% compute stats for peaks
+samp_onset_vals = zeros(num_cells, num_samp);
+samp_offset_vals = zeros(num_cells, num_samp);
+%wb = f_waitbar_initialize(app, 'Stats: sampling...');
+onset_data_trials = squeeze(mean(trial_data_sort_stat(:,onset_win_frames,:),2));
+offset_data_trials = squeeze(mean(trial_data_sort_stat(:,offset_win_frames,:),2));
+for n_cell = 1:num_cells
+    %f_waitbar_update(wb, n_cell/num_cells, 'Stats: sampling...');
+    samp_idx = randsample(num_trials, num_trial_per_stim*num_samp, 1);
+    samp_onset_vals(n_cell,:) = mean(reshape(onset_data_trials(n_cell, samp_idx), [num_samp, num_trial_per_stim]),2);
+    
+    samp_idx = randsample(num_trials, num_trial_per_stim*num_samp, 1);
+    samp_offset_vals(n_cell,:) = mean(reshape(offset_data_trials(n_cell, samp_idx), [num_samp, num_trial_per_stim]),2);
+    %fprintf('%d-', n_cell)
+end
+%f_waitbar_close(wb);
+%fprintf('\n')
+
+resp_thresh_onset = prctile(samp_onset_vals', peak_prcntle)';
+resp_thresh_offset = prctile(samp_offset_vals', peak_prcntle)';
+% do this crap to ignore nan if any
+
+resp_cells_onset = onset_vals > resp_thresh_onset;
+resp_cells_offset = offset_vals > resp_thresh_offset;
 
 %%
 % 
@@ -262,18 +294,26 @@ for n_tt = 1:num_tt
     end
 end
 %%
-stats.trial_ave_trace = trial_data_stat_mean;
-stats.trial_sem_trace = trial_data_stat_sem;
-stats.trial_ave_val = mean(trial_data_stat_mean,2);
-stats.trial_ave_trace_tt = trial_ave_trace1;
-stats.trial_ave_trace_tt_lim_win_val = mean(trial_ave_trace1(:,lim_win_frames,:),2);
-stats.trial_sem_val = mean(trial_data_stat_sem,2);
-stats.cell_is_resp = resp_cells;
-stats.resp_thresh = resp_thresh;
+
+stats.stat_trials_mean = stat_trials_mean;
+stats.stat_trials_sem = stat_trials_sem;
+stats.stat_trials_mean_mean = mean(stat_trials_mean,2);
+stats.stat_trials_mean_sem = mean(stat_trials_sem,2);
+stats.trial_ave_trace = trial_ave_trace1;
+stats.trial_ave_lim_win_mean = mean(trial_ave_trace1(:,lim_win_frames,:),2);
+stats.resp_cells_peak = resp_cells_peak;
+stats.resp_thresh_peak = resp_thresh_peak;
 stats.peak_val_all = peak_vals;
 stats.peak_t_all = peak_t_all;
-stats.peak_in_lim = peak_in_lim;
+stats.peak_in_resp_win = peak_in_resp_win;
 stats.stat_window_t = stat_window_t; % stat_window_t
+stats.lim_win_frames = lim_win_frames;
+stats.onset_vals = onset_vals;
+stats.offset_vals = offset_vals;
+stats.resp_thresh_onset = resp_thresh_onset;
+stats.resp_thresh_offset = resp_thresh_offset;
+stats.resp_cells_onset = resp_cells_onset;
+stats.resp_cells_offset = resp_cells_offset;
 stats.num_cells = num_cells;
 stats.accepted_cells = params.cdata.accepted_cells;
 stats.loco_cell = loco_cell;

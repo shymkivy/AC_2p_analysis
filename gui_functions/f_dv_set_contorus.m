@@ -41,7 +41,7 @@ elseif ~isempty(stats1)
         tn_all = f_dv_get_trial_number(app);
 
         tuning_freq = stats1.peak_val_all(:,tn_all);
-        resp_cells = stats1.cell_is_resp(:,tn_all);
+        resp_cells = stats1.resp_cells_peak(:,tn_all);
         tuning_freq(~resp_cells) = 0;
         [max_val, max_idx] = max(tuning_freq, [], 2);
         app.gui_ops.contour_params.visible_set = logical(max_val);
@@ -53,12 +53,12 @@ elseif ~isempty(stats1)
     elseif strcmpi(contour_val, 'Tuning magnitude')
         tn_all = f_dv_get_trial_number(app);
 
-        resp_cells = stats1.cell_is_resp;
+        resp_cells = stats1.resp_cells_peak;
         peak_vals = stats1.peak_val_all;
         if app.ConverttoZCheckBox.Value
-            trial_ave_val = stats1.trial_ave_val;
-            trial_sem_val = stats1.trial_sem_val;
-            peak_vals = (peak_vals - trial_ave_val)./trial_sem_val;
+            st_mean_mean = stats1.stat_trials_mean_mean;
+            st_mean_sem = stats1.stat_trials_mean_sem;
+            peak_vals = (peak_vals - st_mean_mean)./st_mean_sem;
         end
         peak_vals(~resp_cells) = 0;
         peak_vals2 = max(peak_vals(:,tn_all),[],2);

@@ -84,6 +84,7 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensemble_stats')
         params.n_dset = n_dset;
         ddata = app.data(n_dset,:);
         params.ddata = ddata;
+        
         if or(isempty(app.data(n_dset,:).ensemble_stats{1}), app.OverwriteCheckBox.Value)
             params.cdata = cat(1,params.ddata.cdata{:});
             if isempty(app.data(n_dset,:).data_dim_pca{1})
@@ -96,6 +97,27 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensemble_stats')
             params.ensembles = app.data(n_dset,:).ensembles{1};
             app.data(n_dset,:).ensemble_stats{1} = f_dv_ensemble_stats_core(params);
         end
+        
+        % remove shuff accuracy = 0, which corresponds to 1 comp ensembles
+        removed_total = 0;
+        stats1 = app.data(n_dset,:).ensemble_stats{1};
+        ensembles1 = app.data(n_dset,:).ensembles{1};
+        for n_sh = 1:numel(stats1.acc_out_shuff)
+            temp_acc = stats1.acc_out_shuff{n_sh};
+            if sum(temp_acc==0)
+                app.data(n_dset,:).ensemble_stats{1}.acc_out_shuff{n_sh} = temp_acc(temp_acc>0);
+                removed_total = removed_total + sum(temp_acc==0);
+            end
+        end
+        
+        if removed_total > 0
+            fprintf('\n dset %d; removed %d\n', n_dset, removed_total)
+            acc_out_full = cat(1,app.data(n_dset,:).ensemble_stats{1}.acc_out_shuff{:});
+            thresh = prctile(acc_out_full, 1);
+            app.data(n_dset,:).ensemble_stats{1}.acc_out_thresh = thresh;
+            app.data(n_dset,:).ensemble_stats{1}.accepted_ensembles = ensembles1.acc_out_d<thresh;
+        end
+
     end
     fprintf('\n');
 elseif strcmpi(app.RunallDropDown.Value, 'ensemble_tuning_stats')

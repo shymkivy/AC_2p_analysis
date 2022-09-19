@@ -1,21 +1,20 @@
 function f_dv_plot_raster(app)
+%% plot raster of firing rates without enseble analysis
 
 n_pl = app.mplSpinner.Value;
 
 tn_all = f_dv_get_trial_number(app);
 tt_all = app.ops.context_types_all(tn_all)';
 
+ddata = app.ddata;
 cdata = f_dv_get_cdata(app);
-
-%cdata = f_dv_get_cdata(app);
 firing_rate = cat(1,cdata.S_sm);
-stats1 = cat(1,app.ddata.stats{:});
+stats1 = cat(1,ddata.stats{:});
 
-resp_cells_all = f_dv_get_resp_cells(stats1, tn_all, app.LimitresptrialsCheckBox.Value, app.RespthreshEditField.Value);
+[~, resp_cells_all] = f_dv_get_resp_vals_cells(stats1, tn_all, app.ResposivecellstypeDropDown.Value, app.LimitresptrialsCheckBox.Value, app.RespthreshEditField.Value);
 resp_cells = logical(sum(cat(2,resp_cells_all{:}),2));
 
 num_cells = sum(resp_cells);
-
 firing_rate2 = firing_rate(resp_cells,:);
 
 if app.shufflecellsCheckBox.Value
@@ -71,6 +70,7 @@ else
     end
 end
 
+%% clustering and plotting
 % remove inactive cells
 active_cells = sum(firing_rate3,2) ~= 0;
 firing_rate3(~active_cells,:) = [];

@@ -7,24 +7,26 @@ resort_by_ens = app.resortbyensCheckBox.Value;
 sort_trials = app.sorttrialsCheckBox.Value;
 sort_with_full_firing_rate = app.sortwithfullfrCheckBox.Value;
 
+ddata = app.ddata;
 cdata = f_dv_get_cdata(app);
+stats1 = ddata.stats{1};
 
 num_cells = sum([cdata.num_cells]);
 firing_rate = cat(1,cdata.S_sm);
 
 if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
-    resp_cell = logical(sum(app.ddata.stats{n_pl}.cell_is_resp(:,tn_all),2));
+    resp_cell = logical(sum(app.ddata.stats{n_pl}.resp_cells_peak(:,tn_all),2));
 else
     resp_cells_all = cell(numel(app.ddata.stats),1);
     for n_pl2 = 1:numel(app.ddata.stats)
-        resp_cells_all{n_pl2} = logical(sum(app.ddata.stats{n_pl2}.cell_is_resp(:,tn_all),2));
+        resp_cells_all{n_pl2} = logical(sum(app.ddata.stats{n_pl2}.resp_cells_peak(:,tn_all),2));
     end
     resp_cell = cat(1,resp_cells_all{:});
 end
 
-resp_ens = logical(sum(app.ddata.ensemble_tuning_stats{1}.cell_is_resp(:,tn_all),2));
+resp_ens = logical(sum(app.ddata.ensemble_tuning_stats{1}.resp_cells_peak(:,tn_all),2));
 
-ens_list = app.ddata.ensembles{1}.ens_out.cells.ens_list(app.ddata.ensemble_stats{1}.accepted_ensembles);
+ens_list = app.ddata.ensembles{1}.cells.ens_list(app.ddata.ensemble_stats{1}.accepted_ensembles);
 resp_ens_list = ens_list(resp_ens);
 ens_cells = false(num_cells, numel(resp_ens_list));
 for n_ens = 1:numel(resp_ens_list)
@@ -37,7 +39,9 @@ resp_all = [resp_cell, ens_cells];
 %%
 trial_types = app.ddata.trial_types{1};
 stim_frame_index = app.ddata.stim_frame_index{1};
-trial_num_baseline_resp_frames = app.ddata.trial_window{1}.trial_num_baseline_resp_frames;
+
+trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
+[~, trial_num_baseline_resp_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
 
 trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_num_baseline_resp_frames);
 [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, app.ddata.MMN_freq{1}, app.ops);
@@ -89,7 +93,6 @@ if resort_by_ens
         sort_ord = sort_ord(idx1);
     end
 end
-
 
 %%
 figure; 

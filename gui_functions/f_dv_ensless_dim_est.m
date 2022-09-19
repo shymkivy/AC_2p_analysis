@@ -35,7 +35,7 @@ for n_tt = 1:numel(app.ops.context_types_all)
     tr_idx = tt == trial_types_wctx;
     
     if select_resp_cells
-        cell_idx = stats1.cell_is_resp(:,n_tt);
+        cell_idx = stats1.resp_cells_peak(:,n_tt);
     else
         cell_idx = true(stats1.num_cells,1);
     end

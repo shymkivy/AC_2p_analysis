@@ -13,7 +13,7 @@ ens_stats = app.ddata.ensemble_stats{1};
 
 ens_tuning = app.ddata.ensemble_tuning_stats{1};
 
-ens_data = app.ddata.ensembles{1}.ens_out;
+ens_data = app.ddata.ensembles{1};
 
 %raster_lr = ens_data.coeffs*ens_data.scores;
 %figure; imagesc(raster_lr)
@@ -25,7 +25,7 @@ ens_cells_list = ens_data.cells.ens_list(accepted_ens);
 ens_cell_coeffs = ens_data.coeffs(:,accepted_ens);
 scores = ens_data.scores(accepted_ens,:);
 
-resp_ens = find(ens_tuning.cell_is_resp(:,n_tr));
+resp_ens = find(ens_tuning.resp_cells_peak(:,n_tr));
 
 figure; hold on;
 for n_ens = 1:numel(resp_ens)

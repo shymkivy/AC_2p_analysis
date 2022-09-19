@@ -32,7 +32,8 @@ if ens_params.acc_shuff_reps
         
         % accuracy
         firing_rate_s_norm = f_normalize(firing_rate_s, ens_params_s.normalize);
-        acc_out_s{n_shuff} = f_evaluate_ens_cv(ens_out_s, firing_rate_s_norm, ens_params_s);
+        acc_out_s2 = f_evaluate_ens_cv(ens_out_s, firing_rate_s_norm, ens_params_s);
+        acc_out_s{n_shuff} = acc_out_s2(acc_out_s2>0);
         fprintf('--%d', n_shuff);
     end
     fprintf('\nDone\n');

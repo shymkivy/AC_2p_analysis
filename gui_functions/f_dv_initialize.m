@@ -113,9 +113,15 @@ app.ensshuffrepsEditField.Value = ens_params.acc_shuff_reps;
 app.SelectdatagroupDropDown.Items = {'Plane', 'Dataset', 'Mouse', 'Region', 'All'};
 app.SelectdatagroupDropDown.Value = 'Dataset';
 
+app.ResposivecellstypeDropDown.Items = {'Peaks', 'OnOff', 'Onset', 'Offset'};
+
 app.ContoursDropDown.Items = {'None', 'Tuning type', 'Tuning magnitude', 'Onset offset', 'SNR', 'Skewness', 'Locomotion'};
 
-data_variables = {'peak loc', 'resp mag', 'resp mag z', 'resp thresh', 'trial sem val'};
+data_variables = {'peak loc', 'peak resp mag', 'peak resp mag z', 'peak resp thresh',...
+                  'onset mag', 'onset mag z', 'onset resp thresh',...
+                  'offset mag', 'offset mag z', 'offset resp thresh',...
+                  'stat trials mean sem'};
+              
 app.plotfeatureDropDown.Items = data_variables;
 app.xvarDropDown.Items = data_variables;
 app.yvarDropDown.Items = data_variables;

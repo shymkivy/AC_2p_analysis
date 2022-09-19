@@ -52,9 +52,9 @@ for n_tt = 1:num_tn
     tt = app.ops.context_types_all(tn);
     tr_idx = tt == trial_types_wctx;
     
-    resp_cells = stats1.cell_is_resp(:,tn);
+    resp_cells = stats1.resp_cells_peak(:,tn);
     
-    resp_ens = logical(sum(app.ddata.ensemble_tuning_stats{1}.cell_is_resp(:,tn),2));
+    resp_ens = logical(sum(app.ddata.ensemble_tuning_stats{1}.resp_cells_peak(:,tn),2));
     resp_ens_cells = ens_cells(:,resp_ens); 
     
     if app.PlotrespensCheckBox.Value

@@ -33,7 +33,7 @@ for n_pl = 1:ddata.num_planes
         temp_A = A_n(:,:,n_cell);
         %temp_A = temp_A/max(temp_A(:));
         temp_A2 = repmat(temp_A, 1, 1, 3);
-        if sum(stats1.cell_is_resp(n_cell,1:10))
+        if sum(stats1.resp_cells_peak(n_cell,1:10))
             [~, n_freq] = max(stats1.peak_val_all(n_cell, tn_all_sel));
             temp_A_col = temp_A2.*cmap_all(tn_all_sel(n_freq),:,:);
         else

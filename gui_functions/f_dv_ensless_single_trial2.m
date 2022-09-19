@@ -13,11 +13,11 @@ num_cells = sum([cdata.num_cells]);
 firing_rate = cat(1,cdata.S_sm);
 
 if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
-    resp_cell = logical(sum(app.ddata.stats{n_pl}.cell_is_resp(:,tn_all),2));
+    resp_cell = logical(sum(app.ddata.stats{n_pl}.resp_cells_peak(:,tn_all),2));
 else
     resp_cells_all = cell(numel(app.ddata.stats),1);
     for n_pl2 = 1:numel(app.ddata.stats)
-        resp_cells_all{n_pl2} = logical(sum(app.ddata.stats{n_pl2}.cell_is_resp(:,tn_all),2));
+        resp_cells_all{n_pl2} = logical(sum(app.ddata.stats{n_pl2}.resp_cells_peak(:,tn_all),2));
     end
     resp_cell = cat(1,resp_cells_all{:});
 end

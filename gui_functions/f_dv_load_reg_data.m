@@ -84,27 +84,31 @@ for n_dset = 1:num_dsets
     idx_r = strcmpi(mdata.area, [rdata.region_name]);
     rdata2 = rdata(:,idx_r);
     
-    
-    
-    if ~isempty(rdata2.regions_tforms)
-        %% load images and tform
-        tform = rdata2.regions_tforms.tform;
-        tform.T = tform.T * current_tform_wf.T;
-        
-        %% load the contours and get coords
-        %accepted_cells = mdata2.stats{1}{n_pl}.accepted_cells;
-        A = mdata.OA_data{1}.est.A(:,mdata.stats{1}.accepted_cells);
+    if ~isempty(rdata2)
+        if ~isempty(rdata2.regions_tforms)
+            %% load images and tform
+            tform = rdata2.regions_tforms.tform;
+            tform.T = tform.T * current_tform_wf.T;
 
-        %num_cells = mdata2.stats{1}.num_cells; % n_pl
-        num_cells = mdata.stats{1}.num_cells;
-        coords = ones(num_cells,3);
-        [~, ind1] = max(A);
-        [coords(:,1), coords(:,2)] = ind2sub([256 256], ind1);
+            %% load the contours and get coords
+            %accepted_cells = mdata2.stats{1}{n_pl}.accepted_cells;
+            A = mdata.OA_data{1}.est.A(:,mdata.stats{1}.accepted_cells);
 
-        %% register 
-        coords_tf = (coords*tform.T);
-        
-        app.data(n_dset,:).registered_data{1}.coords = coords_tf;
+            %num_cells = mdata2.stats{1}.num_cells; % n_pl
+            num_cells = mdata.stats{1}.num_cells;
+            coords = ones(num_cells,3);
+            [~, ind1] = max(A);
+            [coords(:,1), coords(:,2)] = ind2sub([256 256], ind1);
+
+            %% register 
+            coords_tf = (coords*tform.T);
+
+            app.data(n_dset,:).registered_data{1}.coords = coords_tf;
+        else
+            fprintf('Missing reg data for %s\n', mdata.dset_name_full{1});
+        end
+    else
+        fprintf('Missing reg data for %s\n', mdata.dset_name_full{1});
     end
 end
 disp('Done');

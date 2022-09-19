@@ -18,22 +18,22 @@ trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trial_frames);
 stats1 = app.ddata.stats{n_pl};
 
 if app.ConverttoZCheckBox.Value
-    trial_ave_val = stats1.trial_ave_val(n_cell);
-    trial_sem_val = stats1.trial_sem_val(n_cell);
+    st_mean_mean = stats1.stat_trials_mean_mean(n_cell);
+    st_mean_sem = stats1.stat_trials_mean_sem(n_cell);
 else
-    trial_ave_val = 0;
-    trial_sem_val = 1;
+    st_mean_mean = 0;
+    st_mean_sem = 1;
 end
 
 stat_window_idx = and(stats1.stat_window_t>=plot_t(1), stats1.stat_window_t<=plot_t(end));
 stat_window_t = stats1.stat_window_t(stat_window_idx);
 
-trial_ave_trace = stats1.trial_ave_trace(n_cell,stat_window_idx);
-trial_sem_trace = stats1.trial_sem_trace(n_cell,stat_window_idx);
+trial_ave_trace = stats1.stat_trials_mean(n_cell,stat_window_idx);
+trial_sem_trace = stats1.stat_trials_sem(n_cell,stat_window_idx);
 
-trial_data_sort = (trial_data_sort - trial_ave_val)/trial_sem_val;
-trial_ave_trace = (trial_ave_trace-trial_ave_val)/trial_sem_val;%mean(trial_data_sort(:,:,1:num_cont_trials),3);
-trial_sem_trace = trial_sem_trace/trial_sem_val;%std(trial_data_sort(:,:,1:num_cont_trials), [],3)/sqrt(num_trials-1);
+trial_data_sort = (trial_data_sort - st_mean_mean)/st_mean_sem;
+trial_ave_trace = (trial_ave_trace-st_mean_mean)/st_mean_sem;%mean(trial_data_sort(:,:,1:num_cont_trials),3);
+trial_sem_trace = trial_sem_trace/st_mean_sem;%std(trial_data_sort(:,:,1:num_cont_trials), [],3)/sqrt(num_trials-1);
 
 
 resp_freq = cell(10,1);
@@ -68,11 +68,11 @@ end
 
 %app.ColoredbytimeCheckBox.Value
 
-%trial_ave_trace = stats1.trial_ave_trace(n_cell,:);
-%trial_sem_trace = stats1.trial_sem_trace(n_cell,:);
+%trial_ave_trace = stats1.stat_trials_mean(n_cell,:);
+%trial_sem_trace = stats1.stat_trials_sem(n_cell,:);
 %stat_window_t = stats1.stat_window_t;
 %stat_plot_intsc = logical(logical(sum(stat_window_t'>=plot_t,2)).*logical(sum(stat_window_t'<=plot_t,2)));
-cell_is_resp = stats1.cell_is_resp(n_cell,:);
+cell_is_resp = stats1.resp_cells_peak(n_cell,:);
 for n_tr = 1:10
     subplot(2,5,n_tr); 
     hold on; axis tight; ylim([y_lim_min, y_lim_max]);
@@ -83,7 +83,7 @@ for n_tr = 1:10
     plot(stat_window_t, trial_ave_trace+trial_sem_trace*stats1.stat_params.z_thresh, '--','color', [0.75, 0, 0.75], 'LineWidth', 1); 
     plot(plot_t, mean(resp_freq{n_tr},2), 'color', [0 0 0], 'LineWidth', 2);
     if cell_is_resp(n_tr)
-        plot(stats1.peak_t_all(n_cell,n_tr), (stats1.peak_val_all(n_cell,n_tr)-trial_ave_val)/trial_sem_val, '*g')
+        plot(stats1.peak_t_all(n_cell,n_tr), (stats1.peak_val_all(n_cell,n_tr)-st_mean_mean)/st_mean_sem, '*g')
     end
     if rem(n_tr,5) ~= 1
         set(gca,'ytick',[]);

@@ -1,8 +1,9 @@
 function f_dv_ensless_sintle_trial_corr2(app)
 
+disp('Computing single trial corr...');
+
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 num_dsets = size(data,1);
-
 
 params = f_dv_gather_params(app);
 
@@ -35,18 +36,18 @@ for n_dset = 1:num_dsets
     firing_rate = cat(1,cdata.S_sm);
     num_cells = sum([cdata.num_cells]);
     
-    resp_cells_all = f_dv_get_resp_cells(stats1, tn_all, app.RespthreshEditField.Value, app.LimitresptrialsCheckBox.Value);
-    
+    [~, resp_cells_all] = f_dv_get_resp_vals_cells(stats1, tn_all, app.ResposivecellstypeDropDown.Value, app.LimitresptrialsCheckBox.Value, app.RespthreshEditField.Value);
+  
     for n_tn = 1:numel(tn_all)
         
         
         
 %         if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
-%             resp_cell = logical(sum(stats1{n_pl}.cell_is_resp(:,tn_all),2));
+%             resp_cell = logical(sum(stats1{n_pl}.resp_cells_peak(:,tn_all),2));
 %         else
 %             resp_cells_all = cell(numel(stats1),1);
 %             for n_pl2 = 1:numel(stats1)
-%                 resp_cells_all{n_pl2} = logical(sum(stats1{n_pl2}.cell_is_resp(:,tn_all),2));
+%                 resp_cells_all{n_pl2} = logical(sum(stats1{n_pl2}.resp_cells_peak(:,tn_all),2));
 %             end
 %             resp_cell = cat(1,resp_cells_all{:});
 %         end
@@ -98,13 +99,34 @@ for n_dset = 1:num_dsets
     end
 end
 
+x_lab = categorical(categorical(app.ops.context_types_labels(tn_all)));
 color1 = app.ops.context_types_all_colors2;
 figure; hold on;
 for n_freq = 1:numel(tn_all)
-    plot(num_cells_all(:,n_freq), corr_vals(:,n_freq), 'o-', 'color', color1{tn_all(n_freq)}, 'linewidth', 2)
+    plot(num_cells_all(:,n_freq), corr_vals(:,n_freq), 'o', 'color', color1{tn_all(n_freq)}, 'linewidth', 2)
 end
 xlabel('num cells'); ylabel('Pairwise correlation')
 title(sprintf('Mean pairwise correlations; %s', title_tag), 'interpreter', 'none');
+legend(x_lab)
+
+vals1 = corr_vals;
+figure; hold on;
+for n_freq = 1:numel(tn_all)
+    bar(x_lab(n_freq), nanmean(vals1(:,n_freq)), 'FaceColor', min(color1{tn_all(n_freq)}+.5, 1), 'EdgeColor', color1{tn_all(n_freq)}, 'linewidth', 2)
+    errorbar(x_lab(n_freq), nanmean(vals1(:,n_freq)), nanstd(vals1(:,n_freq))/sqrt(num_dsets-1), 'k.', 'linewidth', 2)
+end
+ylabel('pairwise correlation');
+title(sprintf('Mean correlation across datasets, %s', title_tag), 'interpreter', 'none')
+
+
+vals1 = corr_vals./num_cells_all;
+figure; hold on;
+for n_freq = 1:numel(tn_all)
+    bar(x_lab(n_freq), nanmean(vals1(:,n_freq)), 'FaceColor', min(color1{tn_all(n_freq)}+.5, 1), 'EdgeColor', color1{tn_all(n_freq)}, 'linewidth', 2)
+    errorbar(x_lab(n_freq), nanmean(vals1(:,n_freq)), nanstd(vals1(:,n_freq))/sqrt(num_dsets-1), 'k.', 'linewidth', 2)
+end
+ylabel('pairwise correlation / num cells');
+title(sprintf('Mean correlation per cells across datasets, %s', title_tag), 'interpreter', 'none')
 
 % figure; hold on
 % for n_freq = 1:numel(tn_all)
@@ -114,5 +136,7 @@ title(sprintf('Mean pairwise correlations; %s', title_tag), 'interpreter', 'none
 % title('Mean pairwise correlations');
 % 
 % figure; imagesc(reshape(color1, [10 1 3]))
+
+disp('Done')
 
 end

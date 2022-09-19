@@ -102,10 +102,10 @@ for n_ms = 1:numel(mice_all)
                                     idx4 = register_roi(:,1) == n_gcell;
                                     n_cell2 = register_roi(idx4,2);
                                     if ~isnan(n_cell2)
-                                        if 0%stats2{n_pl2}.peak_in_lim(n_cell2,stim_tn)
+                                        if 0%stats2{n_pl2}.peak_in_resp_win(n_cell2,stim_tn)
                                             peak_resp2(n_cell) = stats2{n_pl2}.peak_val_all(n_cell2,stim_tn);
                                         else
-                                            peak_resp2(n_cell) = stats2{n_pl2}.trial_ave_trace_tt_lim_win_val(n_cell2,1,stim_tn);
+                                            peak_resp2(n_cell) = stats2{n_pl2}.trial_ave_lim_win_mean(n_cell2,1,stim_tn);
                                         end
                                     end
                                 end
@@ -240,10 +240,10 @@ for n_ms = 1:numel(mice_all)
                                     idx4 = register_roi(:,1) == n_gcell;
                                     n_cell2 = register_roi(idx4,2);
                                     if ~isnan(n_cell2)
-                                        if 0%stats2{n_pl2}.peak_in_lim(n_cell2,stim_tn)
+                                        if 0%stats2{n_pl2}.peak_in_resp_win(n_cell2,stim_tn)
                                             peak_resp2(n_cell) = stats2{n_pl2}.peak_val_all(n_cell2,stim_tn);
                                         else
-                                            peak_resp2(n_cell) = stats2{n_pl2}.trial_ave_trace_tt_lim_win_val(n_cell2,1,stim_tn);
+                                            peak_resp2(n_cell) = stats2{n_pl2}.trial_ave_lim_win_mean(n_cell2,1,stim_tn);
                                         end
                                     end
                                 end

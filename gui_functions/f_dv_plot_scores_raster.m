@@ -5,7 +5,7 @@ plot_selected_tr = 1;
 n_tr = f_dv_get_trial_number(app);
 ens_stats = app.ddata.ensemble_stats{1};
 ens_tuning = app.ddata.ensemble_tuning_stats{1};
-ens_data = app.ddata.ensembles{1}.ens_out;
+ens_data = app.ddata.ensembles{1};
 
 %raster_lr = ens_data.coeffs*ens_data.scores;
 %figure; imagesc(raster_lr)
@@ -18,7 +18,7 @@ else
     scores = ens_data.scores;
 end
 
-resp_ens = find(logical(sum(ens_tuning.cell_is_resp(:,n_tr),2)));
+resp_ens = find(logical(sum(ens_tuning.resp_cells_peak(:,n_tr),2)));
 
 
 num_gr_scores = numel(resp_ens);

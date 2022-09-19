@@ -18,9 +18,9 @@ for n_dset = 1:numel(dset_list)
         tn_all = tn_list(n_tn);
         
         if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
-            cdata = ddata.cdata{1}{n_pl};
+            cdata = ddata.cdata{n_pl};
         else
-            cdata = cat(1,ddata.cdata{1}{:});
+            cdata = cat(1,ddata.cdata{:});
         end
         
         num_cells = sum([cdata.num_cells]);
@@ -28,11 +28,11 @@ for n_dset = 1:numel(dset_list)
         
         stats1 = ddata.stats;
         if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
-            resp_cell = logical(sum(stats1{n_pl}.cell_is_resp(:,tn_all),2));
+            resp_cell = logical(sum(stats1{n_pl}.resp_cells_peak(:,tn_all),2));
         else
             resp_cells_all = cell(numel(stats1),1);
             for n_pl2 = 1:numel(stats1)
-                resp_cells_all{n_pl2} = logical(sum(stats1{n_pl2}.cell_is_resp(:,tn_all),2));
+                resp_cells_all{n_pl2} = logical(sum(stats1{n_pl2}.resp_cells_peak(:,tn_all),2));
             end
             resp_cell = cat(1,resp_cells_all{:});
         end
@@ -40,9 +40,11 @@ for n_dset = 1:numel(dset_list)
         %%
         trial_types = ddata.trial_types{1};
         stim_frame_index = ddata.stim_frame_index{1};
-        trial_num_baseline_resp_frames = ddata.trial_window{1}.trial_num_baseline_resp_frames;
+        
+        trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
+        [~, trial_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
 
-        trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_num_baseline_resp_frames);
+        trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_frames);
         if ~isempty(ddata.MMN_freq{1})
             [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, ddata.MMN_freq{1}, app.ops);
         else

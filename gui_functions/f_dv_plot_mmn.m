@@ -44,18 +44,18 @@ for n_flip = 1:num_flip
         stats1 = data1.stats{n_pl};
         params.n_dset = find(data1.idx == app.data.idx);
 
-        cdata = f_dv_compute_cdata(app.ddata, params);
+        cdata = f_dv_compute_cdata(data1, params);
 
         firing_rate = cdata.S_sm;
         trial_types = data1.trial_types{1};
         stim_times = data1.stim_frame_index{n_pl};
         mmn_freq = data1.MMN_freq{1};
-        cell_is_resp = stats1.cell_is_resp;
+        cell_is_resp = stats1.resp_cells_peak;
         
         if ~region_num
             reg_cell_idx = ones(cdata.num_cells,1);
         else
-            if ~isempty(data1.registered_data{1})
+            if and(app.UseregdatalabelsCheckBox.Value, ~isempty(data1.registered_data{1}))
                 reg_cell_idx = data1.registered_data{1}.reg_labels==region_num;
             else
                 reg_cell_idx = zeros(cdata.num_cells,1);
@@ -66,14 +66,14 @@ for n_flip = 1:num_flip
         [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
 
         if app.ConverttoZCheckBox.Value
-            trial_ave_val = stats1.trial_ave_val;
-            trial_sem_val = stats1.trial_sem_val;
+            st_mean_mean = stats1.stat_trials_mean_mean;
+            st_mean_sem = stats1.stat_trials_mean_sem;
         else
-            trial_ave_val = zeros(cdata.num_cells,1);
-            trial_sem_val = ones(cdata.num_cells,1);
+            st_mean_mean = zeros(cdata.num_cells,1);
+            st_mean_sem = ones(cdata.num_cells,1);
         end
 
-        trial_data_sort_wctx = (trial_data_sort_wctx - trial_ave_val)./trial_sem_val;
+        trial_data_sort_wctx = (trial_data_sort_wctx - st_mean_mean)./st_mean_sem;
         
         % get resp cells
         resp_cell_idx = logical(sum(cell_is_resp(:,tn_all),2).*reg_cell_idx);

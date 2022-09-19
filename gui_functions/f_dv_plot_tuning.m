@@ -31,7 +31,7 @@ for n_dset = 1:num_dsets
 
     stats1 = cat(1,data1.stats{n_pl});
     num_cells = sum([stats1.num_cells]);
-    cell_is_resp = cat(1,stats1.cell_is_resp);
+    cell_is_resp = cat(1,stats1.resp_cells_peak);
     cell_is_resp2 = cell_is_resp(:,tn_all);
 
     reg_idx = find(strcmpi(reg_all, data1.area));
@@ -131,7 +131,7 @@ end
 % for n_dset = 1:num_dsets
 %     data1 = data(n_dset,:);
 %     if ~isempty(data1.ensemble_tuning{n_pl})
-%         resp_ens = data1.ensemble_tuning{n_pl}.cell_is_resp;
+%         resp_ens = data1.ensemble_tuning{n_pl}.resp_cells_peak;
 %         freq_ens = logical(sum(resp_ens(:,1:10),2));
 %         cont_ens = logical(sum(resp_ens(:,[18 28]),2));
 %         red_ens = logical(sum(resp_ens(:,[19 29]),2));
@@ -171,7 +171,7 @@ end
 % freq_tuning = zeros(num_dsets,10);
 % for n_dset = 1:num_dsets
 %     data1 = data(n_dset,:);
-%     resp_ens = data1.ensemble_tuning{1}.cell_is_resp(:,1:10);
+%     resp_ens = data1.ensemble_tuning{1}.resp_cells_peak(:,1:10);
 %     freq_tuning(n_dset,:) = sum(resp_ens);
 % end
 % 
