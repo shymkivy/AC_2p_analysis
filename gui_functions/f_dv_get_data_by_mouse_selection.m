@@ -8,6 +8,9 @@ if strcmpi(button_text, 'plane')
 elseif strcmpi(button_text, 'dataset')
     idx_data = strcmpi(app.data.dset_name_full, app.ddata.dset_name_full);
     title_tag = ['dset ' app.ddata.dset_name_full{1}];
+elseif strcmpi(button_text, 'mouse region')
+    idx_data = logical(strcmpi(app.data.mouse_id, app.ddata.mouse_id).*strcmpi(app.data.area, app.ddata.area));
+    title_tag = ['mouse region  ' app.ddata.dset_name_full{1}];
 elseif strcmpi(button_text, 'mouse')
     idx_data = strcmpi(app.data.mouse_id, app.ddata.mouse_id);
     title_tag = ['mouse ' app.ddata.mouse_id{1}];

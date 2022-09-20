@@ -12,7 +12,7 @@ num_cells = sum([cdata.num_cells]);
 
 ens_stats = app.ddata.ensemble_stats{1};
 ens_tuning = app.ddata.ensemble_tuning_stats{1};
-ens_data = app.ddata.ensembles{1}.ens_out;
+ens_data = app.ddata.ensembles{1};
 
 %raster_lr = ens_data.coeffs*ens_data.scores;
 %figure; imagesc(raster_lr)

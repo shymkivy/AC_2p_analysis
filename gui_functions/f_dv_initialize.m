@@ -110,7 +110,7 @@ app.ens_plotstuffCheckBox.Value = ens_params.plot_stuff;
 app.ensshuffrepsEditField.Value = ens_params.acc_shuff_reps;
 
 %%
-app.SelectdatagroupDropDown.Items = {'Plane', 'Dataset', 'Mouse', 'Region', 'All'};
+app.SelectdatagroupDropDown.Items = {'Plane', 'Dataset', 'Mouse region', 'Mouse', 'Region', 'All'};
 app.SelectdatagroupDropDown.Value = 'Dataset';
 
 app.ResposivecellstypeDropDown.Items = {'Peaks', 'OnOff', 'Onset', 'Offset'};

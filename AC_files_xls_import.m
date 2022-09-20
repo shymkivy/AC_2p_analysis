@@ -33,7 +33,7 @@ if numel(ops.paradigm_type)
 end
 
 if numel(ops.experiment_type)
-    temp_idx = strcmpi(AC_data.experiment, ops.experiment_type);
+    temp_idx = strcmpi(AC_data.experiment, ops.experiments(idx1).experiment);
     AC_data = AC_data(temp_idx,:);
 end
 

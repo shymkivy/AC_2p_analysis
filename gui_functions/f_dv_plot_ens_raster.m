@@ -33,7 +33,7 @@ for n_ens = 1:numel(resp_ens)
    plot(scores(n_ens2,:))
 end
 
-cell_ens_idx = false(num_cells, numel(resp_ens));
+cell_ens_idx = false(cdata.num_cells, numel(resp_ens));
 for n_ens = 1:numel(resp_ens)
     n_ens2 =  resp_ens(n_ens);
     cell_list = ens_cells_list{n_ens2};
@@ -73,10 +73,12 @@ imagesc(cell_ens_idx(all_cell_list_uniq,:));
 
 stim_frame_index = ddata.stim_frame_index{1}(ddata.trial_types{1} == n_tr);
 
-trial_num_baseline_resp_frames = ddata.trial_window{1}.trial_num_baseline_resp_frames;
-trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_num_baseline_resp_frames);
+trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
+[~, trial_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
 
-trial_data_sort_2d = reshape(trial_data_sort, num_cells, []);
+trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_frames);
+
+trial_data_sort_2d = reshape(trial_data_sort, cdata.num_cells, []);
 raster_ens = trial_data_sort_2d(all_cell_list_uniq,:);
 
 figure; 
