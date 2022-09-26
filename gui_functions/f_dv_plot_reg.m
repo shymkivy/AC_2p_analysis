@@ -13,7 +13,7 @@ anchor_dset = app.anchordsetSpinner.Value;
 
 plot_borders = 1;
 plot_nontuned = 0;
-white_bkg = 0;
+white_bkg = 1;
 
 plot_resp_thresh = app.RespthreshEditField.Value;
 

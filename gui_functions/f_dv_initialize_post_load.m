@@ -3,7 +3,8 @@ function f_dv_initialize_post_load(app)
 app.DatasetDropDown.Items = app.data.dset_name_full;
 
 app.trialtypeDropDown.Items = [{'all'; 'Freqs'; 'Context'; 'Context_flip';...
-                    'Context_both'; 'Cont_dev'; 'Cont_dev_flip'; 'Ongoing'}; app.ops.context_types_labels];
+                    'Context_both'; 'Cont_dev'; 'Cont_dev_flip';...
+                    'Ongoing'}; app.ops.context_types_labels];
 
 app.regiontoplotDropDown.Items = [{'all'}; app.ops.regions_to_analyze];
 

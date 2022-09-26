@@ -84,6 +84,9 @@ for n_flip = 1:num_flip
             ctx2 = ctx1(:,n_ctx)';
             temp_resp = trial_data_sort_wctx(resp_cell_idx,:,logical(sum(trial_types_wctx == ctx2,2)));
             resp_all{n_dset, n_flip}(:,:,n_ctx) = mean(temp_resp,3);
+            if sum(sum(isnan(resp_all{n_dset, n_flip}(:,:,n_ctx))))
+                1;
+            end
         end
     end
    
@@ -107,8 +110,8 @@ y_lim_max = 0;
 y_lim_min = 0;
 for n_flip = 1:num_flip
     num_cells(n_flip) = size(resp_all_pool{n_flip},1);
-    resp_mean{n_flip} = squeeze(mean(resp_all_pool{n_flip},1));
-    resp_sem{n_flip} = squeeze(std(resp_all_pool{n_flip},[],1)/sqrt(max(num_cells(n_flip)-1,1)));
+    resp_mean{n_flip} = squeeze(nanmean(resp_all_pool{n_flip},1));
+    resp_sem{n_flip} = squeeze(nanstd(resp_all_pool{n_flip},[],1)/sqrt(max(num_cells(n_flip)-1,1)));
     
     max_vals = resp_mean{n_flip} + resp_sem{n_flip};
     min_vals = resp_mean{n_flip} - resp_sem{n_flip};

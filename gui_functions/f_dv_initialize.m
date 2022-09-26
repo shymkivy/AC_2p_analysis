@@ -114,6 +114,10 @@ app.SelectdatagroupDropDown.Items = {'Plane', 'Dataset', 'Mouse region', 'Mouse'
 app.SelectdatagroupDropDown.Value = 'Dataset';
 
 app.ResposivecellstypeDropDown.Items = {'Peaks', 'OnOff', 'Onset', 'Offset'};
+app.ResponsivecellsselectDropDown.Items = {'All', 'Resp marg', 'Resp split'};
+app.ResponsivecellsselectDropDown.Value = 'Resp marg';
+app.SorttypeDropDown.Items = {'trials', 'cells'};
+app.CorrtypeDropDown.Items = {'SI_cosine', 'SI_correlation', 'pca_dim'};
 
 app.ContoursDropDown.Items = {'None', 'Tuning type', 'Tuning magnitude', 'Onset offset', 'SNR', 'Skewness', 'Locomotion'};
 

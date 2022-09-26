@@ -14,6 +14,8 @@ elseif strcmpi(app.trialtypeDropDown.Value, 'Cont_dev')
     tn = [18 20];
 elseif strcmpi(app.trialtypeDropDown.Value, 'Cont_dev_flip')
     tn = [28 30];
+elseif strcmpi(app.trialtypeDropDown.Value, 'Context_both_comb')
+    tn = [31 32 33];
 else
     tn = find(strcmpi(app.ops.context_types_labels, app.trialtypeDropDown.Value));
 end 

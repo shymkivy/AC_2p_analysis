@@ -43,6 +43,8 @@ params.trim_output_num_frames = 0; %  0 or number of frames to save
 params.overwrite_moco_rigid = 1;
 params.overwrite_moco_nonrigid = 1;
 
+colors1 = parula(params.num_planes);
+
 % type 1
 %file_type = 'vmmn';close a
 %file_type = 'AAF_asynch';
@@ -527,7 +529,7 @@ if do_moco
     end
     
     proc_steps = [proc_steps '_moco'];
-    if 1%save_all_steps
+    if save_all_steps
         for n_pl = 1:num_planes
             f_save_mov_YS(Y{n_pl}(:,:,1:min(25000, size(Y{n_pl},3))), [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov')
         end

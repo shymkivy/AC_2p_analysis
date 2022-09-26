@@ -6,24 +6,25 @@ addpath([pwd '\s1_functions']);
 % data_dir = {'H:\data\AC\2021\',...
 %             'H:\data\AC\2022\'};
 %          
-data_dir = {'D:\data\AC\2p\2020';...
-            'I:\mouse\auditory\2018'};
+data_dir = {'E:\data\AC\2p\2022'};...
+            %'I:\mouse\auditory\2018'};
 
 %data_dir = {'G:\data\Auditory\2018'};
 
 % data_dir = {'F:\AC_data\'};
-        
-save_dir = {'F:\AC_data\caiman_data_missmatch\'};%,...
+
+save_dir = {'F:\AC_data\caiman_data_echo\'};%,...
+%save_dir = {'F:\AC_data\caiman_data_missmatch\'};%,...
 %save_dir = {'F:\AC_data\caiman_data_dream\'};
 
 params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_list_all.xlsx';
 
 params.limit.dset_name =        '';
-params.limit.experiment =       'missmatch';
-params.limit.mouse_id =         'M10';
+params.limit.experiment =       'echo';
+params.limit.mouse_id =         'M226';
 params.limit.mouse_tag =        '';
 params.limit.dset_name =        '';
-params.limit.FOV_num =          1;
+params.limit.FOV_num =          2;
 
 %%
 AC_data = f_s0_parse_tab_data(params);
