@@ -21,7 +21,6 @@ for n_fr = 1:T
     end_out1 = min([d2+shift1, d2]);
     frame_out(idx_1,start_out1:end_out1) = frame_in(idx_1,start_in1:end_in1);
 
-
     % shift even lines left
     shift2 = half_shift + rem1;
     start_in2 = max([1-shift2 1]);

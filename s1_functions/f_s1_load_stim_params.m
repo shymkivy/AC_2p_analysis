@@ -17,6 +17,8 @@ else
             end
             if isfield(stim_params.ops, 'num_freqs')
                 stim_params.num_freqs = stim_params.ops.num_freqs;
+            elseif isfield(stim_params.ops, 'grating_angles')
+                stim_params.num_freqs = numel(stim_params.ops.grating_angles);
             end
             if isfield(stim_params.ops, 'start_freq')
                 stim_params.start_freq = stim_params.ops.start_freq;

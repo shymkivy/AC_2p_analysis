@@ -10,8 +10,8 @@ end
 
 tn_all = f_dv_get_trial_number(app);
 
-[featuresX, resp_cellsX] = f_dv_get_feature(app.xvarDropDown.Value, data, tn_all, n_pl, app.LimitresptrialsCheckBox.Value, app.RespthreshEditField.Value);
-[featuresY, resp_cellsY] = f_dv_get_feature(app.yvarDropDown.Value, data, tn_all, n_pl, app.LimitresptrialsCheckBox.Value, app.RespthreshEditField.Value);
+[featuresX, resp_cellsX] = f_dv_get_feature(app.xvarDropDown.Value, data, tn_all, n_pl, app.ResponsivecellsselectDropDown.Value, app.RespthreshEditField.Value);
+[featuresY, resp_cellsY] = f_dv_get_feature(app.yvarDropDown.Value, data, tn_all, n_pl, app.ResponsivecellsselectDropDown.Value, app.RespthreshEditField.Value);
 
 figure; hold on;
 if app.MarginalizedistCheckBox.Value

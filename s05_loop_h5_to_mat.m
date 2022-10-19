@@ -8,7 +8,9 @@ addpath(genpath('C:\Users\ys2605\Desktop\stuff\caiman_sorter\caiman_sorter_funct
 ops = struct();
 ops = f_cs_collect_ops_loop(ops);
 
-if 0
+data_type = 3;
+
+if data_type == 1
     data_dir = 'F:\AC_data\caiman_data_dream';
 
     % evaluate params
@@ -27,8 +29,27 @@ if 0
     ops.eval_params2.RejThrMinSigFrac =         0.5;
     ops.eval_params2.FiringStability =          0.01;
     ops.eval_params2.RejThrSkewness =           0;
-else
+elseif data_type == 2
     data_dir = 'F:\AC_data\caiman_data_missmatch';
+
+    % evaluate params
+    ops.eval_params2.EvalSNRcaiman =            0;
+    ops.eval_params2.EvalSNR2 =                 1;
+    ops.eval_params2.EvalCNN =                  0;
+    ops.eval_params2.EvalRvalues =              1;
+    ops.eval_params2.EvalMinSigFrac =           0;
+    ops.eval_params2.EvalFiringStability =      0;
+    ops.eval_params2.EvalSkewness =             1;
+
+    ops.eval_params2.RejThrSNRCaiman =          2;
+    ops.eval_params2.RejThrSNR2 =               4;
+    ops.eval_params2.RejThrCNN =                0.97;
+    ops.eval_params2.RejThrRvalues =            0.6;
+    ops.eval_params2.RejThrMinSigFrac =         0.5;
+    ops.eval_params2.FiringStability =          0.01;
+    ops.eval_params2.RejThrSkewness =           0;
+elseif data_type == 3
+    data_dir = 'F:\AC_data\caiman_data_echo';
 
     % evaluate params
     ops.eval_params2.EvalSNRcaiman =            0;

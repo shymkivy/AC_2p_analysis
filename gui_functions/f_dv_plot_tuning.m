@@ -12,6 +12,7 @@ else
 end
 
 tn_all = f_dv_get_trial_number(app);
+num_tn = numel(tn_all);
 num_dsets = numel(data.experiment);
 reg_all = app.ops.regions_to_analyze;
 
@@ -27,10 +28,26 @@ elseif strcmpi(app.regiontoplotDropDown.Value, 'UF')
     region_num = find(strcmpi(reg_all, 'UF'));
 end
 
+categories = app.ops.context_types_labels(tn_all);
+
+stim_all = zeros(num_tn,1);
+for n_dset = 1:num_dsets
+    data1 = data(n_dset,:);
+    trial_types = data1.trial_types{1};
+    
+    [~, trial_types_wctx] =  f_s3_add_ctx_trials([], trial_types, app.ddata.MMN_freq{1}, app.ops);
+
+    stim_all = stim_all + sum(trial_types_wctx == app.ops.context_types_all(tn_all)',1)';
+end
+figure;
+bar(categorical(categories,categories), stim_all);
+title([title_tag ' ' app.regiontoplotDropDown.Value ' stimuli numbers'], 'Interpreter', 'none');
+ylabel('number of stimuli');
+
 resp_cell_all = cell(num_dsets,1);
 num_cells_all = zeros(num_dsets,numel(region_num));
 for n_dset = 1:num_dsets
-    data1 = data(n_dset,:);
+    
     if cells
         stats1 = cat(1,data1.stats{n_pl});
     else
@@ -56,10 +73,9 @@ for n_dset = 1:num_dsets
     end
     resp_cell_all{n_dset} = cell_is_resp_reg;  
 end
-
 resp_cell_all2 = cat(1,resp_cell_all{:});
 
-categories = app.ops.context_types_labels(tn_all);
+figure;
 if app.poolregionsCheckBox.Value
     resp1= logical(sum(resp_cell_all2,3));
     num_cells1 = sum(num_cells_all,2);
@@ -69,10 +85,8 @@ if app.poolregionsCheckBox.Value
         resp2 = sum(resp1,1)/num_dsets;
     end
     
-    figure;
     bar(categorical(categories,categories), resp2, 'EdgeColor',[219, 239, 255]/256,'LineWidth',1.5);
     title([title_tag ' ' app.regiontoplotDropDown.Value  ' tuning distribution; ' num2str(sum(num_cells1)) ' cells'], 'Interpreter', 'none');
-    
 else
     resp1 = reshape(sum(resp_cell_all2,1), [], numel(reg_all));
     num_cells2 = sum(num_cells_all,1);
@@ -81,7 +95,7 @@ else
     else
         resp2 = resp1/num_dsets;
     end
-    figure;
+    
     bar(categorical(categories,categories), resp2); %  'EdgeColor',[219, 239, 255]/256, ,'LineWidth',1.5
     title([title_tag ' ' app.regiontoplotDropDown.Value  ' tuning distribution'], 'Interpreter', 'none');
     legend(reg_all, 'location', 'northwest');

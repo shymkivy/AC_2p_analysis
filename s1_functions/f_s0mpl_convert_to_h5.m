@@ -43,6 +43,8 @@ params.trim_output_num_frames = 0; %  0 or number of frames to save
 params.overwrite_moco_rigid = 1;
 params.overwrite_moco_nonrigid = 1;
 
+params.block_size = 1000;
+
 colors1 = parula(params.num_planes);
 
 % type 1
@@ -84,7 +86,7 @@ colors1 = parula(params.num_planes);
 
 %%
 params_bidi.smooth_std = [1 2 10];%[1 2 2];
-params_bidi.fix_range = -50:10;
+params_bidi.fix_range = -15:15;
 params_bidi.num_iterations = 1;
 params_bidi.plot_stuff = 0;
 params_bidi.use_planes = [1 3];
@@ -429,32 +431,47 @@ if do_bidi
 
     % apply
     for n_pl = 1:num_planes
+        tic;
         [d1, d2, T] = size(Y{n_pl});
-        Y_temp = single(Y{n_pl});
         if cuts_data{n_pl}.bidi_out.params.do_interp
+            
+            num_blocks = ceil(T/params.block_size);
             deg_per_fov = 180 * cuts_data{n_pl}.bidi_out.params.laser_open_frac;
             y0 = 1:d1;
-            z0 = 1:T;
             deg0 = linspace(-deg_per_fov/2, deg_per_fov/2, d2);
             x0 = sin(deg0/360*2*pi);
             x0n = x0 - min(x0);
             x0n = x0n/max(x0n)*(d2-1)+1;
             x_coords = 1:d2;
-            [X_corr, Y0, Z0] = meshgrid(x_coords, y0, z0);
-            [X_real, ~, ~] = meshgrid(x0n, y0, z0);
-            Y_temp = interp3(X_corr, Y0, Z0, Y_temp, X_real, Y0, Z0);
+            
+            start1 = 1;
+            
+            fprintf('Applying nonrigid reg in blocks; block #/%d:', num_blocks)
+            for n_bl = 1:num_blocks
+                fprintf('..%d', n_bl);
+                end1 = min((start1 + params.block_size-1), T);
+                block_size2 = (end1 - start1+1);
+                z0 = 1:block_size2;
+                Y_temp = single(Y{n_pl}(:,:,start1:end1));
+                [X_corr, Y0, Z0] = meshgrid(x_coords, y0, z0);
+                [X_real, ~, ~] = meshgrid(x0n, y0, z0);
+                Y_temp = interp3(X_corr, Y0, Z0, Y_temp, X_real, Y0, Z0);
+                Y_temp = f_bidi_apply_shift(Y_temp, bidi_shifts_all(start1:end1,:));
+                Y_temp = interp3(X_real, Y0, Z0, Y_temp, X_corr, Y0, Z0);
+                Y{n_pl}(:,:,start1:end1) = uint16(Y_temp);
+                start1 = end1 + 1;
+            end
+        else
+            Y_temp = f_bidi_apply_shift(Y_temp, bidi_shifts_all);
         end
-        Y_temp = f_bidi_apply_shift(Y_temp, bidi_shifts_all);
-        if cuts_data{n_pl}.bidi_out.params.do_interp
-            Y_temp = interp3(X_real, Y0, Z0, Y_temp, X_corr, Y0, Z0);
-        end
-        Y{n_pl} = uint16(Y_temp);
+        fprintf('\nDone with nonrigid apply; compute time = %.1f\n', toc);
+        
     end
     proc_steps = [proc_steps '_bidi'];
     
     if save_all_steps
         for n_pl = 1:num_planes
-            f_save_mov_YS(Y{n_pl}, [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov');
+            f_save_mov_YS(Y{n_pl}(:,:,1:min(25000, size(Y{n_pl},3))), [save_dir_movie '\' save_file_name cuts_data{n_pl}.title_tag proc_steps '.h5'], '/mov');
         end
     end
 end

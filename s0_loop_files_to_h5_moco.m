@@ -6,7 +6,7 @@ addpath([pwd '\s1_functions']);
 % data_dir = {'H:\data\AC\2021\',...
 %             'H:\data\AC\2022\'};
 %          
-data_dir = {'E:\data\AC\2p\2022'};...
+data_dir = {'H:\data\AC\2021'};...
             %'I:\mouse\auditory\2018'};
 
 %data_dir = {'G:\data\Auditory\2018'};
@@ -21,10 +21,10 @@ params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_
 
 params.limit.dset_name =        '';
 params.limit.experiment =       'echo';
-params.limit.mouse_id =         'M226';
+params.limit.mouse_id =         'M4372';
 params.limit.mouse_tag =        '';
 params.limit.dset_name =        '';
-params.limit.FOV_num =          2;
+params.limit.FOV_num =          1;
 
 %%
 AC_data = f_s0_parse_tab_data(params);

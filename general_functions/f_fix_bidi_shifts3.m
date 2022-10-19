@@ -67,6 +67,9 @@ for n_rep = 1:num_iterations
     Y_odd = Y_bidi(idx_1,:,:);
     Y_even = Y_bidi(idx_2,:,:);
     
+    %f_save_mov_YS(Y_odd(:,:,1:min(25000, size(Y_odd,3))), 'odd.h5', '/mov');
+    %f_save_mov_YS(Y_even(:,:,1:min(25000, size(Y_even,3))), 'even.h5', '/mov');
+    
     if sum(smooth_std>0)
         tic;
         Y_odd_sm = f_smooth_movie(Y_odd, smooth_std);
