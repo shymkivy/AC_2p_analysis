@@ -26,11 +26,7 @@ for n_dset = 1:num_dsets
             resp_cell_sel = 'Resp marg';
         end
 
-        resp_vals = f_dv_get_resp_vals_cells(stats1, tn_all2(n_fl,:), resp_cell_type, resp_cell_sel, app.RespthreshEditField.Value);
-        
-        %peak_val_all = stats1.peak_val_all(:, tn_all2(n_fl,:));
-        %resp_cells_all = f_dv_get_resp_cells(stats1, tn_all2(n_fl,:), app.LimitresptrialsCheckBox.Value, app.RespthreshEditField.Value);
-        %resp_cells = logical(sum(cat(2,resp_cells_all{:}),2));
+        resp_vals = f_dv_get_resp_vals_cells(app, stats1, tn_all2(n_fl,:));
         
         data1{n_fl} = cat(2,resp_vals{:});
     end

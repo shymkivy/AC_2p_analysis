@@ -3,7 +3,6 @@ function f_dv_ensless_trial_dim(app)
 % this will compute dimensionality of trials
 params2 = f_dv_ensemble_params([]);
 est_params_pca = params2.est_params_pca;
-
 est_params_pca.dim_est_num_reps = 100;
 %%
 n_pl = app.mplSpinner.Value;
@@ -52,8 +51,8 @@ for n_tt = 1:num_tn
     tt = app.ops.context_types_all(tn);
     tr_idx = tt == trial_types_wctx;
     
-    resp_cells = stats1.resp_cells_peak(:,tn);
-    
+    [~, resp_cells] = f_dv_get_resp_vals_cells(app, stats1, tn);
+
     resp_ens = logical(sum(app.ddata.ensemble_tuning_stats{1}.resp_cells_peak(:,tn),2));
     resp_ens_cells = ens_cells(:,resp_ens); 
     

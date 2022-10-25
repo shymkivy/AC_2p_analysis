@@ -113,6 +113,8 @@ app.ensshuffrepsEditField.Value = ens_params.acc_shuff_reps;
 app.SelectdatagroupDropDown.Items = {'Plane', 'Dataset', 'Mouse region', 'Mouse', 'Region', 'All'};
 app.SelectdatagroupDropDown.Value = 'Dataset';
 
+app.TuningfreatureDropDown.Items = {'Peaks', 'onset', 'offset'};
+
 app.ResposivecellstypeDropDown.Items = {'Peaks', 'OnOff', 'Onset', 'Offset'};
 app.ResponsivecellsselectDropDown.Items = {'All', 'Resp marg', 'Resp split'};
 app.ResponsivecellsselectDropDown.Value = 'Resp marg';
@@ -137,7 +139,7 @@ app.gui_ops.save_var_list_pl = {'stats', 'stats_within', 'register_roi',...
                     'register_roi_caiman_load', 'opto_data'};
 app.gui_ops.save_var_list = {'data_dim_pca', 'data_dim_cv',...
                     'ensembles', 'ensemble_stats', 'ensemble_tuning_stats',...
-                    'ensless_dim_est'};
+                    'ensless_trial_dim_est'};
                 
 app.PlottuningtypeDropDown.Items = {'cell', 'ensemble', 'cell to self'};
                 

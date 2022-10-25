@@ -46,9 +46,9 @@ for n_dset = 1:num_dsets
     firing_rate = cat(1,cdata.S_sm);
     num_cells = sum([cdata.num_cells]);
     
-    [~, resp_cells] = f_dv_get_resp_vals_cells(stats1, tn_all, resp_type, resp_selection, app.RespthreshEditField.Value);
-    
-    [~, resp_cells_split] = f_dv_get_resp_vals_cells(stats1, tn_all, resp_type, 'resp split', app.RespthreshEditField.Value);
+    [~, resp_cells] = f_dv_get_resp_vals_cells(app, stats1, tn_all);
+   
+    [~, resp_cells_split] = f_dv_get_resp_vals_cells(app, stats1, tn_all, resp_type, 'resp split');
     
     trial_types = ddata.trial_types{1};
     stim_frame_index = ddata.stim_frame_index{1};

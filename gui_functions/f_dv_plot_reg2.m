@@ -1,6 +1,4 @@
 function f_dv_plot_reg2(app)
-
-
 %%
 region_means_all = cat(3,reg_data.wf_region_means);
 region_means_all_in = region_means_all*2^interp_k - 2^interp_k + 1;
@@ -194,7 +192,6 @@ for n_ms = 1:numel(data_mouse_tag)
             coords_tf = (coords_in*tform_in.T)';
 
             %% plot tuning
-
 
             if strcmpi(plot_contours, 'None')
                 contour_vals = zeros(num_cells,1);

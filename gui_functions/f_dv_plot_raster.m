@@ -11,7 +11,7 @@ cdata = f_dv_get_cdata(app);
 firing_rate = cat(1,cdata.S_sm);
 stats1 = cat(1,ddata.stats{:});
 
-[~, resp_cells] = f_dv_get_resp_vals_cells(stats1, tn_all, app.ResposivecellstypeDropDown.Value, 'Resp marg', app.RespthreshEditField.Value);
+[~, resp_cells] = f_dv_get_resp_vals_cells(app, stats1, tn_all, [], 'Resp marg');
 
 num_cells = sum(stats1.num_cells);
 firing_rate2 = firing_rate(resp_cells(:,1),:);

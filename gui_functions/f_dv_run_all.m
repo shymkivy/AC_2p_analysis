@@ -144,16 +144,16 @@ elseif strcmpi(app.RunallDropDown.Value, 'ensemble_tuning_stats')
         end
     end
     fprintf('\n');
-elseif strcmpi(app.RunallDropDown.Value, 'ensless_dim_est')
+elseif strcmpi(app.RunallDropDown.Value, 'ensless_trial_dim_est')
     fprintf('Running all ensless dim est, Dset_/%d: ', num_data)
     for n_dset = 1:num_data
         fprintf('%d..', n_dset);
         params.n_dset = n_dset;
         ddata = app.data(n_dset,:);
         params.ddata = ddata;
-        if or(isempty(app.data(n_dset,:).ensless_dim_est{1}), app.OverwriteCheckBox.Value)
+        if or(isempty(app.data(n_dset,:).ensless_trial_dim_est{1}), app.OverwriteCheckBox.Value)
             params.cdata = cat(1,params.ddata.cdata{:});
-            app.data(n_dset,:).ensless_dim_est{1} = f_dv_ensless_dim_est(app, params);
+            app.data(n_dset,:).ensless_trial_dim_est{1} = f_dv_ensless_trial_dim_est(app, params);
         end
     end
     fprintf('\n');

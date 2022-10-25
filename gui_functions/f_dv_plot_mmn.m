@@ -50,7 +50,9 @@ for n_flip = 1:num_flip
         trial_types = data1.trial_types{1};
         stim_times = data1.stim_frame_index{n_pl};
         mmn_freq = data1.MMN_freq{1};
-        cell_is_resp = stats1.resp_cells_peak;
+        
+        [~, resp_cells] = f_dv_get_resp_vals_cells(app, stats1, tn_all);
+        %cell_is_resp = stats1.peak_resp_cells(:,tn_all);
         
         if ~region_num
             reg_cell_idx = ones(cdata.num_cells,1);
@@ -76,7 +78,7 @@ for n_flip = 1:num_flip
         trial_data_sort_wctx = (trial_data_sort_wctx - st_mean_mean)./st_mean_sem;
         
         % get resp cells
-        resp_cell_idx = logical(sum(cell_is_resp(:,tn_all),2).*reg_cell_idx);
+        resp_cell_idx = logical(sum(resp_cells,2).*reg_cell_idx);
         cell_counts(n_dset, n_flip) = sum(resp_cell_idx);
         
         resp_all{n_dset, n_flip} = zeros(cell_counts(n_dset, n_flip), num_t, size(ctx1,2));

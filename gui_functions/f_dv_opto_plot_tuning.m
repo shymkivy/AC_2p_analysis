@@ -84,10 +84,8 @@ for n_ms = 1:numel(mice_all)
                         end
 
                         stats1 = cat(1,data_opto.stats{:});
-                        peak_val_all = cat(1,stats1.peak_val_all);
+                        peak_val_all = cat(1,stats1.peak_vals);
                         peak_resp_all{idx_ammn_stim} = peak_val_all(resp_cells_dc_p_c_gc(:,1),stim_tn);
-
-
 
                         for n_dset2 = 1:numel(data3.mouse_id)
                             if idx_ammn(n_dset2)
@@ -222,10 +220,8 @@ for n_ms = 1:numel(mice_all)
                         end
 
                         stats1 = cat(1,data_opto.stats{:});
-                        peak_val_all = cat(1,stats1.peak_val_all);
+                        peak_val_all = cat(1,stats1.peak_vals);
                         peak_resp_all{idx_ammn_stim} = peak_val_all(resp_cells_dc_p_c_gc(:,1),stim_tn);
-
-
 
                         for n_dset2 = 1:numel(data3.mouse_id)
                             if idx_ammn(n_dset2)

@@ -39,11 +39,19 @@ elseif strcmpi(contour_val, 'Skewness')
 elseif ~isempty(stats1)
     if strcmpi(contour_val, 'Tuning type')
         tn_all = f_dv_get_trial_number(app);
-
-        tuning_freq = stats1.peak_val_all(:,tn_all);
-        resp_cells = stats1.resp_cells_peak(:,tn_all);
-        tuning_freq(~resp_cells) = 0;
-        [max_val, max_idx] = max(tuning_freq, [], 2);
+        
+        if strcmpi(app.TuningfreatureDropDown.Value, 'peaks')
+            stats2 = stats1.peak;
+        elseif strcmpi(app.TuningfreatureDropDown.Value, 'onset')
+            stats2 = stats1.onset;
+        elseif strcmpi(app.TuningfreatureDropDown.Value, 'offset')
+            stats2 = stats1.offset;
+        end
+        tuning_vals = stats2.vals(:,tn_all);
+        resp_cells = stats2.resp_cells(:,tn_all);
+        
+        tuning_vals(~resp_cells) = 0;
+        [max_val, max_idx] = max(tuning_vals, [], 2);
         app.gui_ops.contour_params.visible_set = logical(max_val);
         app.gui_ops.contour_params.contour_mag = max_idx;
         app.gui_ops.contour_params.c_abs_lim = [min(max_idx) max(max_idx)];
@@ -52,16 +60,24 @@ elseif ~isempty(stats1)
         use_color_map = 0;
     elseif strcmpi(contour_val, 'Tuning magnitude')
         tn_all = f_dv_get_trial_number(app);
-
-        resp_cells = stats1.resp_cells_peak;
-        peak_vals = stats1.peak_val_all;
+        
+        if strcmpi(app.TuningfreatureDropDown.Value, 'peaks')
+            stats2 = stats1.peak;
+        elseif strcmpi(app.TuningfreatureDropDown.Value, 'onset')
+            stats2 = stats1.onset;
+        elseif strcmpi(app.TuningfreatureDropDown.Value, 'offset')
+            stats2 = stats1.offset;
+        end
+        tuning_vals = stats2.vals(:,tn_all);
+        resp_cells = stats2.resp_cells(:,tn_all);
+        
         if app.ConverttoZCheckBox.Value
             st_mean_mean = stats1.stat_trials_mean_mean;
             st_mean_sem = stats1.stat_trials_mean_sem;
-            peak_vals = (peak_vals - st_mean_mean)./st_mean_sem;
+            tuning_vals = (tuning_vals - st_mean_mean)./st_mean_sem;
         end
-        peak_vals(~resp_cells) = 0;
-        peak_vals2 = max(peak_vals(:,tn_all),[],2);
+        tuning_vals(~resp_cells) = 0;
+        peak_vals2 = max(tuning_vals(:,tn_all),[],2);
         app.gui_ops.contour_params.visible_set = peak_vals2>0;
 
         app.gui_ops.contour_params.contour_mag = peak_vals2; % factor to resize magnitudes to fir color

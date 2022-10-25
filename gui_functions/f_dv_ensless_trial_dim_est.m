@@ -1,4 +1,4 @@
-function data_out = f_dv_ensless_dim_est(app, params)
+function dim_est_tr = f_dv_ensless_trial_dim_est(app, params)
 % this will compute dimensionality of trials
 params2 = f_dv_ensemble_params([]);
 est_params_pca = params2.est_params_pca;
@@ -21,8 +21,6 @@ trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trial_frames);
 
 stats1 = params.ddata.stats{1};
 
-select_resp_cells = 1;
-
 dim_est_tr = zeros(numel(app.ops.context_types_all),1);
 num_cells_all = zeros(numel(app.ops.context_types_all),1);
 num_trials_all = zeros(numel(app.ops.context_types_all),1);
@@ -35,16 +33,12 @@ for n_tt = 1:numel(app.ops.context_types_all)
     tt = app.ops.context_types_all(n_tt);
     tr_idx = tt == trial_types_wctx;
     
-    if select_resp_cells
-        cell_idx = stats1.resp_cells_peak(:,n_tt);
-    else
-        cell_idx = true(stats1.num_cells,1);
-    end
-    
+    [~, resp_cells] = f_dv_get_resp_vals_cells(app, stats1, n_tt);
+  
     num_tr = sum(tr_idx);
-    num_cells = sum(cell_idx);
+    num_cells = sum(resp_cells);
     
-    data2 = trial_data_sort_wctx(cell_idx,:,tr_idx);
+    data2 = trial_data_sort_wctx(resp_cells,:,tr_idx);
     data2_2d = reshape(data2,num_cells,[]);
     
     data_dim_est = f_ensemble_comp_data_dim2(data2_2d, est_params_pca);

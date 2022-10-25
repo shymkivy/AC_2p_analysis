@@ -158,38 +158,46 @@ peak_locs_t(idx1) = stat_window_t(peak_locs(idx1));
 peak_in_resp_win = (peak_locs_t >= lim_sig_resp_win(1)) .* (peak_locs_t <= lim_sig_resp_win(2));
 
 if strcmpi(peak_stats, 'shuff_pool')
-    resp_thresh_peak = repmat(prctile(samp_peak_vals', peak_prcntle)', [1 num_t]);
+    resp_thresh_peak = prctile(samp_peak_vals', peak_prcntle)';
+    resp_thresh_peak_trace = repmat(resp_thresh_peak, [1 num_t]);
+    resp_thresh_peak2 = repmat(resp_thresh_peak, [1, num_tt]);
     % do this crap to ignore nan if any
     resp_cells_peak = double(idx1);
-    resp_cells_peak(idx1) = peak_vals(idx1) > resp_thresh_peak(peak_locs(idx1));
+    resp_cells_peak(idx1) = peak_vals(idx1) > resp_thresh_peak2(idx1);
     resp_cells_peak = resp_cells_peak .* peak_in_resp_win;
 elseif strcmpi(peak_stats, 'shuff_locwise')
-    resp_thresh_peak = zeros(num_cells, num_t);
+    resp_thresh_peak_trace = zeros(num_cells, num_t);
     resp_cells_peak = zeros(num_cells, num_tt);
     for n_cell = 1:num_cells
         for n_loc = 1:num_t
             temp_th = prctile(samp_peak_vals(n_cell,samp_peak_locs(n_cell,:) == n_loc), peak_prcntle);
             if isnan(temp_th)
-                resp_thresh_peak(n_cell, n_loc) = 0;
+                resp_thresh_peak_trace(n_cell, n_loc) = 0;
             else
-                resp_thresh_peak(n_cell, n_loc) = temp_th;
+                resp_thresh_peak_trace(n_cell, n_loc) = temp_th;
             end
         end
         for n_tt = 1:num_tt
-            resp_cells_peak(n_cell, n_tt) = peak_vals(n_cell, n_tt) > resp_thresh_peak(n_cell,peak_locs(n_cell,n_tt));
+            resp_cells_peak(n_cell, n_tt) = peak_vals(n_cell, n_tt) > resp_thresh_peak_trace(n_cell,peak_locs(n_cell,n_tt));
         end
     end
-else
-    resp_thresh_peak = zeros(num_cells, num_t);
+    resp_thresh_peak = mean(resp_thresh_peak_trace,2);
+elseif strcmpi(peak_stats, 'z_thresh')
+    resp_thresh_peak_trace = zeros(num_cells, num_t);
     resp_cells_peak = zeros(num_cells, num_tt);
     for n_cell = 1:num_cells
-        trial_data1 = squeeze(trial_data_sort_stat(n_cell,:,:));
-        resp_thresh_peak(n_cell,:) = mean(trial_data1,2) + z_thresh*std(trial_data1,[],2)/sqrt(num_trial_per_stim-1);
+        temp_trace_mean = stat_trials_mean(n_cell,:);
+        temp_trace_sem = stat_trials_sem(n_cell,:);
+
+        resp_thresh_peak_trace(n_cell,:) = temp_trace_mean + z_thresh*temp_trace_sem;
         for n_tt = 1:num_tt
-            resp_cells_peak(n_cell, n_tt) = peak_vals(n_cell, n_tt) > resp_thresh_peak(n_cell,peak_locs(n_cell,n_tt));
+            resp_cells_peak(n_cell, n_tt) = peak_vals(n_cell, n_tt) > resp_thresh_peak_trace(n_cell,peak_locs(n_cell,n_tt));
         end
     end
+    resp_thresh_peak = mean(resp_thresh_peak_trace,2);
 end
+
+
 
 %% onset offset responses
 
@@ -301,24 +309,36 @@ stats.stat_trials_mean_mean = mean(stat_trials_mean,2);
 stats.stat_trials_mean_sem = mean(stat_trials_sem,2);
 stats.trial_ave_trace = trial_ave_trace1;
 stats.trial_ave_lim_win_mean = mean(trial_ave_trace1(:,lim_win_frames,:),2);
-stats.resp_cells_peak = resp_cells_peak;
-stats.resp_thresh_peak = resp_thresh_peak;
-stats.peak_val_all = peak_vals;
-stats.peak_t_all = peak_t_all;
-stats.peak_in_resp_win = peak_in_resp_win;
 stats.stat_window_t = stat_window_t; % stat_window_t
 stats.lim_win_frames = lim_win_frames;
+
+stats.peak_vals = peak_vals;
+stats.peak_loc = peak_t_all;
+stats.peak_resp_cells = resp_cells_peak;
+stats.peak_resp_thresh = resp_thresh_peak;
+stats.peak_resp_thresh_trace = resp_thresh_peak_trace;
+stats.peak_in_resp_win = peak_in_resp_win;
+stats.peak_sample_mean = mean(samp_peak_vals,2);
+
 stats.onset_vals = onset_vals;
+stats.onset_loc = mean(onset_win);
+stats.onset_resp_cells = resp_cells_onset;
+stats.onset_resp_thresh = resp_thresh_onset;
+stats.onset_sample_mean = mean(samp_onset_vals,2);
+
 stats.offset_vals = offset_vals;
-stats.resp_thresh_onset = resp_thresh_onset;
-stats.resp_thresh_offset = resp_thresh_offset;
-stats.resp_cells_onset = resp_cells_onset;
-stats.resp_cells_offset = resp_cells_offset;
+stats.offset_loc = mean(offset_win);
+stats.offset_resp_cells = resp_cells_offset;
+stats.offset_resp_thresh = resp_thresh_offset;
+stats.offset_sample_mean = mean(samp_offset_vals,2);
+
+stats.loco_vals = loco_corr;
+stats.loco_resp_cells = loco_cell;
+stats.loco_vals_z = loco_z;
+
 stats.num_cells = num_cells;
 stats.accepted_cells = params.cdata.accepted_cells;
-stats.loco_cell = loco_cell;
-stats.loco_corr = loco_corr;
-stats.loco_z = loco_z;
+
 params2 = rmfield(params, 'cdata');
 params2 = rmfield(params2, 'ddata');
 stats.params = params2;

@@ -13,7 +13,7 @@ num_dsets = numel(data.experiment);
 tn_all = f_dv_get_trial_number(app);
 num_tn = numel(tn_all);
 
-[features1, resp_cells] = f_dv_get_feature(app.plotfeatureDropDown.Value, data, tn_all, n_pl, app.ResponsivecellsselectDropDown.Value, app.RespthreshEditField.Value);
+[features1, resp_cells] = f_dv_get_feature(app, app.plotfeatureDropDown.Value, data, tn_all, n_pl);
 
 plot_lims = f_str_to_array(app.plot_BaserespwinEditField.Value);
 n_bins = round(diff(plot_lims)/data.cdata{1}.volume_period*1000/2);

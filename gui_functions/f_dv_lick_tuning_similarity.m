@@ -38,7 +38,7 @@ vec_all2 = cell(num_planes,1);
 for n_pl = 1:num_planes
     stats1 = data2.stats{n_dset,n_pl};
     match_stats_id2 = match_stats_id{n_pl};
-    peak_vals = stats1.peak_val_all(match_stats_id2(:,n_dset), stim_tone_idx);
+    peak_vals = stats1.peak_vals(match_stats_id2(:,n_dset), stim_tone_idx);
     
     vec_all2{n_pl} = peak_vals;
 end    
@@ -50,7 +50,7 @@ vec_all2 = cell(num_planes,1);
 for n_pl = 1:num_planes
     stats1 = data2.stats{n_dset,n_pl};
     match_stats_id2 = match_stats_id{n_pl};
-    peak_vals = stats1.peak_val_all(match_stats_id2(:,n_dset), 20);
+    peak_vals = stats1.peak_vals(match_stats_id2(:,n_dset), 20);
     
     vec_all2{n_pl} = peak_vals;
 end    
@@ -105,8 +105,8 @@ for n_pl = 1:ddata.num_planes
         temp_A = A_n(:,:,n_cell);
         %temp_A = temp_A/max(temp_A(:));
         temp_A2 = repmat(temp_A, 1, 1, 3);
-        if sum(stats1.resp_cells_peak(n_cell,1:10))
-            [~, n_freq] = max(stats1.peak_val_all(n_cell, tn_all_sel));
+        if sum(stats1.peak_resp_cells(n_cell,1:10))
+            [~, n_freq] = max(stats1.peak_vals(n_cell, tn_all_sel));
             temp_A_col = temp_A2.*cmap_all(tn_all_sel(n_freq),:,:);
         else
             temp_A_col = temp_A2.*cmap_gray2;

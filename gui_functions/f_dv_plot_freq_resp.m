@@ -17,6 +17,14 @@ trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trial_frames);
 
 stats1 = app.ddata.stats{n_pl};
 
+if strcmpi(app.TuningfreatureDropDown.Value, 'peaks')
+    resp_cells = stats1.peak_resp_cells;
+elseif strcmpi(app.TuningfreatureDropDown.Value, 'onset')
+    resp_cells = stats1.onset_resp_cells;
+elseif strcmpi(app.TuningfreatureDropDown.Value, 'offset')
+    resp_cells = stats1.offset_resp_cells;
+end
+
 if app.ConverttoZCheckBox.Value
     st_mean_mean = stats1.stat_trials_mean_mean(n_cell);
     st_mean_sem = stats1.stat_trials_mean_sem(n_cell);
@@ -34,7 +42,6 @@ trial_sem_trace = stats1.stat_trials_sem(n_cell,stat_window_idx);
 trial_data_sort = (trial_data_sort - st_mean_mean)/st_mean_sem;
 trial_ave_trace = (trial_ave_trace-st_mean_mean)/st_mean_sem;%mean(trial_data_sort(:,:,1:num_cont_trials),3);
 trial_sem_trace = trial_sem_trace/st_mean_sem;%std(trial_data_sort(:,:,1:num_cont_trials), [],3)/sqrt(num_trials-1);
-
 
 resp_freq = cell(10,1);
 y_lim_max = [0 max(trial_ave_trace+trial_sem_trace*stats1.stat_params.z_thresh)];
@@ -72,29 +79,38 @@ end
 %trial_sem_trace = stats1.stat_trials_sem(n_cell,:);
 %stat_window_t = stats1.stat_window_t;
 %stat_plot_intsc = logical(logical(sum(stat_window_t'>=plot_t,2)).*logical(sum(stat_window_t'<=plot_t,2)));
-cell_is_resp = stats1.resp_cells_peak(n_cell,:);
+cell_is_resp = resp_cells(n_cell,:);
 for n_tr = 1:10
     subplot(2,5,n_tr); 
     hold on; axis tight; ylim([y_lim_min, y_lim_max]);
-    if app.IndividualtrialsCheckBox.Value
-        plot(plot_t, resp_freq{n_tr}, 'color', [.6 .6 .6]);
-    end
-    plot(stat_window_t, trial_ave_trace, 'color', [0.75, 0, 0.75], 'LineWidth', 2);
-    plot(stat_window_t, trial_ave_trace+trial_sem_trace*stats1.stat_params.z_thresh, '--','color', [0.75, 0, 0.75], 'LineWidth', 1); 
-    plot(plot_t, mean(resp_freq{n_tr},2), 'color', [0 0 0], 'LineWidth', 2);
-    if cell_is_resp(n_tr)
-        plot(stats1.peak_t_all(n_cell,n_tr), (stats1.peak_val_all(n_cell,n_tr)-st_mean_mean)/st_mean_sem, '*g')
-    end
-    if rem(n_tr,5) ~= 1
-        set(gca,'ytick',[]);
-    else
-        if app.ConverttoZCheckBox.Value
-            ylabel('Z scores');
-        else
-            ylabel('Normalized response');
+    if numel(resp_freq{n_tr})
+        if app.IndividualtrialsCheckBox.Value
+            plot(plot_t, resp_freq{n_tr}, 'color', [.6 .6 .6]);
         end
+        plot(stat_window_t, trial_ave_trace, 'color', [0.75, 0, 0.75], 'LineWidth', 2);
+        plot(stat_window_t, trial_ave_trace+trial_sem_trace*stats1.stat_params.z_thresh, '--','color', [0.75, 0, 0.75], 'LineWidth', 1); 
+        plot(plot_t, mean(resp_freq{n_tr},2), 'color', [0 0 0], 'LineWidth', 2);
+        if cell_is_resp(n_tr)
+            if numel(stats2.loc) > 1
+                loc1 = stats2.loc(n_cell,n_tr);
+            else
+                loc1 = stats2.loc;
+            end
+            plot(loc1, (stats2.vals(n_cell,n_tr)-st_mean_mean)/st_mean_sem, '*g')
+        end
+        if rem(n_tr,5) ~= 1
+            set(gca,'ytick',[]);
+        else
+            if app.ConverttoZCheckBox.Value
+                ylabel('Z scores');
+            else
+                ylabel('Normalized response');
+            end
+        end
+        title(sprintf('Freq %d', n_tr))
+    else
+        title(sprintf('Freq %d; no data', n_tr))
     end
-    title(sprintf('Freq %d', n_tr))
 end
 sgtitle(sprintf('Dset %s; Cell %d', app.ddata.dset_name_full{1}, n_cell), 'Interpreter', 'none');
 
