@@ -51,7 +51,7 @@ for n_flip = 1:num_flip
         stim_times = data1.stim_frame_index{n_pl};
         mmn_freq = data1.MMN_freq{1};
         
-        [~, resp_cells] = f_dv_get_resp_vals_cells(app, stats1, tn_all);
+        resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn_all);
         %cell_is_resp = stats1.peak_resp_cells(:,tn_all);
         
         if ~region_num

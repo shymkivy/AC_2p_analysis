@@ -26,7 +26,7 @@ for n_dset = 1:num_dsets
             resp_cell_sel = 'Resp marg';
         end
 
-        resp_vals = f_dv_get_resp_vals_cells(app, stats1, tn_all2(n_fl,:));
+        [~, resp_vals] = f_dv_get_resp_vals_cells(app, stats1, tn_all2(n_fl,:));
         
         data1{n_fl} = cat(2,resp_vals{:});
     end

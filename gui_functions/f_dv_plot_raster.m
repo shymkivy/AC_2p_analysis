@@ -1,8 +1,6 @@
 function f_dv_plot_raster(app)
 %% plot raster of firing rates without enseble analysis
 
-n_pl = app.mplSpinner.Value;
-
 tn_all = f_dv_get_trial_number(app);
 tt_all = app.ops.context_types_all(tn_all)';
 
@@ -11,10 +9,12 @@ cdata = f_dv_get_cdata(app);
 firing_rate = cat(1,cdata.S_sm);
 stats1 = cat(1,ddata.stats{:});
 
-[~, resp_cells] = f_dv_get_resp_vals_cells(app, stats1, tn_all, [], 'Resp marg');
+resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn_all);
+resp_cells2 = logical(sum(resp_cells,2));
 
-num_cells = sum(stats1.num_cells);
-firing_rate2 = firing_rate(resp_cells(:,1),:);
+firing_rate2 = firing_rate(resp_cells2,:);
+
+num_cells = sum(resp_cells2);
 
 if app.shufflecellsCheckBox.Value
     firing_rate2 = firing_rate2(randperm(num_cells),:);
@@ -28,11 +28,11 @@ else
     if isempty(tt_all)
         disp('Specified trial type does not exist');
     else
-        stim_times = app.ddata.stim_frame_index{n_pl};
+        stim_times = app.ddata.stim_frame_index{1};
         mmn_freq = app.ddata.MMN_freq{1};
         
         trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
-        [~, trial_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
+        [~, trial_frames] = f_dv_compute_window_t(trial_window, cdata(1).volume_period);
 
         trial_types = app.ddata.trial_types{1};
         trial_data_sort = f_get_stim_trig_resp(firing_rate2, stim_times, trial_frames);
@@ -43,6 +43,7 @@ else
             trial_data_sort_wctx = trial_data_sort;
             trial_types_wctx = trial_types;
         end
+        
         num_t = size(trial_data_sort,2);
 
         trial_idx = logical(sum(tt_all == trial_types_wctx,2));

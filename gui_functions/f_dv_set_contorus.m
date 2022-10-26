@@ -41,17 +41,19 @@ elseif ~isempty(stats1)
         tn_all = f_dv_get_trial_number(app);
         
         if strcmpi(app.TuningfreatureDropDown.Value, 'peaks')
-            stats2 = stats1.peak;
+            tuning_vals = stats1.peak_vals;
+            resp_cells = stats1.peak_resp_cells;
         elseif strcmpi(app.TuningfreatureDropDown.Value, 'onset')
-            stats2 = stats1.onset;
+            tuning_vals = stats1.onset_vals;
+            resp_cells = stats1.onset_resp_cells;
         elseif strcmpi(app.TuningfreatureDropDown.Value, 'offset')
-            stats2 = stats1.offset;
+            tuning_vals = stats1.offset_vals;
+            resp_cells = stats1.offset_resp_cells;
         end
-        tuning_vals = stats2.vals(:,tn_all);
-        resp_cells = stats2.resp_cells(:,tn_all);
-        
+
         tuning_vals(~resp_cells) = 0;
-        [max_val, max_idx] = max(tuning_vals, [], 2);
+        tuning_vals2 = tuning_vals(:,tn_all);
+        [max_val, max_idx] = max(tuning_vals2, [], 2);
         app.gui_ops.contour_params.visible_set = logical(max_val);
         app.gui_ops.contour_params.contour_mag = max_idx;
         app.gui_ops.contour_params.c_abs_lim = [min(max_idx) max(max_idx)];
@@ -62,14 +64,15 @@ elseif ~isempty(stats1)
         tn_all = f_dv_get_trial_number(app);
         
         if strcmpi(app.TuningfreatureDropDown.Value, 'peaks')
-            stats2 = stats1.peak;
+            tuning_vals = stats1.peak_vals;
+            resp_cells = stats1.peak_resp_cells;
         elseif strcmpi(app.TuningfreatureDropDown.Value, 'onset')
-            stats2 = stats1.onset;
+            tuning_vals = stats1.onset_vals;
+            resp_cells = stats1.onset_resp_cells;
         elseif strcmpi(app.TuningfreatureDropDown.Value, 'offset')
-            stats2 = stats1.offset;
+            tuning_vals = stats1.offset_vals;
+            resp_cells = stats1.offset_resp_cells;
         end
-        tuning_vals = stats2.vals(:,tn_all);
-        resp_cells = stats2.resp_cells(:,tn_all);
         
         if app.ConverttoZCheckBox.Value
             st_mean_mean = stats1.stat_trials_mean_mean;

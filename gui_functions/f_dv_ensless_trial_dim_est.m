@@ -33,7 +33,7 @@ for n_tt = 1:numel(app.ops.context_types_all)
     tt = app.ops.context_types_all(n_tt);
     tr_idx = tt == trial_types_wctx;
     
-    [~, resp_cells] = f_dv_get_resp_vals_cells(app, stats1, n_tt);
+    resp_cells = f_dv_get_resp_vals_cells(app, stats1, n_tt);
   
     num_tr = sum(tr_idx);
     num_cells = sum(resp_cells);

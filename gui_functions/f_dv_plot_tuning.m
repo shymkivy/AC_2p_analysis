@@ -23,11 +23,11 @@ end
 tn_all = 1:10;
 
 if strcmpi(app.TuningfreatureDropDown.Value, 'peaks')
-    stats2 = stats1.peak;
+    vals1 = stats1.peak_vals;
 elseif strcmpi(app.TuningfreatureDropDown.Value, 'onset')
-    stats2 = stats1.onset;
+    vals1 = stats1.onset_vals;
 elseif strcmpi(app.TuningfreatureDropDown.Value, 'offset')
-    stats2 = stats1.offset;
+    vals1 = stats1.offset_vals;
 end
 
 figure;

@@ -19,10 +19,16 @@ stats1 = app.ddata.stats{n_pl};
 
 if strcmpi(app.TuningfreatureDropDown.Value, 'peaks')
     resp_cells = stats1.peak_resp_cells;
+    vals1 = stats1.peak_vals;
+    loc1 = stats1.peak_loc;
 elseif strcmpi(app.TuningfreatureDropDown.Value, 'onset')
     resp_cells = stats1.onset_resp_cells;
+    vals1 = stats1.onset_vals;
+    loc1 = stats1.onset_loc;
 elseif strcmpi(app.TuningfreatureDropDown.Value, 'offset')
     resp_cells = stats1.offset_resp_cells;
+    vals1 = stats1.offset_vals;
+    loc1 = stats1.offset_loc;
 end
 
 if app.ConverttoZCheckBox.Value
@@ -91,12 +97,12 @@ for n_tr = 1:10
         plot(stat_window_t, trial_ave_trace+trial_sem_trace*stats1.stat_params.z_thresh, '--','color', [0.75, 0, 0.75], 'LineWidth', 1); 
         plot(plot_t, mean(resp_freq{n_tr},2), 'color', [0 0 0], 'LineWidth', 2);
         if cell_is_resp(n_tr)
-            if numel(stats2.loc) > 1
-                loc1 = stats2.loc(n_cell,n_tr);
+            if numel(loc1) > 1
+                loc2 = loc1(n_cell,n_tr);
             else
-                loc1 = stats2.loc;
+                loc2 = loc1;
             end
-            plot(loc1, (stats2.vals(n_cell,n_tr)-st_mean_mean)/st_mean_sem, '*g')
+            plot(loc2, (vals1(n_cell,n_tr)-st_mean_mean)/st_mean_sem, '*g')
         end
         if rem(n_tr,5) ~= 1
             set(gca,'ytick',[]);

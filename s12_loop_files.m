@@ -7,13 +7,13 @@ addpath([pwd '\general_functions'])
 
 %%
 %ops.file_dir = 'F:\AC_data\caiman_data_dream\preprocessing';
-ops.file_dir = 'F:\AC_data\caiman_data_missmatch\preprocessing';
-%ops.file_dir = 'F:\AC_data\caiman_data_echo\preprocessing';
+%ops.file_dir = 'F:\AC_data\caiman_data_missmatch\preprocessing';
+ops.file_dir = 'F:\AC_data\caiman_data_echo\preprocessing';
 
 params.dset_table_fpath = 'C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\AC_data_list_all.xlsx';
 
 params.limit.dset_name =        '';
-params.limit.experiment =       'missmatch';
+params.limit.experiment =       'echo';
 params.limit.mouse_id =         '';
 params.limit.mouse_tag =        '';
 params.limit.dset_name =        '';

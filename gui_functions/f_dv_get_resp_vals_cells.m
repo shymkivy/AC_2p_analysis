@@ -1,4 +1,4 @@
-function [resp_vals, resp_cells] = f_dv_get_resp_vals_cells(app, stats, tn_all, feature_type, resp_cell_select, resp_thr)
+function [resp_cells, resp_vals, resp_vals_full] = f_dv_get_resp_vals_cells(app, stats, tn_all, feature_type, resp_cell_select, resp_thr)
 
 if ~exist('feature_type', 'var') || isempty(feature_type)
     feature_type = app.ResposivecellstypeDropDown.Value;
@@ -18,7 +18,11 @@ num_cells = sum([stats.num_cells]);
 num_slice = 1;
 
 if strcmpi(feature_type, 'Peaks')
-    vals1 = cat(1, stats.peak_vals).*cat(1, stats.peak_in_resp_win);
+    % get vals and replace what is outside of window with means
+    vals1 = cat(1, stats.peak_vals);
+    in_win_idx = cat(1, stats.peak_in_resp_win);
+    tr_ave_mean = squeeze(cat(1, stats.trial_ave_lim_win_mean));
+    vals1(~in_win_idx) = tr_ave_mean(~in_win_idx);
     resp_thr2 = cat(1, stats.peak_resp_thresh)*resp_thr;
 elseif strcmpi(feature_type, 'Onset')
     vals1 = cat(1, stats.onset_vals);
@@ -69,10 +73,11 @@ elseif strcmpi(resp_cell_select, 'Resp split')
     resp_cells = cat(2,resp_cells1{:});
 end
 
+resp_vals_full = cat(2,vals{:});
+
 resp_vals = cell(num_trials, 1);
 for n_tn = 1:num_trials
     resp_vals{n_tn} = vals{n_tn}(resp_cells(:,n_tn));
 end
-
 
 end

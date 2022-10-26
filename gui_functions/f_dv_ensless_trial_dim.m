@@ -16,22 +16,29 @@ trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
 [~, trial_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
 mmn_freq = app.ddata.MMN_freq{1};
 stats1 = app.ddata.stats{n_pl};
-ens_list = app.ddata.ensembles{1}.ens_out.cells.ens_list(app.ddata.ensemble_stats{1}.accepted_ensembles);
+if ~isempty(app.ddata.ensembles{1})
+    ens_list = app.ddata.ensembles{1}.ens_out.cells.ens_list(app.ddata.ensemble_stats{1}.accepted_ensembles);
 
-ens_cells = false(stats1.num_cells, numel(ens_list));
-for n_ens = 1:numel(ens_list)
-    ens_cells(ens_list{n_ens}, n_ens) = 1;
+    ens_cells = false(stats1.num_cells, numel(ens_list));
+    for n_ens = 1:numel(ens_list)
+        ens_cells(ens_list{n_ens}, n_ens) = 1;
+    end
 end
 
 trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trial_frames);
+
 [trial_data_sort_wctx, trial_types_wctx, trial_types_idx_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
 
+% if ~isempty(mmn_freq)
+%     
+% else
+%     trial_data_sort_wctx = trial_data_sort;
+%     trial_types_wctx = trial_types;
+%     trial_types_idx_wctx = (1:numel(trial_types))';
+% end
 %%
-
 plot_individual_trials = app.PlotindivtrialsCheckBox.Value;
 shuffle_trial_order = app.ShufletrorderinsteadCheckBox.Value;
-
-
 
 tn_all = f_dv_get_trial_number(app);
 
@@ -44,17 +51,17 @@ num_trials_all = zeros(num_tn,1);
 hc_params.plot_dist_mat = 0;
 hc_params.plot_clusters = 0;
 
-
-
 for n_tt = 1:num_tn
     tn = tn_all(n_tt);
     tt = app.ops.context_types_all(tn);
     tr_idx = tt == trial_types_wctx;
     
-    [~, resp_cells] = f_dv_get_resp_vals_cells(app, stats1, tn);
-
-    resp_ens = logical(sum(app.ddata.ensemble_tuning_stats{1}.resp_cells_peak(:,tn),2));
-    resp_ens_cells = ens_cells(:,resp_ens); 
+    resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn);
+    
+    if ~isempty(app.ddata.ensembles{1})
+        resp_ens = logical(sum(app.ddata.ensemble_tuning_stats{1}.peak_resp_cells(:,tn),2));
+        resp_ens_cells = ens_cells(:,resp_ens); 
+    end
     
     if app.PlotrespensCheckBox.Value
         resp_full = [resp_cells,resp_ens_cells];

@@ -58,7 +58,7 @@ for n_dset = 1:num_dsets
     
     num_cells = sum([stats1.num_cells]);
     
-    [~, resp_cells] = f_dv_get_resp_vals_cells(app, stats1, tn_all);
+    resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn_all, [], 'Resp split');
     
     reg_idx = find(strcmpi(reg_all, data1.area));
     reg_cell_idx = ones(num_cells,1)*reg_idx;
@@ -120,7 +120,7 @@ for n_dset = 1:num_dsets
     stats1 = cat(1,data1.stats{n_pl});
     num_cells = sum([stats1.num_cells]);
     
-    loco_cell = cat(1,[stats1.loco.resp_cells])';
+    loco_cell = cat(1,[stats1.loco_resp_cells])';
     
     reg_idx = find(strcmpi(reg_all, data1.area));
     reg_cell_idx = ones(num_cells,1)*reg_idx;

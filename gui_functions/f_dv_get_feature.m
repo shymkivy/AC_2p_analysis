@@ -9,9 +9,9 @@ for n_dset = 1:num_dsets
     stats1 = cat(1,data(n_dset,:).stats{n_pl});
     % first get responsive cells, then extract features
     
-    [~, resp_cells_peak] = f_dv_get_resp_vals_cells(app, stats1, tn_all, 'peaks');
-    [~, resp_cells_onset] = f_dv_get_resp_vals_cells(app, stats1, tn_all, 'onset');
-    [~, resp_cells_offset] = f_dv_get_resp_vals_cells(app, stats1, tn_all, 'offset');
+    resp_cells_peak = f_dv_get_resp_vals_cells(app, stats1, tn_all, 'peaks');
+    resp_cells_onset = f_dv_get_resp_vals_cells(app, stats1, tn_all, 'onset');
+    resp_cells_offset = f_dv_get_resp_vals_cells(app, stats1, tn_all, 'offset');
     
     for n_tn = 1:num_tn
         tn1 = tn_all(n_tn);
