@@ -17,19 +17,8 @@ trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trial_frames);
 
 stats1 = app.ddata.stats{n_pl};
 
-if strcmpi(app.TuningfreatureDropDown.Value, 'peaks')
-    resp_cells = stats1.peak_resp_cells;
-    vals1 = stats1.peak_vals;
-    loc1 = stats1.peak_loc;
-elseif strcmpi(app.TuningfreatureDropDown.Value, 'onset')
-    resp_cells = stats1.onset_resp_cells;
-    vals1 = stats1.onset_vals;
-    loc1 = stats1.onset_loc;
-elseif strcmpi(app.TuningfreatureDropDown.Value, 'offset')
-    resp_cells = stats1.offset_resp_cells;
-    vals1 = stats1.offset_vals;
-    loc1 = stats1.offset_loc;
-end
+tn_all = 1:10;
+[resp_cells, ~, resp_vals, loc1] = f_dv_get_resp_vals_cells(app, stats1, tn_all, [], 'Resp split');
 
 if app.ConverttoZCheckBox.Value
     st_mean_mean = stats1.stat_trials_mean_mean(n_cell);
@@ -102,7 +91,7 @@ for n_tr = 1:10
             else
                 loc2 = loc1;
             end
-            plot(loc2, (vals1(n_cell,n_tr)-st_mean_mean)/st_mean_sem, '*g')
+            plot(loc2, (resp_vals(n_cell,n_tr)-st_mean_mean)/st_mean_sem, '*g')
         end
         if rem(n_tr,5) ~= 1
             set(gca,'ytick',[]);

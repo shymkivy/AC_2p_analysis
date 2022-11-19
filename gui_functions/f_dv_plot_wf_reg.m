@@ -1,4 +1,4 @@
-function f_dv_plot_reg(app)
+function f_dv_plot_wf_reg(app)
 
 n_pl = app.mplSpinner.Value;
 
@@ -15,27 +15,27 @@ plot_borders = 1;
 plot_nontuned = 0;
 white_bkg = 1;
 
-plot_resp_thresh = app.RespthreshEditField.Value;
-
 %%
-if strcmpi(app.SelectdatagroupDropDown.Value, 'dataset')
-    data_mouse_tag = app.ddata.mouse_tag;
-    data1 = app.ddata;
-elseif strcmpi(app.SelectdatagroupDropDown.Value, 'mouse')
-    data_mouse_tag = app.ddata.mouse_tag;
-    dset_idx = strcmpi(data_mouse_tag,app.data.mouse_tag);
-    data1 = app.data(dset_idx,:);
-elseif strcmpi(app.SelectdatagroupDropDown.Value, 'all')
-    data_mouse_tag = unique(app.data.mouse_tag, 'stable');
-    
-    dset_idx = false(numel(app.data.mouse_tag),1);
-    for n_ms = 1:numel(data_mouse_tag) 
-        dset_idx2 = strcmpi(data_mouse_tag{n_ms},app.data.mouse_tag);
-        dset_idx = dset_idx + dset_idx2;
-    end
-    dset_idx = logical(dset_idx);
-    data1 = app.data(dset_idx,:);
-end
+[data1, title_tag] = f_dv_get_data_by_mouse_selection(app);
+
+% if strcmpi(app.SelectdatagroupDropDown.Value, 'dataset')
+%     data_mouse_tag = app.ddata.mouse_tag;
+%     data1 = app.ddata;
+% elseif strcmpi(app.SelectdatagroupDropDown.Value, 'mouse')
+%     data_mouse_tag = app.ddata.mouse_tag;
+%     dset_idx = strcmpi(data_mouse_tag,app.data.mouse_tag);
+%     data1 = app.data(dset_idx,:);
+% elseif strcmpi(app.SelectdatagroupDropDown.Value, 'all')
+%     data_mouse_tag = unique(app.data.mouse_tag, 'stable');
+%     
+%     dset_idx = false(numel(app.data.mouse_tag),1);
+%     for n_ms = 1:numel(data_mouse_tag) 
+%         dset_idx2 = strcmpi(data_mouse_tag{n_ms},app.data.mouse_tag);
+%         dset_idx = dset_idx + dset_idx2;
+%     end
+%     dset_idx = logical(dset_idx);
+%     data1 = app.data(dset_idx,:);
+% end
 
 %% extract all data
 num_dsets = size(data1,1);
@@ -62,16 +62,16 @@ for n_dset = 1:num_dsets
             contour_mag = zeros(num_cells,1);
         elseif strcmpi(contour_val, 'Tuning type')
             tn_all = f_dv_get_trial_number(app);
-            tuning_freq = stats1.peak_val_all(:,tn_all);
-            resp_cells = stats1.resp_cells_peak(:,tn_all);
+            tuning_freq = stats1.peak_vals(:,tn_all);
+            resp_cells = stats1.peak_resp_cells(:,tn_all);
             tuning_freq(~resp_cells) = 0;
             [max_val, max_idx] = max(tuning_freq, [], 2);
             contour_vals = max_val;
             contour_mag = max_idx;
         elseif strcmpi(contour_val, 'Tuning magnitude')
             tn_all = f_dv_get_trial_number(app);
-            resp_cells = stats1.resp_cells_peak(:,tn_all);
-            peak_vals = stats1.peak_val_all(:,tn_all);
+            resp_cells = stats1.peak_resp_cells(:,tn_all);
+            peak_vals = stats1.peak_vals(:,tn_all);
             if app.ConverttoZCheckBox.Value
                 peak_vals = (peak_vals - st_mean_mean)./st_mean_sem;
             end
@@ -185,7 +185,7 @@ if ~white_bkg
     imagesc(comb_im_fov); 
 end
 hold on; axis equal tight;
-title(['mouse ' current_mouse_tag ' tuning ' contour_val], 'interpreter', 'none');
+title([title_tag ' tuning ' contour_val], 'interpreter', 'none');
 
 %f1 = figure; %imagesc(im_wf); 
 %axis equal tight; hold on;

@@ -1,4 +1,4 @@
-function f_dv_ensless_sintle_trial_corr2(app)
+function f_dv_ensless_single_trial_corr2(app)
 
 disp('Computing single trial corr...');
 

@@ -1,4 +1,4 @@
-function f_dv_ensless_sintle_trial_corr(app)
+function f_dv_ensless_single_trial_corr(app)
 
 n_pl = app.mplSpinner.Value;
 tn_list = 3:7;
@@ -28,11 +28,11 @@ for n_dset = 1:numel(dset_list)
         
         stats1 = ddata.stats;
         if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
-            resp_cell = logical(sum(stats1{n_pl}.resp_cells_peak(:,tn_all),2));
+            resp_cell = logical(sum(stats1{n_pl}.peak_resp_cells(:,tn_all),2));
         else
             resp_cells_all = cell(numel(stats1),1);
             for n_pl2 = 1:numel(stats1)
-                resp_cells_all{n_pl2} = logical(sum(stats1{n_pl2}.resp_cells_peak(:,tn_all),2));
+                resp_cells_all{n_pl2} = logical(sum(stats1{n_pl2}.peak_resp_cells(:,tn_all),2));
             end
             resp_cell = cat(1,resp_cells_all{:});
         end

@@ -29,20 +29,8 @@ if ~isempty(app.MMNfreqEditField.Value)
     [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
 
     stats1 = app.ddata.stats{n_pl};
-
-    if strcmpi(app.TuningfreatureDropDown.Value, 'peaks')
-        resp_cells = stats1.peak_resp_cells;
-        vals1 = stats1.peak_vals;
-        loc1 = stats1.peak_loc;
-    elseif strcmpi(app.TuningfreatureDropDown.Value, 'onset')
-        resp_cells = stats1.onset_resp_cells;
-        vals1 = stats1.onset_vals;
-        loc1 = stats1.onset_loc;
-    elseif strcmpi(app.TuningfreatureDropDown.Value, 'offset')
-        resp_cells = stats1.offset_resp_cells;
-        vals1 = stats1.offset_vals;
-        loc1 = stats1.offset_loc;
-    end
+    
+    [resp_cells, ~, resp_vals, loc1] = f_dv_get_resp_vals_cells(app, stats1, ctx_plot_list, [], 'Resp split');
 
     if app.ConverttoZCheckBox.Value
         st_mean_mean = stats1.stat_trials_mean_mean(n_cell);
@@ -101,13 +89,13 @@ if ~isempty(app.MMNfreqEditField.Value)
         plot(plot_t, trial_ave_trace, 'color', [0.75, 0, 0.75], 'LineWidth', 2);
         plot(plot_t, trial_ave_trace+trial_sem_trace*stats1.stat_params.z_thresh, '--','color', [0.75, 0, 0.75], 'LineWidth', 1); 
         plot(plot_t, mean(resp_ctx{n_stim},2), 'color', color2, 'LineWidth', 2);
-        if cell_is_resp(n_tr)
+        if cell_is_resp(n_stim)
             if numel(loc1) > 1
-                loc2 = loc1(n_cell,n_tr);
+                loc2 = loc1(n_cell,n_stim);
             else
                 loc2 = loc1;
             end
-            plot(loc2, (vals1(n_cell,n_tr)-st_mean_mean)/st_mean_sem, '*g')
+            plot(loc2, (resp_vals(n_cell,n_stim)-st_mean_mean)/st_mean_sem, '*g')
         end
         if rem(n_stim,n) ~= 1
             set(gca,'ytick',[])

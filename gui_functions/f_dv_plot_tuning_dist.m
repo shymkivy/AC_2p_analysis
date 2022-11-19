@@ -61,12 +61,23 @@ for n_dset = 1:num_dsets
     resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn_all, [], 'Resp split');
     
     reg_idx = find(strcmpi(reg_all, data1.area));
-    reg_cell_idx = ones(num_cells,1)*reg_idx;
-    if ~isempty(data1.registered_data{1})
-        if app.UseregdatalabelsCheckBox.Value
+%     reg_cell_idx = ones(num_cells,1)*reg_idx;
+%     if ~isempty(data1.registered_data{1})
+%         if app.UseregdatalabelsCheckBox.Value
+%             reg_cell_idx = data1.registered_data{1}.reg_labels;
+%         end
+%     end
+
+    if ~region_num
+        reg_cell_idx = ones(num_cells,1)*reg_idx;
+    else
+        if and(app.UseregdatalabelsCheckBox.Value, ~isempty(data1.registered_data{1}))
             reg_cell_idx = data1.registered_data{1}.reg_labels;
+        else
+            reg_cell_idx = zeros(num_cells,1);
         end
     end
+        
     
     cell_is_resp_reg = zeros(num_cells, numel(tn_all), numel(region_num));
     for n_reg = 1:numel(region_num)
@@ -168,7 +179,7 @@ end
 % for n_dset = 1:num_dsets
 %     data1 = data(n_dset,:);
 %     if ~isempty(data1.ensemble_tuning{n_pl})
-%         resp_ens = data1.ensemble_tuning{n_pl}.resp_cells_peak;
+%         resp_ens = data1.ensemble_tuning{n_pl}.peak_resp_cells;
 %         freq_ens = logical(sum(resp_ens(:,1:10),2));
 %         cont_ens = logical(sum(resp_ens(:,[18 28]),2));
 %         red_ens = logical(sum(resp_ens(:,[19 29]),2));
@@ -208,7 +219,7 @@ end
 % freq_tuning = zeros(num_dsets,10);
 % for n_dset = 1:num_dsets
 %     data1 = data(n_dset,:);
-%     resp_ens = data1.ensemble_tuning{1}.resp_cells_peak(:,1:10);
+%     resp_ens = data1.ensemble_tuning{1}.peak_resp_cells(:,1:10);
 %     freq_tuning(n_dset,:) = sum(resp_ens);
 % end
 % 

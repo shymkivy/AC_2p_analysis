@@ -23,6 +23,7 @@ app.gui_plots.ctx_resp_fig = [];
 app.gui_plots.select_resp_fig = [];
 app.gui_plots.contours_gobj = [];
 app.gui_plots.registration_fig = [];
+app.gui_plots.tuning_fig = [];
 
 %%
 gui_defaults = app.gui_ops.gui_defaults;
@@ -112,8 +113,6 @@ app.ensshuffrepsEditField.Value = ens_params.acc_shuff_reps;
 %%
 app.SelectdatagroupDropDown.Items = {'Plane', 'Dataset', 'Mouse region', 'Mouse', 'Region', 'All'};
 app.SelectdatagroupDropDown.Value = 'Dataset';
-
-app.TuningfreatureDropDown.Items = {'Peaks', 'onset', 'offset'};
 
 app.ResposivecellstypeDropDown.Items = {'Peaks', 'OnOff', 'Onset', 'Offset'};
 app.ResponsivecellsselectDropDown.Items = {'All', 'Resp marg', 'Resp split'};

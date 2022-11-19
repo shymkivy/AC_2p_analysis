@@ -29,7 +29,7 @@ else
     scores = ens_data.scores;
 end
 
-resp_ens = find(logical(sum(ens_tuning.resp_cells_peak(:,n_tr),2)));
+resp_ens = find(logical(sum(ens_tuning.peak_resp_cells(:,n_tr),2)));
 % 
 % figure; hold on;
 % for n_ens = 1:numel(resp_ens)

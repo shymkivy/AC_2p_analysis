@@ -105,32 +105,32 @@ end
 %% get resp cell
 
 if strcmpi(peak_stats, 'shuff_pool')
-    resp_thresh_peak = repmat(prctile(samp_peak_vals', peak_prcntle)', [1 num_t]);
-    resp_cells_peak = peak_vals>resp_thresh_peak(:,1);
+    peak_resp_thresh = repmat(prctile(samp_peak_vals', peak_prcntle)', [1 num_t]);
+    peak_resp_cells = peak_vals>peak_resp_thresh(:,1);
 elseif strcmpi(peak_stats, 'shuff_locwise')
-    resp_thresh_peak = zeros(num_ens, num_t);
-    resp_cells_peak = zeros(num_ens, num_tt);
+    peak_resp_thresh = zeros(num_ens, num_t);
+    peak_resp_cells = zeros(num_ens, num_tt);
     for n_cell = 1:num_ens
         for n_loc = 1:num_t
             temp_th = prctile(samp_peak_vals(n_cell,samp_peak_locs(n_cell,:) == n_loc), peak_prcntle);
             if isnan(temp_th)
-                resp_thresh_peak(n_cell, n_loc) = 0;
+                peak_resp_thresh(n_cell, n_loc) = 0;
             else
-                resp_thresh_peak(n_cell, n_loc) = temp_th;
+                peak_resp_thresh(n_cell, n_loc) = temp_th;
             end
         end
         for n_tt = 1:num_tt
-            resp_cells_peak(n_cell, n_tt) = peak_vals(n_cell, n_tt) > resp_thresh_peak(n_cell,peak_locs(n_cell,n_tt));
+            peak_resp_cells(n_cell, n_tt) = peak_vals(n_cell, n_tt) > peak_resp_thresh(n_cell,peak_locs(n_cell,n_tt));
         end
     end
 else
-    resp_thresh_peak = zeros(num_ens, num_t);
-    resp_cells_peak = zeros(num_ens, num_tt);
+    peak_resp_thresh = zeros(num_ens, num_t);
+    peak_resp_cells = zeros(num_ens, num_tt);
     for n_cell = 1:num_ens
         trial_data1 = squeeze(trial_data_sort_stat(n_cell,:,:));
-        resp_thresh_peak(n_cell,:) = mean(trial_data1,2) + z_thresh*std(trial_data1,[],2)/sqrt(num_trial_per_stim-1);
+        peak_resp_thresh(n_cell,:) = mean(trial_data1,2) + z_thresh*std(trial_data1,[],2)/sqrt(num_trial_per_stim-1);
         for n_tt = 1:num_tt
-            resp_cells_peak(n_cell, n_tt) = peak_vals(n_cell, n_tt) > resp_thresh_peak(n_cell,peak_locs(n_cell,n_tt));
+            peak_resp_cells(n_cell, n_tt) = peak_vals(n_cell, n_tt) > peak_resp_thresh(n_cell,peak_locs(n_cell,n_tt));
         end
     end
 end
@@ -174,9 +174,9 @@ ens_tuning.stat_trials_mean = stat_trials_mean;
 ens_tuning.stat_trials_sem = stat_trials_sem;
 ens_tuning.stat_trials_mean_mean = mean(stat_trials_mean,2);
 ens_tuning.stat_trials_mean_sem = mean(stat_trials_sem,2);
-ens_tuning.resp_cells_peak = resp_cells_peak;
-ens_tuning.resp_thresh_peak = resp_thresh_peak;
-ens_tuning.peak_val_all = peak_vals;
+ens_tuning.peak_resp_cells = peak_resp_cells;
+ens_tuning.peak_resp_thresh = peak_resp_thresh;
+ens_tuning.peak_val = peak_vals;
 ens_tuning.peak_t_all = stat_window_t(peak_locs);
 ens_tuning.stat_window_t = stat_window_t; % stat_window_t
 ens_tuning.z_thresh = z_thresh;

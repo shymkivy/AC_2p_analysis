@@ -40,7 +40,7 @@ for n_flip = 1:num_flip
         trial_types = data1.trial_types{1};
         stim_times = data1.stim_frame_index{n_pl};
         mmn_freq = data1.MMN_freq{1};
-        cell_is_resp = stats1.resp_cells_peak;
+        cell_is_resp = stats1.peak_resp_cells;
 
         if ~isempty(data1.registered_data{1})
             reg_labels = data1.registered_data{1}.reg_labels;

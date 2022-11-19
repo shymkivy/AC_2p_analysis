@@ -198,8 +198,8 @@ for n_ms = 1:numel(data_mouse_tag)
                 use_mag_color_map = 0;
             elseif strcmpi(plot_contours, 'Tuning type')
                 tn_all = f_dv_get_trial_number(app);
-                tuning_freq = stats1.peak_val_all(:,tn_all);
-                resp_cells = stats1.resp_cells_peak(:,tn_all);
+                tuning_freq = stats1.peak_vals(:,tn_all);
+                resp_cells = stats1.peak_resp_cells(:,tn_all);
                 tuning_freq(~resp_cells) = 0;
                 [max_val, max_idx] = max(tuning_freq, [], 2);
                 contour_vals = max_val;
@@ -208,8 +208,8 @@ for n_ms = 1:numel(data_mouse_tag)
                 use_mag_color_map = 0;
             elseif strcmpi(plot_contours, 'Tuning magnitude')
                 tn_all = f_dv_get_trial_number(app);
-                resp_cells = stats1.resp_cells_peak;
-                peak_vals = stats1.peak_val_all;
+                resp_cells = stats1.peak_resp_cells;
+                peak_vals = stats1.peak_val;
                 if app.ConverttoZCheckBox.Value
                     peak_vals = (peak_vals - st_mean_mean)./st_mean_sem;
                 end

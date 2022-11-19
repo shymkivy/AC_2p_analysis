@@ -1,5 +1,8 @@
 function f_dv_plot_mmn(app)
 
+z_ylim_max = 10;
+z_ylim_min = -0.5;
+
 add_combined = 1;
 
 n_pl = app.mplSpinner.Value;
@@ -21,16 +24,17 @@ params = f_dv_gather_params(app);
 resp_all = cell(num_dsets, num_flip);
 cell_counts = zeros(num_dsets, num_flip);
 
+reg_all = app.ops.regions_to_analyze;
 if strcmpi(app.regiontoplotDropDown.Value, 'all')
-    region_num = 0;
+    region_num = 1:numel(reg_all);
 elseif strcmpi(app.regiontoplotDropDown.Value, 'A1')
-    region_num = 1;
+    region_num = find(strcmpi(reg_all, 'A1'));
 elseif strcmpi(app.regiontoplotDropDown.Value, 'A2')
-    region_num = 2;
+    region_num = find(strcmpi(reg_all, 'A2'));
 elseif strcmpi(app.regiontoplotDropDown.Value, 'AAF')
-    region_num = 3;
+    region_num = find(strcmpi(reg_all, 'AAF'));
 elseif strcmpi(app.regiontoplotDropDown.Value, 'UF')
-    region_num = 4;
+    region_num = find(strcmpi(reg_all, 'UF'));
 end
 
 
@@ -120,6 +124,9 @@ for n_flip = 1:num_flip
     y_lim_max = max([y_lim_max max(max_vals(:))]);
     y_lim_min = min([y_lim_min min(min_vals(:))]);
 end
+y_lim_max = max([y_lim_max z_ylim_max]);
+y_lim_min = min([y_lim_min z_ylim_min]);
+
 
 figure;
 for n_flip = 1:num_flip

@@ -77,13 +77,16 @@ app.SNREditField.Value = SNR_accepted(n_cell);
 %%
 if app.UpdatefigsCheckBox.Value
     if isgraphics(app.gui_plots.freq_resp_fig)
-        f_dv_plot_freq_resp(app)
+        f_dv_plot_freq_resp(app);
     end
     if isgraphics(app.gui_plots.ctx_resp_fig)
-        f_dv_plot_ctx_resp(app)
+        f_dv_plot_ctx_resp(app);
     end
     if isgraphics(app.gui_plots.select_resp_fig)
-        f_dv_plot_select_trial(app)
+        f_dv_plot_select_trial(app);
+    end
+    if isgraphics(app.gui_plots.tuning_fig)
+        f_dv_plot_tuning(app);
     end
 end
 
