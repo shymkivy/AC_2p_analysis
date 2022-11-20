@@ -72,6 +72,30 @@ ops.plot_params.reg_sn = sn;
 %ops.context_colors = {'k', 'b', 'r'};
 %ops.context_colors = {'k', 'c', 'm'};
 %ops.context_colors = ['k', 'b', 'r'];
+
+jet10 = jet(10);
+
+ops.color_labels = {'A1',           [1 0 1];
+                    'A2',           [1 .6, .2];
+                    'AAF',          [.2 .8 .2];
+                    'UF',           [0, .6, 1];
+                    'DF',           [0, .6, 1];
+                    'Primary',      [1 0 1];
+                    'Secondary',    [.2 .8 .2];
+                    'DD-cont',      [0.6350 0.0780 0.1840];
+                    'DD-cont flip', [0.6350 0.0780 0.1840]*.8;
+                    'DD-red',       [1 0 1];
+                    'DD-red flip',  [1 0 1]*.8;
+                    '1-2',          jet10(1);
+                    '2-3',          jet10(2);
+                    '3-4',          jet10(3);
+                    '4-5',          jet10(4);
+                    '5-6',          jet10(5);
+                    '6-7',          jet10(6);
+                    '7-8',          jet10(7);
+                    '8-9',          jet10(8);
+                    '9-10',         jet10(9);};
+
 ops.cond_colors = {[1 0 1], [1 .6, .2], [.2 .8 .2], [0, .6, 1]};
 %ops.context_colors = {[0 0 0], [0 1 0], [1 0 1]};
 ops.context_colors = {[0 0 0], [0 0 1], [1 0 0]};

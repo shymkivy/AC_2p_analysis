@@ -16,17 +16,7 @@ num_tn = numel(tn_all);
 num_dsets = numel(data.experiment);
 reg_all = app.ops.regions_to_analyze;
 
-if strcmpi(app.regiontoplotDropDown.Value, 'all')
-    region_num = 1:numel(reg_all);
-elseif strcmpi(app.regiontoplotDropDown.Value, 'A1')
-    region_num = find(strcmpi(reg_all, 'A1'));
-elseif strcmpi(app.regiontoplotDropDown.Value, 'A2')
-    region_num = find(strcmpi(reg_all, 'A2'));
-elseif strcmpi(app.regiontoplotDropDown.Value, 'AAF')
-    region_num = find(strcmpi(reg_all, 'AAF'));
-elseif strcmpi(app.regiontoplotDropDown.Value, 'UF')
-    region_num = find(strcmpi(reg_all, 'UF'));
-end
+[region_num, reg_tag] = f_dv_get_region_sel_val(app);
 
 categories = app.ops.context_types_labels(tn_all);
 
@@ -41,7 +31,7 @@ for n_dset = 1:num_dsets
 end
 figure;
 bar(categorical(categories,categories), stim_all);
-title([title_tag ' ' app.regiontoplotDropDown.Value ' stimuli numbers'], 'Interpreter', 'none');
+title([title_tag ' ' reg_tag ' stimuli numbers'], 'Interpreter', 'none');
 ylabel('number of stimuli');
 
 %%
@@ -60,34 +50,37 @@ for n_dset = 1:num_dsets
     
     resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn_all, [], 'Resp split');
     
-    reg_idx = find(strcmpi(reg_all, data1.area));
+%     reg_idx = find(strcmpi(reg_all, data1.area));
 %     reg_cell_idx = ones(num_cells,1)*reg_idx;
 %     if ~isempty(data1.registered_data{1})
 %         if app.UseregdatalabelsCheckBox.Value
 %             reg_cell_idx = data1.registered_data{1}.reg_labels;
 %         end
 %     end
-
-    if ~region_num
-        reg_cell_idx = ones(num_cells,1)*reg_idx;
-    else
-        if and(app.UseregdatalabelsCheckBox.Value, ~isempty(data1.registered_data{1}))
-            reg_cell_idx = data1.registered_data{1}.reg_labels;
+    
+    if app.UseregdatalabelsCheckBox.Value
+        if ~isempty(data1.registered_data{1})
+            reg_cell_labels = data1.registered_data{1}.reg_labels;
         else
-            reg_cell_idx = zeros(num_cells,1);
+            reg_cell_labels = zeros(num_cells,1);
         end
+    else
+        reg_idx = find(strcmpi(reg_all, data1.area));
+        reg_cell_labels = ones(num_cells,1)*reg_idx;
     end
-        
+
+    %reg_cell_idx = logical(sum(reg_cell_labels == region_num,2));
     
     cell_is_resp_reg = zeros(num_cells, numel(tn_all), numel(region_num));
     for n_reg = 1:numel(region_num)
-        reg_idx = reg_cell_idx == region_num(n_reg);
+        reg_idx = reg_cell_labels == region_num(n_reg);
         cell_is_resp_reg(reg_idx,:,n_reg) = resp_cells(reg_idx,:);
         num_cells_all(n_dset, n_reg) = sum(reg_idx);
     end
     resp_cell_all{n_dset} = cell_is_resp_reg;  
 end
 resp_cell_all2 = cat(1,resp_cell_all{:});
+
 
 figure;
 if app.poolregionsCheckBox.Value
@@ -100,7 +93,8 @@ if app.poolregionsCheckBox.Value
     end
     
     bar(categorical(categories,categories), resp2, 'EdgeColor',[219, 239, 255]/256,'LineWidth',1.5);
-    title([title_tag ' ' app.regiontoplotDropDown.Value  ' tuning distribution; ' num2str(sum(num_cells1)) ' cells'], 'Interpreter', 'none');
+    title([title_tag ' ' reg_tag  ' tuning distribution; ' num2str(sum(num_cells1)) ' cells'], 'Interpreter', 'none');
+    
 else
     resp1 = reshape(sum(resp_cell_all2,1), [], numel(reg_all));
     num_cells2 = sum(num_cells_all,1);
@@ -110,18 +104,33 @@ else
         resp2 = resp1/num_dsets;
     end
     
-    bar(categorical(categories,categories), resp2); %  'EdgeColor',[219, 239, 255]/256, ,'LineWidth',1.5
-    title([title_tag ' ' app.regiontoplotDropDown.Value  ' tuning distribution'], 'Interpreter', 'none');
+    br1 = bar(categorical(categories,categories), resp2); %  'EdgeColor',[219, 239, 255]/256, ,'LineWidth',1.5
+    title([title_tag ' ' reg_tag  ' tuning distribution'], 'Interpreter', 'none');
     legend(reg_all, 'location', 'northwest');
-    figure;
-    bar(categorical(reg_all,reg_all), num_cells2);
-    title([title_tag ' ' app.regiontoplotDropDown.Value ' cell counts'], 'Interpreter', 'none');
+    for n_br = 1:numel(br1)
+        br1(n_br).FaceColor = app.ops.cond_colors{n_br};
+    end
+
 end
+
 if frac
     ylabel('Cell fraction');
 else
     ylabel('per dset');
 end
+
+
+if ~app.poolregionsCheckBox.Value
+    figure; hold on
+    bar(categorical(reg_all,reg_all), num_cells2);
+    title([title_tag ' ' reg_tag ' cell counts'], 'Interpreter', 'none');
+    ylabel('number of cells');
+    for n_br = 1:numel(num_cells2)
+        br1 = bar(n_br, num_cells2(n_br));
+        br1.FaceColor = app.ops.cond_colors{n_br};
+    end
+end
+
 %%
 
 loco_cell_reg_all = cell(num_dsets,1);
@@ -156,14 +165,20 @@ if app.poolregionsCheckBox.Value
     num_cells1 = sum(num_cells_all,2);
     loco_frac = sum(loco_cell3,1)./sum(num_cells1,1);
     figure; bar(categorical({'All regions'}), loco_frac);
-    title([title_tag ' locomotion tuned cells ' app.regiontoplotDropDown.Value], 'Interpreter', 'none')
+    title([title_tag ' locomotion tuned cells ' reg_tag], 'Interpreter', 'none')
     ylabel('Fraction');
 else
     loco_frac = sum(loco_cell2,1)./sum(num_cells_all,1);
-    figure; bar(categorical({'loco cells'}), loco_frac);
-    title([title_tag ' locomotion tuned cells ' app.regiontoplotDropDown.Value], 'Interpreter', 'none');
+    figure; hold on;
+    br1 = bar(categorical(reg_all,reg_all), loco_frac);
+    for n_br = 1:numel(loco_frac)
+        br1 = bar(n_br, loco_frac(n_br));
+        br1.FaceColor = app.ops.cond_colors{n_br};
+    end
+    title([title_tag ' locomotion tuned cells ' reg_tag], 'Interpreter', 'none');
     legend(reg_all, 'location', 'northwest');
     ylabel('Fraction');
+
 end
 
 %%

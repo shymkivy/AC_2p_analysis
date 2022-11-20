@@ -6,8 +6,6 @@ app.trialtypeDropDown.Items = [{'all'; 'Freqs'; 'Context'; 'Context_flip';...
                     'Context_both'; 'Cont_dev'; 'Cont_dev_flip';...
                     'Ongoing'}; app.ops.context_types_labels];
 
-app.regiontoplotDropDown.Items = [{'all'}; app.ops.regions_to_analyze];
-
 max_planes = max(app.data.num_planes);
 num_dsets = size(app.data,1);
 

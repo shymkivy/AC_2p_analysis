@@ -144,7 +144,7 @@ app.PlottuningtypeDropDown.Items = {'cell', 'ensemble', 'cell to self'};
                 
 app.RunallDropDown.Items = [app.gui_ops.save_var_list_pl app.gui_ops.save_var_list];
 
-app.regiontoplotDropDown.Items = {'All', 'A1', 'A2', 'AAF', 'UF', 'AC'};
+app.regiontoplotDropDown.Items = {'All', 'All comb', 'A1', 'A2', 'AAF', 'UF', 'Primary vs secondary'};
 
 app.DeconvolutionmethodDropDown.Items = {'smooth_dfdt'};
 

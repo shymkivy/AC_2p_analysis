@@ -24,19 +24,7 @@ params = f_dv_gather_params(app);
 resp_all = cell(num_dsets, num_flip);
 cell_counts = zeros(num_dsets, num_flip);
 
-reg_all = app.ops.regions_to_analyze;
-if strcmpi(app.regiontoplotDropDown.Value, 'all')
-    region_num = 1:numel(reg_all);
-elseif strcmpi(app.regiontoplotDropDown.Value, 'A1')
-    region_num = find(strcmpi(reg_all, 'A1'));
-elseif strcmpi(app.regiontoplotDropDown.Value, 'A2')
-    region_num = find(strcmpi(reg_all, 'A2'));
-elseif strcmpi(app.regiontoplotDropDown.Value, 'AAF')
-    region_num = find(strcmpi(reg_all, 'AAF'));
-elseif strcmpi(app.regiontoplotDropDown.Value, 'UF')
-    region_num = find(strcmpi(reg_all, 'UF'));
-end
-
+[region_num, reg_tag] = f_dv_get_region_sel_val(app);
 
 for n_flip = 1:num_flip
     tn_all = ctx_plot_list(:,n_flip);
@@ -49,7 +37,9 @@ for n_flip = 1:num_flip
         params.n_dset = find(data1.idx == app.data.idx);
 
         cdata = f_dv_compute_cdata(data1, params);
-
+        
+        num_cells = sum([stats1.num_cells]);
+        
         firing_rate = cdata.S_sm;
         trial_types = data1.trial_types{1};
         stim_times = data1.stim_frame_index{n_pl};
@@ -58,16 +48,19 @@ for n_flip = 1:num_flip
         resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn_all);
         %cell_is_resp = stats1.peak_resp_cells(:,tn_all);
         
-        if ~region_num
-            reg_cell_idx = ones(cdata.num_cells,1);
-        else
-            if and(app.UseregdatalabelsCheckBox.Value, ~isempty(data1.registered_data{1}))
-                reg_cell_idx = data1.registered_data{1}.reg_labels==region_num;
+        if app.UseregdatalabelsCheckBox.Value
+            if ~isempty(data1.registered_data{1})
+                reg_cell_labels = data1.registered_data{1}.reg_labels;
             else
-                reg_cell_idx = zeros(cdata.num_cells,1);
+                reg_cell_labels = zeros(num_cells,1);
             end
+        else
+            reg_idx = find(strcmpi(reg_all, data1.area));
+            reg_cell_labels = ones(num_cells,1)*reg_idx;
         end
-        
+
+        reg_cell_idx = logical(sum(reg_cell_labels == region_num,2));
+          
         trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trial_frames);
         [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
 
@@ -116,8 +109,8 @@ y_lim_max = 0;
 y_lim_min = 0;
 for n_flip = 1:num_flip
     num_cells(n_flip) = size(resp_all_pool{n_flip},1);
-    resp_mean{n_flip} = squeeze(nanmean(resp_all_pool{n_flip},1));
-    resp_sem{n_flip} = squeeze(nanstd(resp_all_pool{n_flip},[],1)/sqrt(max(num_cells(n_flip)-1,1)));
+    resp_mean{n_flip} = squeeze(mean(resp_all_pool{n_flip},1));
+    resp_sem{n_flip} = squeeze(std(resp_all_pool{n_flip},[],1)/sqrt(max(num_cells(n_flip)-1,1)));
     
     max_vals = resp_mean{n_flip} + resp_sem{n_flip};
     min_vals = resp_mean{n_flip} - resp_sem{n_flip};
@@ -144,7 +137,7 @@ for n_flip = 1:num_flip
         ylabel('response mag');
     end
     xlabel('Time (sec)');
-    title(sprintf('%s; %d cells', app.regiontoplotDropDown.Value, num_cells(n_flip)));
+    title(sprintf('%s; %d cells', reg_tag, num_cells(n_flip)));
 %     if rem(n_ctx,n) ~= 1
 %         set(gca,'ytick',[])
 %     end
@@ -165,7 +158,7 @@ for n_flip = 1:num_flip
 %     end
     %title(sprintf('%s', title2))
 end
-sgtitle([title_tag '; region ' app.regiontoplotDropDown.Value], 'Interpreter', 'none');
+sgtitle([title_tag '; region ' reg_tag], 'Interpreter', 'none');
 
-
+disp('Done');
 end

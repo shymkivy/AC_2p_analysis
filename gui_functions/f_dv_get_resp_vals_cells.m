@@ -29,19 +29,19 @@ if strcmpi(feature_type, 'Peaks')
 elseif strcmpi(feature_type, 'Onset')
     vals1 = cat(1, stats.onset_vals);
     resp_thr2 = cat(1, stats.onset_resp_thresh)*resp_thr;
-    locs = stats.onset_loc;
+    locs = ones(size(stats.onset_vals))*stats.onset_loc;
 elseif strcmpi(feature_type, 'Offset')
     vals1 = cat(1, stats.offset_vals);
     resp_thr2 = cat(1, stats.offset_resp_thresh)*resp_thr;
-    locs = stats.offset_loc;
+    locs = ones(size(stats.offset_vals))*stats.offset_loc;
 elseif strcmpi(feature_type, 'OnOff')
     num_slice = 2;
     % takes whichever is more significant by  z score
     vals1 = cat(3,cat(1, stats.onset_vals), cat(1, stats.offset_vals));
     resp_thr2 = [cat(1, stats.onset_resp_thresh), cat(1, stats.offset_resp_thresh)];
     locs = ones(size(vals1));
-    locs(:,:,1) = stats.onset_loc;
-    locs(:,:,2) = stats.offset_loc;
+    locs(:,:,1) = ones(size(stats.onset_vals))*stats.onset_loc;
+    locs(:,:,2) = ones(size(stats.offset_vals))*stats.offset_loc;
 else
     error('feature type undefined');
 end
