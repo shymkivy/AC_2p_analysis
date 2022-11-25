@@ -75,6 +75,9 @@ end
 active_cells = sum(firing_rate3,2) ~= 0;
 firing_rate3(~active_cells,:) = [];
 
+num_frames = size(firing_rate3,2);
+raster_t = (1:num_frames)/(1000/cdata.volume_period);
+
 if app.sortbycellsimilarityCheckBox.Value
     hc_params.method = 'ward'; % ward(inner square), average, single(shortest)
     hc_params.distance_metric = 'cosine'; % none, euclidean, squaredeuclidean, cosine, hammilarity
@@ -88,6 +91,6 @@ else
     ord_cell = 1:num_cells;
 end
 
-f_plot_raster_mean(firing_rate3(ord_cell,:), 1, tn_seq_plot, app.ops.context_types_all_colors2);
+f_plot_raster_mean(firing_rate3(ord_cell,:), 1, raster_t, tn_seq_plot, app.ops.context_types_all_colors2);
 sgtitle(sprintf('%s raster', app.ddata.dset_name_full{1}), 'interpreter', 'none');
 end

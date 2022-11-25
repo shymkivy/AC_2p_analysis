@@ -1,4 +1,4 @@
-function f_plot_trial_indicator3(raster, trial_list, num_bins, colors1)
+function f_plot_trial_indicator3(raster, trial_list, num_bins, colors1, xlabels)
 hold on;
 [num_cells, num_row] = size(raster);
 
@@ -13,6 +13,10 @@ if ~exist('colors1', 'var') || isempty(colors1)
     for n_tt = 1:num_tt
         colors1{n_tt} = colors(n_tt,:);
     end
+end
+
+if ~exist('xlabels', 'var')
+    xlabels = [];
 end
 
 color_seq_tt = zeros(1,num_trials,3);
@@ -33,6 +37,6 @@ color_seq_tt = permute(reshape(color_seq_tt, [],1,3),[2 1 3]);
 
 col_width = ceil(num_cells/50);
 
-imagesc(1:num_row,num_cells+(1:col_width),repmat(color_seq_tt,col_width,1,1));
+imagesc(xlabels, num_cells+(1:col_width),repmat(color_seq_tt,col_width,1,1));
 axis tight
 end

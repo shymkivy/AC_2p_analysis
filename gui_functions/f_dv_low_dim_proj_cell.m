@@ -1,6 +1,5 @@
 function f_dv_low_dim_proj_cell(app)
 
-
 method = app.DimredmethodDropDown.Value;
 dist_metric = app.LDdistmethodDropDown.Value; % pca isomap
 
@@ -55,15 +54,19 @@ cell_labels2 = cat(1,cell_labels{:});
 cell_labels2 = cell_labels2(~hasnan1);
 max_comp = min(numel(tn_all), 10);
 
-if strcmpi(method, 'pca')
+% reconstruct: data_rec = score*coeff' + mu;
+[coeff,~,~,~,explained,~] = pca(data_all2);
 
-    % reconstruct: data_rec = score*coeff' + mu;
-    [coeff,~,~,~,explained,~] = pca(data_all2);
-    
-    residual_var = round(1 - cumsum(explained/100),4);
-    
-    lr_data2d = coeff(:,1:2);
-    lr_data3d = coeff(:,1:3);
+residual_var_pca = round(1 - cumsum(explained/100),4);
+
+lr_data2d_pca = coeff(:,1:2);
+lr_data3d_pca = coeff(:,1:3);
+
+if strcmpi(method, 'pca')
+    residual_var_pca = round(1 - cumsum(explained/100),4);
+
+    lr_data2d = lr_data2d_pca;
+    lr_data3d = lr_data3d_pca;
 
 elseif strcmpi(method, 'isomap')
     D = pdist2(data_all2', data_all2', dist_metric); % euclidean, cosine');
@@ -91,11 +94,16 @@ end
 
 title_tag2 = sprintf('%s; resp %s', title_tag1, resp_cell_sel);
 
-figure;
-plot([0, 1:max_comp], [1; residual_var], 'o-');
+figure; hold on
+plot([0, 1:numel(residual_var_pca)], [1; residual_var_pca], 'o-', 'Linewidth', 2);
+if ~strcmpi(method, 'pca')
+    plot([0, 1:numel(residual_var)], [1; residual_var], 'o-', 'Linewidth', 2);
+    legend('PCA', method)
+end
 title(sprintf('Residual variance proj cells; %s', title_tag2), 'interpreter', 'none');
 xlabel('number components used');
 ylabel('Residual variance');
+
 
 figure; hold on
 plot(lr_data2d(:,1), lr_data2d(:,2), 'ok', 'LineWidth', 1)

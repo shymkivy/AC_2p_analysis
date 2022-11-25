@@ -73,10 +73,10 @@ for n_cond = 1:numel(ops.regions_to_analyze)
                 
                 rand_seq = randsample(num_cells, num_cells);
                 trial_num_cut = f_tt_to_tn(trial_types_cut, ops,1);
-                f_plot_raster_mean(trial_peaks_cut(rand_seq,:), 1,trial_num_cut, ops)
+                f_plot_raster_mean(trial_peaks_cut(rand_seq,:), 1, [],trial_num_cut, ops)
                 title('raster');
 
-                f_plot_raster_mean(trial_peaks_cut_sort_cell, 1,trial_num_cut, ops)
+                f_plot_raster_mean(trial_peaks_cut_sort_cell, 1, [],trial_num_cut, ops)
                 title('raster cell sorted');
                 
                 trial_num_cut_sort = f_tt_to_tn(trial_types_cut_sort, ops,1);

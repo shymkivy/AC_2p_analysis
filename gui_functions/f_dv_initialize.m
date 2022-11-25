@@ -152,6 +152,5 @@ app.regdatatouseDropDown.Items = {'gui reg', 'caiman reg'};
 
 app.DimredmethodDropDown.Items = {'isomap', 'pca'};
 app.LDdistmethodDropDown.Items = {'cosine', 'euclidean', 'correlation', 'hamming', 'jaccard'};
-app.trialtypeselDropDown.Items = {'Context', 'Context flip'};
 
 end
