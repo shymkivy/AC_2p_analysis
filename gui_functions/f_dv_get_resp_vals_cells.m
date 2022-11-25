@@ -1,4 +1,4 @@
-function [resp_cells, resp_vals, resp_vals_full, resp_locs] = f_dv_get_resp_vals_cells(app, stats, tn_all, feature_type, resp_cell_select, resp_thr)
+function [selected_cells, resp_vals, resp_vals_full, resp_locs, resp_cells] = f_dv_get_resp_vals_cells(app, stats, tn_all, feature_type, resp_cell_select, resp_thr)
 
 if ~exist('feature_type', 'var') || isempty(feature_type)
     feature_type = app.ResposivecellstypeDropDown.Value;
@@ -46,9 +46,9 @@ else
     error('feature type undefined');
 end
 
-resp_cells1 = cell(num_trials, 1);
-vals = cell(num_trials, 1);
-locs2 = cell(num_trials, 1);
+resp_cells_cell = cell(num_trials, 1);
+vals_cell = cell(num_trials, 1);
+locs_cell = cell(num_trials, 1);
 for n_tn = 1:num_trials
     tn1 = tn_all(n_tn);
     
@@ -71,26 +71,26 @@ for n_tn = 1:num_trials
         locs_out(idx3==2) = locs2(idx3==2);
     end
 
-    resp_cells1{n_tn} = idx_out;
-    vals{n_tn} = vals_out;
-    locs2{n_tn} = locs_out;
+    resp_cells_cell{n_tn} = idx_out;
+    vals_cell{n_tn} = vals_out;
+    locs_cell{n_tn} = locs_out;
 end
 
 if strcmpi(resp_cell_select, 'All')
-    resp_cells = true(num_cells, num_trials);
+    selected_cells = true(num_cells, num_trials);
 elseif strcmpi(resp_cell_select, 'Resp marg')
-    resp_cells = repmat(logical(sum(cat(2,resp_cells1{:}),2)), [1, num_trials]);
+    selected_cells = repmat(logical(sum(cat(2,resp_cells_cell{:}),2)), [1, num_trials]);
 elseif strcmpi(resp_cell_select, 'Resp split')
-    resp_cells = cat(2,resp_cells1{:});
+    selected_cells = cat(2,resp_cells_cell{:});
 end
 
-resp_vals_full = cat(2,vals{:});
-
-resp_locs = cat(2,locs2{:});
+resp_cells = cat(2,resp_cells_cell{:});
+resp_vals_full = cat(2,vals_cell{:});
+resp_locs = cat(2,locs_cell{:});
 
 resp_vals = cell(num_trials, 1);
 for n_tn = 1:num_trials
-    resp_vals{n_tn} = vals{n_tn}(resp_cells(:,n_tn));
+    resp_vals{n_tn} = vals_cell{n_tn}(selected_cells(:,n_tn));
 end
 
 end

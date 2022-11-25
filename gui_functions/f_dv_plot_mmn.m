@@ -24,14 +24,16 @@ params = f_dv_gather_params(app);
 resp_all = cell(num_dsets, num_flip);
 cell_counts = zeros(num_dsets, num_flip);
 
+reg_all = app.ops.regions_to_analyze;
 [region_num, reg_tag] = f_dv_get_region_sel_val(app);
 
 for n_flip = 1:num_flip
+    fprintf('Flip %d/%d; dset #/%d: ', n_flip, num_flip, num_dsets);
     tn_all = ctx_plot_list(:,n_flip);
     ctx1 = app.ops.context_types_all(tn_all)';
     
     for n_dset = 1:num_dsets
-        fprintf('dset %d\n', n_dset);
+        fprintf('..%d', n_dset);
         data1 =  data(n_dset,:);
         stats1 = data1.stats{n_pl};
         params.n_dset = find(data1.idx == app.data.idx);
@@ -88,7 +90,7 @@ for n_flip = 1:num_flip
             end
         end
     end
-   
+    fprintf('\n');
 end
 
 resp_all_pool = cell(1,num_flip);

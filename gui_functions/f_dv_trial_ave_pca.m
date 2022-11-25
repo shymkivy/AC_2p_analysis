@@ -21,7 +21,7 @@ resp_all = cell(num_dsets, 1);
 cell_counts = zeros(num_dsets, 1);
 
 reg_all = app.ops.regions_to_analyze;
-[region_num_all, reg_tag] = f_dv_get_region_sel_val2(app);
+[region_num_all, reg_tag, leg_list] = f_dv_get_region_sel_val2(app);
 
 num_groups = size(region_num_all,1);
 
@@ -84,11 +84,12 @@ for n_gr = 1:num_groups
 end
     
 % now the pca
-
 num_comp = 6;
 
 dist_list = [18, 20;
              28, 30;
+             19, 20;
+             29, 30;
              2, 3;
              3, 4;
              4, 5;
@@ -97,7 +98,7 @@ dist_list = [18, 20;
              7, 8;
              8, 9];
          
-dist_lab = {'DD-cont', 'DD-cont flip', '2-3', '3-4', '4-5', '5-6', '6-7', '7-8', '8-9'};
+dist_lab = {'DD-cont', 'DD-cont flip', 'DD-red', 'DD-red flip', '2-3', '3-4', '4-5', '5-6', '6-7', '7-8', '8-9'};
 
 num_dist = size(dist_list,1);
 
@@ -123,65 +124,73 @@ for n_gr = 1:num_groups
     exp_var_all{n_gr} = explained;
 end
 
-
 if num_comp >= 3
-    figure; hold on;
-    for n_tn = 1:num_tn
-        tn1 = tn_all(n_tn);
-        if sum(tn1 == [28, 19, 30])
-            symb1 = '*';
-        else
-            symb1 = 'o';
-        end
-        plot3(top_comp2(:,n_tn, 1), top_comp2(:,n_tn, 2), top_comp2(:,n_tn, 3), 'color', app.ops.context_types_all_colors2{tn1}, 'LineWidth', 2);
-        plot3(top_comp2(1,n_tn, 1), top_comp2(1,n_tn, 2), top_comp2(1,n_tn, 3), symb1, 'color', app.ops.context_types_all_colors2{tn1}, 'LineWidth', 2);
-    end
-    title(sprintf('comp 1-3; %s, region %s', title_tag, reg_tag));
+    trs1 = [1 2 3];
+    f_dv_plot3_pc(app, tomp_comp_all, exp_var_all, tn_all, trs1, leg_list, title_tag, plot_t);
 end
 
-if num_comp >= 6
-    figure; hold on;
-    for n_tn = 1:num_tn
-        tn1 = tn_all(n_tn);
-        if sum(tn1 == [28, 19, 30])
-            symb1 = '*';
-        else
-            symb1 = 'o';
-        end
-        plot3(top_comp2(:,n_tn, 4), top_comp2(:,n_tn, 5), top_comp2(:,n_tn, 6), 'color', app.ops.context_types_all_colors2{tn1}, 'LineWidth', 2);
-        plot3(top_comp2(1,n_tn, 4), top_comp2(1,n_tn, 5), top_comp2(1,n_tn, 6), symb1, 'color', app.ops.context_types_all_colors2{tn1}, 'LineWidth', 2);
-    end
-    title(sprintf('comp 4-6; %s, region %s', title_tag, reg_tag));
+if 0%num_comp >= 6
+    trs1 = [4 5 6];
+    f_dv_plot3_pc(app, tomp_comp_all, exp_var_all, tn_all, trs1, leg_list, title_tag, plot_t);
 end
 
-
-dist_all = cell(num_dist,1);
-has_dist_idx = false(num_dist,1);
+dist_all = cell(num_dist, num_groups);
+has_dist_idx = false(num_dist, num_groups);
 for n_list = 1:num_dist
     if sum(sum(tn_all == dist_list(n_list,:)')) == 2
+        for n_gr = 1:num_groups
+            top_comp2 = tomp_comp_all{n_gr};
+            
+            has_dist_idx(n_list, n_gr) = 1;
+            A = squeeze(top_comp2(:,tn_all == dist_list(n_list,1),:));
+            B = squeeze(top_comp2(:,tn_all == dist_list(n_list,2),:));
 
-        has_dist_idx(n_list) = 1;
-        A = squeeze(top_comp2(:,tn_all == dist_list(n_list,1),:));
-        B = squeeze(top_comp2(:,tn_all == dist_list(n_list,2),:));
-
-        %dist1 = diag(pdist2(A,B,'euclidean'))
-        dist1 = sum((A - B).^2,2).^(1/2);
-        dist_all{n_list} = dist1;
+            %dist1 = diag(pdist2(A,B,'euclidean'))
+            dist1 = sum((A - B).^2,2).^(1/2);
+            dist_all{n_list, n_gr} = dist1;
+        end
     end
 end
-figure; hold on;
+
+
 for n_list = 1:num_dist
-    if has_dist_idx(n_list)
-        plot(dist_all{n_list});
+    if has_dist_idx(n_list,1)
+        figure; hold on; axis tight
+        for n_gr = 1:num_groups
+            color1 = f_dv_get_leg_color(app, leg_list{n_gr});
+            plot(plot_t, dist_all{n_list, n_gr}, 'color', color1, 'LineWidth', 2);
+        end
+        ylabel('euclidean distance');
+        xlabel('Time')
+        title(sprintf('distance %s; %s, region %s, %dcomp; %.2f%%var; ', dist_lab{n_list}, title_tag, reg_tag, num_comp, sum(explained(1:num_comp))));
+        legend(leg_list)
     end
 end
-title(sprintf('distance D to C; %s, region %s, %dcomp; %.2f%%var', title_tag, reg_tag, num_comp, sum(explained(1:num_comp))));
-legend(dist_lab(has_dist_idx))
+
+max_plot_comp = 20;
+figure; hold on;
+for n_gr = 1:num_groups
+    color1 = f_dv_get_leg_color(app, leg_list{n_gr});
+    plot(0:max_plot_comp , [100; 100 - cumsum(exp_var_all{n_gr}(1:max_plot_comp))], 'color', color1, 'LineWidth', 2)
+end
+l1 = line([num_comp, num_comp], [0 100]);
+l1.Color = [.5 .5 .5];
+l1.LineStyle = '--';
+ylabel('Residual variance');
+xlabel('num components');
+legend([leg_list, {'num comp used'}]);
+title(sprintf('Residual variance  %s, region %s', title_tag, reg_tag));
 
 if plot_extra
-    figure; 
-    plot(explained(1:50))
+    figure; hold on;
+    for n_gr = 1:num_groups
+        color1 = f_dv_get_leg_color(app, leg_list{n_gr});
+        plot(exp_var_all{n_gr}(1:50), 'color', color1);
+    end
+    ylabel('explained variance');
+    legend(leg_list);
     title(sprintf('explained variance  %s, region %s', title_tag, reg_tag));
+
     for n_comp = 1:num_comp
         figure; hold on
         for n_tn = 1:num_tn

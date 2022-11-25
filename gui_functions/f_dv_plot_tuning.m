@@ -10,7 +10,6 @@ grating_angles = [5, 4, 3, 2, 1, 0, -1, -2, -3, -4]*pi/10;
 
 stats1 = app.ddata.stats{n_pl};
 
-
 tn_all = 1:30;
 tn_all_plot = 1:10;
 tn_all2 = f_dv_get_trial_number(app);

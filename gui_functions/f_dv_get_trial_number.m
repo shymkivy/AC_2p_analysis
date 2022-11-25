@@ -5,11 +5,11 @@ if strcmpi(app.trialtypeDropDown.Value, 'all')
 elseif strcmpi(app.trialtypeDropDown.Value, 'Freqs')
     tn = 1:10;
 elseif strcmpi(app.trialtypeDropDown.Value, 'Context')
-    tn = [18 29 20];
+    tn = [18 19 20];
 elseif strcmpi(app.trialtypeDropDown.Value, 'Context_flip')
-    tn = [28 19 30];
+    tn = [28 29 30];
 elseif strcmpi(app.trialtypeDropDown.Value, 'Context_both')
-    tn = [18 29 20 28 19 30];
+    tn = [18 19 20 28 29 30];
 elseif strcmpi(app.trialtypeDropDown.Value, 'Cont_dev')
     tn = [18 20];
 elseif strcmpi(app.trialtypeDropDown.Value, 'Cont_dev_flip')

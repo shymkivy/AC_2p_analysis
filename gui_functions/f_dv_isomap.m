@@ -1,7 +1,7 @@
 function f_dv_isomap(app)
 
 volume_period = app.ddata.proc_data{1}.frame_data.volume_period;
-smooth_SD = 100;
+more_smooth_SD = 0;
 
 n_pl = app.mplSpinner.Value;
 tn_all = f_dv_get_trial_number(app);
@@ -20,8 +20,8 @@ trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
 firing_rate = cat(1,cdata.S_sm);
 num_cells = size(firing_rate,1);
 
-if smooth_SD
-    firing_rate = f_smooth_gauss(firing_rate, smooth_SD/volume_period);
+if more_smooth_SD
+    firing_rate = f_smooth_gauss(firing_rate, more_smooth_SD/volume_period);
 end
 if app.shufflecellsCheckBox.Value
     firing_rate = firing_rate(randperm(num_cells),:);

@@ -9,16 +9,16 @@ else
 end
 
 if ~isempty(mmn_freq)
-    % add cont 18, 150
+    % add cont 18, 150 (mmn_freq(2))
     cont_ind = logical(trial_types == mmn_freq(2));
     cont_ind_list = find(cont_ind);
-    % add redf 19, 260
+    % add redf 19, 260 (mmn_freq(2))
     redf_ind = logical(sum(trial_types == (200 + ops.redundent_pool_trials),2));
     redf_ind_list = find(redf_ind);
-    % add contf 28
+    % add contf 28 (mmn_freq(1))
     cont2_ind = logical(trial_types == mmn_freq(1));
     cont2_ind_list = find(cont2_ind);
-    % add red 29
+    % add red 29   (mmn_freq(1))
     red_ind = logical(sum(trial_types == (100 + ops.redundent_pool_trials),2));
     red_ind_list = find(red_ind);
 
