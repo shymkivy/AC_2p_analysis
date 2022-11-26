@@ -101,4 +101,7 @@ end
 title(sprintf('low rank proj trials 3d; %s', title_tag2), 'interpreter', 'none');
 grid on
 
+%f_dv_plot3_pc2(app, tomp_comp_all, exp_var_all, tn_all, trs1, leg_list, title_tag, plot_t)
+
+
 end

@@ -1,4 +1,4 @@
-function f_dv_plot3_pc(app, tomp_comp_all, exp_var_all, tn_all, trs1, leg_list, title_tag, plot_t)
+function f_dv_plot3_pc2(app, tomp_comp_all, exp_var_all, tn_all, trs1, leg_list, title_tag, plot_t)
 
 add_shadow = 1;
 shadow_alpha = 0.3;
