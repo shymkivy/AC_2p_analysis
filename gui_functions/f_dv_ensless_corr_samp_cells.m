@@ -15,7 +15,7 @@ resp_type = app.ResposivecellstypeDropDown.Value;
 resp_selection = app.ResponsivecellsselectDropDown.Value;
 
 samp_range_min = 4;
-samp_range_max = 25;
+samp_range_max = 30;
 samp_interv = 3;
 num_samp = 10;
 
@@ -166,7 +166,7 @@ figure; hold on;
 for n_tn = 1:numel(tn_all)
     temp_mean = dset_mean(n_tn, :);
     temp_sem = dset_sem(n_tn, :);
-    plot(temp_x, temp_mean, '-', 'color', color1{tn_all(n_tn)}, 'linewidth', 2)
+    plot(temp_x, temp_mean, '-', 'color', color1{tn_all(n_tn)}, 'linewidth', 2);
     errorbar(temp_x, temp_mean, temp_sem, 'color', color1{tn_all(n_tn)})
 end
 axis tight;
@@ -177,7 +177,7 @@ figure; hold on;
 for n_tn = 1:numel(tn_all)
     temp_mean = dset_mean(n_tn, :);
     temp_sem = dset_sem(n_tn, :);
-    shadedErrorBar_YS(temp_x, temp_mean, temp_sem, color1{tn_all(n_tn)})
+    shadedErrorBar_YS(temp_x, temp_mean, temp_sem, color1{tn_all(n_tn)});
 end
 axis tight;
 ylabel(corr_type, 'interpreter', 'none'); xlabel('cells');
@@ -241,6 +241,13 @@ title(sprintf('Corr samp; sort by %s, corr %s; %s; %s; %s', sort_type, corr_type
 % % 
 % % figure; imagesc(reshape(color1, [10 1 3]))
 
-disp('Done')
+disp('Done');
+
+% sp = 1:4:21;
+% x = gca;
+% for n_sp = 1:numel(sp)
+%     x.Children(sp(n_sp)).LineWidth = 1;
+% end
+
 
 end

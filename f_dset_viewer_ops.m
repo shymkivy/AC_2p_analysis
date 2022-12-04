@@ -26,8 +26,8 @@ idx1 = 3;
 ops.experiments(idx1).name = 'missmatch';
 ops.experiments(idx1).experiment = 'missmatch';
 ops.experiments(idx1).data_path = 'F:\AC_data\caiman_data_missmatch';
-ops.experiments(idx1).save_mat_fname = 'mat_save_8_10_22.mat';
-ops.experiments(idx1).save_reg_fname = 'reg_save_11_19_22.mat';
+ops.experiments(idx1).save_mat_fname = 'mat_save_12_3_22.mat';
+ops.experiments(idx1).save_reg_fname = 'reg_save_11_28_22.mat';
 ops.experiments(idx1).paradigm = 'ammn';
 
 idx1 = 4;
@@ -35,7 +35,7 @@ ops.experiments(idx1).name = 'missmatch_grating';
 ops.experiments(idx1).experiment = 'missmatch';
 ops.experiments(idx1).data_path = 'F:\AC_data\caiman_data_missmatch';
 ops.experiments(idx1).save_mat_fname = 'mat_save_fg_9_19_22.mat';
-ops.experiments(idx1).save_reg_fname = 'reg_save_11_19_22.mat';
+ops.experiments(idx1).save_reg_fname = 'reg_save_11_28_22.mat';
 ops.experiments(idx1).paradigm = 'freq_grating';
 
 %%

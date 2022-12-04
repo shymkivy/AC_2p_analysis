@@ -23,15 +23,20 @@ num_dsets = size(data,1);
 %tn_all = f_dv_get_trial_number(app);
 
 title_tag1 = sprintf('%s; %s', title_tag, method);
+if strcmpi(method, 'isomap')
+    title_tag1 = sprintf('%s; dist %s', title_tag1, dist_metric);
+end
 
-if ~strcmpi(trial_type_val, 'Context flip') % do context
+if ~strcmpi(trial_type_val, 'Context') % do context
     fprintf('Running context trials; %d control pad', num_pad);
     MMN_idx = 2;
     tn_all = [19, 20];
+    title_tag1 = sprintf('%s; Context flip', title_tag1);
 else
     fprintf('Running context flip trials; %d control pad', num_pad);
     MMN_idx = 1;
     tn_all = [29, 30];
+    title_tag1 = sprintf('%s; Context flip', title_tag1);
 end
 
 cell_labels = cell(num_dsets,1);
@@ -70,51 +75,25 @@ for n_dset = 1:num_dsets
     end
 end
 
-data_all2 = cat(1,data_all{:})';
+data_all2 = cat(1,data_all{:});
+hasnan1 = logical(sum(isnan(data_all2),2));
+data_all2 = data_all2(~hasnan1,:);
+
 cell_labels2 = cat(1,cell_labels{:});
+cell_labels2 = cell_labels2(~hasnan1);
+
 cont_tr_all2 = cat(1,cont_tr_all{:});
 
 cont_tn = round(mean(cont_tr_all2));
 cont_tn_all = (cont_tn - num_pad):(cont_tn + num_pad);
 tn_all2 = [tn_all, cont_tn_all];
+
 cont_idx = find(logical(sum(tn_all2' == cont_tn_all,2)));
 ctx_idx = [find(tn_all2 == tn_all(1)), find(tn_all2 == cont_tn), find(tn_all2 == tn_all(2))];
 
-% reconstruct: data_rec = score*coeff' + mu;
-[coeff,~,~,~,explained,~] = pca(data_all2);
+[lr_data, residual_var, residual_var_pca] = f_dv_run_dred2(data_all2', method, dist_metric);
 
-residual_var_pca = round(1 - cumsum(explained/100),4);
-
-lr_data2d_pca = coeff(:,1:2);
-lr_data3d_pca = coeff(:,1:3);
-
-if strcmpi(method, 'pca')
-    lr_data2d = lr_data2d_pca;
-    lr_data3d = lr_data3d_pca;
-
-elseif strcmpi(method, 'isomap')
-    D = pdist2(data_all2', data_all2', dist_metric); % euclidean, cosine');
-
-    % [Y, R, E] = Isomap(D, n_fcn, n_size, options); 
-    %    D = N x N matrix of distances (where N is the number of data points)
-    %    n_fcn = neighborhood function ('epsilon' or 'k') 
-    %    n_size = neighborhood size (value for epsilon or k)
-    options1.display = 0;
-    options1.dims = 1:min(numel(tn_all2), 10);
-    [Y, R, ~] = IsoMap(D, 'k', 15, options1);
-    
-    residual_var = R';
-    
-    %[Y, R, E] = IsoMap(D, 'epsilon', 5);
-    
-    %[mappedX, mapping] = isomap(data_all2, 2); 
-    %figure; plot(mappedX(:,1), mappedX(:,2), 'o')
-    
-    lr_data2d = Y.coords{2}';
-    lr_data3d = Y.coords{3}';
-    
-    title_tag1 = sprintf('%s; dist %s', title_tag1, dist_metric);
-end
+num_dims = numel(residual_var_pca);
 
 title_tag2 = sprintf('%s; resp %s', title_tag1, resp_cell_sel);
 
@@ -129,30 +108,52 @@ xlabel('number components used');
 ylabel('Residual variance');
 
 %%
-figure; hold on
-plot(lr_data2d(:,1), lr_data2d(:,2), 'ok', 'LineWidth', 1)
-for n_cell = 1:numel(cell_labels2)
-    if cell_labels2(n_cell)
-        color1 = app.ops.context_types_all_colors2{tn_all2(cell_labels2(n_cell))};
-    else
-        color1 = [.6 .6 .6];
+if num_dims >= 2
+    figure; hold on
+    plot_data = lr_data{2};
+    plot(plot_data(:,1), plot_data(:,2), 'ok', 'LineWidth', 1)
+    for n_cell = 1:numel(cell_labels2)
+        if cell_labels2(n_cell)
+            color1 = app.ops.context_types_all_colors2{tn_all2(cell_labels2(n_cell))};
+        else
+            color1 = [.6 .6 .6];
+        end
+        plot(plot_data(n_cell, 1), plot_data(n_cell, 2), '.', 'color', color1, 'LineWidth', 4, 'MarkerSize', 15)
     end
-    plot(lr_data2d(n_cell, 1), lr_data2d(n_cell, 2), '.', 'color', color1, 'LineWidth', 4, 'MarkerSize', 15)
-end
-title(sprintf('low rank proj cells 2d; %s',title_tag2), 'interpreter', 'none');
-
-figure; hold on
-plot3(lr_data3d(:,1), lr_data3d(:,2), lr_data3d(:,3), 'ok', 'LineWidth', 1)
-for n_cell = 1:numel(cell_labels2)
-    if cell_labels2(n_cell)
-        color1 = app.ops.context_types_all_colors2{tn_all2(cell_labels2(n_cell))};
-    else
-        color1 = [.6 .6 .6];
+    title(sprintf('low rank proj cells 2d; %s', title_tag2), 'interpreter', 'none');
+    
+    data_mean = zeros(numel(tn_all2), 2);
+    for n_nt = 1:numel(tn_all2)
+        idx1 = cell_labels2 == n_nt;
+        data_mean(n_nt,:) = mean(plot_data(idx1,:),1);
     end
-    %plot3([0 lr_data3d(n_tn, 1)], [0 lr_data3d(n_tn, 2)], [0 lr_data3d(n_tn, 3)], '-', 'color', app.ops.context_types_all_colors2{tn_all(n_tn)}, 'LineWidth', 2)
-    plot3(lr_data3d(n_cell, 1), lr_data3d(n_cell, 2), lr_data3d(n_cell, 3), '.', 'color', color1, 'LineWidth', 4, 'MarkerSize', 15)
+    f_dv_plot2_pc(data_mean, tn_all2, [], title_tag2, app.ops.context_types_all_colors2, {cont_idx, ctx_idx})
+    %f_dv_plot3_pc2(data_mean, tn_all, [], title_tag3, app.ops.context_types_all_colors2)
+    
 end
-title(sprintf('low rank proj cells 3d; %s', title_tag2), 'interpreter', 'none');
-grid on
 
+if num_dims >= 3
+    plot_data = lr_data{3};
+    figure; hold on
+    plot3(plot_data(:,1), plot_data(:,2), plot_data(:,3), 'ok', 'LineWidth', 1)
+    for n_cell = 1:numel(cell_labels2)
+        if cell_labels2(n_cell)
+            color1 = app.ops.context_types_all_colors2{tn_all2(cell_labels2(n_cell))};
+        else
+            color1 = [.6 .6 .6];
+        end
+        %plot3([0 lr_data3d(n_tn, 1)];, [0 lr_data3d(n_tn, 2)], [0 lr_data3d(n_tn, 3)], '-', 'color', app.ops.context_types_all_colors2{tn_all(n_tn)}, 'LineWidth', 2)
+        plot3(plot_data(n_cell, 1), plot_data(n_cell, 2), plot_data(n_cell, 3), '.', 'color', color1, 'LineWidth', 4, 'MarkerSize', 15)
+    end
+    title(sprintf('low rank proj cells 3d; %s', title_tag2), 'interpreter', 'none');
+    grid on;
+    
+    data_mean = zeros(numel(tn_all2), 3);
+    for n_nt = 1:numel(tn_all2)
+        idx1 = cell_labels2 == n_nt;
+        data_mean(n_nt,:) = mean(plot_data(idx1,:),1);
+    end
+    %f_dv_plot2_pc(data_mean, tn_all2, [], title_tag2, app.ops.context_types_all_colors2, {cont_idx, ctx_idx})
+    f_dv_plot3_pc2(data_mean, tn_all2, [], title_tag2, app.ops.context_types_all_colors2, [], {cont_idx, ctx_idx})
+end
 end

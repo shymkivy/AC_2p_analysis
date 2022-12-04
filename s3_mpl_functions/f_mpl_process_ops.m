@@ -50,6 +50,16 @@ ops.context_types_labels{28} = 'ContF';
 ops.context_types_labels{29} = 'Red pool';
 ops.context_types_labels{30} = 'DevF';
 
+ops.context_types_labels_trim = ops.context_types_labels;
+
+ops.context_types_labels_trim{18} = 'Cont';
+ops.context_types_labels_trim{19} = 'Red pool';
+ops.context_types_labels_trim{20} = 'Dev';
+
+ops.context_types_labels_trim{28} = 'Cont';
+ops.context_types_labels_trim{29} = 'Red pool';
+ops.context_types_labels_trim{30} = 'Dev';
+
 %% subplots dimensions
 if numel(ops.regions_to_analyze) == 1
     sm = 1;
@@ -97,6 +107,7 @@ ops.color_labels = {'A1',           [1 0 1];
                     '9-10',         jet10(9);};
 
 ops.cond_colors = {[1 0 1], [1 .6, .2], [.2 .8 .2], [0, .6, 1]};
+ops.cond_line_styles = {'-', '--', ':', '-.'};
 %ops.context_colors = {[0 0 0], [0 1 0], [1 0 1]};
 ops.context_colors = {[0 0 0], [0 0 1], [1 0 0]};
 
@@ -115,7 +126,7 @@ ops.context_types_all_colors(30,:,:) = ops.context_colors{3};
 
 ops.context_types_all_colors2 = cell(30,1);
 for n_cl = 1:10
-    ops.context_types_all_colors2{n_cl} = squeeze(ops.context_types_all_colors(n_cl,:,:));
+    ops.context_types_all_colors2{n_cl} = reshape(ops.context_types_all_colors(n_cl,:,:),1,3);
 end
 for n_cl = 11:17
     ops.context_types_all_colors2{n_cl} = ops.context_colors{2};

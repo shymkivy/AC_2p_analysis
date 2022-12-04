@@ -57,6 +57,6 @@ if strcmpi(app.plotfeatureDropDown.Value, 'peak loc')
 else
     xlabel('Magnitude');
 end
-title(sprintf('%s, %s, %s',title_tag, app.plotfeatureDropDown.Value, app.plottypeDropDown.Value), 'interpreter', 'none')
+title(sprintf('%s, %s, %s, %s',title_tag, app.plotfeatureDropDown.Value, app.plottypeDropDown.Value, app.ResponsivecellsselectDropDown.Value), 'interpreter', 'none')
     
 end

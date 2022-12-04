@@ -7,7 +7,7 @@ firing_rate = app.current_cell_spikes;
 trial_types = app.ddata.trial_types{1};
 stim_times = app.ddata.stim_frame_index{n_pl};
 mmn_freq = app.ddata.MMN_freq{1};
-trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
+trial_window = f_str_to_array(app.plot_BaserespwinEditField.Value);
 [plot_t, trial_frames] = f_dv_compute_window_t(trial_window, app.ddata.proc_data{1}.frame_data.volume_period_ave);
 
 num_cont_trials = 400;
@@ -61,7 +61,7 @@ plot(plot_t, trial_ave_trace+trial_sem_trace*stats1.stat_params.z_thresh, '--','
 plot(plot_t, mean(resp_tr,2), 'color', [0 0 0], 'LineWidth', 2);
 if ~sum(strcmpi(app.trialtypeDropDown.Value, {'all', 'Freqs', 'Context'}))
     if cell_is_resp(tn_all)
-        plot(stats1.peak_t_all(n_cell,tn_all), (stats1.peak_vals(n_cell,tn_all)-st_mean_mean)/st_mean_sem, '*g')
+        plot(stats1.peak_loc(n_cell,tn_all), (stats1.peak_vals(n_cell,tn_all)-st_mean_mean)/st_mean_sem, '*g')
     end
 end
 if app.ConverttoZCheckBox.Value

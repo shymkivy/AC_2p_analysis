@@ -49,7 +49,15 @@ for n_dset = 1:num_dsets
     num_cells = sum([stats1.num_cells]);
     
     resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn_all, [], 'Resp split');
-
+    
+%     reg_idx = find(strcmpi(reg_all, data1.area));
+%     reg_cell_idx = ones(num_cells,1)*reg_idx;
+%     if ~isempty(data1.registered_data{1})
+%         if app.UseregdatalabelsCheckBox.Value
+%             reg_cell_idx = data1.registered_data{1}.reg_labels;
+%         end
+%     end
+    
     if app.UseregdatalabelsCheckBox.Value
         if ~isempty(data1.registered_data{1})
             reg_cell_labels = data1.registered_data{1}.reg_labels;
@@ -111,18 +119,6 @@ else
     ylabel('per dset');
 end
 
-%%
-% resp_vals = cell(num_dsets,1);
-% for n_dset = 1:num_dsets
-%     if frac
-%         resp2 = reshape(sum(resp_cell_all{n_dset},1), num_tn, [])./num_cells_all(n_dset,:);
-%     else
-%         resp2 = reshape(sum(resp_cell_all{n_dset},1), num_tn, []);
-%     end
-%     resp_vals{n_dset} = resp2;
-% end
-
-%%
 
 resp1 = squeeze(logical(sum(resp_cell_all2,2)));
 

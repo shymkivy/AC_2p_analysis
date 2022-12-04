@@ -1,4 +1,4 @@
-function f_dv_trial_ave_pca(app)
+function f_dv_plot_trial_ave_pca(app)
 
 normalize1 = 0;
 plot_extra = 0;
@@ -90,6 +90,8 @@ dist_list = [18, 20;
              28, 30;
              19, 20;
              29, 30;
+             18, 19;
+             28, 29;
              2, 3;
              3, 4;
              4, 5;
@@ -98,7 +100,8 @@ dist_list = [18, 20;
              7, 8;
              8, 9];
          
-dist_lab = {'DD-cont', 'DD-cont flip', 'DD-red', 'DD-red flip', '2-3', '3-4', '4-5', '5-6', '6-7', '7-8', '8-9'};
+dist_lab = {'DD-cont', 'DD-cont flip', 'DD-red', 'DD-red flip', 'Cont-red', 'Cont-red flip',...
+            '2-3', '3-4', '4-5', '5-6', '6-7', '7-8', '8-9'};
 
 num_dist = size(dist_list,1);
 
