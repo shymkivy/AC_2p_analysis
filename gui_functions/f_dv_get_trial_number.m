@@ -16,12 +16,16 @@ elseif strcmpi(app.trialtypeDropDown.Value, 'Context_flip')
     tn = [28 29 30];
 elseif strcmpi(app.trialtypeDropDown.Value, 'Context_both')
     tn = [18 19 20 28 29 30];
+elseif strcmpi(app.trialtypeDropDown.Value, 'Context_both_comb')
+    tn = [18 19 20; 28 29 30];
 elseif strcmpi(app.trialtypeDropDown.Value, 'Cont_dev')
     tn = [18 20];
 elseif strcmpi(app.trialtypeDropDown.Value, 'Cont_dev_flip')
     tn = [28 30];
-elseif strcmpi(app.trialtypeDropDown.Value, 'Context_both_comb')
-    tn = [31 32 33];
+elseif strcmpi(app.trialtypeDropDown.Value, 'Cont_dev_both')
+    tn = [28 30 28 30];
+elseif strcmpi(app.trialtypeDropDown.Value, 'Cont_dev_both_comb')
+    tn = [28 30; 28 30];
 else
     tn = find(strcmpi(app.ops.context_types_labels, app.trialtypeDropDown.Value));
 end 

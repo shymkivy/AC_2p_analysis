@@ -85,6 +85,8 @@ for n_reg_pl = 1:num_plots
     end
     
 end
+
+
 resp_all_pool = cell(num_plots, num_flip);
 for n_reg_pl = 1:num_plots
     for n_flip = 1:num_flip
@@ -222,6 +224,28 @@ for n_win = 1:3
     end
 end
 
+%%
+num_ctx = size(ctx_plot_list,1);
+for n_reg_pl = 1:num_plots
+    
+    for n_flip = 1:num_flip2
+        temp_data = resp_all_pool{n_reg_pl, n_flip};
+        
+        hc_params.plot_dist_mat = 0;
+        clust_out = f_hcluster_wrap(reshape(temp_data, [], num_t*num_ctx), hc_params);
+        
+        %[~, idx1] = sort(mean(temp_data(idx2,:,3),2), 'descend');
+        %[~, idx2] = sort(mean(temp_data(:,:,1),2), 'ascend');
+        figure;
+        clim1 = ([min(temp_data(:)), max(temp_data(:))]);
+        for n_ctx = 1:num_ctx
+            subplot(1,3,n_ctx);
+            imagesc(plot_t, [], temp_data(clust_out.dend_order,:,n_ctx));
+            caxis(clim1*0.6)
+        end
+        sgtitle(sprintf('%s; region %s; flip%d', title_tag, leg_list{n_reg_pl}, n_flip), 'Interpreter', 'none');
+    end
+end
 
 disp('Done');
 end
