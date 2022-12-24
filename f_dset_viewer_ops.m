@@ -113,6 +113,7 @@ stats.base_resp_win = [-1 3];
 stats.lim_sig_resp_win = [0 1.2];
 stats.resp_win_onset = [.1, .4];
 stats.resp_win_offset = [.6, .9];
+stats.resp_win_middle = [.3, .6];
 stats.loco_thresh = 99; % in percent;
 
 %% est dim pca default params

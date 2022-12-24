@@ -1,9 +1,9 @@
 function f_dv_plot_trial_ave_pca(app)
 
 normalize1 = 0;
-plot_extra = 0;
+plot_extra = app.plotsuperdeetsCheckBox.Value;
 
-num_comp = 10;
+num_comp = 6;
 
 dist_list = [18, 20;
              28, 30;
@@ -46,6 +46,7 @@ num_reg = size(region_num_all,1);
 
 mouse_id = cell(num_tn_gr, num_dsets);
 dset_id = zeros(num_tn_gr, num_dsets);
+
 resp_all = cell(num_tn_gr, num_dsets, num_reg);
 cell_counts = zeros(num_tn_gr, num_dsets, num_reg);
 
@@ -108,35 +109,82 @@ for n_dset = 1:num_dsets
 end
 fprintf('\n');
 
-resp_all2 = reshape(resp_all, num_dsets*num_tn_gr, num_reg);
-cell_counts2  = reshape(cell_counts, num_dsets*num_tn_gr, num_reg);
-mouse_id2 = reshape(mouse_id, num_dsets*num_tn_gr, 1);
-dset_id2 = reshape(dset_id, num_dsets*num_tn_gr, 1);
+num_effdsets = num_dsets*num_tn_gr;
+
+resp_all2 = reshape(resp_all, num_effdsets, num_reg);
+cell_counts2  = reshape(cell_counts, num_effdsets, num_reg);
+mouse_id2 = reshape(mouse_id, num_effdsets, 1);
+dset_id2 = reshape(dset_id, num_effdsets, 1);
+
+[gr_id, gr_tag] = f_dv_combine_data(app, mouse_id2, dset_id2);
+
+
 %% now the pca
 
-if strcmpi(app.statsbetweenDropDown.Value, 'combine')
+gr_all = unique(gr_id);
+num_gr = numel(gr_all);
+
+top_comp_comb = cell(1, num_reg);
+exp_var_comb = cell(1, num_reg);
+for n_reg = 1:num_reg
+    num_cells = sum(cell_counts2(:,n_reg));
     
-elseif strcmpi(app.statsbetweenDropDown.Value, 'Mice')
-    groups1 = mouse_id;
-elseif strcmpi(app.statsbetweenDropDown.Value, 'Dsets')
+    resp2 = cat(1,resp_all2{:,n_reg});
+    
+    resp2d = reshape(resp2, num_cells, []);
+    
+    if normalize1
+        resp2d = f_normalize(resp2d, 'norm_mean_std');
+    end
+
+    %[U,S,V] = svd(resp_all2dn);
+    % score*coeff'
+    [~,score,~,~,explained,~] = pca(resp2d');
+    
+    top_comp = score(:,1:num_comp);
+    top_comp2 = reshape(top_comp, [num_t, num_tn, num_comp]);
+    
+    top_comp_comb{1, n_reg} = top_comp2;
+    exp_var_comb{1, n_reg} = explained;
 end
 
-mice_all = unique(mouse_id);
-num_mice = numel(mice_all);
+colors_tn = app.ops.context_types_all_colors2;
+tn1 = tn_all(1, :);
 
-top_comp_all = cell(num_mice, num_reg);
-exp_var_all = cell(num_mice, num_reg);
-num_cells_all = zeros(num_mice, num_reg);
+for n_reg = 1:num_reg
+    top_comp2 = top_comp_comb{1, n_reg};
+    exp_var2 = exp_var_comb{1, n_reg};
+    if ~isempty(top_comp2)
+        if num_comp >= 3
+            trs1 = [1 2 3];
+            sum_var = sum(exp_var2(trs1(1):trs1(3)));
+            title_tag2 = sprintf('%s; combined; region %s; comp %d-%d; %.2f%% var', title_tag, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
+            f_dv_plot3_pc3(top_comp2(:,:,trs1), tn1, title_tag2, plot_t, colors_tn);
+        end
 
-for n_ms = 1:num_mice
-    idx_dset = strcmpi(mice_all{n_ms}, mouse_id);
+        if 0%num_comp >= 6
+            trs1 = [4 5 6];
+            sum_var = sum(exp_var2(trs1(1):trs1(3)));
+            title_tag2 = sprintf('%s; combined; region %s; comp %d-%d; %.2f%% var', title_tag, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
+            f_dv_plot3_pc3(top_comp2(:,:,trs1), tn1, title_tag2, plot_t, colors_tn);
+        end
+    end
+end
+
+%%
+top_comp_all = cell(num_gr, num_reg);
+exp_var_all = cell(num_gr, num_reg);
+num_cells_all = zeros(num_gr, num_reg);
+
+for n_gr = 1:num_gr
+    idx_dset = gr_all(n_gr) == gr_id;
     for n_reg = 1:num_reg
 
-        num_cells = sum(cell_counts(idx_dset,n_reg));
-        num_cells_all(n_ms, n_reg) = num_cells;
+        num_cells = sum(cell_counts2(idx_dset,n_reg));
+        num_cells_all(n_gr, n_reg) = num_cells;
         
         if num_cells > 10
-            resp2 = cat(1,resp_all{idx_dset,n_reg});
+            resp2 = cat(1,resp_all2{idx_dset,n_reg});
 
             resp2d = reshape(resp2, num_cells, []);
 
@@ -151,33 +199,31 @@ for n_ms = 1:num_mice
             top_comp = score(:,1:num_comp);
             top_comp2 = reshape(top_comp, [num_t, num_tn, num_comp]);
 
-            top_comp_all{n_ms, n_reg} = top_comp2;
-            exp_var_all{n_ms, n_reg} = explained;
+            top_comp_all{n_gr, n_reg} = top_comp2;
+            exp_var_all{n_gr, n_reg} = explained;
         end
     end
 end
 
-colors_tn = app.ops.context_types_all_colors2;
-tn1 = tn_all(:,1);
+if plot_extra
+    for n_gr = 1:num_gr
+        for n_reg = 1:num_reg
+            top_comp2 = top_comp_all{n_gr, n_reg};
+            exp_var2 = exp_var_all{n_gr, n_reg};
+            if ~isempty(top_comp2)
+                if num_comp >= 3
+                    trs1 = [1 2 3];
+                    sum_var = sum(exp_var2(trs1(1):trs1(3)));
+                    title_tag2 = sprintf('%s; %s n= %d; region %s; comp %d-%d; %.2f%% var', title_tag, gr_tag, n_gr, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
+                    f_dv_plot3_pc3(top_comp2(:,:,trs1), tn1, title_tag2, plot_t, colors_tn);
+                end
 
-for n_ms = 1:num_mice
-    for n_reg = 1:num_reg
-        top_comp2 = top_comp_all{n_ms, n_reg};
-        exp_var2 = exp_var_all{n_ms, n_reg};
-        if ~isempty(top_comp2)
-
-            if num_comp >= 3
-                trs1 = [1 2 3];
-                sum_var = sum(exp_var2(trs1(1):trs1(3)));
-                title_tag2 = sprintf('%s; mouse %s; region %s; %.2f var', title_tag, mice_all{n_ms}, leg_list{n_reg}, sum_var);
-                f_dv_plot3_pc3(top_comp2, tn1, trs1, title_tag2, plot_t, colors_tn);
-            end
-
-            if 0%num_comp >= 6
-                trs1 = [4 5 6];
-                sum_var = sum(exp_var2(trs1(1):trs1(3)));
-                title_tag2 = sprintf('%s; mouse %s; region %s; %.2f var', title_tag, mice_all{n_ms}, leg_list{n_reg}, sum_var);
-                f_dv_plot3_pc3(top_comp2, tn1, trs1, title_tag2, plot_t, colors_tn);
+                if 0%num_comp >= 6
+                    trs1 = [4 5 6];
+                    sum_var = sum(exp_var2(trs1(1):trs1(3)));
+                    title_tag2 = sprintf('%s; %s n= %d; region %s; comp %d-%d; %.2f%% var', title_tag, gr_tag, n_gr, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
+                    f_dv_plot3_pc3(top_comp2(:,:,trs1), tn1, title_tag2, plot_t, colors_tn);
+                end
             end
         end
     end
@@ -188,10 +234,10 @@ has_dist_idx = false(num_dist, 1);
 for n_list = 1:num_dist
     if sum(sum(tn1 == dist_list(n_list,:)')) == 2
         has_dist_idx(n_list) = 1;
-        dist_all = cell(num_mice, num_reg);
-        for n_ms = 1:num_mice
+        dist_all = cell(num_gr, num_reg);
+        for n_gr = 1:num_gr
             for n_reg = 1:num_reg
-                top_comp2 = top_comp_all{n_ms, n_reg};
+                top_comp2 = top_comp_all{n_gr, n_reg};
                 if ~isempty(top_comp2)
                     
                     A = squeeze(top_comp2(:,tn1 == dist_list(n_list,1),:));
@@ -199,7 +245,7 @@ for n_list = 1:num_dist
 
                     %dist1 = diag(pdist2(A,B,'euclidean'))
                     dist1 = sum((A - B).^2,2).^(1/2);
-                    dist_all{n_ms, n_reg} = dist1;
+                    dist_all{n_gr, n_reg} = dist1;
                 end
             end
         end
@@ -209,15 +255,60 @@ end
 
 dist_all3 = dist_all2(has_dist_idx);
 num_dist2 = numel(dist_all3);
+dist_lab2 = dist_lab(has_dist_idx);
+
+
+%%
+onset_win = params.stats.onset_resp_win;
+offset_win = params.stats.offset_resp_win;
+mid_win = params.stats.middle_resp_win; %mid_win = [.3 .6];
+
+win_frames{1} = logical((plot_t >= onset_win(1)) .* (plot_t <= onset_win(2)));
+win_frames{2} = logical((plot_t >= offset_win(1)) .* (plot_t <= offset_win(2)));
+win_frames{3} = logical((plot_t >= mid_win(1)) .* (plot_t <= mid_win(2))); 
+labl1 = [app.ops.context_types_labels(tn_all(1,:))]; %, [{'Cont comb'; 'Red comb pool'; 'Dev comb'}]];
+win_labels = {'Onset', 'Offset', 'Middle'};
+num_win = numel(win_frames);
+
+
+dist_mean_all = cell(num_dist2, num_reg);
+dist_sem_all = cell(num_dist2, num_reg);
 
 for n_list = 1:num_dist2
     dist_all4 = dist_all3{n_list};
+    for n_reg = 1:num_reg
+        dist_all5 = cat(2, dist_all4{:, n_reg});
+        num_groups = size(dist_all5,2);
+        
+        dist_mean_all{n_list, n_reg} = mean(dist_all5,2);
+        dist_sem_all{n_list, n_reg} = std(dist_all5, [], 2)/sqrt(max(num_groups-1, 1));
+    end
+end
+
+dist_mean_allcat = cat(1, dist_mean_all{:});
+dist_sem_allcat = cat(1, dist_sem_all{:});
+
+ylim1 = ([min([dist_mean_allcat - dist_sem_allcat; 0]), max(dist_mean_allcat + dist_sem_allcat)*1.1]);
+
+
+
+for n_list = 1:num_dist2
+    dist_all4 = dist_all3{n_list};
+    win_vals = cell(num_win,num_reg);
+    reg_lab = cell(1,num_reg);
+    
     figure; hold on; axis tight
     sall = cell(num_reg,1);
     for n_reg = 1:num_reg
         
         dist_all5 = cat(2, dist_all4{:, n_reg});
+        
+        for n_win = 1:num_win
+            win_vals{n_win, n_reg} = mean(dist_all5(win_frames{n_win},:),1)';
+        end
+        
         num_groups = size(dist_all5,2);
+        reg_lab{n_reg} = repmat(n_reg,num_groups,1);
         
         dist_mean = mean(dist_all5,2);
         dist_sem = std(dist_all5, [], 2)/sqrt(max(num_groups-1, 1));
@@ -225,14 +316,29 @@ for n_list = 1:num_dist2
         color1 = f_dv_get_leg_color(app, leg_list{n_reg});
         s1 = shadedErrorBar_YS(plot_t, dist_mean, dist_sem, color1);
         sall{n_reg} = s1.mainLine;
+        ylim(ylim1);
         %plot(plot_t, dist_all5, 'color', color1, 'LineWidth', 2);
+        
     end
     ylabel('euclidean distance');
     xlabel('Time')
-    title(sprintf('distance %s; %s, region %s, %dcomp; %.2f%%var; ', dist_lab{n_list}, title_tag, reg_tag, num_comp, sum(explained(1:num_comp))));
-    legend([sall{:}], leg_list)
+    title(sprintf('distance %s; %s, region %s, %dcomp; %.2f%%var; ', dist_lab2{n_list}, title_tag, reg_tag, num_comp, sum(explained(1:num_comp))));
+    legend([sall{:}], leg_list);
+    
+    reg_lab2 = cat(1, reg_lab{:});
+    for n_win = 1:num_win
+        win_data = cat(1, win_vals{n_win, :});
+        
+        [p1, tbl1, stats2]  = anova1(win_data, reg_lab2, 'off');
+        title_tag4 = sprintf('%s; %s; %s reg; %s win', title_tag, dist_lab2{n_list}, reg_tag, win_labels{n_win});
+        f_dv_plot_anova1(p1, tbl1, stats2, title_tag4);
+        
+    end
+    
 end
 
+
+%%
 max_plot_comp = 20;
 figure; hold on;
 for n_reg = 1:num_reg

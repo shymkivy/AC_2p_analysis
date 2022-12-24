@@ -67,6 +67,7 @@ app.stats_BaserespwinEditField.Value = f_array_to_str(stats.base_resp_win);
 app.stats_LimSigRespwinEditField.Value = f_array_to_str(stats.lim_sig_resp_win);
 app.stats_OnsetRespwinEditField.Value = f_array_to_str(stats.resp_win_onset);
 app.stats_OffsetRespwinEditField.Value = f_array_to_str(stats.resp_win_offset);
+app.stats_MiddleRespwinEditField.Value = f_array_to_str(stats.resp_win_middle);
 app.stats_LocothreshEditField.Value = stats.loco_thresh;
 
 %% load default dim est pca 
@@ -153,6 +154,6 @@ app.regdatatouseDropDown.Items = {'gui reg', 'caiman reg'};
 app.DimredmethodDropDown.Items = {'isomap', 'pca'};
 app.LDdistmethodDropDown.Items = {'cosine', 'euclidean', 'correlation', 'hamming', 'jaccard'};
 
-app.statsbetweenDropDown.Items = {'Combine', 'Mice', 'Dsets'};
+app.statsbetweenDropDown.Items = {'Combined', 'Mouse', 'Dset', 'Subdset'};
 
 end

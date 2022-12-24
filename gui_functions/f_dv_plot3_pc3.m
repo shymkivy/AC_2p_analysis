@@ -1,4 +1,4 @@
-function f_dv_plot3_pc3(top_comp, tn_all, trs1, title_tag, plot_t, colors_tn)
+function f_dv_plot3_pc3(top_comp, tn_all, title_tag, plot_t, colors_tn)
 
 add_shadow = 1;
 shadow_alpha = 0.3;
@@ -17,8 +17,8 @@ for n_tn = 1:num_tn
     else
         symb1 = 'o';
     end
-    plot3(top_comp(:,n_tn, trs1(1)), top_comp(:,n_tn, trs1(2)), top_comp(:,n_tn, trs1(3)), 'color', colors_tn{tn1}, 'LineWidth', 2);
-    plot3(top_comp(1,n_tn, trs1(1)), top_comp(1,n_tn, trs1(2)), top_comp(1,n_tn, trs1(3)), symb1, 'color', colors_tn{tn1}, 'LineWidth', 2);
+    plot3(top_comp(:,n_tn, 1), top_comp(:,n_tn, 2), top_comp(:,n_tn, 3), 'color', colors_tn{tn1}, 'LineWidth', 2);
+    plot3(top_comp(1,n_tn, 1), top_comp(1,n_tn, 2), top_comp(1,n_tn, 3), symb1, 'color', colors_tn{tn1}, 'LineWidth', 2);
 end
 xlabel('PC 1');
 ylabel('PC 2');
@@ -34,15 +34,15 @@ if add_shadow
 %             else
 %                 symb1 = 'o';
 %             end
-        plot3(ones(num_t,1)*xyzlims(1), top_comp(:,n_tn, trs1(2)), top_comp(:,n_tn, trs1(3)), 'color', [colors_tn{tn1} shadow_alpha], 'LineWidth', shadow_line_width);
+        plot3(ones(num_t,1)*xyzlims(1), top_comp(:,n_tn, 2), top_comp(:,n_tn, 3), 'color', [colors_tn{tn1} shadow_alpha], 'LineWidth', shadow_line_width);
         %pl1 = plot3(xyzlims(1), top_comp2(1,n_tn, trs1(2)), top_comp2(1,n_tn, trs1(3)), symb1, 'color', [colors_tn{tn1} shadow_alpha], 'LineWidth', shadow_line_width);
-        plot3(top_comp(:,n_tn, trs1(1)), ones(num_t,1)*xyzlims(2), top_comp(:,n_tn, trs1(3)), 'color',[colors_tn{tn1} shadow_alpha], 'LineWidth', shadow_line_width);
+        plot3(top_comp(:,n_tn, 1), ones(num_t,1)*xyzlims(2), top_comp(:,n_tn, 3), 'color',[colors_tn{tn1} shadow_alpha], 'LineWidth', shadow_line_width);
         %pl1 = plot3(top_comp2(1,n_tn, 1), xyzlims(2), top_comp2(1,n_tn, 3), symb1, 'color', [colors_tn{tn1} alpha1], 'LineWidth', shadow_line_width);
-        plot3(top_comp(:,n_tn, trs1(1)), top_comp(:,n_tn, trs1(2)), ones(num_t,1)*xyzlims(3), 'color', [colors_tn{tn1} shadow_alpha], 'LineWidth', shadow_line_width);
+        plot3(top_comp(:,n_tn, 1), top_comp(:,n_tn, 2), ones(num_t,1)*xyzlims(3), 'color', [colors_tn{tn1} shadow_alpha], 'LineWidth', shadow_line_width);
         %pl1 = plot3(top_comp2(1,n_tn, 1), top_comp2(1,n_tn, 2), xyzlims(3), symb1, 'color', [colors_tn{tn1} alpha1], 'LineWidth', shadow_line_width);
     end
 end
-title(sprintf('comp %d-%d; %s', trs1(1), trs1(3), title_tag));
+title(title_tag);
 grid on;
   
 end

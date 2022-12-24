@@ -27,6 +27,7 @@ stats.base_resp_win = f_str_to_array(app.stats_BaserespwinEditField.Value);
 stats.lim_sig_resp_win = f_str_to_array(app.stats_LimSigRespwinEditField.Value);
 stats.onset_resp_win = f_str_to_array(app.stats_OnsetRespwinEditField.Value);
 stats.offset_resp_win = f_str_to_array(app.stats_OffsetRespwinEditField.Value);
+stats.middle_resp_win = f_str_to_array(app.stats_MiddleRespwinEditField.Value);
 stats.loco_thresh = app.stats_LocothreshEditField.Value;
 
 %%

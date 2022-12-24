@@ -151,7 +151,8 @@ end
 
 onset_win = params.stats.onset_resp_win;
 offset_win = params.stats.offset_resp_win;
-mid_win = [.3 .6];
+mid_win = params.stats.resp_win_middle; %mid_win = [.3 .6];
+
 win_frames{1} = logical((plot_t >= onset_win(1)) .* (plot_t <= onset_win(2)));
 win_frames{2} = logical((plot_t >= offset_win(1)) .* (plot_t <= offset_win(2)));
 win_frames{3} = logical((plot_t >= mid_win(1)) .* (plot_t <= mid_win(2))); 

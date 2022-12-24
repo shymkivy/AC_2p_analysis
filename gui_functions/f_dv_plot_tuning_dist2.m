@@ -1,4 +1,4 @@
-function f_dv_plot_tuning_dist(app)
+function f_dv_plot_tuning_dist2(app)
 
 plot_ens = app.plotensamblesCheckBox.Value;
 frac = app.plotfractionsCheckBox.Value;
