@@ -69,16 +69,7 @@ for n_dset = 1:num_dsets
     trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, trial_frames);
     [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, mmn_freq, app.ops);
     
-    if app.UseregdatalabelsCheckBox.Value
-        if ~isempty(data1.registered_data{1})
-            reg_cell_labels = data1.registered_data{1}.reg_labels;
-        else
-            reg_cell_labels = zeros(num_cells,1);
-        end
-    else
-        reg_idx = find(strcmpi(reg_all, data1.area));
-        reg_cell_labels = ones(num_cells,1)*reg_idx;
-    end
+    reg_cell_labels = f_dv_get_area_label(app, data1);
     
     for n_tngr = 1:num_tn_gr
         mouse_id{n_tngr, n_dset} = data1.mouse_id{1};

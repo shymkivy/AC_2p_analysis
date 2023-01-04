@@ -19,10 +19,10 @@ if (p_val < 0.05) && ~isnan(stats.s)
     p_vals1 = (1 - tcdf(abs(t_vals1), dfe))*2;
 
     figure; 
-    subplot(1,3,1);imagesc(t_vals1); title('t factor');
+    subplot(1,3,1);imagesc(abs(t_vals1)); title('t factor');
     subplot(1,3,2);imagesc(p_vals1); title('p value, two-tailed');
     subplot(1,3,3);imagesc(p_vals1 < 0.05); title('is sig');
-    sgtitle(sprintf('%s; anova p=%.4g; Fc=%.4g; dfe=%d; dfc=%d', title_tag, p_val, Fc, dfe, dfc))
+    sgtitle(sprintf('%s;\n anova p=%.4g; Fc=%.4g; dfe=%d; dfc=%d', title_tag, p_val, Fc, dfe, dfc), 'Interpreter', 'none')
 end
 
 end
