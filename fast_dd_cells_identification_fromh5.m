@@ -170,7 +170,6 @@ sig_z_thresh =2.5;
 
 %%   
 
-
 for n_pairs = 1:size(tt_pairs,2)
     ave_resp_on_all = cell(2,1);
     ave_resp_off_all = cell(2,1);
@@ -229,45 +228,45 @@ end
 % stim_frames(stim_frame_index1) = 1;
 % plot(stim_frames*1600)
 % 
-% %%
-% frames_analyze = 3:15;
-% 
-% Y_ave_2d = reshape(Y_ave(:,:,frames_analyze), d1*d2, []);
-% Y_sort_2d = reshape(Y_sort(:,frames_analyze,:), d1*d2, []);
-% 
-% Y_in = Y_sort_2d;
-% 
-% method1 = 'nmf'; % 'pca', 'nmf'
-% 
-% if strcmpi(method1, 'pca')
-%     [coeff,score,latent,tsquared,explained,mu] = pca(Y_in);
-% 
-% elseif strcmpi(method1, 'nmf')
-%     [W,H] = nnmf(Y_in,4);
-%     coeff = H';
-%     score = W;
-% end
-% 
-% %%
-% n_pc = 3;
-% 
-% score_2d = reshape(score(:,n_pc),d1, d2, []);
-% figure; imagesc(score_2d); axis equal tight; title(['comp ' num2str(n_pc)])
-% 
-% 
-% coeff_sort = reshape(coeff, numel(frames_analyze), num_trials, []);
-% figure; plot(coeff_sort(:,:,n_pc)); title(['comp all tr ' num2str(n_pc)])
-% figure; plot(mean(coeff_sort(:,:,n_pc),2)); title(['comp trial ave' num2str(n_pc)])
-% 
-% %%
-% tr = 1:num_trials;
-% figure; plot3(coeff_sort(:,tr,2), coeff_sort(:,tr,3), coeff_sort(:,tr,1))
-% xlabel('PC2'); ylabel('PC3'); zlabel('PC1');
-% 
-% %%
-% lr_pcs = 1:3;
-% mov_low_rank = reshape(score(:,lr_pcs)*coeff(:,lr_pcs)',d1,d2,[]);
-% f_save_tif_stack2_YS(mov_low_rank, [data_dir, '\' sprintf('mpl%d_tt%d_low_rank_%s',n_pl, tt,method1)])
-% mov_low_rank_ave = reshape(mov_low_rank, d1, d2, numel(frames_analyze), []);
-% f_save_tif_stack2_YS(mov_low_rank_ave, [data_dir, '\' sprintf('mpl%d_tt%d_low_rank_ave_%s',n_pl, tt,method1)])
-% 
+%%
+frames_analyze = 3:15;
+
+Y_ave_2d = reshape(Y_ave(:,:,frames_analyze), d1*d2, []);
+Y_sort_2d = reshape(Y_sort(:,frames_analyze,:), d1*d2, []);
+
+Y_in = Y_sort_2d;
+
+method1 = 'nmf'; % 'pca', 'nmf'
+
+if strcmpi(method1, 'pca')
+    [coeff,score,latent,tsquared,explained,mu] = pca(Y_in);
+
+elseif strcmpi(method1, 'nmf')
+    [W,H] = nnmf(Y_in,4);
+    coeff = H';
+    score = W;
+end
+
+%%
+n_pc = 3;
+
+score_2d = reshape(score(:,n_pc),d1, d2, []);
+figure; imagesc(score_2d); axis equal tight; title(['comp ' num2str(n_pc)])
+
+
+coeff_sort = reshape(coeff, numel(frames_analyze), num_trials, []);
+figure; plot(coeff_sort(:,:,n_pc)); title(['comp all tr ' num2str(n_pc)])
+figure; plot(mean(coeff_sort(:,:,n_pc),2)); title(['comp trial ave' num2str(n_pc)])
+
+%%
+tr = 1:num_trials;
+figure; plot3(coeff_sort(:,tr,2), coeff_sort(:,tr,3), coeff_sort(:,tr,1))
+xlabel('PC2'); ylabel('PC3'); zlabel('PC1');
+
+%%
+lr_pcs = 1:3;
+mov_low_rank = reshape(score(:,lr_pcs)*coeff(:,lr_pcs)',d1,d2,[]);
+f_save_tif_stack2_YS(mov_low_rank, [data_dir, '\' sprintf('mpl%d_tt%d_low_rank_%s',n_pl, tt,method1)])
+mov_low_rank_ave = reshape(mov_low_rank, d1, d2, numel(frames_analyze), []);
+f_save_tif_stack2_YS(mov_low_rank_ave, [data_dir, '\' sprintf('mpl%d_tt%d_low_rank_ave_%s',n_pl, tt,method1)])
+

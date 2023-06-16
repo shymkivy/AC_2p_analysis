@@ -1,9 +1,9 @@
 addpath('C:\Users\ys2605\Desktop\stuff\AC_2p_analysis\general_functions');
 
-fpath =  'C:\Users\ys2605\Desktop\stuff\AC_data\cmnf_data\';
-fname = 'A2_ammn1_5_21_20_OA_cut.hdf5';
+fpath =  'F:\AC_data\caiman_data_missmatch\movies\';
+fname = 'M8_im1_A2_ammn1_5_21_20.h5';
 
-num_frames = 5000;
+num_frames = 20000;
 
 [~, fname2, ext] = fileparts(fname);
 
