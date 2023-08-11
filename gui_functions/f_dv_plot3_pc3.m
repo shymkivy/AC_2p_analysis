@@ -42,7 +42,7 @@ if add_shadow
         %pl1 = plot3(top_comp2(1,n_tn, 1), top_comp2(1,n_tn, 2), xyzlims(3), symb1, 'color', [colors_tn{tn1} alpha1], 'LineWidth', shadow_line_width);
     end
 end
-title(title_tag);
+title(title_tag, 'Interpreter','none');
 grid on;
   
 end

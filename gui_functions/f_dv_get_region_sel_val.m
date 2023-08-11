@@ -12,6 +12,8 @@ elseif strcmpi(reg_tag, 'AAF')
     region_num = find(strcmpi(reg_all, 'AAF'));
 elseif strcmpi(reg_tag, 'UF')
     region_num = find(strcmpi(reg_all, 'UF'));
+elseif strcmpi(reg_tag, 'All comb')
+    region_num = (1:numel(reg_all))';
 end
 
 end

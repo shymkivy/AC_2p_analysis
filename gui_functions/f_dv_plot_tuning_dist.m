@@ -26,15 +26,17 @@ stim_all = zeros(num_gr, num_dsets, num_tn);
 for n_dset = 1:num_dsets
     data1 = data(n_dset,:);
     trial_types = data1.trial_types{1};
+    trial_types_ctx = f_dv_mark_tt_ctx(trial_types, data1.MMN_freq{1}, app.ops);
     
-    [~, trial_types_wctx] =  f_s3_add_ctx_trials([], trial_types, app.ddata.MMN_freq{1}, app.ops);
+    trial_types2 = [trial_types, trial_types_ctx];
     for n_gr = 1:num_gr
-        stim_all(n_gr, n_dset, :) = sum(trial_types_wctx == app.ops.context_types_all(tn_all(n_gr,:))',1)';
+        stim_all(n_gr, n_dset, :) = squeeze(sum(sum(trial_types2 == reshape(app.ops.context_types_all(tn_all(n_gr,:)), 1, 1, []),1),2));
     end
 end
+
 stim_all2 = reshape(stim_all, num_dsets*num_gr, num_tn);
 stim_all_mean = mean(stim_all2,1);
-stim_all_sem = std(stim_all2)./sqrt(num_dsets*num_gr - 1);
+stim_all_sem = std(stim_all2, [], 1)./sqrt(max(num_dsets*num_gr - 1,1));
 figure; hold on;
 bar(categorical(categories,categories), stim_all_mean);
 errorbar([], stim_all_mean, stim_all_sem, '.k')

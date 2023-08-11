@@ -3,7 +3,12 @@ function f_dv_plot_trial_ave_pca(app)
 normalize1 = 0;
 plot_extra = app.plotsuperdeetsCheckBox.Value;
 
-num_comp = 6;
+num_comp = app.plotPCAdimSpinner.Value;
+num_pl_d = str2double(app.plotaxesDropDown.Value);
+num_pl = floor(num_comp/num_pl_d);
+num_plot_comp = num_pl*num_pl_d;
+
+trs_all = reshape(1:num_plot_comp, num_pl_d, []);
 
 dist_list = [18, 20;
              28, 30;
@@ -34,12 +39,17 @@ trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
 
 num_t = sum(trial_frames);
 
-tn_all = f_dv_get_trial_number(app);
-[num_tn_gr, num_tn] = size(tn_all);
+tn_all = f_dv_get_trial_number(app, [], data.MMN_freq);
+if iscell(tn_all)
+    tn_ex = tn_all{1};
+else
+    tn_ex = tn_all;
+end
+[num_tn_gr, num_tn] = size(tn_ex);
 
 params = f_dv_gather_params(app);
 
-reg_all = app.ops.regions_to_analyze;
+%reg_all = app.ops.regions_to_analyze;
 [region_num_all, reg_tag, leg_list] = f_dv_get_region_sel_val2(app);
 
 num_reg = size(region_num_all,1);
@@ -74,7 +84,12 @@ for n_dset = 1:num_dsets
     for n_tngr = 1:num_tn_gr
         mouse_id{n_tngr, n_dset} = data1.mouse_id{1};
         dset_id(n_tngr, n_dset) = n_dset;
-        tn1 = tn_all(n_tngr,:);
+        if iscell(tn_all)
+            tn1 = tn_all{n_dset}(n_tngr,:);
+        else
+            tn1 = tn_all(n_tngr,:);
+        end
+
         resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn1);
         %cell_is_resp = stats1.peak_resp_cells(:,tn_all);
 
@@ -119,45 +134,52 @@ top_comp_comb = cell(1, num_reg);
 exp_var_comb = cell(1, num_reg);
 for n_reg = 1:num_reg
     num_cells = sum(cell_counts2(:,n_reg));
+    if num_cells
+        resp2 = cat(1,resp_all2{:,n_reg});
+        
+        resp2d = reshape(resp2, num_cells, []);
+        
+        if normalize1
+            resp2d = f_normalize(resp2d, 'norm_mean_std');
+        end
     
-    resp2 = cat(1,resp_all2{:,n_reg});
-    
-    resp2d = reshape(resp2, num_cells, []);
-    
-    if normalize1
-        resp2d = f_normalize(resp2d, 'norm_mean_std');
+        %[U,S,V] = svd(resp_all2dn);
+        % score*coeff'
+        %warning('off', 'stats:pca:ColRankDefX')
+        [~,score,~,~,explained,~] = pca(resp2d');
+        
+        top_comp = score(:,1:num_comp);
+        top_comp2 = reshape(top_comp, [num_t, num_tn, num_comp]);
+        
+        top_comp_comb{1, n_reg} = top_comp2;
+        exp_var_comb{1, n_reg} = explained;
     end
-
-    %[U,S,V] = svd(resp_all2dn);
-    % score*coeff'
-    [~,score,~,~,explained,~] = pca(resp2d');
-    
-    top_comp = score(:,1:num_comp);
-    top_comp2 = reshape(top_comp, [num_t, num_tn, num_comp]);
-    
-    top_comp_comb{1, n_reg} = top_comp2;
-    exp_var_comb{1, n_reg} = explained;
 end
 
 colors_tn = app.ops.context_types_all_colors2;
-tn1 = tn_all(1, :);
+%tn1 = tn_all(1, :);
 
 for n_reg = 1:num_reg
     top_comp2 = top_comp_comb{1, n_reg};
     exp_var2 = exp_var_comb{1, n_reg};
     if ~isempty(top_comp2)
-        if num_comp >= 3
-            trs1 = [1 2 3];
-            sum_var = sum(exp_var2(trs1(1):trs1(3)));
-            title_tag2 = sprintf('%s; combined; region %s; comp %d-%d; %.2f%% var', title_tag, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
-            f_dv_plot3_pc3(top_comp2(:,:,trs1), tn1, title_tag2, plot_t, colors_tn);
-        end
-
-        if 0%num_comp >= 6
-            trs1 = [4 5 6];
-            sum_var = sum(exp_var2(trs1(1):trs1(3)));
-            title_tag2 = sprintf('%s; combined; region %s; comp %d-%d; %.2f%% var', title_tag, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
-            f_dv_plot3_pc3(top_comp2(:,:,trs1), tn1, title_tag2, plot_t, colors_tn);
+        for n_pl = 1:num_pl
+            trs1 = trs_all(:, n_pl);
+            if num_comp >= trs1(end)
+                sum_var = sum(exp_var2(trs1(1):trs1(end)));
+                title_tag2 = sprintf('%s; combined; region %s; comp %d-%d; %.2f%% var', title_tag, leg_list{n_reg}, trs1(1), trs1(end), sum_var);
+                if num_pl_d == 3
+                    f_dv_plot3_pc3(top_comp2(:,:,trs1), tn_ex, title_tag2, plot_t, colors_tn);
+                elseif num_pl_d == 2
+                    figure(); hold on;
+                    for n_tn = 1:num_tn
+                        plot(top_comp2(:,n_tn,trs1(1)), top_comp2(:,n_tn,trs1(2)), 'color', colors_tn{tn_ex(n_tn)});
+                    end
+                    xlabel(sprintf('PC%d', trs1(1)));
+                    ylabel(sprintf('PC%d', trs1(2)));
+                    title(title_tag2, 'interpreter', 'none');
+                end
+            end
         end
     end
 end
@@ -206,160 +228,165 @@ if plot_extra
                     trs1 = [1 2 3];
                     sum_var = sum(exp_var2(trs1(1):trs1(3)));
                     title_tag2 = sprintf('%s; %s n= %d; region %s; comp %d-%d; %.2f%% var', title_tag, gr_tag, n_gr, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
-                    f_dv_plot3_pc3(top_comp2(:,:,trs1), tn1, title_tag2, plot_t, colors_tn);
+                    f_dv_plot3_pc3(top_comp2(:,:,trs1), tn_ex, title_tag2, plot_t, colors_tn);
                 end
 
                 if 0%num_comp >= 6
                     trs1 = [4 5 6];
                     sum_var = sum(exp_var2(trs1(1):trs1(3)));
                     title_tag2 = sprintf('%s; %s n= %d; region %s; comp %d-%d; %.2f%% var', title_tag, gr_tag, n_gr, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
-                    f_dv_plot3_pc3(top_comp2(:,:,trs1), tn1, title_tag2, plot_t, colors_tn);
+                    f_dv_plot3_pc3(top_comp2(:,:,trs1), tn_ex, title_tag2, plot_t, colors_tn);
                 end
             end
         end
     end
 end
-
-dist_all2 = cell(num_dist, 1);
-has_dist_idx = false(num_dist, 1);
-for n_list = 1:num_dist
-    if sum(sum(tn1 == dist_list(n_list,:)')) == 2
-        has_dist_idx(n_list) = 1;
-        dist_all = cell(num_gr, num_reg);
-        for n_gr = 1:num_gr
-            for n_reg = 1:num_reg
-                top_comp2 = top_comp_all{n_gr, n_reg};
-                if ~isempty(top_comp2)
-                    
-                    A = squeeze(top_comp2(:,tn1 == dist_list(n_list,1),:));
-                    B = squeeze(top_comp2(:,tn1 == dist_list(n_list,2),:));
-
-                    %dist1 = diag(pdist2(A,B,'euclidean'))
-                    dist1 = sum((A - B).^2,2).^(1/2);
-                    dist_all{n_gr, n_reg} = dist1;
-                end
-            end
-        end
-        dist_all2{n_list} = dist_all;
-    end
-end
-
-dist_all3 = dist_all2(has_dist_idx);
-num_dist2 = numel(dist_all3);
-dist_lab2 = dist_lab(has_dist_idx);
-
 
 %%
-onset_win = params.stats.onset_resp_win;
-offset_win = params.stats.offset_resp_win;
-mid_win = params.stats.middle_resp_win; %mid_win = [.3 .6];
-
-win_frames{1} = logical((plot_t >= onset_win(1)) .* (plot_t <= onset_win(2)));
-win_frames{2} = logical((plot_t >= offset_win(1)) .* (plot_t <= offset_win(2)));
-win_frames{3} = logical((plot_t >= mid_win(1)) .* (plot_t <= mid_win(2))); 
-labl1 = [app.ops.context_types_labels(tn_all(1,:))]; %, [{'Cont comb'; 'Red comb pool'; 'Dev comb'}]];
-win_labels = {'Onset', 'Offset', 'Middle'};
-num_win = numel(win_frames);
-
-
-dist_mean_all = cell(num_dist2, num_reg);
-dist_sem_all = cell(num_dist2, num_reg);
-
-for n_list = 1:num_dist2
-    dist_all4 = dist_all3{n_list};
-    for n_reg = 1:num_reg
-        dist_all5 = cat(2, dist_all4{:, n_reg});
-        num_groups = size(dist_all5,2);
-        
-        dist_mean_all{n_list, n_reg} = mean(dist_all5,2);
-        dist_sem_all{n_list, n_reg} = std(dist_all5, [], 2)/sqrt(max(num_groups-1, 1));
-    end
-end
-
-dist_mean_allcat = cat(1, dist_mean_all{:});
-dist_sem_allcat = cat(1, dist_sem_all{:});
-
-ylim1 = ([min([dist_mean_allcat - dist_sem_allcat; 0]), max(dist_mean_allcat + dist_sem_allcat)*1.1]);
-
-
-
-for n_list = 1:num_dist2
-    dist_all4 = dist_all3{n_list};
-    win_vals = cell(num_win,num_reg);
-    reg_lab = cell(1,num_reg);
+if app.PCAdistancesCheckBox.Value
+    dist_all2 = cell(num_dist, 1);
+    has_dist_idx = false(num_dist, 1);
+    for n_list = 1:num_dist
+        if sum(sum(tn_ex == dist_list(n_list,:)')) == 2
+            has_dist_idx(n_list) = 1;
+            dist_all = cell(num_gr, num_reg);
+            for n_gr = 1:num_gr
+                for n_reg = 1:num_reg
+                    top_comp2 = top_comp_all{n_gr, n_reg};
+                    if ~isempty(top_comp2)
+                        
+                        A = squeeze(top_comp2(:,tn_ex == dist_list(n_list,1),:));
+                        B = squeeze(top_comp2(:,tn_ex == dist_list(n_list,2),:));
     
-    figure; hold on; axis tight
-    sall = cell(num_reg,1);
-    for n_reg = 1:num_reg
+                        %dist1 = diag(pdist2(A,B,'euclidean'))
+                        dist1 = sum((A - B).^2,2).^(1/2);
+                        dist_all{n_gr, n_reg} = dist1;
+                    end
+                end
+            end
+            dist_all2{n_list} = dist_all;
+        end
+    end
+    
+    dist_all3 = dist_all2(has_dist_idx);
+    num_dist2 = numel(dist_all3);
+    dist_lab2 = dist_lab(has_dist_idx);
+    
+    
+    %%
+    onset_win = params.stats.onset_resp_win;
+    offset_win = params.stats.offset_resp_win;
+    mid_win = params.stats.middle_resp_win; %mid_win = [.3 .6];
+    
+    win_frames{1} = logical((plot_t >= onset_win(1)) .* (plot_t <= onset_win(2)));
+    win_frames{2} = logical((plot_t >= offset_win(1)) .* (plot_t <= offset_win(2)));
+    win_frames{3} = logical((plot_t >= mid_win(1)) .* (plot_t <= mid_win(2))); 
+    labl1 = [app.ops.context_types_labels(tn_ex)]; %, [{'Cont comb'; 'Red comb pool'; 'Dev comb'}]];
+    win_labels = {'Onset', 'Offset', 'Middle'};
+    num_win = numel(win_frames);
+    
+    
+    dist_mean_all = cell(num_dist2, num_reg);
+    dist_sem_all = cell(num_dist2, num_reg);
+    
+    for n_list = 1:num_dist2
+        dist_all4 = dist_all3{n_list};
+        for n_reg = 1:num_reg
+            dist_all5 = cat(2, dist_all4{:, n_reg});
+            num_groups = size(dist_all5,2);
+            
+            dist_mean_all{n_list, n_reg} = mean(dist_all5,2);
+            dist_sem_all{n_list, n_reg} = std(dist_all5, [], 2)/sqrt(max(num_groups-1, 1));
+        end
+    end
+    
+    dist_mean_allcat = cat(1, dist_mean_all{:});
+    dist_sem_allcat = cat(1, dist_sem_all{:});
+    
+    ylim1 = ([min([dist_mean_allcat - dist_sem_allcat; 0]), max(dist_mean_allcat + dist_sem_allcat)*1.1]);
+    
+    for n_list = 1:num_dist2
+        dist_all4 = dist_all3{n_list};
+        win_vals = cell(num_win,num_reg);
+        reg_lab = cell(1,num_reg);
         
-        dist_all5 = cat(2, dist_all4{:, n_reg});
+        figure; hold on; axis tight
+        sall = cell(num_reg,1);
+        for n_reg = 1:num_reg
+            if num_cells_all(n_reg)
+                dist_all5 = cat(2, dist_all4{:, n_reg});
+                
+                for n_win = 1:num_win
+                    win_vals{n_win, n_reg} = mean(dist_all5(win_frames{n_win},:),1)';
+                end
+                
+                num_groups = size(dist_all5,2);
+                reg_lab{n_reg} = repmat(n_reg,num_groups,1);
+                
+                dist_mean = mean(dist_all5,2);
+                dist_sem = std(dist_all5, [], 2)/sqrt(max(num_groups-1, 1));
+                
+                color1 = f_dv_get_leg_color(app, leg_list{n_reg});
+                s1 = shadedErrorBar_YS(plot_t, dist_mean, dist_sem, color1);
+                sall{n_reg} = s1.mainLine;
+                ylim(ylim1);
+                %plot(plot_t, dist_all5, 'color', color1, 'LineWidth', 2);
+            end
+        end
+        ylabel('euclidean distance');
+        xlabel('Time')
+        title(sprintf('distance %s; %s, region %s, %dcomp; %.2f%%var; ', dist_lab2{n_list}, title_tag, reg_tag, num_comp, sum(explained(1:num_comp))), 'Interpreter','none');
+        legend([sall{:}], leg_list(logical(num_cells_all)));
         
+        reg_lab2 = cat(1, reg_lab{:});
         for n_win = 1:num_win
-            win_vals{n_win, n_reg} = mean(dist_all5(win_frames{n_win},:),1)';
+            win_data = cat(1, win_vals{n_win, :});
+            
+            [p1, tbl1, stats2]  = anova1(win_data, reg_lab2, 'off');
+            title_tag4 = sprintf('%s; %s; %s reg; %s win', title_tag, dist_lab2{n_list}, reg_tag, win_labels{n_win});
+            f_dv_plot_anova1(p1, tbl1, stats2, title_tag4);
+            
         end
         
-        num_groups = size(dist_all5,2);
-        reg_lab{n_reg} = repmat(n_reg,num_groups,1);
-        
-        dist_mean = mean(dist_all5,2);
-        dist_sem = std(dist_all5, [], 2)/sqrt(max(num_groups-1, 1));
-        
-        color1 = f_dv_get_leg_color(app, leg_list{n_reg});
-        s1 = shadedErrorBar_YS(plot_t, dist_mean, dist_sem, color1);
-        sall{n_reg} = s1.mainLine;
-        ylim(ylim1);
-        %plot(plot_t, dist_all5, 'color', color1, 'LineWidth', 2);
-        
     end
-    ylabel('euclidean distance');
-    xlabel('Time')
-    title(sprintf('distance %s; %s, region %s, %dcomp; %.2f%%var; ', dist_lab2{n_list}, title_tag, reg_tag, num_comp, sum(explained(1:num_comp))));
-    legend([sall{:}], leg_list);
-    
-    reg_lab2 = cat(1, reg_lab{:});
-    for n_win = 1:num_win
-        win_data = cat(1, win_vals{n_win, :});
-        
-        [p1, tbl1, stats2]  = anova1(win_data, reg_lab2, 'off');
-        title_tag4 = sprintf('%s; %s; %s reg; %s win', title_tag, dist_lab2{n_list}, reg_tag, win_labels{n_win});
-        f_dv_plot_anova1(p1, tbl1, stats2, title_tag4);
-        
-    end
-    
 end
-
-
 %%
 max_plot_comp = 20;
-figure; hold on;
+figure; hold on; axis tight
 for n_reg = 1:num_reg
-    color1 = f_dv_get_leg_color(app, leg_list{n_reg});
-    plot(0:max_plot_comp , [100; 100 - cumsum(exp_var_all{n_reg}(1:max_plot_comp))], 'color', color1, 'LineWidth', 2)
+    if num_cells_all(n_reg)
+        max_plot_comp2 = min(max_plot_comp, num_cells_all(n_reg));
+        color1 = f_dv_get_leg_color(app, leg_list{n_reg});
+        plot(0:max_plot_comp2 , [100; 100 - cumsum(exp_var_all{n_reg}(1:max_plot_comp2))], 'color', color1, 'LineWidth', 2);
+    end
 end
 l1 = line([num_comp, num_comp], [0 100]);
 l1.Color = [.5 .5 .5];
 l1.LineStyle = '--';
 ylabel('Residual variance');
 xlabel('num components');
-legend([leg_list, {'num comp used'}]);
-title(sprintf('Residual variance  %s, region %s', title_tag, reg_tag));
+legend([leg_list(logical(num_cells_all)), {'num comp used'}]);
+title(sprintf('Residual variance  %s, region %s', title_tag, reg_tag), 'Interpreter','none');
 
 if plot_extra
     figure; hold on;
     for n_reg = 1:num_reg
-        color1 = f_dv_get_leg_color(app, leg_list{n_reg});
-        plot(exp_var_all{n_reg}(1:50), 'color', color1);
+        if num_cells_all(n_reg)
+            color1 = f_dv_get_leg_color(app, leg_list{n_reg});
+            plot(exp_var_all{n_reg}(1:50), 'color', color1);
+        end
     end
     ylabel('explained variance');
-    legend(leg_list);
-    title(sprintf('explained variance  %s, region %s', title_tag, reg_tag));
+    legend(leg_list(logical(num_cells_all)));
+    title(sprintf('explained variance  %s, region %s', title_tag, reg_tag), 'Interpreter','none');
 
     for n_comp = 1:num_comp
         figure; hold on
         for n_tn = 1:num_tn
-            plot(squeeze(top_comp2(:,n_tn, n_comp)), 'color', app.ops.context_types_all_colors2{tn1(n_tn)})
+            plot(squeeze(top_comp2(:,n_tn, n_comp)), 'color', app.ops.context_types_all_colors2{tn_ex(n_tn)})
         end
         title(sprintf('comp %d', n_comp))
     end
 end
+
 end

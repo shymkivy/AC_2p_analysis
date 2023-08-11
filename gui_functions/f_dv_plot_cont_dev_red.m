@@ -86,7 +86,6 @@ for n_pl = 1:num_pl
     title(sprintf('%s; %s, cos SI = %.2f', title_tag2, bar_leg{n_pl}, cos_sim1), 'interpreter', 'none')
 end
 
-
 figure;
 subplot(1,2,1);
 bar(categorical(categorical(bar_leg)), cos_si_all)
@@ -98,7 +97,7 @@ bar(categorical(categorical(bar_leg)), dist_all);
 ylim(bar_dist_ylim);
 title('Euclidean distance');
 ylabel('Euclidean distance');
-sgtitle(sprintf('%s', title_tag2));
+sgtitle(sprintf('%s', title_tag2), 'interpreter', 'none');
 % 
 % f3 = figure;
 % plot(data_all2(:,2), data_all2(:,3), '.k', 'MarkerSize', 1);

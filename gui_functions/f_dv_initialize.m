@@ -133,7 +133,7 @@ app.xvarDropDown.Items = data_variables;
 app.yvarDropDown.Items = data_variables;
 app.yvarDropDown.Value = data_variables{2};
 
-app.plottypeDropDown.Items = {'kde', 'ecdf', 'histogram'};
+app.plottypeDropDown.Items = {'kde', 'ecdf', 'histogram', 'hist-kde'};
 
 app.gui_ops.save_var_list_pl = {'stats', 'stats_within', 'register_roi',...
                     'register_roi_caiman_load', 'opto_data'};
