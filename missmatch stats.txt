@@ -1,0 +1,11 @@
+
+tones
+58 datasets; mean 210.60 std 122.26 sem 16.19 cells per dset
+
+freq gratings
+53 datasets; mean 216.77 std 131.94 sem 18.30 cells per dset
+
+
+joint
+111 datasets; mean 213.546; std 126.88; sem 12.1
+

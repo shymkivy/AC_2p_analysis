@@ -55,9 +55,9 @@ if add_shadow
     end
 end
 title(sprintf('3d %s', title_tag), 'interpreter', 'none');
-xlabel('PC 1');
-ylabel('PC 2');
-zlabel('PC 3');
+xlabel(sprintf('PC %d', pcs(1)));
+ylabel(sprintf('PC %d', pcs(2)));
+zlabel(sprintf('PC %d', pcs(3)));
 grid on
 
 end

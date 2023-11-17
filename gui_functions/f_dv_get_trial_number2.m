@@ -6,6 +6,8 @@ end
 
 if strcmpi(trial_type_input, 'all')
     tn = [1:10 18 19 20 28 29 30]; % 18 28
+elseif strcmpi(trial_type_input, 'all_no_cont')
+    tn = [1:10 19 20 29 30]; % 18 28
 elseif strcmpi(trial_type_input, 'all_orig_sequnce')
     tn = [1:10 11:17 20 21:27 30]; % 18 28
 elseif strcmpi(trial_type_input, 'Freqs')

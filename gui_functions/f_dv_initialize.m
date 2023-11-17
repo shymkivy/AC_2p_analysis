@@ -151,9 +151,11 @@ app.DeconvolutionmethodDropDown.Items = {'smooth_dfdt'};
 
 app.regdatatouseDropDown.Items = {'gui reg', 'caiman reg'};
 
-app.DimredmethodDropDown.Items = {'isomap', 'pca'};
+app.DimredmethodDropDown.Items = {'isomap', 'pca', 'svd'};
 app.LDdistmethodDropDown.Items = {'cosine', 'euclidean', 'correlation', 'hamming', 'jaccard'};
 
 app.statsbetweenDropDown.Items = {'Combined', 'Mouse', 'Dset', 'Subdset'};
+
+app.NumplotaxesDropDown.Items = {'2', '3'};
 
 end

@@ -91,8 +91,8 @@ end
 
 %ctx_types_all = unique(trial_types_wctx);
 %num_tt = numel(ctx_types_all);
-ctx_types_all = app.ops.context_types_all;
-num_tt = numel(app.ops.context_types_all);
+ctx_types_all = app.ops.context_types_all(1:30);
+num_tt = numel(ctx_types_all);
 num_trials = numel(pop_stim_times);
 num_trial_per_stim = round(sum(logical(sum(trial_types == (1:num_freqs),2)))/num_freqs);
 num_t = sum(num_baseline_resp_frames);
@@ -137,7 +137,7 @@ if strcmpi(peak_stats, 'shuff_pool') || strcmpi(peak_stats, 'shuff_locwise')
 %         end
         
         samp_idx = randsample(num_trials, num_trial_per_stim*num_samp, 1);
-        samp_trial_data_sort = mean(reshape(trial_data_sort_wctx(n_cell, :, samp_idx), [num_t, num_samp, num_trial_per_stim]),3)';
+        samp_trial_data_sort = mean(reshape(trial_data_sort_stat(n_cell, :, samp_idx), [num_t, num_samp, num_trial_per_stim]),3)';
         [samp_peak_vals(n_cell,:), samp_peak_locs(n_cell,:)] = f_get_trial_peak(samp_trial_data_sort, peak_bin_size);
 
         %fprintf('%d-', n_cell)

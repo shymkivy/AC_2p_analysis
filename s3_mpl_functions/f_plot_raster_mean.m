@@ -5,6 +5,7 @@ if ~exist('trial_ind', 'var') || isempty(trial_ind)
 else
     plot_tr_ind = 1;
 end
+
 if ~exist('plot_mean', 'var') || isempty(plot_mean)
     plot_mean = 0;
 else

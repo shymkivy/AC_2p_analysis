@@ -32,7 +32,7 @@ function ops = f_mpl_process_ops(ops)
 
 %%
 % added 260 and 160 for red sum
-ops.context_types_all= [1:10, 200+(1:7),150, 260, 170, 100+(1:7),250, 160, 270, 141:159, 0, 241:259, 0]';
+ops.context_types_all= [1:10, 200+(1:7),150, 260, 170, 100+(1:7),250, 160, 270, 141:159, 999, 241:259, 999]';
 ops.context_types_labels = cell(30,1);
 for ii = 1:10
     ops.context_types_labels{ii} = sprintf('Freq %d', ii);
@@ -110,7 +110,7 @@ ops.color_labels = {'A1',           [1 0 1];
 ops.cond_colors = {[1 0 1], [1 .6, .2], [.2 .8 .2], [0, .6, 1]};
 ops.cond_line_styles = {'-', '--', ':', '-.'};
 %ops.context_colors = {[0 0 0], [0 1 0], [1 0 1]};
-ops.context_colors = {[0 0 0], [0 0 1], [1 0 0]};
+ops.context_colors = {[.2 .2 .2], [0 0 1], [1 0 0]};
 
 ops.context_types_all_colors = zeros(30,1,3);
 ops.context_types_all_colors(1:10,:,:) = jet(10);

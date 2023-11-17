@@ -81,7 +81,7 @@ if app.MarginalizedistCheckBox.Value
             h1.FaceColor = [0.5 0.5 0.5];
             leg1{1} = h1;
             ymax = max([max(h1.Values), ymax]);
-            [f, xi] = ksdensity(features_pool2(resp_cells_pool2), 'Function', 'pdf', 'NumPoints', 200);
+            [f, xi] = ksdensity(features_pool2(resp_cells_pool2), 'Function', 'pdf', 'NumPoints', 200, 'Bandwidth', 0.02);
             idx1 = and(xi>plot_lims(1), xi<plot_lims(2));
             y1 = f/sum(f(idx1))/n_bins*sum(idx1);
             leg1{2} = plot(xi, y1, 'LineWidth', 2, 'color', 'k');

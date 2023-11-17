@@ -1,23 +1,49 @@
-function [lr_data2d, lr_data3d, residual_var, residual_var_pca] = f_dv_run_dred(data_all2, method, dist_metric)
+function [lr_data, residual_var, residual_var_pca, subtr_mean] = f_dv_run_dred(data_all2, params)
 
 max_comp = min(min(size(data_all2)), 10);
 
+if params.subtract_mean
+    subtr_mean = mean(data_all2,1);
+    data_all2 = data_all2 - subtr_mean;
+else
+    subtr_mean = 0;
+end
+
 % reconstruct: data_rec = score*coeff' + mu;
-[coeff,~,~,~,explained,~] = pca(data_all2);
+[coeff,score,~,~,explained,mu] = pca(data_all2);
+
+SS_pca = diag(score'*score);
+
+%datab = score*coeff';
 
 residual_var_pca = round(1 - cumsum(explained/100),4);
 
-lr_data2d_pca = coeff(:,1:2);
-lr_data3d_pca = coeff(:,1:3);
+if params.scale_by_var
+    coeff = coeff*diag(sqrt(SS_pca));
+end
 
-if strcmpi(method, 'pca')
-    lr_data2d = lr_data2d_pca;
-    lr_data3d = lr_data3d_pca;
+lr_data_pca = coeff;
+
+if strcmpi(params.method, 'pca')
+    lr_data = lr_data_pca;
     
     residual_var = residual_var_pca;
+elseif strcmpi(params.method, 'svd')
+    [U,S,V] = svd(data_all2);
     
-elseif strcmpi(method, 'isomap')
-    D = pdist2(data_all2', data_all2', dist_metric); % euclidean, cosine');
+    %datab = U * S * V';
+    if params.scale_by_var
+        V = V*diag(diag(S));
+    end
+
+    lr_data = V;
+    
+    SS = diag(S).^2;
+    explained = SS/sum(SS);
+    residual_var = round(1 - cumsum(explained),4);
+    
+elseif strcmpi(params.method, 'isomap')
+    D = pdist2(data_all2', data_all2', params.dist_metric); % euclidean, cosine');
 
     % [Y, R, E] = Isomap(D, n_fcn, n_size, options); 
     %    D = N x N matrix of distances (where N is the number of data points)
@@ -34,8 +60,7 @@ elseif strcmpi(method, 'isomap')
     %[mappedX, mapping] = isomap(data_all2, 2); 
     %figure; plot(mappedX(:,1), mappedX(:,2), 'o')
     
-    lr_data2d = Y.coords{2}';
-    lr_data3d = Y.coords{3}';
+    lr_data = Y.coords{end}';
 end
 
 end
