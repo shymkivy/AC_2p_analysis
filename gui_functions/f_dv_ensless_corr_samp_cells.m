@@ -14,10 +14,10 @@ hc_params.num_clust = 1;
 resp_type = app.ResposivecellstypeDropDown.Value;
 resp_selection = app.ResponsivecellsselectDropDown.Value;
 
-samp_range_min = 4;
-samp_range_max = 30;
-samp_interv = 3;
-num_samp = 10;
+samp_range_min = app.samprangeminEditField.Value;
+samp_range_max = app.samprangemaxEditField.Value;
+samp_interv = app.samprangeintervEditField.Value;
+num_samp = app.sampnumEditField.Value;
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 num_dsets = size(data,1);
@@ -27,7 +27,7 @@ tn_all = f_dv_get_trial_number(app);
 num_tn = numel(tn_all);
 trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
 
-if equalize_tn_cell_samp
+if equalize_tn_cell_samp % sampling from cells from every tn separately, in equal amounts, and then combining.. limited by red tn size
     samp_range_min = round(samp_range_min/num_tn);
     samp_range_max = round(samp_range_max/num_tn);
     samp_interv = round(samp_interv/num_tn);
@@ -42,10 +42,10 @@ for n_dset = 1:num_dsets
     ddata = data(n_dset,:);
     [cdata, stats1] = f_dv_get_new_cdata_stats(app, ddata, params);
     params.cdata = cdata;
-    
+    mmn_freq = ddata.MMN_freq{1};
+
     firing_rate = cat(1,cdata.S_sm);
-    num_cells = sum([cdata.num_cells]);
-    
+
     resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn_all);
    
     resp_cells_split = f_dv_get_resp_vals_cells(app, stats1, tn_all, resp_type, 'resp split');
@@ -55,24 +55,28 @@ for n_dset = 1:num_dsets
     [~, trial_frames] = f_dv_compute_window_t(trial_window, app.ddata.proc_data{1}.frame_data.volume_period_ave);
     trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_frames);
     
-    if ~isempty(ddata.MMN_freq{1})
-        [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, ddata.MMN_freq{1}, app.ops);
+    if ~isempty(mmn_freq)
+        trial_types_ctx2 = f_dv_mark_tt_ctx(trial_types, mmn_freq, app.ops);
+        trial_types_all = [trial_types, trial_types_ctx2];
     else
-        trial_data_sort_wctx = trial_data_sort;
-        trial_types_wctx = trial_types;
+        trial_types_all = trial_types;
+    end
+
+    if equalize_tn_cell_samp
+        num_cells_tn = sum(resp_cells_split,1);
+        min_num_cells = min(num_cells_tn);
+        [resp_cell_split2,tn_idx] = find(resp_cells_split);
     end
 
     for n_tn = 1:num_tn
-        tr_idx = trial_types_wctx == app.ops.context_types_all(tn_all(n_tn));
-        tr_data = trial_data_sort_wctx(:,:,tr_idx);
+
+        tr_idx = logical(sum(app.ops.context_types_all(tn_all(n_tn)) == trial_types_all,2));
+        tr_data = trial_data_sort(:,:,tr_idx);
         
         resp_cells2 = find(resp_cells(:, n_tn));
-        min_num_cells = sum(resp_cells(:, n_tn));
         
-        if equalize_tn_cell_samp
-            num_cells_tn = sum(resp_cells_split,1);
-            min_num_cells = min(num_cells_tn);
-            [resp_cell_split2,tn_idx] = find(resp_cells_split);
+        if ~equalize_tn_cell_samp
+            min_num_cells = sum(resp_cells(:, n_tn));
         end
 
         [num_cells2, ~, num_tr] = size(tr_data);
@@ -95,7 +99,7 @@ for n_dset = 1:num_dsets
                     if equalize_tn_cell_samp
                         samp_cell2 = cell(num_tn,1);
                         for n_tn2 = 1:num_tn
-                            resp_cell_split3 = resp_cell_split2(tn_idx==n_tn2);
+                            resp_cell_split3 = find(resp_cells_split(:,n_tn2));
                             samp_cell2{n_tn2} = randsample(resp_cell_split3, samp_range(n_range));
                         end
                         samp_cells = unique(cat(1, samp_cell2{:}));

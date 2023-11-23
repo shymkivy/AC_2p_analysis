@@ -32,7 +32,6 @@ else
         stim_times = ddata.stim_frame_index{1};
         mmn_freq = ddata.MMN_freq{1};
         
-
         trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
         [~, trial_frames] = f_dv_compute_window_t(trial_window, cdata(1).volume_period);
 

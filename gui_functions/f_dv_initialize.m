@@ -158,4 +158,6 @@ app.statsbetweenDropDown.Items = {'Combined', 'Mouse', 'Dset', 'Subdset'};
 
 app.NumplotaxesDropDown.Items = {'2', '3'};
 
+app.corr2metricsDropDown.Items = {'cosine', 'cosine_from_mean', 'std_from_0', 'std_from_mean'};
+
 end
