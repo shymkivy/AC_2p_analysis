@@ -8,7 +8,7 @@ addpath(genpath('C:\Users\ys2605\Desktop\stuff\caiman_sorter\caiman_sorter_funct
 ops = struct();
 ops = f_cs_collect_ops_loop(ops);
 
-data_type = 3;
+data_type = 2;
 
 if data_type == 1
     data_dir = 'F:\AC_data\caiman_data_dream';
@@ -106,9 +106,9 @@ for n_fl = 1:num_files
     
     f_sort_path = [data_dir '\' f_core '_sort.mat'];
     
-    updates = 1;
+    updates = 0;
     
-    if 0%exist(f_sort_path, 'file')
+    if exist(f_sort_path, 'file')
         fprintf('%d/%d Updating %s... sort\n', n_fl, num_files, f_core);
         load_data = load(f_sort_path);
         est = load_data.est;

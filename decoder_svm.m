@@ -1,4 +1,4 @@
-function [trainedClassifier, validationAccuracy] = decoder_svm(trainingData, responseData, do_pca)
+function [trainedClassifier, validationAccuracy, acc_by_class] = decoder_svm(trainingData, responseData, do_pca)
 % [trainedClassifier, validationAccuracy] = trainClassifier(trainingData,
 % responseData)
 % Returns a trained classifier and its accuracy. This code recreates the
@@ -58,8 +58,7 @@ predictorNames = inputTable.Properties.VariableNames;
 classNames = unique(responseData);
 
 [num_tr, num_cells] = size(trainingData);
-
-response = responseData;
+num_class = numel(classNames);
 
 if do_pca
     % Apply a PCA to the predictor matrix.
@@ -118,15 +117,15 @@ trainedClassifier.HowToPredict = sprintf('To make predictions on a new predictor
 
 % Perform cross-validation
 KFolds = 5;
-cvp = cvpartition(response, 'KFold', KFolds);
+cvp = cvpartition(responseData, 'KFold', KFolds);
 % Initialize the predictions to the proper sizes
-validationPredictions = response;
+validationPredictions = responseData;
 numObservations = size(predictors, 1);
-numClasses = 10;
-validationScores = NaN(numObservations, numClasses);
+
+validationScores = NaN(numObservations, num_class);
 for fold = 1:KFolds
     trainingPredictors = predictors(cvp.training(fold), :);
-    trainingResponse = response(cvp.training(fold), :);
+    trainingResponse = responseData(cvp.training(fold), :);
 
     % Apply a PCA to the predictor matrix.
     % Run PCA on numeric predictors only. Categorical predictors are passed through PCA untouched.
@@ -180,7 +179,16 @@ for fold = 1:KFolds
 end
 
 % Compute validation accuracy
-correctPredictions = (validationPredictions == response);
-isMissing = isnan(response);
+correctPredictions = (validationPredictions == responseData);
+isMissing = isnan(responseData);
 correctPredictions = correctPredictions(~isMissing);
 validationAccuracy = sum(correctPredictions)/length(correctPredictions);
+
+acc_by_class = zeros(num_class, 1);
+for n_class = 1:num_class
+    idx1 = classNames(n_class) == responseData;
+    correctPredictions2 = (validationPredictions(idx1) == responseData(idx1));
+    acc_by_class(n_class) = sum(correctPredictions2)/length(correctPredictions2);
+end
+
+end

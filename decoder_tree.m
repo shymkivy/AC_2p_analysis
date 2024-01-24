@@ -1,4 +1,4 @@
-function [trainedClassifier, validationAccuracy] = decoder_tree(trainingData, responseData)
+function [trainedClassifier, validationAccuracy, acc_by_class] = decoder_tree(trainingData, responseData)
 % [trainedClassifier, validationAccuracy] = trainClassifier(trainingData,
 % responseData)
 % Returns a trained classifier and its accuracy. This code recreates the
@@ -56,6 +56,7 @@ inputTable = array2table(trainingData);
 predictorNames = inputTable.Properties.VariableNames;
 
 classNames = unique(responseData);
+num_class = numel(classNames);
 
 % Train a classifier
 % This code specifies all the classifier options and trains the classifier.
@@ -84,4 +85,21 @@ partitionedModel = crossval(trainedClassifier.ClassificationTree, 'KFold', 5);
 [validationPredictions, validationScores] = kfoldPredict(partitionedModel);
 
 % Compute validation accuracy
-validationAccuracy = 1 - kfoldLoss(partitionedModel, 'LossFun', 'ClassifError');
+%validationAccuracy = 1 - kfoldLoss(partitionedModel, 'LossFun', 'ClassifError');
+
+correctPredictions = (validationPredictions == responseData);
+isMissing = isnan(responseData);
+correctPredictions = correctPredictions(~isMissing);
+validationAccuracy = sum(correctPredictions)/length(correctPredictions);
+
+acc_by_class = zeros(num_class, 1);
+for n_class = 1:num_class
+    idx1 = classNames(n_class) == responseData;
+    correctPredictions2 = (validationPredictions(idx1) == responseData(idx1));
+    acc_by_class(n_class) = sum(correctPredictions2)/length(correctPredictions2);
+end
+
+
+
+end
+

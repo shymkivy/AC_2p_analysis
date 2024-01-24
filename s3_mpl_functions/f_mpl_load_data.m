@@ -48,6 +48,7 @@ for n_dset = 1:num_dset
             idx_acc(temp_data1.proc.idx_manual) = 1;
             temp_data1.est = if_cut_bad_comp(temp_data1.est, idx_acc);
             temp_data1.proc = if_cut_bad_comp(temp_data1.proc, idx_acc);
+            temp_data1.proc.idx_cell_acc = idx_acc;
             temp_data1.proc.deconv.smooth_dfdt = if_cut_bad_comp(temp_data1.proc.deconv.smooth_dfdt, idx_acc);
             if isfield(temp_data1.proc.deconv, 'df_f')
                 temp_data1.proc.deconv.df_f = if_cut_bad_comp(temp_data1.proc.deconv.df_f, idx_acc);
