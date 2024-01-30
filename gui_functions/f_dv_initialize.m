@@ -152,12 +152,15 @@ app.DeconvolutionmethodDropDown.Items = {'smooth_dfdt'};
 app.regdatatouseDropDown.Items = {'gui reg', 'caiman reg'};
 
 app.DimredmethodDropDown.Items = {'isomap', 'pca', 'svd'};
-app.LDdistmethodDropDown.Items = {'cosine', 'euclidean', 'correlation', 'hamming', 'jaccard'};
+app.DistmethodDropDown.Items = {'cosine', 'euclidean', 'correlation', 'hamming', 'jaccard'};
+app.DistreferenceDropDown.Items = {'pairwise', 'zero', 'trial ave'};
 
 app.statsbetweenDropDown.Items = {'Combined', 'Mouse', 'Dset', 'Subdset'};
 
 app.NumplotaxesDropDown.Items = {'2', '3'};
 
-app.corr2metricsDropDown.Items = {'cosine', 'cosine_from_mean', 'std_from_0', 'std_from_mean'};
+app.ColormapDropDown.Items = {'gray', 'parula', 'jet', 'turbo'};
+
+app.MattridataplotDropDown.Items = {'LTri', 'UTri', 'Full'};
 
 end

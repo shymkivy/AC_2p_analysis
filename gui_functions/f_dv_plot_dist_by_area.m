@@ -39,16 +39,18 @@ legend_all = {};
 plot_lims = f_str_to_array(app.plot_BaserespwinEditField.Value);
 n_bins = ceil(diff(plot_lims)/data.cdata{1}.volume_period*1000);
 figure; hold on; axis tight;
-if app.PlotstimCheckBox.Value
-    plot_times = 0:1:plot_lims(2);
-    for n_pl = 1:numel(plot_times)
-        r1 = rectangle('Position', [plot_times(n_pl) 0 0.5 1]);
-        if strcmpi(app.ops.experiment_type, 'missmatch_grating')
-            r1.FaceColor = [app.ops.context_types_all_colors2{freq_col} transp]; % +(n_pl-1)*2
-            r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col} transp]; % +(n_pl-1)*2
-        else
-            r1.FaceColor = [app.ops.context_types_all_colors2{freq_col+(n_pl-1)*2} transp]; 
-            r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col+(n_pl-1)*2} transp]; 
+if ~strcmpi(app.plottypeDropDown.Value, 'ecdf')
+    if app.PlotstimCheckBox.Value
+        plot_times = 0:1:plot_lims(2);
+        for n_pl = 1:numel(plot_times)
+            r1 = rectangle('Position', [plot_times(n_pl) 0 0.5 1]);
+            if strcmpi(app.ops.experiment_type, 'missmatch_grating')
+                r1.FaceColor = [app.ops.context_types_all_colors2{freq_col} transp]; % +(n_pl-1)*2
+                r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col} transp]; % +(n_pl-1)*2
+            else
+                r1.FaceColor = [app.ops.context_types_all_colors2{freq_col+(n_pl-1)*2} transp]; 
+                r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col+(n_pl-1)*2} transp]; 
+            end
         end
     end
 end
@@ -99,7 +101,7 @@ for n_reg = 1:num_reg
             feat_pool{n_reg, n_tn} = features4(sel_cells4);
             lab_pool{n_reg, n_tn} = repmat(n_reg*100+tn1(n_tn), sum(sel_cells4),1);
             if sum(sel_cells4)
-                legend_all = [legend_all, {[reg_all{n_reg} ' ' app.ops.context_types_labels_trim{tn1(n_tn)}]}];
+                legend_all = [legend_all, {[reg_all{n_reg} ' ' app.ops.context_types_labels_trim2{tn1(n_tn)}]}];
                 color2 = app.ops.context_types_all_colors2{tn1(n_tn)};
                 linestyles2 = app.ops.cond_line_styles{n_reg};
                 if strcmpi(app.plottypeDropDown.Value, 'kde')
@@ -109,6 +111,7 @@ for n_reg = 1:num_reg
                     plot(xi, y1, 'color', color2, 'LineWidth', 2, 'LineStyle', linestyles2);
                 elseif strcmpi(app.plottypeDropDown.Value, 'ecdf')
                     [f, xi] = ecdf(features4(sel_cells4));
+                    ymax = 1;
                     plot(xi, f, 'color', color2, 'LineWidth', 2, 'LineStyle', linestyles2);
                 elseif strcmpi(app.plottypeDropDown.Value, 'histogram')
                     histogram(features2(sel_cells2), linspace(plot_lims(1),plot_lims(2),n_bins), 'Normalization', 'probability');

@@ -4,7 +4,7 @@ mean_win = [.1 .9];
 samp_start = 5;
 samp_interval = 5;
 samp_max = 40;
-dist_metric = app.LDdistmethodDropDown.Value; % pca isomap
+dist_metric = app.DistmethodDropDown.Value; % pca isomap
 
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);

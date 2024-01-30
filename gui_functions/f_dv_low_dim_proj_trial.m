@@ -34,7 +34,7 @@ hasnan1 = logical(sum(isnan(data_all2),2));
 data_all2 = data_all2(~hasnan1,:);
 
 params.method = app.DimredmethodDropDown.Value;
-params.dist_metric = app.LDdistmethodDropDown.Value;
+params.dist_metric = app.DistmethodDropDown.Value;
 params.subtract_mean = app.subtractmeanCheckBox.Value;
 params.scale_by_var = app.scalebyvarCheckBox.Value;
 params.plot_subtrat_mean = app.plotsubmeanCheckBox.Value;

@@ -120,7 +120,10 @@ z_ylim_min = 0;
 y_lim_max = 0;
 y_lim_min = 0;
 
-title_tag3 = sprintf('%s; %s reg; %s', title_tag, reg_tag, tt_input);
+title_tag3 = sprintf('%s; %s; %s', title_tag, app.ResponsivecellsselectDropDown.Value, tt_input);
+if app.ConverttoZCheckBox.Value
+    title_tag3 = sprintf('%s; Z', title_tag3);
+end
 
 onset_win = params.stats.onset_resp_win;
 offset_win = params.stats.offset_resp_win;

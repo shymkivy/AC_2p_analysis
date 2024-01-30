@@ -37,4 +37,15 @@ f_dv_compute_cdata_all(app)
 
 %% additional 
 f_dv_initialize_post_load(app);
+
+%% load more
+if app.automatCheckBox.Value
+    f_dv_load_mat_data(app);
+end
+if app.autoregCheckBox.Value
+    f_dv_load_reg_data(app);
+end
+
+%%
+f_dv_load_dset_from_data(app);
 end

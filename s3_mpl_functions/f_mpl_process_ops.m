@@ -40,25 +40,46 @@ end
 for ii = 1:7
     ops.context_types_labels{ii+10} = sprintf('Redf %d', ii);
 end
-ops.context_types_labels{18} = 'Cont';
-ops.context_types_labels{19} = 'RedF pool';
-ops.context_types_labels{20} = 'Dev';
+% ops.context_types_labels{18} = 'Cont';
+% ops.context_types_labels{19} = 'RedF pool';
+% ops.context_types_labels{20} = 'Dev';
+
+ops.context_types_labels{18} = 'Cont f1';
+ops.context_types_labels{19} = 'Red f1';
+ops.context_types_labels{20} = 'Dev f1';
+
 for ii = 1:7
     ops.context_types_labels{ii+20} = sprintf('red %d', ii);
 end
-ops.context_types_labels{28} = 'ContF';
-ops.context_types_labels{29} = 'Red pool';
-ops.context_types_labels{30} = 'DevF';
+% ops.context_types_labels{28} = 'ContF';
+% ops.context_types_labels{29} = 'Red pool';
+% ops.context_types_labels{30} = 'DevF';
+
+ops.context_types_labels{28} = 'Cont f2';
+ops.context_types_labels{29} = 'Red f2';
+ops.context_types_labels{30} = 'Dev f2';
+
 
 ops.context_types_labels_trim = ops.context_types_labels;
 
-ops.context_types_labels_trim{18} = 'Cont';
-ops.context_types_labels_trim{19} = 'Red pool';
-ops.context_types_labels_trim{20} = 'Dev';
+ops.context_types_labels_trim{18} = 'Cf1';
+ops.context_types_labels_trim{19} = 'Rf1';
+ops.context_types_labels_trim{20} = 'Df1';
 
-ops.context_types_labels_trim{28} = 'Cont';
-ops.context_types_labels_trim{29} = 'Red pool';
-ops.context_types_labels_trim{30} = 'Dev';
+ops.context_types_labels_trim{28} = 'Cf2';
+ops.context_types_labels_trim{29} = 'Rf2';
+ops.context_types_labels_trim{30} = 'Df2';
+
+ops.context_types_labels_trim2 = ops.context_types_labels;
+
+ops.context_types_labels_trim2{18} = 'Cont';
+ops.context_types_labels_trim2{19} = 'Red';
+ops.context_types_labels_trim2{20} = 'Dev';
+
+ops.context_types_labels_trim2{28} = 'Cont';
+ops.context_types_labels_trim2{29} = 'Red';
+ops.context_types_labels_trim2{30} = 'Dev';
+
 
 %% subplots dimensions
 if numel(ops.regions_to_analyze) == 1

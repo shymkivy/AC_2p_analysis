@@ -1,6 +1,6 @@
 function f_dv_low_dim_distances(app)
 
-dist_metric = app.LDdistmethodDropDown.Value; % pca isomap
+dist_metric = app.DistmethodDropDown.Value; % pca isomap
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 

@@ -1,7 +1,7 @@
 function f_dv_low_dim_proj_cell(app)
 
 method = app.DimredmethodDropDown.Value;
-dist_metric = app.LDdistmethodDropDown.Value; % pca isomap
+dist_metric = app.DistmethodDropDown.Value; % pca isomap
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 

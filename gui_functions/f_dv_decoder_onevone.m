@@ -1,6 +1,6 @@
 function f_dv_decoder_onevone(app)
 
-decoder_type = 'bayes'; % tree, svm, bayes
+decoder_type = 'tree'; % tree, svm, bayes
 by_frame = 1;
 
 tn_all = f_dv_get_trial_number(app);

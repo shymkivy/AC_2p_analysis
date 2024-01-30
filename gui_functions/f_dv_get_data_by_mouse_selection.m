@@ -1,4 +1,4 @@
-function [data, title_tag] = f_dv_get_data_by_mouse_selection(app)
+function [data, title_tag1] = f_dv_get_data_by_mouse_selection(app)
 
 button_text = app.SelectdatagroupDropDown.Value;
 
@@ -23,5 +23,7 @@ elseif strcmpi(button_text, 'all')
 end
 
 data = app.data(idx_data,:);
+
+title_tag1 = sprintf('%s; %s', data.paradigm{1}, title_tag);
 
 end

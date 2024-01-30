@@ -36,16 +36,18 @@ plot_lims = f_str_to_array(app.plot_BaserespwinEditField.Value);
 n_bins = ceil(diff(plot_lims)/data.cdata{1}.volume_period*1000);
 figure; hold on; axis tight;
 
-if app.PlotstimCheckBox.Value
-    plot_times = 0:1:plot_lims(2);
-    for n_pl = 1:numel(plot_times)
-        r1 = rectangle('Position', [plot_times(n_pl) 0 0.5 1]);
-        if strcmpi(app.ops.experiment_type, 'missmatch_grating')
-            r1.FaceColor = [app.ops.context_types_all_colors2{freq_col} transp]; % +(n_pl-1)*2
-            r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col} transp]; % +(n_pl-1)*2
-        else
-            r1.FaceColor = [app.ops.context_types_all_colors2{freq_col+(n_pl-1)*2} transp]; 
-            r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col+(n_pl-1)*2} transp]; 
+if ~strcmpi(app.plottypeDropDown.Value, 'ecdf')
+    if app.PlotstimCheckBox.Value
+        plot_times = 0:1:plot_lims(2);
+        for n_pl = 1:numel(plot_times)
+            r1 = rectangle('Position', [plot_times(n_pl) 0 0.5 1]);
+            if strcmpi(app.ops.experiment_type, 'missmatch_grating')
+                r1.FaceColor = [app.ops.context_types_all_colors2{freq_col} transp]; % +(n_pl-1)*2
+                r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col} transp]; % +(n_pl-1)*2
+            else
+                r1.FaceColor = [app.ops.context_types_all_colors2{freq_col+(n_pl-1)*2} transp]; 
+                r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col+(n_pl-1)*2} transp]; 
+            end
         end
     end
 end

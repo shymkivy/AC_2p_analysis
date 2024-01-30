@@ -1,7 +1,7 @@
 function f_dv_low_dim_proj_full_data(app)
 
 method = app.DimredmethodDropDown.Value;
-dist_metric = app.LDdistmethodDropDown.Value;
+dist_metric = app.DistmethodDropDown.Value;
 
 cdata = f_dv_get_cdata(app);
 

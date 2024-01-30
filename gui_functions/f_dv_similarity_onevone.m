@@ -1,6 +1,6 @@
 function f_dv_similarity_onevone(app)
 
-dist_metric = app.LDdistmethodDropDown.Value; % pca isomap
+dist_metric = app.DistmethodDropDown.Value; % pca isomap
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 
@@ -11,14 +11,17 @@ else
 end
 
 num_dsets = size(data,1);
-
 tn_all = f_dv_get_trial_number(app);
+num_tn = numel(tn_all);
 
 %num_cont = 8;
 %tn_all = [1:num_cont 18 19 20 28 29 30]; %f_dv_get_trial_number(app);
 
-title_tag1 = sprintf('%s; dist %s', title_tag, dist_metric);
-
+if app.dosimilarityCheckBox.Value
+    method_tag1 = sprintf('%s similarity', dist_metric);
+else
+    method_tag1 = sprintf('%s distance', dist_metric);
+end
 
 data_all = cell(num_dsets,1);
 cell_dset_idx = cell(num_dsets,1);
@@ -46,51 +49,73 @@ data_all2 = cat(1,data_all{:});
 hasnan1 = logical(sum(isnan(data_all2),2));
 data_all2 = data_all2(~hasnan1,:);
 
+num_cells = size(data_all2,1);
+
+data_all2_shuff = zeros(num_cells, num_tn);
+for n_cell = 1:num_cells
+    idx_sh = randsample(6,6, false);
+    data_all2_shuff(n_cell,:) = data_all2(n_cell,idx_sh);
+end
+
 cell_dset_idx2 = cat(1, cell_dset_idx{:});
 cell_dset_idx2 = cell_dset_idx2(~hasnan1);
 
 dist2 = squareform(pdist(data_all2', dist_metric));
 
-dist3 = tril(dist2);
+%dist2_sh = squareform(pdist(data_all2_shuff', dist_metric));
+
+dist3 = if_get_mat_plot_data(dist2, app.MattridataplotDropDown.Value);
+
+if app.dosimilarityCheckBox.Value
+    dist4 = 1-dist3;
+else
+    dist4 = dist3;
+end
 
 figure;
-imagesc(dist3);
-axis square
-set(gca,'xtick',1:4,'xticklabel',app.ops.context_types_labels(tn_all))
-set(gca,'ytick',1:4,'yticklabel',app.ops.context_types_labels(tn_all))
-title(sprintf('full dist; %s', title_tag1))
+imagesc(dist4);
+axis square;
+set(gca,'xtick',1:num_tn,'xticklabel',app.ops.context_types_labels(tn_all));
+set(gca,'ytick',1:num_tn,'yticklabel',app.ops.context_types_labels(tn_all));
 colorbar;
-colormap('gray')
+colormap(app.ColormapDropDown.Value)
+title(sprintf('full %s; %s', method_tag1, title_tag), 'interpreter', 'none');
 
 n_pairs = nchoosek(numel(tn_all),2);
 
-idx_data = find(triu(squareform(pdist([1:numel(tn_all)]', 'euclidean')))>0);
+idx_data = find(triu(squareform(pdist((1:numel(tn_all))', 'euclidean')))>0);
 [row,col] = ind2sub([numel(tn_all),numel(tn_all)], idx_data);
-pairs = [row, col];
+%pairs = [row, col];
 
-
-dist_all = zeros(num_dsets,n_pairs);
+dist_all = zeros(num_dsets, n_pairs);
 sq_all = zeros(numel(tn_all), numel(tn_all), num_dsets);
+dist_all_sh = zeros(num_dsets, n_pairs);
+sq_all_sh = zeros(numel(tn_all), numel(tn_all), num_dsets);
+
 for n_dset = 1:num_dsets
     idx1 = cell_dset_idx2 == n_dset;
-    data_all3 = data_all2(idx1,:);
-    
-    dist2 = squareform(pdist(data_all3', dist_metric));
-    dist_all(n_dset,:) = dist2(idx_data);
 
-    sq_all(:,:, n_dset) = tril(dist2);
+    [dist3, dist3_th] = if_get_dist(data_all2(idx1,:), dist_metric, app.dosimilarityCheckBox.Value, app.MattridataplotDropDown.Value);
+
+    dist_all(n_dset,:) = dist3(idx_data);
+    sq_all(:,:, n_dset) = dist3_th;
+
+    [dist3_sh, dist3_sh_th] = if_get_dist(data_all2_shuff(idx1,:), dist_metric, app.dosimilarityCheckBox.Value, app.MattridataplotDropDown.Value);
+
+    dist_all_sh(n_dset,:) = dist3_sh(idx_data);
+    sq_all_sh(:,:, n_dset) = dist3_sh_th;
+
 end
 
 % normalize euqlidean
 if strcmpi(dist_metric, 'euclidean')
     dist_all = dist_all./sqrt(num_cells_all)*sqrt(mean(num_cells_all));
-    ylab = 'normalized euclidean distance';
+    ylab = sprintf('normalized %s', method_tag1);
 else
-    ylab = sprintf('%s distance', dist_metric);
+    ylab = sprintf('%s', method_tag1);
 end
 
-
-labels1 = app.ops.context_types_labels(tn_all);
+labels1 = app.ops.context_types_labels_trim(tn_all);
 legend1 = cell(numel(row),1);
 for n_pair = 1:numel(row)
     legend1{n_pair} = sprintf('%s-%s', labels1{row(n_pair)}, labels1{col(n_pair)});
@@ -98,23 +123,23 @@ end
 
 figure;
 imagesc(mean(sq_all,3));
-axis square
-set(gca,'xtick',1:4,'xticklabel',app.ops.context_types_labels(tn_all))
-set(gca,'ytick',1:4,'yticklabel',app.ops.context_types_labels(tn_all))
-title(sprintf('mean dist; %s', title_tag1))
+axis square;
+set(gca,'xtick',1:num_tn,'xticklabel',app.ops.context_types_labels(tn_all));
+set(gca,'ytick',1:num_tn,'yticklabel',app.ops.context_types_labels(tn_all));
 colorbar;
-colormap('gray')
+colormap(app.ColormapDropDown.Value);
+title(sprintf('mean %s; %s', method_tag1, title_tag), 'interpreter', 'none');
 
-x_noise1 = (rand(size(dist_all))-0.5)/5 + [1:n_pairs];
+x_noise1 = (rand(size(dist_all))-0.5)/5 + (1:n_pairs);
 figure;
 hold on;
-plot(x_noise1', dist_all', '.', color=[.7 .7 .7])
-plot(mean(dist_all,1), '_', color='black', linewidth=2, markersize=15)
-errorbar([1:n_pairs], mean(dist_all,1), std(dist_all, [], 1)/sqrt(num_dsets-1), '.', color='black', linewidth=1, markersize=10);
-title(sprintf('%s', title_tag1));
+plot(x_noise1', dist_all', '.', color=[.7 .7 .7]);
+plot(mean(dist_all,1), '_', color='black', linewidth=2, markersize=15);
+errorbar((1:n_pairs), mean(dist_all,1), std(dist_all, [], 1)/sqrt(num_dsets-1), '.', color='black', linewidth=1, markersize=10);
+xlim([0, n_pairs+1]);
 ylabel(ylab);
 set(gca,'xtick',1:n_pairs,'xticklabel',legend1);
-
+title(sprintf('%s; %s', title_tag, method_tag1), 'interpreter', 'none');
 
 
 % 
@@ -502,5 +527,33 @@ set(gca,'xtick',1:n_pairs,'xticklabel',legend1);
 %         end
 %     end
 % end
+
+end
+
+function [dist3, dist3_th] = if_get_dist(data, dist_metric, do_similarity, mat_plot_type)
+
+dist2 = squareform(pdist(data', dist_metric));
+dist2_tr = if_get_mat_plot_data(dist2, mat_plot_type);
+
+if do_similarity
+    dist3 = 1-dist2;
+    dist3_th = 1-dist2_tr;
+else
+    dist3 = dist2;
+    dist3_th = dist2_tr;
+end
+
+end
+
+
+function data_out = if_get_mat_plot_data(data_in, mat_plot_type)
+
+if strcmpi(mat_plot_type, 'LTri')
+    data_out = tril(data_in);
+elseif strcmpi(mat_plot_type, 'UTri')
+    data_out = triu(data_in);
+elseif strcmpi(mat_plot_type, 'Full')
+    data_out = data_in;
+end
 
 end

@@ -1,10 +1,11 @@
 function f_dv_decoder_onevall(app)
 
-decoder_type = 'bayes'; % tree, svm, bayes
-by_frame = 1;
+decoder_type = 'svm'; % tree, svm, bayes
+
+trial_num_selection = 'min'; % all, median, mean, min
 
 tn_all = f_dv_get_trial_number(app);
-tt_all = app.ops.context_types_all(tn_all)';
+%tt_all = app.ops.context_types_all(tn_all)';
 [num_gr, num_tn] = size(tn_all);
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
@@ -17,7 +18,6 @@ reg_all = app.ops.regions_to_analyze;
 
 ddata = data(1,:);
 [cdata, ~] = f_dv_get_new_cdata_stats(app, ddata, params);
-
 
 trial_window = [-1, 3];
 [plot_t, trial_frames] = f_dv_compute_window_t(trial_window, cdata(1).volume_period);
@@ -103,8 +103,17 @@ for n_dset = 1:num_dsets
                 trial_types2 = cat(1, trial_types2c{:});
                 trial_data_sort2 = cat(3,trial_data_sort2c{:});
                 
-                max_tr = median(sum(trial_types2 == app.ops.context_types_all(tn1)',1));
-                
+                trial_counts = sum(trial_types2 == app.ops.context_types_all(tn1)',1);
+                if strcmpi(trial_num_selection, 'all')
+                    max_tr = max(trial_counts);
+                elseif strcmpi(trial_num_selection, 'mean')
+                    max_tr = round(mean(trial_counts));
+                elseif strcmpi(trial_num_selection, 'median')
+                    max_tr = round(defian(trial_counts));
+                elseif strcmpi(trial_num_selection, 'min')
+                    max_tr = round(min(trial_counts));
+                end
+
                 trial_types3c = cell(num_tn,1);
                 trial_data_sort3c = cell(num_tn,1);
                 for n_tt = 1:num_tn
@@ -137,36 +146,28 @@ for n_dset = 1:num_dsets
                     trial_data_sort4n = trial_data_sort4n/std(trial_data_sort4n(:));
                 
                     if strcmpi(decoder_type, 'tree')
-                        [trainedClassifier_tree, dec_acc_frames(n_dset,n_fr,n_gr,n_reg), dec_acc_frames_bycl(n_dset,n_fr,n_gr,n_reg,:)] = decoder_tree(trial_data_sort4n', trial_types4);
-                        [trainedClassifier_tree_shuff, dec_acc_frames_shuff(n_dset,n_fr,n_gr,n_reg), dec_acc_frames_bycl_shuff(n_dset,n_fr,n_gr,n_reg,:)] = decoder_tree(trial_data_sort4n', trial_types4_shuff);
+                        dec_out = decoder_tree(trial_data_sort4n', trial_types4);
+                        dec_out_shuff = decoder_tree(trial_data_sort4n', trial_types4_shuff);
                     elseif strcmpi(decoder_type, 'bayes')
-                        [trainedClassifier_bayes, dec_acc_frames(n_dset,n_fr,n_gr,n_reg), dec_acc_frames_bycl(n_dset,n_fr,n_gr,n_reg,:)] = decoder_naivebayes(trial_data_sort4n', trial_types4);
-                        [trainedClassifier_bayes_shuff, dec_acc_frames_shuff(n_dset,n_fr,n_gr,n_reg), dec_acc_frames_bycl_shuff(n_dset,n_fr,n_gr,n_reg,:)] = decoder_naivebayes(trial_data_sort4n', trial_types4_shuff);
+                        dec_out = decoder_naivebayes(trial_data_sort4n', trial_types4);
+                        dec_out_shuff = decoder_naivebayes(trial_data_sort4n', trial_types4_shuff);
                     elseif strcmpi(decoder_type, 'svm')
-                        [trainedClassifier_svm, dec_acc_frames(n_dset,n_fr,n_gr,n_reg), dec_acc_frames_bycl(n_dset,n_fr,n_gr,n_reg,:)] = decoder_svm(trial_data_sort4n', trial_types4, 1);
-                        [trainedClassifier_svm_shuff, dec_acc_frames_shuff(n_dset,n_fr,n_gr,n_reg), dec_acc_frames_bycl_shuff(n_dset,n_fr,n_gr,n_reg,:)] = decoder_svm(trial_data_sort4n', trial_types4_shuff, 1);
+                        dec_out = decoder_svm(trial_data_sort4n', trial_types4, 1);
+                        dec_out_shuff = decoder_svm(trial_data_sort4n', trial_types4_shuff, 1);
                     end
+
+                    dec_acc_frames(n_dset,n_fr,n_gr,n_reg) = dec_out.validationAccuracy;
+                    dec_acc_frames_bycl(n_dset,n_fr,n_gr,n_reg,:) = dec_out.acc_by_class;
+                    dec_acc_frames_shuff(n_dset,n_fr,n_gr,n_reg) = dec_out_shuff.validationAccuracy;
+                    dec_acc_frames_bycl_shuff(n_dset,n_fr,n_gr,n_reg,:) = dec_out_shuff.acc_by_class;
                 end
                 
-                % % mv regression
-                % MnrModel_cont = fitmnr(trial_data_sort3n', trial_types2);
-                % 
-                % 
-                % [d,p,stats] = manova1(trial_data_sort3n', trial_types2);
-                % 
-                % load fisheriris
-                % 
-                % MnrModel = fitmnr(meas,species);
-                % MnrModel.Coefficients
-            
-                % beta = mvregress(X,Y)
             end
         end
     end  
 end
 
-fprintf('\n doned \n');
-
+fprintf('\n done \n');
 
 
 for n_gr = 1:num_gr

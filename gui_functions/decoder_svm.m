@@ -1,4 +1,4 @@
-function [trainedClassifier, validationAccuracy, acc_by_class] = decoder_svm(trainingData, responseData, do_pca)
+function dec_out = decoder_svm(trainingData, responseData, do_pca)
 % [trainedClassifier, validationAccuracy] = trainClassifier(trainingData,
 % responseData)
 % Returns a trained classifier and its accuracy. This code recreates the
@@ -190,5 +190,10 @@ for n_class = 1:num_class
     correctPredictions2 = (validationPredictions(idx1) == responseData(idx1));
     acc_by_class(n_class) = sum(correctPredictions2)/length(correctPredictions2);
 end
+
+dec_out = struct;
+dec_out.classifier = trainedClassifier;
+dec_out.validationAccuracy = validationAccuracy;
+dec_out.acc_by_class = acc_by_class;
 
 end

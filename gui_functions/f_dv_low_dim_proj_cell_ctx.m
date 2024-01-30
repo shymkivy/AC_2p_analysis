@@ -1,7 +1,7 @@
 function f_dv_low_dim_proj_cell_ctx(app)
 
 method = app.DimredmethodDropDown.Value;
-dist_metric = app.LDdistmethodDropDown.Value; % pca isomap
+dist_metric = app.DistmethodDropDown.Value; % pca isomap
 num_pad = app.LDcontpadEditField.Value;
 trial_type_val = app.trialtypeDropDown.Value;
 

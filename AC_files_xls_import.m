@@ -46,7 +46,7 @@ f_names = cell(num_dsets,1);
 f_names_dir = cell(num_dsets,1);
 for n_dset = 1:num_dsets
     f_names{n_dset} = sprintf('%s_im%d_%s_%s', AC_data.mouse_id{n_dset}, AC_data.im_num(n_dset), AC_data.dset_name{n_dset}, AC_data.mouse_tag{n_dset});
-    dir_data = dir([ops.file_dir '\*' AC_data.dset_name{n_dset} '*' AC_data.mouse_tag{n_dset} '*_sort.mat']);;
+    dir_data = dir([ops.file_dir '\*' AC_data.dset_name{n_dset} '*' AC_data.mouse_tag{n_dset} '*_sort.mat']);
     f_names_dir{n_dset} = {dir_data.name};
 end
 

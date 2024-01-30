@@ -49,7 +49,7 @@ for n_ms = 1:numel(mouse_all)
                     reg_data2 = reg_data;
                     reg_data2.reg_cell_idx = dset_reg{n_dset2}(keep_cell);
                     idx1 = data.idx == data3.idx(n_dset2);
-                    app.data.registration_caiman{idx1, n_pl} = reg_data2;
+                    app.data.register_roi_caiman_load{idx1, n_pl} = reg_data2;
                 end
             end
         end

@@ -1,7 +1,7 @@
 function f_dv_dset_plot_indiv_trials(app)
 %% plot raster of firing rates without enseble analysis
 method = app.DimredmethodDropDown.Value;
-dist_metric = app.LDdistmethodDropDown.Value; % pca isomap
+dist_metric = app.DistmethodDropDown.Value; % pca isomap
 
 mean_win = [.1 .9];
 
