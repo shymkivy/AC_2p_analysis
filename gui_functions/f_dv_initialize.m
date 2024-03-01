@@ -163,4 +163,8 @@ app.ColormapDropDown.Items = {'gray', 'parula', 'jet', 'turbo'};
 
 app.MattridataplotDropDown.Items = {'LTri', 'UTri', 'Full'};
 
+app.nanhandlemetDropDown.Items = {'randn', 'mean', 'remove'};
+
+app.UseregdatalabelsCheckBox.Value = 1;
+
 end

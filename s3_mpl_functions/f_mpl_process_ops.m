@@ -59,7 +59,6 @@ ops.context_types_labels{28} = 'Cont f2';
 ops.context_types_labels{29} = 'Red f2';
 ops.context_types_labels{30} = 'Dev f2';
 
-
 ops.context_types_labels_trim = ops.context_types_labels;
 
 ops.context_types_labels_trim{18} = 'Cf1';

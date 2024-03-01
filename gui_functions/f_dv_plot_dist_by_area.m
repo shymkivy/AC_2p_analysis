@@ -15,10 +15,8 @@ features0 = cell(num_gr,1);
 sel_cells0 = cell(num_gr,1);
 area_labels0 = cell(num_gr,1);
 
-
 transp = app.StimtranspEditField.Value;
 freq_col = app.stimcolorSpinner.Value;
-
 
 for n_gr = 1:num_gr
     [features0{n_gr}, sel_cells0{n_gr}, area_labels0{n_gr}] = f_dv_get_feature2(app, app.plotfeatureDropDown.Value, data, tn_all(n_gr,:), n_pl);
@@ -34,10 +32,11 @@ num_reg = numel(reg_all);
 
 area_labels_pool = cat(1, area_labels1{:});
 
-legend_all = {};
-
 plot_lims = f_str_to_array(app.plot_BaserespwinEditField.Value);
-n_bins = ceil(diff(plot_lims)/data.cdata{1}.volume_period*1000);
+num_bins = ceil(diff(plot_lims)/data.cdata{1}.volume_period*1000);
+bin_locs = linspace(plot_lims(1),plot_lims(2),num_bins+1);
+sm_fac = app.kdesmfactorEditField.Value;
+
 figure; hold on; axis tight;
 if ~strcmpi(app.plottypeDropDown.Value, 'ecdf')
     if app.PlotstimCheckBox.Value
@@ -58,6 +57,15 @@ ymax = 0;
 
 feat_pool = cell(num_reg, num_tn);
 lab_pool = cell(num_reg, num_tn);
+if app.MarginalizedistCheckBox.Value
+    use_reg = false(num_reg, 1);
+    leg_pl = cell(num_reg, 1);
+    leg_full = reg_all;
+else
+    use_reg = false(num_reg, num_tn);
+    leg_full = cell(num_reg, num_tn);
+    leg_pl = cell(num_reg, num_tn);
+end
 for n_reg = 1:num_reg
     area_idx = area_labels_pool == n_reg;
     num_area_cells = sum(area_idx);
@@ -73,53 +81,72 @@ for n_reg = 1:num_reg
     if app.MarginalizedistCheckBox.Value
         features4 = features3(:);
         sel_cells4 = sel_cells3(:);
-        feat_pool{n_reg} = features4(sel_cells4);
+        data_feat = features4(sel_cells4);
+        feat_pool{n_reg} = data_feat;
         lab_pool{n_reg} = repmat(tn1(n_tn), sum(sel_cells4),1);
+        
         if sum(sel_cells4)
             color2 = app.ops.cond_colors{n_reg};
-            legend_all = [legend_all, {reg_all{n_reg}}];
+            use_reg(n_reg) = 1;
             if strcmpi(app.plottypeDropDown.Value, 'kde')
-                [f, xi] = ksdensity(features4(sel_cells4), 'Function', 'pdf', 'NumPoints', 200);
-                idx1 = and(xi>plot_lims(1), xi<plot_lims(2));
-                y1 = f/sum(f(idx1))/n_bins*sum(idx1);
-                ymax = max([max(y1), ymax]);
-                plot(xi, y1, 'color', color2, 'LineWidth', 2);
+                [f1, xi] = if_kde_wrap(data_feat, bin_locs, sm_fac);
+                leg_pl{n_reg} = plot(xi, f1, 'color', color2, 'LineWidth', 2);
+                ymax = max([max(f1), ymax]);
             elseif strcmpi(app.plottypeDropDown.Value, 'ecdf')
-                [f, xi] = ecdf(features4(sel_cells4));
-                plot(xi, f, 'color', color2, 'LineWidth', 2);
+                [f, xi] = ecdf(data_feat);
+                leg_pl{n_reg} = plot(xi, f, 'color', color2, 'LineWidth', 2);
                 ymax = 1;
             elseif strcmpi(app.plottypeDropDown.Value, 'histogram')
-                h1 = histogram(features4(sel_cells4), linspace(plot_lims(1),plot_lims(2),n_bins), 'Normalization', 'probability');
+                h1 = histogram(data_feat, bin_locs, 'Normalization', 'probability');
                 h1.FaceColor = color2;
+                leg_pl{n_reg} = h1;
                 ymax = max([max(h1.Values), ymax]);
+            elseif strcmpi(app.plottypeDropDown.Value, 'hist-kde')
+                h1 = histogram(data_feat, bin_locs, 'Normalization', 'probability'); % 
+                h1.FaceColor = color2;
+                leg_pl{n_reg} = h1;
+                [f1, xi] = if_kde_wrap(data_feat, bin_locs, sm_fac);
+                plot(xi, f1, 'color', color2, 'LineWidth', 2);
+                ymax = max([max(f1), max(h1.Values), ymax]);
             end
         end
     else
         for n_tn = 1:num_tn
             features4 = features3(:, n_tn);
             sel_cells4 = sel_cells3(:, n_tn);
-            feat_pool{n_reg, n_tn} = features4(sel_cells4);
+            data_feat = features4(sel_cells4);
+            feat_pool{n_reg, n_tn} = data_feat;
             lab_pool{n_reg, n_tn} = repmat(n_reg*100+tn1(n_tn), sum(sel_cells4),1);
+            leg_full{n_reg, n_tn} = sprintf('%s %s', reg_all{n_reg}, app.ops.context_types_labels_trim2{tn1(n_tn)});
             if sum(sel_cells4)
-                legend_all = [legend_all, {[reg_all{n_reg} ' ' app.ops.context_types_labels_trim2{tn1(n_tn)}]}];
+                use_reg(n_reg, n_tn) = 1;
                 color2 = app.ops.context_types_all_colors2{tn1(n_tn)};
                 linestyles2 = app.ops.cond_line_styles{n_reg};
                 if strcmpi(app.plottypeDropDown.Value, 'kde')
-                    [f, xi] = ksdensity(features4(sel_cells4), 'Function', 'pdf', 'NumPoints', 200);
-                    idx1 = and(xi>plot_lims(1), xi<plot_lims(2));
-                    y1 = f/sum(f(idx1))/n_bins*sum(idx1);
-                    plot(xi, y1, 'color', color2, 'LineWidth', 2, 'LineStyle', linestyles2);
+                    [f1, xi] = if_kde_wrap(data_feat, bin_locs, sm_fac);
+                    leg_pl{n_reg, n_tn} = plot(xi, f1, 'color', color2, 'LineWidth', 2, 'LineStyle', linestyles2);
+                    ymax = max([max(f1), ymax]);
                 elseif strcmpi(app.plottypeDropDown.Value, 'ecdf')
-                    [f, xi] = ecdf(features4(sel_cells4));
+                    [f, xi] = ecdf(data_feat);
+                    leg_pl{n_reg, n_tn} = plot(xi, f, 'color', color2, 'LineWidth', 2, 'LineStyle', linestyles2);
                     ymax = 1;
-                    plot(xi, f, 'color', color2, 'LineWidth', 2, 'LineStyle', linestyles2);
                 elseif strcmpi(app.plottypeDropDown.Value, 'histogram')
-                    histogram(features2(sel_cells2), linspace(plot_lims(1),plot_lims(2),n_bins), 'Normalization', 'probability');
+                    h1 = histogram(data_feat, bin_locs, 'Normalization', 'probability');
+                    h1.FaceColor = color2;
+                    leg_pl{n_reg, n_tn} = h1;
+                elseif strcmpi(app.plottypeDropDown.Value, 'hist-kde')
+                    h1 = histogram(data_feat, bin_locs, 'Normalization', 'probability'); % 
+                    h1.FaceColor = color2;
+                    [f1, xi] = if_kde_wrap(data_feat, bin_locs, sm_fac);
+                    leg_pl{n_reg, n_tn} = plot(xi, f1, 'color', color2, 'LineWidth', 2, 'LineStyle', linestyles2);
+                    ymax = max([max(f1), max(h1.Values), ymax]);
                 end
             end
         end
     end
 end
+legend_all = leg_full(use_reg);
+leg_pl2 = leg_pl(use_reg);
 ylim ([0 ymax*1.1])
 ylabel('Fraction')
 if strcmpi(app.plotfeatureDropDown.Value, 'peak loc')
@@ -129,14 +156,30 @@ else
     xlabel(app.plotfeatureDropDown.Value);
     ylim([0 1.05])
 end
-title_tag2 = sprintf('%s, %s, %s, %s', app.plotfeatureDropDown.Value, app.plottypeDropDown.Value, app.ResponsivecellsselectDropDown.Value);
+title_tag2 = sprintf('%s, %s, %s, %s; smf=%.1f', app.plotfeatureDropDown.Value, app.plottypeDropDown.Value, app.ResponsivecellsselectDropDown.Value, sm_fac);
 title(title_tag2, 'interpreter', 'none');
-legend(legend_all);
+legend([leg_pl2{:}], legend_all);
 
 if ~app.MarginalizedistCheckBox.Value
     [p_all, tbl_all, stats_all]  = anova1(cat(1, feat_pool{:}),cat(1, lab_pool{:}), 'off');
     title_tag4 = sprintf('%s; stats', title_tag2);
     f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag4);
 end
+
+end
+
+
+function [f1, xi] = if_kde_wrap(data_feat, bin_locs, sm_fac)
+
+if ~exist('sm_fac', 'var')
+    sm_fac = 1;
+end
+
+num_bins = numel(bin_locs)-1;
+[f, xi] = ksdensity(data_feat, 'Function', 'pdf', 'NumPoints', 200, 'Bandwidth', 1/(num_bins-2)*sm_fac); % 
+h_data = histcounts(data_feat, bin_locs)/numel(data_feat);
+%idx1 = and(xi>plot_lims(1), xi<plot_lims(2));
+idx1 = and(xi>max([min(data_feat),bin_locs(1)]), xi<min([max(data_feat),bin_locs(end)]));
+f1 = f/(sum(f(idx1))/sum(idx1))/sum(logical(h_data))*sum(h_data);
 
 end

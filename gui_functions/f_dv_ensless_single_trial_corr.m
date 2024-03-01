@@ -1,100 +1,141 @@
 function f_dv_ensless_single_trial_corr(app)
 
 n_pl = app.mplSpinner.Value;
-tn_list = 3:7;
-dset_list = 4:7;
 
-select_resp_cells = app.selectrespcellsCheckBox.Value;
-resort_by_ens = app.resortbyensCheckBox.Value;
-sort_trials = app.sorttrialsCheckBox.Value;
-sort_with_full_firing_rate = app.sortwithfullfrCheckBox.Value;
+% dset_list = 1:3;
+% dset_list = 1:7;
 
-corr_vals = zeros(numel(dset_list), numel(tn_list));
-for n_dset = 1:numel(dset_list)
-    for n_tn = 1:numel(tn_list)
-        dset_idx = dset_list(n_dset);
-        
-        ddata = app.data(dset_idx,:);
-        tn_all = tn_list(n_tn);
-        
+[data, title_tag] = f_dv_get_data_by_mouse_selection(app);
+num_dsets = size(data,1);
+
+%tn_all = 2:9;
+tn_all = f_dv_get_trial_number(app);
+num_tn = numel(tn_all);
+
+% select_resp_cells = app.selectrespcellsCheckBox.Value;
+% resort_by_ens = app.resortbyensCheckBox.Value;
+% sort_trials = app.sorttrialsCheckBox.Value;
+% sort_with_full_firing_rate = app.sortwithfullfrCheckBox.Value;
+
+corr_vals = nan(num_dsets, num_tn);
+isi_vals = nan(num_dsets,1);
+use_dset = false(num_dsets, 1);
+for n_dset = 1:num_dsets
+    %dset_idx = dset_list(n_dset);
+    ddata = data(n_dset,:);
+    isi_vals(n_dset) = round(median(diff(ddata.proc_data{1}.stim_times_volt{1}))/1000 - 0.5,1);
+    
+    
+
+    if strcmpi(ddata.paradigm, 'cont')
+        use_dset(n_dset) = 1;
+    end
+    
+    if use_dset(n_dset)
+
         if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
             cdata = ddata.cdata{n_pl};
+            stats1 = ddata.stats{n_pl};
         else
             cdata = cat(1,ddata.cdata{:});
+            stats1 = cat(1,ddata.stats{:});
         end
-        
-        num_cells = sum([cdata.num_cells]);
+
+        %num_cells = sum([cdata.num_cells]);
         firing_rate = cat(1,cdata.S_sm);
-        
-        stats1 = ddata.stats;
-        if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
-            resp_cell = logical(sum(stats1{n_pl}.peak_resp_cells(:,tn_all),2));
-        else
-            resp_cells_all = cell(numel(stats1),1);
-            for n_pl2 = 1:numel(stats1)
-                resp_cells_all{n_pl2} = logical(sum(stats1{n_pl2}.peak_resp_cells(:,tn_all),2));
-            end
-            resp_cell = cat(1,resp_cells_all{:});
-        end
-        
-        %%
         trial_types = ddata.trial_types{1};
+        
         stim_frame_index = ddata.stim_frame_index{1};
         
         trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
-        [~, trial_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
-
-        trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_frames);
-        if ~isempty(ddata.MMN_freq{1})
-            [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, ddata.MMN_freq{1}, app.ops);
-        else
-            trial_data_sort_wctx = trial_data_sort;
-            trial_types_wctx = trial_types;
-        end
-
-        tr_idx = logical(sum(trial_types_wctx == app.ops.context_types_all(tn_all)',2));
-        tr_loc_full = find(tr_idx);
-        tr_data = trial_data_sort_wctx(:,:,tr_idx);
-
-        if select_resp_cells
-            sel_resp_cells = logical(sum(resp_cell,2));
-            tr_data2 = tr_data(sel_resp_cells,:,:);
-            resp_all2 = resp_cell(sel_resp_cells,:);
-            firing_rate2 = firing_rate(sel_resp_cells,:);
-        else
-            tr_data2 = tr_data;
-            resp_all2 = resp_cell;
-            firing_rate2 = firing_rate;
-        end
-
-        [num_cells2, ~, num_tr] = size(tr_data2);
-
-        hc_params.plot_dist_mat = 0;
-        hc_params.plot_clusters = 0;
-        hc_params.num_clust = 1;
-
-
-        tr_data_2d_tr = reshape(tr_data2, [], num_tr);
-        hclust_out_trial = f_hcluster_wrap(tr_data_2d_tr', hc_params);
-        tr_data3 = tr_data2(:,:,hclust_out_trial.dend_order);
-
-        SI = 1-hclust_out_trial.dist;
-        SI_vals = tril(SI,-1);
-        SI_vals(SI_vals==0) = [];
+        [~, trial_frames] = f_dv_compute_window_t(trial_window, mean(cat(1,cdata.volume_period)));
         
-        corr_vals(n_dset, n_tn) = mean(SI_vals);
-   
+        trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_frames);
+
+        [selected_cells, ~, ~, ~, resp_cells] = f_dv_get_resp_vals_cells(app, stats1, tn_all);
+
+        for n_tn = 1:num_tn
+            tn1 = tn_all(n_tn);
+            
+            tr_idx = logical(sum(trial_types == app.ops.context_types_all(tn1)',2));
+            tr_data = trial_data_sort(:,:,tr_idx);
+            
+            num_trials = sum(tr_idx);
+
+            selected_cells2 = selected_cells(:,n_tn);
+            resp_cells2 = resp_cells(:,n_tn);
+            
+            if sum(resp_cells2)>5
+                
+                tr_data2 = tr_data(selected_cells2,:,:);
+                %firing_rate2 = firing_rate(resp_cells,:);
+        
+                hc_params.plot_dist_mat = 0;
+                hc_params.plot_clusters = 0;
+                hc_params.num_clust = 1;
+        
+        
+                tr_data_2d_tr = reshape(tr_data2, [], num_trials);
+                hclust_out_trial = f_hcluster_wrap(tr_data_2d_tr', hc_params);
+                %tr_data3 = tr_data2(:,:,hclust_out_trial.dend_order);
+        
+                SI = 1-hclust_out_trial.dist;
+                SI_vals = tril(SI,-1);
+                SI_vals(SI_vals==0) = [];
+                
+                corr_vals(n_dset, n_tn) = mean(SI_vals);
+            end
+       
+        end
     end
 end
 
+
+isi_uq = unique(isi_vals);
+num_isi = numel(isi_uq);
+
 color1 = jet(10);
 figure; hold on
-for n_freq = 1:numel(tn_list)
-    plot([0.5 1 2 4], corr_vals(:,n_freq), 'o-', 'color', color1(tn_list(n_freq),:), 'linewidth', 2)
+for n_freq = 1:num_tn
+    corr_temp = zeros(num_isi,1);
+    for n_isi = 1:num_isi
+        isi_idx = isi_vals == isi_uq(n_isi);
+        temp_data = corr_vals(isi_idx,n_freq);
+        corr_temp(n_isi) = mean(temp_data(~isnan(temp_data)));
+    end
+    plot(isi_uq, corr_temp, 'o-', 'color', color1(tn_all(n_freq),:), 'linewidth', 2)
 end
 xlabel('ISI duration'); ylabel('Pairwise correlation')
-title('Mean pairwise correlations');
+title(sprintf('Mean pairwise correlations; %s', title_tag), 'interpreter', 'none');
+xlim([0, 4.5]);
 
-figure; imagesc(reshape(color1, [10 1 3]))
+
+corr_mean = zeros(num_isi,1);
+corr_sem = zeros(num_isi,1);
+indiv_dat = cell(num_isi,1);
+for n_isi = 1:num_isi
+    isi_idx = isi_vals == isi_uq(n_isi);
+    temp_data = corr_vals(isi_idx,:);
+    temp_data2 = temp_data(~isnan(temp_data));
+    indiv_dat{n_isi} = temp_data2;
+    corr_mean(n_isi) = mean(temp_data2);
+    corr_sem(n_isi) = std(temp_data2)/sqrt(numel(temp_data2)-1);
+end
+
+figure; hold on
+for n_isi = 1:num_isi
+    x_data = (rand(numel(indiv_dat{n_isi}),1)-0.5)/8 + isi_uq(n_isi);
+    %x_data = zeros(numel(indiv_dat{n_isi}),1) + n_isi;
+    plot(x_data, indiv_dat{n_isi}, '.', color=[0.4 0.4 0.4]);
+end
+%plot(isi_uq, corr_mean, 'o-', 'linewidth', 2)
+errorbar(isi_uq, corr_mean, corr_sem, '.-', 'linewidth', 2, color='k', markersize=15)
+xlabel('ISI duration'); ylabel('Pairwise correlation')
+title(sprintf('Mean pairwise correlations; %s; %s', title_tag, app.ResponsivecellsselectDropDown.Value), 'interpreter', 'none');
+xlim([0, 4.5]);
+
+
+
+%figure; imagesc(reshape(color1, [10 1 3]))
 
 end

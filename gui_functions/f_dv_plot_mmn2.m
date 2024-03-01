@@ -1,4 +1,4 @@
-function f_dv_plot_mmn(app)
+function f_dv_plot_mmn2(app)
 
 z_ylim_max = 10;
 z_ylim_min = -0.5;

@@ -39,13 +39,10 @@ trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
 
 num_t = sum(trial_frames);
 
-tn_all = f_dv_get_trial_number(app, [], data.MMN_freq);
-if iscell(tn_all)
-    tn_ex = tn_all{1};
-else
-    tn_ex = tn_all;
-end
-[num_tn_gr, num_tn] = size(tn_ex);
+tn0 = f_dv_get_trial_number(app, data.MMN_freq{1});
+tn00 = tn0(1,:);
+
+[num_tn_gr, num_tn] = size(tn0);
 
 params = f_dv_gather_params(app);
 
@@ -68,8 +65,10 @@ for n_dset = 1:num_dsets
     params.n_dset = find(data1.idx == app.data.idx);
 
     cdata = f_dv_compute_cdata(data1, params);
+    
+    tn1 = f_dv_get_trial_number(app, data1.MMN_freq{1});
 
-    num_cells = sum([stats1.num_cells]);
+    %num_cells = sum([stats1.num_cells]);
 
     firing_rate = cdata.S_sm;
     trial_types = data1.trial_types{1};
@@ -84,13 +83,8 @@ for n_dset = 1:num_dsets
     for n_tngr = 1:num_tn_gr
         mouse_id{n_tngr, n_dset} = data1.mouse_id{1};
         dset_id(n_tngr, n_dset) = n_dset;
-        if iscell(tn_all)
-            tn1 = tn_all{n_dset}(n_tngr,:);
-        else
-            tn1 = tn_all(n_tngr,:);
-        end
 
-        resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn1);
+        resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn1(n_tngr,:));
         %cell_is_resp = stats1.peak_resp_cells(:,tn_all);
 
         for n_reg = 1:num_reg
@@ -106,7 +100,7 @@ for n_dset = 1:num_dsets
                 cell_counts(n_tngr, n_dset, n_reg) = num_cells;
                 resp_all{n_tngr, n_dset, n_reg} = zeros(num_cells, num_t, num_tn);
                 for n_tn = 1:num_tn
-                    temp_resp = trial_data_sort_wctx(resp_cell_idx,:,(trial_types_wctx == app.ops.context_types_all(tn1(n_tn))));
+                    temp_resp = trial_data_sort_wctx(resp_cell_idx,:,(trial_types_wctx == app.ops.context_types_all(tn1(n_tngr, n_tn))));
                     resp_all{n_tngr, n_dset, n_reg}(:,:,n_tn) = mean(temp_resp,3);
                 end
             end
@@ -169,11 +163,11 @@ for n_reg = 1:num_reg
                 sum_var = sum(exp_var2(trs1(1):trs1(end)));
                 title_tag2 = sprintf('%s; combined; region %s; comp %d-%d; %.2f%% var', title_tag, leg_list{n_reg}, trs1(1), trs1(end), sum_var);
                 if num_pl_d == 3
-                    f_dv_plot3_pc3(top_comp2(:,:,trs1), tn_ex, title_tag2, plot_t, colors_tn);
+                    f_dv_plot3_t_pc(top_comp2(:,:,trs1), tn00, title_tag2, colors_tn);
                 elseif num_pl_d == 2
                     figure(); hold on;
                     for n_tn = 1:num_tn
-                        plot(top_comp2(:,n_tn,trs1(1)), top_comp2(:,n_tn,trs1(2)), 'color', colors_tn{tn_ex(n_tn)});
+                        plot(top_comp2(:,n_tn,trs1(1)), top_comp2(:,n_tn,trs1(2)), 'color', colors_tn{tn00(n_tn)});
                     end
                     xlabel(sprintf('PC%d', trs1(1)));
                     ylabel(sprintf('PC%d', trs1(2)));
@@ -228,14 +222,14 @@ if plot_extra
                     trs1 = [1 2 3];
                     sum_var = sum(exp_var2(trs1(1):trs1(3)));
                     title_tag2 = sprintf('%s; %s n= %d; region %s; comp %d-%d; %.2f%% var', title_tag, gr_tag, n_gr, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
-                    f_dv_plot3_pc3(top_comp2(:,:,trs1), tn_ex, title_tag2, plot_t, colors_tn);
+                    f_dv_plot3_t_pc(top_comp2(:,:,trs1), tn00, title_tag2, colors_tn);
                 end
 
                 if 0%num_comp >= 6
                     trs1 = [4 5 6];
                     sum_var = sum(exp_var2(trs1(1):trs1(3)));
                     title_tag2 = sprintf('%s; %s n= %d; region %s; comp %d-%d; %.2f%% var', title_tag, gr_tag, n_gr, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
-                    f_dv_plot3_pc3(top_comp2(:,:,trs1), tn_ex, title_tag2, plot_t, colors_tn);
+                    f_dv_plot3_t_pc(top_comp2(:,:,trs1), tn00, title_tag2, colors_tn);
                 end
             end
         end
@@ -247,7 +241,7 @@ if app.PCAdistancesCheckBox.Value
     dist_all2 = cell(num_dist, 1);
     has_dist_idx = false(num_dist, 1);
     for n_list = 1:num_dist
-        if sum(sum(tn_ex == dist_list(n_list,:)')) == 2
+        if sum(sum(tn00 == dist_list(n_list,:)')) == 2
             has_dist_idx(n_list) = 1;
             dist_all = cell(num_gr, num_reg);
             for n_gr = 1:num_gr
@@ -255,8 +249,8 @@ if app.PCAdistancesCheckBox.Value
                     top_comp2 = top_comp_all{n_gr, n_reg};
                     if ~isempty(top_comp2)
                         
-                        A = squeeze(top_comp2(:,tn_ex == dist_list(n_list,1),:));
-                        B = squeeze(top_comp2(:,tn_ex == dist_list(n_list,2),:));
+                        A = squeeze(top_comp2(:,tn00 == dist_list(n_list,1),:));
+                        B = squeeze(top_comp2(:,tn00 == dist_list(n_list,2),:));
     
                         %dist1 = diag(pdist2(A,B,'euclidean'))
                         dist1 = sum((A - B).^2,2).^(1/2);
@@ -281,7 +275,7 @@ if app.PCAdistancesCheckBox.Value
     win_frames{1} = logical((plot_t >= onset_win(1)) .* (plot_t <= onset_win(2)));
     win_frames{2} = logical((plot_t >= offset_win(1)) .* (plot_t <= offset_win(2)));
     win_frames{3} = logical((plot_t >= mid_win(1)) .* (plot_t <= mid_win(2))); 
-    labl1 = [app.ops.context_types_labels(tn_ex)]; %, [{'Cont comb'; 'Red comb pool'; 'Dev comb'}]];
+    labl1 = [app.ops.context_types_labels(tn00)]; %, [{'Cont comb'; 'Red comb pool'; 'Dev comb'}]];
     win_labels = {'Onset', 'Offset', 'Middle'};
     num_win = numel(win_frames);
     
@@ -383,7 +377,7 @@ if plot_extra
     for n_comp = 1:num_comp
         figure; hold on
         for n_tn = 1:num_tn
-            plot(squeeze(top_comp2(:,n_tn, n_comp)), 'color', app.ops.context_types_all_colors2{tn_ex(n_tn)})
+            plot(squeeze(top_comp2(:,n_tn, n_comp)), 'color', app.ops.context_types_all_colors2{tn00(n_tn)})
         end
         title(sprintf('comp %d', n_comp))
     end

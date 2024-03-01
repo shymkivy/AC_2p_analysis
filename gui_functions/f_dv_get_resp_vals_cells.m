@@ -51,29 +51,34 @@ vals_cell = cell(num_trials, 1);
 locs_cell = cell(num_trials, 1);
 for n_tn = 1:num_trials
     tn1 = tn_all(n_tn);
+    if tn1
+        idx_out = logical(sum(vals1(:,tn1,1) > resp_thr2(:,1),2));
+        vals_out = vals1(:,tn1,1);
+        locs_out = locs(:,tn1,1);
+        
+        if num_slice > 1
+            vals_z1 = vals1(:,tn1,1)./resp_thr2(:,1);
+            vals_z2 = vals1(:,tn1,2)./resp_thr2(:,2);
+            
+            vals2 = vals1(:,tn1,2);
+            idx2 = logical(sum(vals1(:,tn1,2) > resp_thr2(:,2),2));
+            locs2 = locs(:,:,2);
+            
+            [~, idx3] = max([vals_z1, vals_z2], [], 2);
+            
+            idx_out(idx3==2) = idx2(idx3==2);
+            vals_out(idx3==2) = vals2(idx3==2);
+            locs_out(idx3==2) = locs2(idx3==2);
+        end
     
-    idx_out = logical(sum(vals1(:,tn1,1) > resp_thr2(:,1),2));
-    vals_out = vals1(:,tn1,1);
-    locs_out = locs(:,tn1,1);
-    
-    if num_slice > 1
-        vals_z1 = vals1(:,tn1,1)./resp_thr2(:,1);
-        vals_z2 = vals1(:,tn1,2)./resp_thr2(:,2);
-        
-        vals2 = vals1(:,tn1,2);
-        idx2 = logical(sum(vals1(:,tn1,2) > resp_thr2(:,2),2));
-        locs2 = locs(:,:,2);
-        
-        [~, idx3] = max([vals_z1, vals_z2], [], 2);
-        
-        idx_out(idx3==2) = idx2(idx3==2);
-        vals_out(idx3==2) = vals2(idx3==2);
-        locs_out(idx3==2) = locs2(idx3==2);
+        resp_cells_cell{n_tn} = idx_out;
+        vals_cell{n_tn} = vals_out;
+        locs_cell{n_tn} = locs_out;
+    else
+        resp_cells_cell{n_tn} = zeros(num_cells,1);
+        vals_cell{n_tn} = nan(num_cells,1);
+        locs_cell{n_tn} = nan(num_cells,1);
     end
-
-    resp_cells_cell{n_tn} = idx_out;
-    vals_cell{n_tn} = vals_out;
-    locs_cell{n_tn} = locs_out;
 end
 
 if strcmpi(resp_cell_select, 'All')
@@ -90,7 +95,9 @@ resp_locs = cat(2,locs_cell{:});
 
 resp_vals = cell(num_trials, 1);
 for n_tn = 1:num_trials
-    resp_vals{n_tn} = vals_cell{n_tn}(selected_cells(:,n_tn));
+    if numel(vals_cell{n_tn})
+        resp_vals{n_tn} = vals_cell{n_tn}(selected_cells(:,n_tn));
+    end
 end
 
 end

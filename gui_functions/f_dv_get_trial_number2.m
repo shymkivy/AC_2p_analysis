@@ -1,8 +1,6 @@
-function tn = f_dv_get_trial_number2(app, trial_type_input)
+function tn = f_dv_get_trial_number2(app)
 
-if ~exist('trial_type_input', 'var') || isempty(trial_type_input)
-    trial_type_input = app.trialtypeDropDown.Value;
-end
+trial_type_input = app.trialtypeDropDown.Value;
 
 if strcmpi(trial_type_input, 'all')
     tn = [1:10 18 19 20 28 29 30]; % 18 28

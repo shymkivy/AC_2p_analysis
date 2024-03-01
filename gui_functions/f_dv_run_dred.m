@@ -6,7 +6,7 @@ if params.subtract_mean
     subtr_mean = mean(data_all2,1);
     data_all2 = data_all2 - subtr_mean;
 else
-    subtr_mean = 0;
+    subtr_mean = zeros(max_comp,1);
 end
 
 % reconstruct: data_rec = score*coeff' + mu;

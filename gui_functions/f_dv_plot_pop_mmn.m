@@ -195,10 +195,10 @@ for n_reg = 1:num_reg
         
         if plot_first_tr
             ymin = min([first_tr_mean-first_tr_sem, tr_mean_mean-tr_mean_sem, data_mmn_all3_mean(:)'-data_mmn_all3_sem(:)'])*1.05;
-            ymax = max([first_tr_mean+first_tr_sem, tr_mean_mean+tr_mean_sem, data_mmn_all3_mean(:)'+data_mmn_all3_sem(:)', app.maxYlimZEditField.Value])*1.05;
+            ymax = max([max([first_tr_mean+first_tr_sem, tr_mean_mean+tr_mean_sem, data_mmn_all3_mean(:)'+data_mmn_all3_sem(:)'])*1.05, app.maxYlimEditField.Value]);
         else
             ymin = min([tr_mean_mean-tr_mean_sem, data_mmn_all3_mean(:)'-data_mmn_all3_sem(:)'])*1.05;
-            ymax = max([tr_mean_mean+tr_mean_sem, data_mmn_all3_mean(:)'+data_mmn_all3_sem(:)', app.maxYlimZEditField.Value])*1.05;
+            ymax = max([max([tr_mean_mean+tr_mean_sem, data_mmn_all3_mean(:)'+data_mmn_all3_sem(:)'])*1.05, app.maxYlimEditField.Value]);
         end
 
         color2 = app.ops.context_types_all_colors2{19};

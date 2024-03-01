@@ -2,36 +2,50 @@ function f_dv_low_dim_proj_trial(app)
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 
+plot_deets = 0;
+
+shadow_axis_locs = [app.ReflectXCheckBox.Value, app.ReflectYCheckBox.Value, app.ReflectZCheckBox.Value] + 1;
+
 if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
     n_pl = app.mplSpinner.Value;
 else
     n_pl = 1:max([data.num_planes]);
 end
 
+if strcmpi(app.ResponsivecellsselectDropDown.Value, 'All')
+    resp_cell_sel = 'All';
+else
+    resp_cell_sel = 'Resp marg';
+end
+
 num_dsets = size(data,1);
 
-tn_all = f_dv_get_trial_number(app);
-
-
-
-data_all = cell(num_dsets,1);
-for n_dset = 1:num_dsets
-    stats1 = cat(1,data(n_dset,:).stats{n_pl});
-
-    if strcmpi(app.ResponsivecellsselectDropDown.Value, 'All')
-        resp_cell_sel = 'All';
-    else
-        resp_cell_sel = 'Resp marg';
+[tn0, plot_idx] = f_dv_get_trial_number(app, data.MMN_freq{1});
+tn00 = tn0(1,:);
+if strcmpi(data.paradigm{1}, 'FG_mmn')
+    if sum(sum(tn00 == [1; 10])) == 2
+        plot_idx = [plot_idx, {[find(tn00 == 1), find(tn00 == 10)]}];
     end
+end
 
-    [~, resp_vals] = f_dv_get_resp_vals_cells(app, stats1, tn_all, [], resp_cell_sel);
+[num_gr, ~] = size(tn0);
 
-    data_all{n_dset} = cat(2,resp_vals{:});
+data_all = cell(num_dsets,num_gr);
+for n_dset = 1:num_dsets
+    ddata = data(n_dset,:);
+    stats1 = cat(1,ddata.stats{n_pl});
+    tn1 = f_dv_get_trial_number(app, ddata.MMN_freq{1});
+    
+    for n_gr = 1:num_gr
+        if 1%~sum(tn1(n_gr,:) == 0)
+            [~, resp_vals] = f_dv_get_resp_vals_cells(app, stats1, tn1(n_gr,:), [], resp_cell_sel);
+            data_all{n_dset, n_gr} = cat(2,resp_vals{:});
+        end
+    end
 end
 
 data_all2 = cat(1,data_all{:});
-hasnan1 = logical(sum(isnan(data_all2),2));
-data_all2 = data_all2(~hasnan1,:);
+data_all2 = f_dv_fix_nan_trials(data_all2, app.nanhandlemetDropDown.Value);
 
 params.method = app.DimredmethodDropDown.Value;
 params.dist_metric = app.DistmethodDropDown.Value;
@@ -66,30 +80,12 @@ ylabel('Residual variance');
 
 if strcmpi(app.NumplotaxesDropDown.Value, '2')
     num_plots = ceil(app.numcompplotSpinner.Value/2);
-    lim_max = 0;
     % 2 comp  bs
     for n_pl = 1:num_plots
-        ax1 = (n_pl-1)*2+1;
-        ax2 = (n_pl-1)*2+2;
-        lim_max = max([ceil(max([max(lr_data(:,ax1)) - min(lr_data(:,ax1)), max(lr_data(:,ax2)) - min(lr_data(:,ax2))])*1.05*100)/100, lim_max]);
-        cent1 = (max(lr_data(:,ax1)) + min(lr_data(:,ax1)))/2;
-        cent2 = (max(lr_data(:,ax2)) + min(lr_data(:,ax2)))/2;
-        figure; hold on
-        if app.plotaxesCheckBox.Value
-            plot(linspace(cent1-lim_max/2, cent1+lim_max/2,10), zeros(10,1), color=[0.7, 0.7, 0.7], LineWidth=1);
-            plot(zeros(10,1), linspace(cent2-lim_max/2, cent2+lim_max/2,10), color=[0.7, 0.7, 0.7], LineWidth=1);
-        end
-        pl1 = plot(lr_data(:,ax1), lr_data(:,ax2), 'o-k', 'Linewidth', 1);
-        for n_tn = 1:numel(tn_all)
-            plot(lr_data(n_tn, ax1), lr_data(n_tn, ax2), '.', 'color', app.ops.context_types_all_colors2{tn_all(n_tn)}, 'LineWidth', 2, 'MarkerSize', 20)
-        end
-        xlabel(sprintf('PC%d', ax1));
-        ylabel(sprintf('PC%d', ax2));
-        title(sprintf('low rank proj trials 2d; pl%d; %s', n_pl, title_tag2), 'interpreter', 'none');
-        if app.equalizeaxesCheckBox.Value
-            pl1.Parent.XLim = [cent1-lim_max/2, cent1+lim_max/2];
-            pl1.Parent.YLim = [cent2-lim_max/2, cent2+lim_max/2];
-        end
+        pcs = [(n_pl-1)*2+1, (n_pl-1)*2+2];
+        title_tag3 = sprintf('low rank proj trials; pl%d; %s', n_pl, title_tag2);
+
+        f_dv_plot2_pc(lr_data, tn00, pcs, title_tag3, app.ops.context_types_all_colors2, plot_idx)
     end
 elseif strcmpi(app.NumplotaxesDropDown.Value, '3')
     num_plots = ceil(app.numcompplotSpinner.Value/3);
@@ -97,55 +93,55 @@ elseif strcmpi(app.NumplotaxesDropDown.Value, '3')
     for n_pl = 1:num_plots
         pcs = [(n_pl-1)*3+1, (n_pl-1)*3+2, (n_pl-1)*3+3];
         title_tag3 = sprintf('low rank proj trials; pl%d; %s', n_pl, title_tag2);
-        f_dv_plot3_pc2(lr_data, tn_all, pcs, title_tag3, app.ops.context_types_all_colors2)
+        
+        f_dv_plot3_pc(lr_data, tn00, pcs, title_tag3, app.ops.context_types_all_colors2, 1, plot_idx, shadow_axis_locs)
     end
 end
 
-do_bar = 0;
-
-gcolor = gray(12);
-if do_bar
-    y_max1 = round(max(lr_data(:)),1);
-    y_min1 = round(min(lr_data(:)),1);
-    num_bar = 3;
-    figure()
-    for n_pc = 1:num_bar
-        subplot(num_bar,1,n_pc)
-        bar(1:10, lr_data(:,n_pc))
-        ylim([y_min1, y_max1])
+if plot_deets
+    do_bar = 0;
+    
+    gcolor = gray(12);
+    if do_bar
+        y_max1 = round(max(lr_data(:)),1);
+        y_min1 = round(min(lr_data(:)),1);
+        num_bar = 3;
+        figure()
+        for n_pc = 1:num_bar
+            subplot(num_bar,1,n_pc)
+            bar(1:10, lr_data(:,n_pc))
+            ylim([y_min1, y_max1])
+        end
+    else
+        % plot trial variances within components
+        figure(); hold on;
+        for n_pc = 1:10
+            plot(1:10, lr_data(:,n_pc), 'o-', color=gcolor(n_pc,:))
+        end
+        xlabel('trials')
+        title('PCs magnitudes vs trials')
     end
-else
+    
     % plot trial variances within components
     figure(); hold on;
     for n_pc = 1:10
-        plot(1:10, lr_data(:,n_pc), 'o-', color=gcolor(n_pc,:))
+        plot(1:10, abs(lr_data(:,n_pc)), 'o-', color=gcolor(n_pc,:))
     end
     xlabel('trials')
-    title('PCs magnitudes vs trials')
+    title('PCs abs magnitudes vs trials')
+
+    figure(); hold on
+    for n_tn = 1:10
+        plot(1:10, (lr_data(n_tn,:)), 'o-', color=app.ops.context_types_all_colors2{tn_all(n_tn)})
+    end
+    title('Trial participation per PCs')
+    xlabel('PCs')
+    
+    figure(); hold on
+    for n_tn = 1:10
+        plot(1:10, abs(lr_data(n_tn,:)), 'o-', color=app.ops.context_types_all_colors2{tn_all(n_tn)})
+    end
+    title('Trial abs participation per PCs')
+    xlabel('PCs')
 end
-
-
-% plot trial variances within components
-figure(); hold on;
-for n_pc = 1:10
-    plot(1:10, abs(lr_data(:,n_pc)), 'o-', color=gcolor(n_pc,:))
-end
-xlabel('trials')
-title('PCs abs magnitudes vs trials')
-
-
-figure(); hold on
-for n_tn = 1:10
-    plot(1:10, (lr_data(n_tn,:)), 'o-', color=app.ops.context_types_all_colors2{tn_all(n_tn)})
-end
-title('Trial participation per PCs')
-xlabel('PCs')
-
-figure(); hold on
-for n_tn = 1:10
-    plot(1:10, abs(lr_data(n_tn,:)), 'o-', color=app.ops.context_types_all_colors2{tn_all(n_tn)})
-end
-title('Trial abs participation per PCs')
-xlabel('PCs')
-
 end

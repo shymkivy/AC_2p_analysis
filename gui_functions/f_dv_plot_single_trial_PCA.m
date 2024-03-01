@@ -12,7 +12,7 @@ trs_all = reshape(1:num_plot_comp, num_pl_d, []);
 %%
 n_pl = app.mplSpinner.Value;
 
-data = app.ddata;
+ddata = app.ddata;
 title_tag = ['plane ' app.ddata.dset_name_full{1}];
 num_dsets = 1;
 
@@ -20,13 +20,9 @@ trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
 [plot_t, trial_frames] = f_dv_compute_window_t(trial_window, app.ddata.proc_data{1}.frame_data.volume_period_ave);
 num_t = sum(trial_frames);
 
-tn_all = f_dv_get_trial_number(app, [], data.MMN_freq);
-if iscell(tn_all)
-    tn_ex = tn_all{1};
-else
-    tn_ex = tn_all;
-end
-[num_tn_gr, num_tn] = size(tn_ex);
+tn0 = f_dv_get_trial_number(app, ddata.MMN_freq{1});
+
+[num_tn_gr, num_tn] = size(tn0);
 
 params = f_dv_gather_params(app);
 
@@ -46,9 +42,10 @@ cell_counts = zeros(num_tn_gr, num_dsets, num_reg);
 fprintf('dset #/%d: ', num_dsets);
 for n_dset = 1:num_dsets
     fprintf('..%d', n_dset);
-    data1 =  data(n_dset,:);
+    data1 =  ddata(n_dset,:);
     stats1 = data1.stats{n_pl};
     params.n_dset = find(data1.idx == app.data.idx);
+    tn1 = f_dv_get_trial_number(app, data1.MMN_freq{1});
 
     cdata = f_dv_compute_cdata(data1, params);
 
@@ -67,13 +64,7 @@ for n_dset = 1:num_dsets
         mouse_id{n_tngr, n_dset} = data1.mouse_id{1};
         dset_id(n_tngr, n_dset) = n_dset;
 
-        if iscell(tn_all)
-            tn1 = tn_all{n_dset}(n_tngr,:);
-        else
-            tn1 = tn_all(n_tngr,:);
-        end
-
-        resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn1);
+        resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn1(n_tngr,:));
         %cell_is_resp = stats1.peak_resp_cells(:,tn_all);
 
         for n_reg = 1:num_reg
@@ -169,10 +160,10 @@ for n_dset = 1:num_dsets
             num_tr = sum(resp_num_trials3);
             tr_idx1 = cell(num_tn, 1);
             for n_tn = 1:num_tn
-                if iscell(tn_all)
-                    tn1 = tn_all{n_dset};
+                if iscell(tn1)
+                    tn1 = tn1{n_dset};
                 else
-                    tn1 = tn_all;
+                    tn1 = tn1;
                 end
                 tr_idx1{n_tn} = ones(resp_num_trials3(n_tn), 1) * tn1(n_tn);
             end

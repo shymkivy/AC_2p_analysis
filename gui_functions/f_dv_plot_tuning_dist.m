@@ -184,7 +184,7 @@ for n_reg = 1:num_regions2
     reg_lab_all{n_reg} = repmat(n_reg, num_cells_tn, 1);
 end
 
-figure; hold on;
+f1 = figure; hold on;
 b1 = bar(categorical(categories,categories), tun_mean, 'EdgeColor',[219, 239, 255]/256,'LineWidth',1.5);
 for n_bar = 1:num_regions2
     b1(n_bar).FaceColor = colors1{n_bar};
@@ -199,7 +199,9 @@ if num_gr > 1
     errorbar(xb, tun_mean, tun_sem, '.k','LineWidth',1);
 end
 title(sprintf('%s; resp counts', title_tag3), 'Interpreter', 'none');
-ylabel('Resp cell fraction');
+ylabel('Responsive cell fraction');
+max_y = f1.Children.YLim;
+f1.Children.YLim(2) = max([max_y, app.maxYlimEditField.Value]);
 
 if num_gr > 1
     if num_regions2 > 1

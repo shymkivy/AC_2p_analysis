@@ -18,8 +18,8 @@ offset_win = params.stats.offset_resp_win;
 n_pl = params.n_pl;
 ddata = params.ddata;
 
-stim_times = ddata.stim_frame_index{n_pl};
-trial_types = ddata.trial_types{1};
+stim_times2 = ddata.stim_frame_index{n_pl};
+trial_types2 = ddata.trial_types{1};
 MMN_freq = ddata.MMN_freq{1};
 fr = 1000/double(ddata.proc_data{1}.frame_data.volume_period);
 
@@ -39,17 +39,45 @@ firing_rate = cat(1,params.cdata.S_sm);
 
 [num_cells, T] = size(firing_rate);
 
-rem_idx = stim_times>(T-num_baseline_resp_frames(2)-1);
-stim_times(rem_idx) = [];
-trial_types(rem_idx) = [];
+use_idx = stim_times2<(T-num_baseline_resp_frames(2)-1);
+stim_times = stim_times2(use_idx);
+trial_types = trial_types2(use_idx);
 
 trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_times, num_baseline_resp_frames);
 if ~isempty(MMN_freq)
-    [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, MMN_freq, app.ops);
-else
-    trial_data_sort_wctx = trial_data_sort;
-    trial_types_wctx = trial_types;
+    trial_types_ctx = f_dv_mark_tt_ctx(trial_types, MMN_freq, app.ops);
 end
+
+% remove deviant trials near eachother
+num_trials = numel(trial_types);
+pre_post = [1, round(stat_window(2)-1)];
+bad_tr = false(num_trials,1);
+check_tr = [170, 270];
+for n_ch = 1:numel(check_tr)
+    for n_tr = (1+pre_post(1)):(num_trials - pre_post(2))
+        if trial_types(n_tr) == check_tr(n_ch) 
+            if sum(trial_types((n_tr-pre_post(1)):(n_tr+pre_post(2))) == check_tr(n_ch) ) > 1
+                bad_tr(n_tr) = 1;
+            end
+        end
+    end
+end
+
+trial_types(bad_tr) = 0;
+
+% remove redundants right before deviants
+bad_tr = false(num_trials,1);
+for n_ch = 1:numel(check_tr)
+    for n_tr = 2:num_trials
+        if trial_types(n_tr) == check_tr(n_ch) 
+            if and((trial_types(n_tr-1) < check_tr(n_ch)), (trial_types(n_tr-1) > (check_tr(n_ch)-70)))
+                bad_tr(n_tr-1) = 1;
+            end
+        end
+    end
+end
+trial_types(bad_tr) = 0;
+
 % 
 % color1 = parula(num_trials);
 % 
@@ -113,7 +141,10 @@ onset_vals = nan(num_cells, num_tt);
 offset_vals = nan(num_cells, num_tt);
 trial_ave_trace1 = zeros(num_cells, num_t, num_tt);
 for n_tt = 1:num_tt
-    trial_data_sort2 = trial_data_sort_wctx(:,:, trial_types_wctx==ctx_types_all(n_tt));
+
+    idx1 = logical(sum([trial_types,trial_types_ctx] == ctx_types_all(n_tt),2));
+    %idx1 = trial_types_wctx==ctx_types_all(n_tt);
+    trial_data_sort2 = trial_data_sort(:,:, idx1);
     if ~isempty(trial_data_sort2)
         temp_trial_ave = mean(trial_data_sort2,3);
         [peak_vals(:,n_tt), peak_locs(:,n_tt)] = f_get_trial_peak(temp_trial_ave, peak_bin_size);

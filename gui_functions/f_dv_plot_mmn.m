@@ -15,10 +15,12 @@ trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
 num_t = sum(trial_frames);
 
 %tn_all = [18, 19, 20; 28, 29, 30]';
-if sum(strcmpi(app.trialtypeDropDown.Value, {'Context', 'Context_flip', 'Context_both_comb'}))
+if sum(strcmpi(app.trialtypeDropDown.Value, {'Context', 'Context_flip'}))
     tt_input = app.trialtypeDropDown.Value;
+    leg1 = app.ops.context_types_labels;
 else
     tt_input = 'Context_both_comb';
+    leg1 = app.ops.context_types_labels_trim2;
 end
 tn_all = f_dv_get_trial_number(app, tt_input);
 [num_gr, num_tn] = size(tn_all);
@@ -114,7 +116,7 @@ num_gr2 = numel(gr_all);
 %%
 
 plot_stats = app.plotstatsCheckBox.Value;
-z_ylim_max = app.maxYlimZEditField.Value;
+z_ylim_max = 0;
 z_ylim_min = 0;
 
 y_lim_max = 0;
@@ -164,8 +166,8 @@ for n_reg = 1:num_reg
     end
 end
 
-y_lim_max = max([y_lim_max z_ylim_max])*1.05;
-y_lim_min = min([y_lim_min z_ylim_min])*1.05;
+y_lim_max = max([max([y_lim_max z_ylim_max])*1.05, app.maxYlimEditField.Value]);
+y_lim_min = min([min([y_lim_min z_ylim_min])*1.05, app.minYlimEditField.Value]);
 ylim1 = [y_lim_min, y_lim_max];
 
 
@@ -196,7 +198,7 @@ for n_reg = 1:num_reg
         end
         
         xlabel('Time (sec)');
-        legend([leg_all1{:}], app.ops.context_types_labels(tn1))
+        legend([leg_all1{:}], leg1(tn1))
         title(sprintf('%s; %s; %d cells', leg_list{n_reg}, title_tag3, num_cells(n_reg)), 'Interpreter', 'none');
         
         if plot_stats

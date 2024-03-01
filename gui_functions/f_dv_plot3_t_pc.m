@@ -1,13 +1,18 @@
-function f_dv_plot3_pc3(top_comp, tn_all, title_tag, plot_t, colors_tn)
+function f_dv_plot3_t_pc(top_comp, tn_all, title_tag, colors_tn, add_shadow, shadow_axis_locs)
 
-add_shadow = 1;
+if ~exist('add_shadow', 'var') || isempty(add_shadow)
+    add_shadow = 1;
+end
+
+if ~exist('shadow_axis_locs', 'var') || isempty(shadow_axis_locs)
+    shadow_axis_locs = [1 2 1];
+end
+
 shadow_alpha = 0.3;
 shadow_line_width = 1;
 shadow_lim_oddset = 1.5;
-shadow_axis_locs = [1 2 1];
 
-num_tn = numel(tn_all);
-num_t = numel(plot_t);
+[num_t, num_tn, ~] = size(top_comp);
 
 f1 = figure; hold on; axis padded
 for n_tn = 1:num_tn

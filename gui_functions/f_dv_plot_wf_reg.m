@@ -11,9 +11,9 @@ freq_im_num = app.numfreqSpinner.Value;
 
 anchor_dset = app.anchordsetSpinner.Value;
 
-plot_borders = 1;
-plot_nontuned = 0;
-white_bkg = 1;
+plot_borders = app.AreabordersCheckBox.Value;
+plot_nontuned = app.PlotnontunedCheckBox.Value;
+white_bkg = app.WhitebkgCheckBox.Value;
 
 %%
 [data1, title_tag] = f_dv_get_data_by_mouse_selection(app);
@@ -172,13 +172,13 @@ reg_loc_all_in = reg_loc_all(:,1:2)*2^interp_k - 2^interp_k + 1;
 %%
 
 if app.NewplotsCheckBox.Value
-    app.gui_plots.registration_fig = figure;
+    app.gui_plots.registration_fig = figure(render='painters');
 else
     if isgraphics(app.gui_plots.registration_fig)
         figure(app.gui_plots.registration_fig);
         clf(app.gui_plots.registration_fig);
     else
-        app.gui_plots.registration_fig = figure;
+        app.gui_plots.registration_fig = figure(render='painters');
     end
 end
 if ~white_bkg

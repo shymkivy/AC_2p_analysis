@@ -129,10 +129,10 @@ else
         num_frames = size(firing_rate3,2);
         raster_t = (1:num_frames)/(1000/cdata.volume_period);
         
-        f_plot_raster_mean(firing_rate3(ord_cell,:), 1, raster_t, tn_seq_plot, app.ops.context_types_all_colors2);
+        f_plot_raster_mean(firing_rate3(ord_cell,:), 1, raster_t, tn_seq_plot, app.ops.context_types_all_colors2, app.ColormapDropDown.Value, app.InvertcmapCheckBox.Value);
         sgtitle(title_tag2, 'interpreter', 'none');
-        clim1 = clim;
-        clim([0 clim1(2)]);
+        % clim1 = clim;
+        % clim([0 clim1(2)]);
 
         if app.plotpopvecCheckBox.Value
             
@@ -159,6 +159,7 @@ else
             f1.Children.YDir = 'reverse';
             axis tight
             xlim([.9, numel(tt_cont)+1]);
+            title(sprintf('%s; cont vec', title_tag2), 'interpreter', 'none')
 
             tt_mmn = tt_all(logical(sum(tt_all' == app.ops.context_types_all([18, 19,20, 28, 29, 30])',2)));
             f1 = figure; hold on;
@@ -171,6 +172,7 @@ else
             f1.Children.YDir = 'reverse';
             axis tight
             xlim([.9, numel(tt_mmn)+1]);
+            title(sprintf('%s; ctx vec', title_tag2), 'interpreter', 'none')
 
         end
     end

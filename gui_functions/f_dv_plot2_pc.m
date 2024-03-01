@@ -9,6 +9,7 @@ num_tn = numel(tn_all);
 if ~exist('plot_idx', 'var') || isempty(plot_idx)
     plot_idx = {1:num_tn};
 end
+
 num_pl = numel(plot_idx);
 
 figure; hold on
