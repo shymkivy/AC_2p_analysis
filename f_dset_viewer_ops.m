@@ -34,7 +34,7 @@ idx1 = 4;
 ops.experiments(idx1).name = 'FG_mmn';
 ops.experiments(idx1).experiment = 'mmn';
 ops.experiments(idx1).data_path = 'F:\AC_data\caiman_data_missmatch';
-ops.experiments(idx1).save_mat_fname = 'mat_save_fg_2_22_24.mat';%'mat_save_fg_9_19_22.mat';
+ops.experiments(idx1).save_mat_fname = 'mat_save_fg_3_4_24.mat';%'mat_save_fg_9_19_22.mat';
 ops.experiments(idx1).save_reg_fname = 'reg_save_11_28_22.mat';
 ops.experiments(idx1).paradigm = 'FG_mmn';
 

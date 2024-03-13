@@ -29,6 +29,8 @@ dist_lab = {'DD-cont', 'DD-cont flip', 'DD-red', 'DD-red flip', 'Cont-red', 'Con
 
 num_dist = size(dist_list,1);
 
+reverse_xyz = [app.ReverseXCheckBox.Value, app.ReverseYCheckBox.Value, app.ReverseZCheckBox.Value];
+shadow_axis_locs = [app.FlipshadowXCheckBox.Value, app.FlipshadowYCheckBox.Value, app.FlipshadowZCheckBox.Value] + 1;
 %%
 n_pl = app.mplSpinner.Value;
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
@@ -163,7 +165,7 @@ for n_reg = 1:num_reg
                 sum_var = sum(exp_var2(trs1(1):trs1(end)));
                 title_tag2 = sprintf('%s; combined; region %s; comp %d-%d; %.2f%% var', title_tag, leg_list{n_reg}, trs1(1), trs1(end), sum_var);
                 if num_pl_d == 3
-                    f_dv_plot3_t_pc(top_comp2(:,:,trs1), tn00, title_tag2, colors_tn);
+                    f_dv_plot3_t_pc(top_comp2(:,:,trs1), tn00, title_tag2, colors_tn, app.shadowon3dCheckBox.Value, shadow_axis_locs, app.FigrenderpaintersCheckBox.Value, app.gridon3dCheckBox.Value, reverse_xyz);
                 elseif num_pl_d == 2
                     figure(); hold on;
                     for n_tn = 1:num_tn
@@ -222,20 +224,19 @@ if plot_extra
                     trs1 = [1 2 3];
                     sum_var = sum(exp_var2(trs1(1):trs1(3)));
                     title_tag2 = sprintf('%s; %s n= %d; region %s; comp %d-%d; %.2f%% var', title_tag, gr_tag, n_gr, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
-                    f_dv_plot3_t_pc(top_comp2(:,:,trs1), tn00, title_tag2, colors_tn);
+                    f_dv_plot3_t_pc(top_comp2(:,:,trs1), tn00, title_tag2, colors_tn, app.shadowon3dCheckBox.Value, shadow_axis_locs, app.FigrenderpaintersCheckBox.Value, app.gridon3dCheckBox.Value, reverse_xyz);
                 end
 
                 if 0%num_comp >= 6
                     trs1 = [4 5 6];
                     sum_var = sum(exp_var2(trs1(1):trs1(3)));
                     title_tag2 = sprintf('%s; %s n= %d; region %s; comp %d-%d; %.2f%% var', title_tag, gr_tag, n_gr, leg_list{n_reg}, trs1(1), trs1(3), sum_var);
-                    f_dv_plot3_t_pc(top_comp2(:,:,trs1), tn00, title_tag2, colors_tn);
+                    f_dv_plot3_t_pc(top_comp2(:,:,trs1), tn00, title_tag2, colors_tn, app.shadowon3dCheckBox.Value, shadow_axis_locs, app.FigrenderpaintersCheckBox.Value, app.gridon3dCheckBox.Value, reverse_xyz);
                 end
             end
         end
     end
 end
-
 %%
 if app.PCAdistancesCheckBox.Value
     dist_all2 = cell(num_dist, 1);
@@ -330,7 +331,7 @@ if app.PCAdistancesCheckBox.Value
         ylabel('euclidean distance');
         xlabel('Time')
         title(sprintf('distance %s; %s, region %s, %dcomp; %.2f%%var; ', dist_lab2{n_list}, title_tag, reg_tag, num_comp, sum(explained(1:num_comp))), 'Interpreter','none');
-        legend([sall{:}], leg_list(logical(num_cells_all)));
+        legend([sall{:}], leg_list(logical(sum(num_cells_all,1))));
         
         reg_lab2 = cat(1, reg_lab{:});
         for n_win = 1:num_win
@@ -359,7 +360,7 @@ l1.Color = [.5 .5 .5];
 l1.LineStyle = '--';
 ylabel('Residual variance');
 xlabel('num components');
-legend([leg_list(logical(num_cells_all)), {'num comp used'}]);
+legend([leg_list(logical(sum(num_cells_all,1))), {'num comp used'}]);
 title(sprintf('Residual variance  %s, region %s', title_tag, reg_tag), 'Interpreter','none');
 
 if plot_extra
@@ -371,16 +372,9 @@ if plot_extra
         end
     end
     ylabel('explained variance');
-    legend(leg_list(logical(num_cells_all)));
+    legend(leg_list(logical(sum(num_cells_all,1))));
     title(sprintf('explained variance  %s, region %s', title_tag, reg_tag), 'Interpreter','none');
 
-    for n_comp = 1:num_comp
-        figure; hold on
-        for n_tn = 1:num_tn
-            plot(squeeze(top_comp2(:,n_tn, n_comp)), 'color', app.ops.context_types_all_colors2{tn00(n_tn)})
-        end
-        title(sprintf('comp %d', n_comp))
-    end
 end
 
 end

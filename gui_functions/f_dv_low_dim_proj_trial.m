@@ -4,7 +4,8 @@ function f_dv_low_dim_proj_trial(app)
 
 plot_deets = 0;
 
-shadow_axis_locs = [app.ReflectXCheckBox.Value, app.ReflectYCheckBox.Value, app.ReflectZCheckBox.Value] + 1;
+shadow_axis_locs = [app.FlipshadowXCheckBox.Value, app.FlipshadowYCheckBox.Value, app.FlipshadowZCheckBox.Value] + 1;
+reverse_xyz = [app.ReverseXCheckBox.Value, app.ReverseYCheckBox.Value, app.ReverseZCheckBox.Value];
 
 if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
     n_pl = app.mplSpinner.Value;
@@ -85,7 +86,7 @@ if strcmpi(app.NumplotaxesDropDown.Value, '2')
         pcs = [(n_pl-1)*2+1, (n_pl-1)*2+2];
         title_tag3 = sprintf('low rank proj trials; pl%d; %s', n_pl, title_tag2);
 
-        f_dv_plot2_pc(lr_data, tn00, pcs, title_tag3, app.ops.context_types_all_colors2, plot_idx)
+        f_dv_plot2_pc(lr_data, tn00, pcs, title_tag3, app.ops.context_types_all_colors2, plot_idx, app.FigrenderpaintersCheckBox.Value)
     end
 elseif strcmpi(app.NumplotaxesDropDown.Value, '3')
     num_plots = ceil(app.numcompplotSpinner.Value/3);
@@ -94,7 +95,7 @@ elseif strcmpi(app.NumplotaxesDropDown.Value, '3')
         pcs = [(n_pl-1)*3+1, (n_pl-1)*3+2, (n_pl-1)*3+3];
         title_tag3 = sprintf('low rank proj trials; pl%d; %s', n_pl, title_tag2);
         
-        f_dv_plot3_pc(lr_data, tn00, pcs, title_tag3, app.ops.context_types_all_colors2, 1, plot_idx, shadow_axis_locs)
+        f_dv_plot3_pc(lr_data, tn00, pcs, title_tag3, app.ops.context_types_all_colors2, plot_idx, app.shadowon3dCheckBox.Value, shadow_axis_locs, app.FigrenderpaintersCheckBox.Value, app.gridon3dCheckBox.Value, reverse_xyz)
     end
 end
 

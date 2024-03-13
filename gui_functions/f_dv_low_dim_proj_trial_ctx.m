@@ -106,6 +106,6 @@ end
 title(sprintf('low rank proj trials 2d; %s', title_tag2), 'interpreter', 'none');
 
 title_tag3 = sprintf('low rank proj trials; %s', title_tag2);
-f_dv_plot3_pc(lr_data3d, tn_all2, [], title_tag3, app.ops.context_types_all_colors2, 1, {cont_idx, ctx_idx})
+f_dv_plot3_pc(lr_data3d, tn_all2, [], title_tag3, app.ops.context_types_all_colors2, {cont_idx, ctx_idx}, 1)
 
 end

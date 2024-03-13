@@ -1,7 +1,11 @@
 function [tn_out, con_idx] = f_dv_get_trial_number(app, mmn_freq)
 
 trial_type_input = app.trialtypeDropDown.Value;
-
+if strcmpi(app.data.paradigm{1}, 'FG_mmn')
+    circ_stim = 1;
+else
+    circ_stim = 0;
+end
 rel_freq = 0;
 
 if strcmpi(trial_type_input, 'all')
@@ -101,16 +105,32 @@ if exist('mmn_freq', 'var')
 
         if sum(tn_out(mmn1_idx)>10)
             idx1 = logical((tn_out > 10) .* mmn1_idx);
-            tn_out(idx1) = 0;
+            if circ_stim
+                tn_out(idx1) = tn_out(idx1)-10;
+            else
+                tn_out(idx1) = 0;
+            end
         elseif sum(tn_out(mmn2_idx)>10)
             idx1 = logical((tn_out > 10) .* mmn2_idx);
-            tn_out(idx1) = 0;
+            if circ_stim
+                tn_out(idx1) = tn_out(idx1)-10;
+            else
+                tn_out(idx1) = 0;
+            end
         elseif sum(tn_out(mmn1_idx)<1)
             idx1 = logical((tn_out < 1) .* mmn1_idx);
-            tn_out(idx1) = 0;
+            if circ_stim
+                tn_out(idx1) = tn_out(idx1)+10;
+            else
+                tn_out(idx1) = 0;
+            end
         elseif sum(tn_out(mmn2_idx)<1)
             idx1 = logical((tn_out < 1) .* mmn2_idx);
-            tn_out(idx1) = 0;
+            if circ_stim
+                tn_out(idx1) = tn_out(idx1)+10;
+            else
+                tn_out(idx1) = 0;
+            end
         end
     end
 end

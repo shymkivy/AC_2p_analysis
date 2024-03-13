@@ -128,7 +128,7 @@ if num_dims >= 2
         data_mean(n_nt,:) = mean(plot_data(idx1,:),1);
     end
     f_dv_plot2_pc(data_mean, tn_all2, [], title_tag2, app.ops.context_types_all_colors2, {cont_idx, ctx_idx})
-    %f_dv_plot3_pc(data_mean, tn_all, [], title_tag3, app.ops.context_types_all_colors2)
+    %f_dv_plot3_pc(data_mean, tn_all, [], title_tag3, app.ops.context_types_all_colors2, {cont_idx, ctx_idx})
     
 end
 
@@ -154,6 +154,6 @@ if num_dims >= 3
         data_mean(n_nt,:) = mean(plot_data(idx1,:),1);
     end
     %f_dv_plot2_pc(data_mean, tn_all2, [], title_tag2, app.ops.context_types_all_colors2, {cont_idx, ctx_idx})
-    f_dv_plot3_pc(data_mean, tn_all2, [], title_tag2, app.ops.context_types_all_colors2, [], {cont_idx, ctx_idx})
+    f_dv_plot3_pc(data_mean, tn_all2, [], title_tag2, app.ops.context_types_all_colors2, {cont_idx, ctx_idx})
 end
 end

@@ -11,7 +11,8 @@ else
     n_pl = 1:max([data.num_planes]);
 end
 
-shadow_axis_locs = [app.ReflectXCheckBox.Value, app.ReflectYCheckBox.Value, app.ReflectZCheckBox.Value] + 1;
+shadow_axis_locs = [app.FlipshadowXCheckBox.Value, app.FlipshadowYCheckBox.Value, app.FlipshadowZCheckBox.Value] + 1;
+reverse_xyz = [app.ReverseXCheckBox.Value, app.ReverseYCheckBox.Value, app.ReverseZCheckBox.Value];
 
 num_dsets = size(data,1);
 
@@ -58,13 +59,12 @@ data_all2 = cat(1,data_all{:});
 cell_labels2 = cat(1,cell_labels{:});
 cell_labels2 = cell_labels2(~rem_idx);
 
-
 params.method = app.DimredmethodDropDown.Value;
 params.dist_metric = app.DistmethodDropDown.Value;
 params.subtract_mean = app.subtractmeanCheckBox.Value;
 params.scale_by_var = app.scalebyvarCheckBox.Value;
 params.plot_subtrat_mean = app.plotsubmeanCheckBox.Value;
-[lr_data, residual_var, residual_var_pca, subtr_mean] = f_dv_run_dred(data_all2', params);
+[lr_data, residual_var, residual_var_pca, ~] = f_dv_run_dred(data_all2', params);
 
 num_dim = size(lr_data,2);
 
@@ -80,73 +80,101 @@ title(sprintf('Residual variance proj cells; %s', title_tag2), 'interpreter', 'n
 xlabel('number components used');
 ylabel('Residual variance');
 
-if num_dim >= 2
-    lr_data2d = lr_data(:,1:2);
-    figure; hold on
-    plot(lr_data2d(:,1), lr_data2d(:,2), 'ok', 'LineWidth', 1)
-    for n_cell = 1:numel(cell_labels2)
-        if cell_labels2(n_cell)
-            color1 = app.ops.context_types_all_colors2{tn00(cell_labels2(n_cell))};
-        else
-            color1 = [.6 .6 .6];
-        end
-        plot(lr_data2d(n_cell, 1), lr_data2d(n_cell, 2), '.', 'color', color1, 'LineWidth', 4, 'MarkerSize', 15)
+if strcmpi(app.NumplotaxesDropDown.Value, '2')
+    num_plots = ceil(app.numcompplotSpinner.Value/2);
+    % 2 comp  bs
+    for n_pl = 1:num_plots
+        pcs = [(n_pl-1)*2+1, (n_pl-1)*2+2];
+        title_tag3 = sprintf('low rank proj cells; pl%d; %s', n_pl, title_tag2);
+
+        f_dv_plot2_pc_bytn(lr_data, tn00, cell_labels2, pcs, title_tag3, app.ops.context_types_all_colors2, app.FigrenderpaintersCheckBox.Value)
     end
-    title(sprintf('low rank proj cells 2d; %s',title_tag2), 'interpreter', 'none');
-end
-
-if num_dim >= 3
-    lr_data3d = lr_data(:,1:3);
-    figure; hold on
-    plot3(lr_data3d(:,1), lr_data3d(:,2), lr_data3d(:,3), 'ok', 'LineWidth', 1)
-    for n_cell = 1:numel(cell_labels2)
-        if cell_labels2(n_cell)
-            color1 = app.ops.context_types_all_colors2{tn00(cell_labels2(n_cell))};
-        else
-            color1 = [.6 .6 .6];
-        end
-        %plot3([0 lr_data3d(n_tn, 1)], [0 lr_data3d(n_tn, 2)], [0 lr_data3d(n_tn, 3)], '-', 'color', app.ops.context_types_all_colors2{tn_all(n_tn)}, 'LineWidth', 2)
-        plot3(lr_data3d(n_cell, 1), lr_data3d(n_cell, 2), lr_data3d(n_cell, 3), '.', 'color', color1, 'LineWidth', 4, 'MarkerSize', 15)
-    end
-    title(sprintf('low rank proj cells 3d; %s', title_tag2), 'interpreter', 'none');
-    grid on;
-
-    title_tag3 = sprintf('%s; resp %s; cell ave', title_tag2, resp_cell_sel);
-    data_mean = zeros(num_tn, 3);
-    for n_nt = 1:num_tn
-        idx1 = cell_labels2 == n_nt;
-        data_mean(n_nt,:) = mean(lr_data3d(idx1,:),1);
-    end
-    f_dv_plot3_pc(data_mean, tn00, [], title_tag3, app.ops.context_types_all_colors2, [], con_idx, shadow_axis_locs)
-
-
-    if strcmpi(method ,'PCA')
-        if num_dim >= 6
-            plot_data = lr_data{6};
-            figure; hold on;
-            plot3(plot_data(:,4), plot_data(:,5), plot_data(:,6), 'ok', 'LineWidth', 1)
-            for n_cell = 1:numel(cell_labels2)
-                if cell_labels2(n_cell)
-                    color1 = app.ops.context_types_all_colors2{tn_all(cell_labels2(n_cell))};
-                else
-                    color1 = [.6 .6 .6];
-                end
-                %plot3([0 lr_data3d(n_tn, 1)], [0 lr_data3d(n_tn, 2)], [0 lr_data3d(n_tn, 3)], '-', 'color', app.ops.context_types_all_colors2{tn_all(n_tn)}, 'LineWidth', 2)
-                plot3(plot_data(n_cell, 4), plot_data(n_cell, 5), plot_data(n_cell, 6), '.', 'color', color1, 'LineWidth', 4, 'MarkerSize', 15)
-            end
-            xlabel('PC4'); ylabel('PC5'); zlabel('PC6');
-            title(sprintf('low rank proj cells 3d; %s', title_tag2), 'interpreter', 'none');
-            grid on;
-
-            data_mean = zeros(numel(tn_all), 3);
-            for n_nt = 1:numel(tn_all)
-                idx1 = cell_labels2 == tn_all(n_nt);
-                data_mean(n_nt,:) = mean(lr_data{6}(idx1,4:6),1);
-            end
-            f_dv_plot3_pc(data_mean, tn_all, [], title_tag3, app.ops.context_types_all_colors2)
-            xlabel('PC4'); ylabel('PC5'); zlabel('PC6');
-        end
+elseif strcmpi(app.NumplotaxesDropDown.Value, '3')
+    num_plots = ceil(app.numcompplotSpinner.Value/3);
+    % 3 comp  bs
+    for n_pl = 1:num_plots
+        pcs = [(n_pl-1)*3+1, (n_pl-1)*3+2, (n_pl-1)*3+3];
+        title_tag3 = sprintf('low rank proj cells; pl%d; %s', n_pl, title_tag2);
+        
+        f_dv_plot3_pc_bytn(lr_data, tn00, cell_labels2, pcs, title_tag3, app.ops.context_types_all_colors2, app.shadowon3dCheckBox.Value, shadow_axis_locs, app.FigrenderpaintersCheckBox.Value, app.gridon3dCheckBox.Value, reverse_xyz)
     end
 end
+
+% 
+% if num_dim >= 2
+%     lr_data2d = lr_data(:,1:2);
+%     figure; hold on
+%     plot(lr_data2d(:,1), lr_data2d(:,2), 'ok', 'LineWidth', 1)
+%     for n_cell = 1:numel(cell_labels2)
+%         if cell_labels2(n_cell)
+%             color1 = app.ops.context_types_all_colors2{tn00(cell_labels2(n_cell))};
+%         else
+%             color1 = [.6 .6 .6];
+%         end
+%         plot(lr_data2d(n_cell, 1), lr_data2d(n_cell, 2), '.', 'color', color1, 'LineWidth', 4, 'MarkerSize', 15)
+%     end
+%     title(sprintf('low rank proj cells 2d; %s',title_tag2), 'interpreter', 'none');
+% end
+% 
+% if num_dim >= 3
+%     lr_data3d = lr_data(:,1:3);
+%     figure; hold on
+%     plot3(lr_data3d(:,1), lr_data3d(:,2), lr_data3d(:,3), 'ok', 'LineWidth', 1)
+%     idx1 = cell_labels2 == 0;
+%     plot3(lr_data3d(idx1, 1), lr_data3d(idx1, 2), lr_data3d(idx1, 3), '.', 'color', app.ops.context_types_all_colors2{tn00(n_tn)}, 'LineWidth', 4, 'MarkerSize', 15);
+%     for n_tn = 1:num_tn
+%         idx1 = cell_labels2 == n_tn;
+%         plot3(lr_data3d(idx1, 1), lr_data3d(idx1, 2), lr_data3d(idx1, 3), '.', 'color', app.ops.context_types_all_colors2{tn00(n_tn)}, 'LineWidth', 4, 'MarkerSize', 15);
+%     end
+% 
+%     % for n_cell = 1:numel(cell_labels2)
+%     %     if cell_labels2(n_cell)
+%     %         color1 = app.ops.context_types_all_colors2{tn00(cell_labels2(n_cell))};
+%     %     else
+%     %         color1 = [.6 .6 .6];
+%     %     end
+%     %     %plot3([0 lr_data3d(n_tn, 1)], [0 lr_data3d(n_tn, 2)], [0 lr_data3d(n_tn, 3)], '-', 'color', app.ops.context_types_all_colors2{tn_all(n_tn)}, 'LineWidth', 2)
+%     %     plot3(lr_data3d(n_cell, 1), lr_data3d(n_cell, 2), lr_data3d(n_cell, 3), '.', 'color', color1, 'LineWidth', 4, 'MarkerSize', 15)
+%     % end
+%     title(sprintf('low rank proj cells 3d; %s', title_tag2), 'interpreter', 'none');
+%     grid on;
+% 
+%     title_tag3 = sprintf('%s; resp %s; cell ave', title_tag2, resp_cell_sel);
+%     data_mean = zeros(num_tn, 3);
+%     for n_nt = 1:num_tn
+%         idx1 = cell_labels2 == n_nt;
+%         data_mean(n_nt,:) = mean(lr_data3d(idx1,:),1);
+%     end
+%     f_dv_plot3_pc(data_mean, tn00, [], title_tag3, app.ops.context_types_all_colors2, con_idx, 1, shadow_axis_locs)
+% 
+% 
+%     if strcmpi(method ,'PCA')
+%         if num_dim >= 6
+%             plot_data = lr_data{6};
+%             figure; hold on;
+%             plot3(plot_data(:,4), plot_data(:,5), plot_data(:,6), 'ok', 'LineWidth', 1)
+%             for n_cell = 1:numel(cell_labels2)
+%                 if cell_labels2(n_cell)
+%                     color1 = app.ops.context_types_all_colors2{tn_all(cell_labels2(n_cell))};
+%                 else
+%                     color1 = [.6 .6 .6];
+%                 end
+%                 %plot3([0 lr_data3d(n_tn, 1)], [0 lr_data3d(n_tn, 2)], [0 lr_data3d(n_tn, 3)], '-', 'color', app.ops.context_types_all_colors2{tn_all(n_tn)}, 'LineWidth', 2)
+%                 plot3(plot_data(n_cell, 4), plot_data(n_cell, 5), plot_data(n_cell, 6), '.', 'color', color1, 'LineWidth', 4, 'MarkerSize', 15)
+%             end
+%             xlabel('PC4'); ylabel('PC5'); zlabel('PC6');
+%             title(sprintf('low rank proj cells 3d; %s', title_tag2), 'interpreter', 'none');
+%             grid on;
+% 
+%             data_mean = zeros(numel(tn_all), 3);
+%             for n_nt = 1:numel(tn_all)
+%                 idx1 = cell_labels2 == tn_all(n_nt);
+%                 data_mean(n_nt,:) = mean(lr_data{6}(idx1,4:6),1);
+%             end
+%             f_dv_plot3_pc(data_mean, tn_all, [], title_tag3, app.ops.context_types_all_colors2, 1, shadow_axis_locs)
+%             xlabel('PC4'); ylabel('PC5'); zlabel('PC6');
+%         end
+%     end
+% end
 
 end

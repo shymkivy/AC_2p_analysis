@@ -15,18 +15,35 @@ for n_dset = 1:num_dsets
     ddata = data(n_dset,:);
     proc_data = ddata.proc_data{1};
     %frame_period_sec = proc_data.frame_data.volume_period/1000;
-    
+    shift_stim = 0;
     if isfield(proc_data, 'trial_types')
-        data.trial_types{n_dset} = proc_data.trial_types;
+        trial_types = proc_data.trial_types;
+        if sum(sum(unique(trial_types) == 1:10,2)) == 8
+            idx1 = trial_types == 8;
+            trial_types(idx1) = trial_types(idx1)+2;
+            idx1 = logical(sum(trial_types == 4:7,2));
+            trial_types(idx1) = trial_types(idx1)+1;
+            shift_stim = 1;
+        end
+        data.trial_types{n_dset} = trial_types;
     end
+
     if isfield(proc_data, 'stim_params')
         if isfield(proc_data.stim_params, 'MMN_freq')
-            data.MMN_freq{n_dset} = proc_data.stim_params.MMN_freq;
+            mmn_freq = proc_data.stim_params.MMN_freq;
         elseif isfield(proc_data, 'MMN_orientations')
-            data.MMN_freq{n_dset} = proc_data.MMN_orientations;
+            mmn_freq = proc_data.MMN_orientations;
         else
+            mmn_freq = [];
             sprintf('No mmn freq in %s', ddata.dset_name_full{1});
         end
+        if shift_stim
+            idx1 = mmn_freq == 8;
+            mmn_freq(idx1) = mmn_freq(idx1)+2;
+            idx1 = logical(sum(mmn_freq' == 4:7,2));
+            mmn_freq(idx1) = mmn_freq(idx1)+1;
+        end
+        data.MMN_freq{n_dset} = mmn_freq;
         
     end
     

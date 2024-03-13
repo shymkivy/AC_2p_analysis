@@ -1,4 +1,4 @@
-function f_dv_plot2_pc(data_in, tn_all, pcs, title_tag, color_cell, plot_idx)
+function f_dv_plot2_pc(data_in, tn_all, pcs, title_tag, color_cell, plot_idx, render_painters)
 
 if ~exist('pcs', 'var') || isempty(pcs)
     pcs = [1 2];
@@ -10,9 +10,18 @@ if ~exist('plot_idx', 'var') || isempty(plot_idx)
     plot_idx = {1:num_tn};
 end
 
+if ~exist('render_painters', 'var') || isempty(render_painters)
+    render_painters = 0;
+end
+
 num_pl = numel(plot_idx);
 
-figure; hold on
+if render_painters
+    f1 = figure(render='painters'); 
+else
+    f1 = figure();
+end
+hold on;
 for n_pl = 1:num_pl
     plot(data_in(plot_idx{n_pl},pcs(1)), data_in(plot_idx{n_pl},pcs(2)), 'o-k', 'Linewidth', 1)
 end

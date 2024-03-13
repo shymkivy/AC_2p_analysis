@@ -319,12 +319,20 @@ if app.PlotextrabarsCheckBox.Value
             %[~, idx1] = sort(mean(temp_data(idx2,:,3),2), 'descend');
             %[~, idx2] = sort(mean(temp_data(:,:,1),2), 'ascend');
             figure;
-            clim1 = ([min(temp_data(:)), max(temp_data(:))]);
+            if app.InvertcmapCheckBox.Value
+                temp_data2 = -temp_data;
+            else
+                temp_data2 = temp_data;
+            end
+            temp_data2 = temp_data2 - min(temp_data2(:));
+            temp_data2 = temp_data2./max(temp_data2(:));
+            %clim12 = ([min(temp_data2(:)), max(temp_data2(:))]);
             for n_ctx = 1:num_tn
                 subplot(1,num_tn,n_ctx);
-                imagesc(plot_t, [], temp_data(clust_out.dend_order,:,n_ctx));
-                caxis(clim1*0.6)
+                imagesc(plot_t, [], temp_data2(clust_out.dend_order,:,n_ctx));
+                clim([0 .7])
             end
+            colormap(app.ColormapDropDown.Value)
             sgtitle(sprintf('%s; region %s; flip%d', title_tag3, leg_list{n_reg}, n_gr), 'Interpreter', 'none');
         end
     end
