@@ -55,6 +55,8 @@ params.scale_by_var = app.scalebyvarCheckBox.Value;
 params.plot_subtrat_mean = app.plotsubmeanCheckBox.Value;
 [lr_data, residual_var, residual_var_pca, subtr_mean] = f_dv_run_dred(data_all2, params);
 
+PR = (sum(residual_var_pca).^2)/(sum(residual_var_pca.^2));
+
 title_tag1 = sprintf('%s; %s', title_tag, params.method);
 if strcmpi(params.method, 'isomap')
     title_tag1 = sprintf('%s; dist %s', title_tag1, params.dist_metric);
@@ -75,7 +77,7 @@ if ~strcmpi(params.method, 'pca')
     plot([0, 1:numel(residual_var)], [1; residual_var], 'o-', 'Linewidth', 2);
     legend('PCA', params.method)
 end
-title(sprintf('Residual variance proj trials; %s', title_tag2), 'interpreter', 'none');
+title(sprintf('Residual variance proj trials; PR=%.2f; %s', PR, title_tag2), 'interpreter', 'none');
 xlabel('number components used');
 ylabel('Residual variance');
 

@@ -25,8 +25,6 @@ for n_dset = 1:num_dsets
     ddata = data(n_dset,:);
     isi_vals(n_dset) = round(median(diff(ddata.proc_data{1}.stim_times_volt{1}))/1000 - 0.5,1);
     
-    
-
     if strcmpi(ddata.paradigm, 'cont')
         use_dset(n_dset) = 1;
     end
@@ -113,6 +111,8 @@ xlim([0, 4.5]);
 corr_mean = zeros(num_isi,1);
 corr_sem = zeros(num_isi,1);
 indiv_dat = cell(num_isi,1);
+lab_all = cell(num_isi,1);
+lab_all2 = cell(num_isi,1);
 for n_isi = 1:num_isi
     isi_idx = isi_vals == isi_uq(n_isi);
     temp_data = corr_vals(isi_idx,:);
@@ -120,6 +120,8 @@ for n_isi = 1:num_isi
     indiv_dat{n_isi} = temp_data2;
     corr_mean(n_isi) = mean(temp_data2);
     corr_sem(n_isi) = std(temp_data2)/sqrt(numel(temp_data2)-1);
+    lab_all{n_isi} = repmat({num2str(round(isi_uq(n_isi),1))}, [numel(temp_data2), 1]);
+    lab_all2{n_isi} = num2str(round(isi_uq(n_isi),1));
 end
 
 figure; hold on
@@ -130,10 +132,38 @@ for n_isi = 1:num_isi
 end
 %plot(isi_uq, corr_mean, 'o-', 'linewidth', 2)
 errorbar(isi_uq, corr_mean, corr_sem, '.-', 'linewidth', 2, color='k', markersize=15)
-xlabel('ISI duration'); ylabel('Pairwise correlation')
+xlabel('ISI duration'); 
+ylabel('Pairwise correlation')
 title(sprintf('Mean pairwise correlations; %s; %s', title_tag, app.ResponsivecellsselectDropDown.Value), 'interpreter', 'none');
 xlim([0, 4.5]);
+ylim([0 0.5]);
 
+figure; hold on
+pl2 = cell(2,1);
+for n_isi = 1:num_isi
+    x_data = (rand(numel(indiv_dat{n_isi}),1)-0.5)/8 + isi_uq(n_isi);
+    %x_data = zeros(numel(indiv_dat{n_isi}),1) + n_isi;
+    plot(x_data, indiv_dat{n_isi}, '.', color=[0.4 0.4 0.4]);
+end
+pl2{1} = errorbar(isi_uq, corr_mean, corr_sem, '.', 'linewidth', 2, color='k', markersize=15);
+fit_data = f_get_fit(isi_uq, corr_mean, 'exp');
+
+x_fit = linspace(isi_uq(1), isi_uq(end), 100);
+y_fit = fit_data.fit_eq(x_fit, fit_data.fit_pars);
+pl2{2} = plot(x_fit, y_fit, '--k');
+legend([pl2{:}], {'data', 'exp fit'});
+xlabel('ISI duration'); 
+ylabel('Pairwise correlation')
+title(sprintf('Mean pairwise correlations; %s; %s; tau=%.3f, %.3fstd', title_tag, app.ResponsivecellsselectDropDown.Value, fit_data.fit_pars(2), sqrt(fit_data.param_cov(2,2))), 'interpreter', 'none');
+xlim([0, 4.5]);
+ylim([0 0.5]);
+[p_all, tbl_all, stats_all]  = anova1(cat(1, indiv_dat{:}), cat(1,lab_all{:}), 'off');
+
+title_tag5 = sprintf('between isi pts; %s', title_tag); 
+
+f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag5, lab_all2, 1, 0);
+
+% [h,p,ci,stats] = ttest2(indiv_dat{1}, cat(1,indiv_dat{2:4}))
 
 
 %figure; imagesc(reshape(color1, [10 1 3]))

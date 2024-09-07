@@ -1,5 +1,17 @@
 function f_dv_plot_pop_mmn(app)
 plot_first_tr = 1;
+combine_reg = 1;
+plot_split_mmn = 1;
+num_red = 10;
+alpha1 = app.StimtranspEditField.Value;
+freq_col = app.stimcolorSpinner.Value;
+color1 = app.ops.context_types_all_colors2{freq_col};
+win_on = f_str_to_array(app.stats_OnsetRespwinEditField.Value);
+win_off = f_str_to_array(app.stats_OffsetRespwinEditField.Value);
+
+fit_type = 'best'; % exp, linear, best
+
+win_use = [0.1, 0.9];
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 
@@ -23,7 +35,7 @@ end
 tn_all = f_dv_get_trial_number(app, tt_input);
 [num_gr, num_tn] = size(tn_all);
 
-num_red = 10;
+
 vol_per = app.ddata.proc_data{1}.frame_data.volume_period_ave;
 plot_frames = round(num_red/vol_per*1000);
 plot_t2 = ((1:plot_frames))*vol_per/1000;
@@ -32,6 +44,12 @@ params = f_dv_gather_params(app);
 
 [region_num, reg_tag, leg_list] = f_dv_get_region_sel_val2(app);
 num_reg = size(region_num,1);
+
+if num_reg>1
+    col_reg = app.ops.cond_colors;
+else
+    col_reg = app.ops.context_colors(2);
+end
 
 mouse_id = cell(num_gr, num_dsets);
 dset_id = zeros(num_gr, num_dsets);
@@ -164,15 +182,59 @@ num_gr2 = numel(gr_all);
 
 %%
 
-transp = app.StimtranspEditField.Value;
-freq_col = app.stimcolorSpinner.Value;
+
 
 title_tag2 = sprintf('%s; %s; %s; %s reg', title_tag, app.ResponsivecellsselectDropDown.Value, tt_input, reg_tag);
 
 n_gr = 1;
 tn1 = tn_all(n_gr, :);
 num_tn = numel(tn1);
+ymin = 0;
+ymax = 0;
+% get ylims first
+for n_reg = 1:num_reg
+    first_tr_all = cat(1, data_first_trial2{:, n_reg});
+    tr_mean_all = cat(1, data_rem_trials_mean2{:, n_reg});
+    data_mmn_all3 = cat(1, data_mmn_all2{:, n_reg});
+    
+    num_cells = size(first_tr_all,1);
+    if num_cells
+        first_tr_mean  = mean(first_tr_all,1, "omitnan");
+        first_tr_sem = std(first_tr_all, "omitnan")/sqrt(num_cells-1);
+        
+        tr_mean_mean = mean(tr_mean_all, 1, "omitnan");
+        tr_mean_sem = std(tr_mean_all, "omitnan")/sqrt(num_cells-1);
 
+        data_mmn_all3_mean = mean(data_mmn_all3, 1);
+        data_mmn_all3_sem = std(data_mmn_all3, [], 1)/sqrt(num_cells-1);
+        
+        if plot_first_tr
+            ymin = min([ymin, min([first_tr_mean-first_tr_sem, tr_mean_mean-tr_mean_sem, data_mmn_all3_mean(:)'-data_mmn_all3_sem(:)'])*1.05]);
+            ymax = max([ymax, max([first_tr_mean+first_tr_sem, tr_mean_mean+tr_mean_sem, data_mmn_all3_mean(:)'+data_mmn_all3_sem(:)'])*1.05]);
+        else
+            ymin = min([ymin, min([tr_mean_mean-tr_mean_sem, data_mmn_all3_mean(:)'-data_mmn_all3_sem(:)'])*1.05]);
+            ymax = max([ymax, max([tr_mean_mean+tr_mean_sem, data_mmn_all3_mean(:)'+data_mmn_all3_sem(:)'])*1.05]);
+        end
+    end
+end
+ymin = min([ymin, app.minYlimEditField.Value]);
+ymax = max([ymax, app.maxYlimEditField.Value]);
+
+if combine_reg
+    if plot_first_tr
+        f1 = figure(); axis tight; hold on
+        if app.PlotstimCheckBox.Value
+            if_plot_stim_rect(f1, num_red, [ymin, ymax], color1, alpha1)
+        end
+    end
+    f2 = figure(); axis tight; hold on
+    if app.PlotstimCheckBox.Value
+        if_plot_stim_rect(f2, num_red, [ymin, ymax], color1, alpha1)
+    end
+end
+
+pl_all1 = cell(num_reg,1);
+pl_all2 = cell(num_reg,1);
 for n_reg = 1:num_reg
     title_tag3 = sprintf('%s; %s', title_tag2, leg_list{n_reg});
     
@@ -193,89 +255,387 @@ for n_reg = 1:num_reg
         data_mmn_all3_mean = mean(data_mmn_all3, 1);
         data_mmn_all3_sem = std(data_mmn_all3, [], 1)/sqrt(num_cells-1);
         
-        if plot_first_tr
-            ymin = min([first_tr_mean-first_tr_sem, tr_mean_mean-tr_mean_sem, data_mmn_all3_mean(:)'-data_mmn_all3_sem(:)'])*1.05;
-            ymax = max([max([first_tr_mean+first_tr_sem, tr_mean_mean+tr_mean_sem, data_mmn_all3_mean(:)'+data_mmn_all3_sem(:)'])*1.05, app.maxYlimEditField.Value]);
+        if combine_reg
+            if num_reg>1
+                color2 = app.ops.cond_colors{n_reg};
+            else
+                color2 = app.ops.context_colors{2};
+            end
         else
-            ymin = min([tr_mean_mean-tr_mean_sem, data_mmn_all3_mean(:)'-data_mmn_all3_sem(:)'])*1.05;
-            ymax = max([max([tr_mean_mean+tr_mean_sem, data_mmn_all3_mean(:)'+data_mmn_all3_sem(:)'])*1.05, app.maxYlimEditField.Value]);
+            color2 = app.ops.context_types_all_colors2{19};
         end
-
-        color2 = app.ops.context_types_all_colors2{19};
+        
         if plot_first_tr
-            figure; axis tight; hold on
-            if app.PlotstimCheckBox.Value
-                for n_st = 1:num_red
-                    r1 = rectangle('Position', [n_st-1 ymin 0.5 ymax-ymin]);
-                    r1.FaceColor = [app.ops.context_types_all_colors2{freq_col} transp];
-                    r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col} transp];
+            if combine_reg
+                figure(f1);
+            else
+                f1 = figure(); axis tight; hold on
+                if app.PlotstimCheckBox.Value
+                    if_plot_stim_rect(f1, num_red, [ymin, ymax], color1, alpha1)
+                end
+                title(sprintf('first trial %s; %d cells', title_tag3, num_cells), 'interpreter', 'none');
+                if app.ConverttoZCheckBox.Value
+                    ylabel('Z-score');
+                else
+                    ylabel('response mag');
                 end
             end
-            shadedErrorBar_YS(plot_t2, first_tr_mean, first_tr_sem, color2);
+
+            s1 = shadedErrorBar_YS(plot_t2, first_tr_mean, first_tr_sem, color2);
+            pl_all1{n_reg} = s1.mainLine;
             ylim([ymin, ymax]);
             xlim([plot_t2(1), plot_t2(end)]);
+            
+        end
+        if combine_reg
+            figure(f2);
+        else
+            f2 = figure(); hold on;
+            if app.PlotstimCheckBox.Value
+                if_plot_stim_rect(f1, num_red, ylims1, color1, alpha1)
+            end
+            title(sprintf('red 1-%d trials %s; %d cells', num_red, title_tag3, num_cells), 'interpreter', 'none');
             if app.ConverttoZCheckBox.Value
                 ylabel('Z-score');
             else
                 ylabel('response mag');
             end
-            title(sprintf('first trial %s; %d cells', title_tag3, num_cells), 'interpreter', 'none')
         end
-        figure; hold on;
-        if app.PlotstimCheckBox.Value
-            for n_st = 1:num_red
-                r1 = rectangle('Position', [n_st-1 ymin 0.5 ymax-ymin]);
-                r1.FaceColor = [app.ops.context_types_all_colors2{freq_col} transp];
-                r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col} transp];
-            end
-        end
-        shadedErrorBar_YS(plot_t2, tr_mean_mean, tr_mean_sem, color2);
+        s1 = shadedErrorBar_YS(plot_t2, tr_mean_mean, tr_mean_sem, color2);
+        pl_all2{n_reg} = s1.mainLine;
         ylim([ymin, ymax]);
         xlim([plot_t2(1), plot_t2(end)])
+        
+        if plot_split_mmn
+            f3 = figure; 
+            for n_tn = 1:num_tn
+                tt1 = tn1(n_tn);
+                subplot(1, 3, n_tn); hold on; axis tight;
+                if_plot_stim_rect(f3, 1, [ymin, ymax], color1, alpha1)
+                color2 = app.ops.context_types_all_colors2{tt1};
+                shadedErrorBar_YS(plot_t, data_mmn_all3_mean(1,:,n_tn), data_mmn_all3_sem(1,:,n_tn), color2);
+                ylim([ymin, ymax]);
+                if app.ConverttoZCheckBox.Value
+                    ylabel('Z-score');
+                else
+                    ylabel('response mag');
+                end
+            end
+            sgtitle(sprintf('context trials %s; %d cells', title_tag3, num_cells), 'interpreter', 'none')
+        end
+    end
+end
+
+if combine_reg
+    if plot_first_tr
+        figure(f1);
+        legend([pl_all1{:}], leg_list);
+        title(sprintf('first trial %s', title_tag2), 'interpreter', 'none');
         if app.ConverttoZCheckBox.Value
             ylabel('Z-score');
         else
             ylabel('response mag');
         end
-        title(sprintf('2-end trials %s; %d cells', title_tag3, num_cells), 'interpreter', 'none')
+        xlabel('Time (sec)');
+    end
+    figure(f2);
+    legend([pl_all2{:}], leg_list)
+    title(sprintf('red 1-%d trials %s', num_red, title_tag2), 'interpreter', 'none');
+    if app.ConverttoZCheckBox.Value
+        ylabel('Z-score');
+    else
+        ylabel('response mag');
+    end
+    xlabel('Time (sec)');
+end
 
-        figure; 
-        for n_tn = 1:num_tn
-            tt1 = tn1(n_tn);
-            subplot(1, 3, n_tn); hold on;
-            if app.PlotstimCheckBox.Value
-                r1 = rectangle('Position', [0 ymin 0.5 ymax-ymin]);
-                r1.FaceColor = [app.ops.context_types_all_colors2{freq_col} transp];
-                r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col} transp];
-            end
-            color2 = app.ops.context_types_all_colors2{tt1};
-            shadedErrorBar_YS(plot_t, data_mmn_all3_mean(1,:,n_tn), data_mmn_all3_sem(1,:,n_tn), color2);
-            ylim([ymin, ymax]);
-            if app.ConverttoZCheckBox.Value
-                ylabel('Z-score');
-            else
-                ylabel('response mag');
-            end
+%% do bar plot versions
+
+if plot_first_tr
+    f1 = figure(); hold on; axis tight;
+    f1_fit_leg = cell(num_reg,1);
+    f1_line = cell(num_reg, 1);
+end
+f2 = figure(); hold on; axis tight;
+f2_fit_leg = cell(num_reg,1);
+f2_line = cell(num_reg, 1);
+
+first_tr_mean_all2 = zeros(num_reg, num_red);
+first_tr_sem_all2 = zeros(num_reg, num_red);
+tr_mean_all2 = zeros(num_reg, num_red);
+tr_sem_all2 = zeros(num_reg, num_red);
+tau_fit = zeros(num_reg, 1);
+tau_fit_std = zeros(num_reg, 1);
+tau_fit_df = zeros(num_reg, 1);
+r_sq_all = zeros(num_reg, 1);
+ft_tau_fit = zeros(num_reg, 1);
+ft_tau_fit_std = zeros(num_reg, 1);
+ft_tau_fit_df = zeros(num_reg, 1);
+ft_r_sq_all = zeros(num_reg, 1);
+for n_reg = 1:num_reg
+    first_tr_all = cat(1, data_first_trial2{:, n_reg});
+    tr_mean_all = cat(1, data_rem_trials_mean2{:, n_reg});
+
+    num_cells = size(first_tr_all,1);
+    if num_cells
+        first_tr_mean_all3 = zeros(num_cells, num_red);
+        tr_mean_all3 = zeros(num_cells, num_red);
+        for n_red = 1:num_red
+            win_idx = and(plot_t2 >= ((n_red-1)+win_use(1)), plot_t2 <= ((n_red-1)+win_use(2)));
+            temp_mean1 = mean(first_tr_all(:,win_idx),2);
+            
+            first_tr_mean_all3(:,n_red) = temp_mean1;
+
+            first_tr_mean_all2(n_reg, n_red) = mean(temp_mean1, 'omitnan');
+            first_tr_sem_all2(n_reg, n_red) = std(temp_mean1, [], 1, 'omitnan')./sqrt(num_cells-1);
+            
+            temp_mean2 = mean(tr_mean_all(:,win_idx),2);
+
+            tr_mean_all3(:,n_red) = temp_mean2;
+
+            tr_mean_all2(n_reg, n_red) = mean(temp_mean2, 'omitnan');
+            tr_sem_all2(n_reg, n_red) = std(temp_mean2, [], 1, 'omitnan')./sqrt(num_cells-1);
         end
-        sgtitle(sprintf('context trials %s; %d cells', title_tag3, num_cells), 'interpreter', 'none')
+        
+        x_fit = 1:0.1:num_red;
+        x_data = (1:num_red)';
+        if plot_first_tr
+            figure(f1);
+            f1_line{n_reg} = errorbar(x_data, first_tr_mean_all2(n_reg,:), first_tr_sem_all2(n_reg,:), '.', color=col_reg{n_reg}, markersize=15);
+            
+            fit_data = if_get_fit_wrap(x_data, first_tr_mean_all2(n_reg,:)', fit_type);
+
+            y_fit = fit_data.fit_eq(x_fit, fit_data.fit_pars);
+            plot(x_fit, y_fit, '--', color=col_reg{n_reg});
+                
+            tau_mean = fit_data.fit_pars(2);
+            tau_std = sqrt(fit_data.param_cov(2,2));
+            ft_tau_fit(n_reg) = tau_mean;
+            ft_tau_fit_std(n_reg) = tau_std;
+            ft_tau_fit_df(n_reg) = fit_data.df;
+
+            ft_r_sq_all(n_reg) = fit_data.r_sq_adj;
+            if strcmpi(fit_data.fit_type, 'exp')
+                leg_tag = sprintf('; tau=%.2f', fit_data.fit_pars(2));
+            elseif strcmpi(fit_data.fit_type, 'linear')
+                leg_tag = sprintf('; m=%.2f', fit_data.fit_pars(2));
+            end
+
+            f1_fit_leg{n_reg} = sprintf('%s; %s fit; R^2=%.2f%s', leg_list{n_reg}, fit_data.fit_type, fit_data.r_sq_adj, leg_tag);
+            fprintf('%s first tr; fit eq: %s; param cov: %s\n', leg_list{n_reg}, fit_data.fit_eq_str, num2str(diag(fit_data.param_cov)'));
+            fprintf('%s first tr; tau mean= %.3f; tau std=%.3f; df=%d\n', leg_list{n_reg}, tau_mean, tau_std, fit_data.df);
+        end
+
+        figure(f2);
+        f2_line{n_reg} = errorbar(x_data, tr_mean_all2(n_reg,:), tr_sem_all2(n_reg,:), '.', color=col_reg{n_reg}, markersize=15);
+        
+        fit_data = if_get_fit_wrap(x_data, tr_mean_all2(n_reg,:)', fit_type);
+        
+        y_fit = fit_data.fit_eq(x_fit, fit_data.fit_pars);
+        plot(x_fit, y_fit, '--', color=col_reg{n_reg});
+        
+        tau_mean = fit_data.fit_pars(2);
+        tau_std = sqrt(fit_data.param_cov(2,2));
+        tau_fit(n_reg) = tau_mean;
+        tau_fit_std(n_reg) = tau_std;
+        tau_fit_df(n_reg) = fit_data.df;
+        r_sq_all(n_reg) = fit_data.r_sq_adj;
+        
+        if strcmpi(fit_data.fit_type, 'exp')
+            leg_tag = sprintf('; tau=%.2f', fit_data.fit_pars(2));
+        elseif strcmpi(fit_data.fit_type, 'linear')
+            leg_tag = sprintf('; m=%.2f', fit_data.fit_pars(2));
+        end
+
+        f2_fit_leg{n_reg} = sprintf('%s; %s fit; R^2=%.2f%s', leg_list{n_reg}, fit_data.fit_type, fit_data.r_sq_adj, leg_tag);
+        fprintf('%s trial ave; fit eq: %s; param cov: %s\n', leg_list{n_reg}, fit_data.fit_eq_str, num2str(diag(fit_data.param_cov)'));
+        fprintf('%s trial ave; tau mean= %.3f; tau std=%.3f; df=%d\n', leg_list{n_reg}, tau_mean, tau_std, fit_data.df);
+        if app.plotstatsCheckBox.Value
+            % some anova, but a lot of groups, maybe better do some
+            % regression
+            % 
+            % [p_all,tbl_all,stats_all] = anova1(first_tr_mean_all3(:),x1(:), 'nodisplay');
+            % 
+            % idx1 = strcmpi(tbl_all(1,:), 'MS');
+            % idx2 = strcmpi(tbl_all(1,:), 'df');
+            % idx5 = strcmpi(tbl_all(:,1), 'Error');
+            % 
+            % MSE = tbl_all{idx5, idx1};
+            % dfe = tbl_all{idx5,idx2};
+            % 
+            % means1 = mean(first_tr_mean_all3, 1);
+            % mean_tot = mean(first_tr_mean_all3(:));
+            % 
+            % t_vals1 = (means1 - mean_tot)/sqrt(MSE)*sqrt(num_cells-1);
+            % p_vals1 = (1 - tcdf(abs(t_vals1), dfe))*2;
+            % 
+            % f_dv_plot_anova1(p_all, tbl_all, stats_all, leg_list{n_reg}, '');
+            % some regresions
+            
+
+        end
+    end
+end
+if plot_first_tr
+    figure(f1);
+    legend([f1_line{:}], f1_fit_leg);
+    title(sprintf('first trials fits; %s', title_tag2), 'interpreter', 'none');
+    if app.ConverttoZCheckBox.Value
+        ylabel('Z-score');
+    else
+        ylabel('response mag');
+    end
+    xlabel('Time (sec)');
+end
+
+figure(f2);
+legend([f2_line{:}], f2_fit_leg);
+title(sprintf('red 1-%d fits; %s', num_red, title_tag2), 'interpreter', 'none');
+if app.ConverttoZCheckBox.Value
+    ylabel('Z-score');
+else
+    ylabel('response mag');
+end
+xlabel('Time (sec)');
+
+if strcmpi(reg_tag, 'All comb')
+    colors1 = {[.6 .6 .6]};
+    colors2 = {'k'};
+    colors3 = {'r'};
+else
+    colors1 = app.ops.cond_colors;
+    colors2 = app.ops.cond_colors;
+    colors3 = app.ops.cond_colors;
+end
+
+if plot_first_tr
+    ft_tau_fit(ft_r_sq_all<0.1) = 0;
+    ft_tau_fit_std2 = ft_tau_fit_std;
+    ft_tau_fit_std2(ft_r_sq_all<0.1) = 0;
+
+    figure; hold on;
+    bar(categorical(leg_list,leg_list), ft_tau_fit, 'EdgeColor',[219, 239, 255]/256,'LineWidth',1.5);
+    for n_br = 1:num_reg
+        br1 = bar(n_br, ft_tau_fit(n_br));
+        br1.FaceColor = colors1{n_br};
+    end
+    if num_gr > 1
+        errorbar(1:num_reg, ft_tau_fit, ft_tau_fit_std2, '.k','LineWidth',1);
+    end
+    title(sprintf('%s; first tr tau', title_tag2), 'Interpreter', 'none');
+    ylabel('Tau (s)');
+    
+    f_dv_plot_param_ttest(ft_tau_fit, ft_tau_fit_std, ft_tau_fit_df, sprintf('%s; first tr tau', title_tag2), leg_list)
+end
+
+tau_fit(r_sq_all<0.1) = 0;
+tau_fit_std2 = tau_fit_std;
+tau_fit_std2(r_sq_all<0.1) = 0;
+figure; hold on;
+bar(categorical(leg_list,leg_list), tau_fit, 'EdgeColor',[219, 239, 255]/256,'LineWidth',1.5);
+for n_br = 1:num_reg
+    br1 = bar(n_br, tau_fit(n_br));
+    br1.FaceColor = colors1{n_br};
+end
+if num_gr > 1
+    errorbar(1:num_reg, tau_fit, tau_fit_std2, '.k','LineWidth',1);
+end
+title(sprintf('%s; first tr tau', title_tag2), 'Interpreter', 'none');
+ylabel('Tau (s)');
+
+f_dv_plot_param_ttest(tau_fit, tau_fit_std, tau_fit_df, sprintf('%s; red 1-%d tau', title_tag2, num_red), leg_list)
+
+
+% plot_bar_type = 2;
+% if plot_bar_type == 1
+%     if plot_first_tr
+%         figure(); axis tight; hold on
+%         b1 = bar(1:n_red, first_tr_mean_all2);
+%         groupwidth = min(0.8, num_reg/(num_reg + 1.5));
+%         for n_reg = 1:num_reg
+%             b1(n_reg).FaceColor = app.ops.cond_colors{n_reg};
+%             b1(n_reg).EdgeColor = app.ops.cond_colors{n_reg};
+%             b1(n_reg).FaceAlpha = 0.4;
+%             x = (1:num_red) - groupwidth/2 + (2*n_reg-1) * groupwidth / (2*num_reg);
+%             errorbar(x, first_tr_mean_all2(n_reg,:), first_tr_sem_all2(n_reg,:), '.', color=app.ops.cond_colors{n_reg});
+%         end
+%         legend(b1, leg_list)
+%     end
+% 
+%     figure(); axis tight; hold on
+%     b1 = bar(1:n_red, tr_mean_all2);
+%     groupwidth = min(0.8, num_reg/(num_reg + 1.5));
+%     for n_reg = 1:num_reg
+%         b1(n_reg).FaceColor = app.ops.cond_colors{n_reg};
+%         b1(n_reg).EdgeColor = app.ops.cond_colors{n_reg};
+%         b1(n_reg).FaceAlpha = 0.4;
+%         x = (1:num_red) - groupwidth/2 + (2*n_reg-1) * groupwidth / (2*num_reg);
+%         errorbar(x, tr_mean_all2(n_reg,:), tr_sem_all2(n_reg,:), '.', color=app.ops.cond_colors{n_reg});
+%     end
+%     legend(b1, leg_list)
+% elseif plot_bar_type == 2
+%     figure(); axis tight; hold on
+%     for n_reg = 1:num_reg
+%         errorbar(1:num_red, tr_mean_all2(n_reg,:), tr_sem_all2(n_reg,:), '.', color=app.ops.cond_colors{n_reg});
+%     end
+%     legend(leg_list)
+% 
+%     if plot_first_tr
+%         figure(); axis tight; hold on
+%         for n_reg = 1:num_reg
+%             errorbar(1:num_red, first_tr_mean_all2(n_reg,:), first_tr_sem_all2(n_reg,:), '.', color=app.ops.cond_colors{n_reg});
+%         end
+%         legend(leg_list)
+%     end
+% end
+%%
+if app.plotsuperdeetsCheckBox.Value
+    for n_reg = 1:num_reg
+        title_tag3 = sprintf('%s; %s', title_tag2, leg_list{n_reg});
+    
+        data_rem_trials_cellmean3 = cat(1, data_rem_trials_cellmean2{:,n_reg});
+    
+        if ~isempty(data_rem_trials_cellmean3)    
+            figure; 
+            imagesc(data_rem_trials_cellmean3)
+            title(sprintf('mean over cells; %s', title_tag3),  'interpreter', 'none')
+        end
+        data_rem_trials_mean3 = cat(1, data_rem_trials_mean2{:,n_reg});
+        if ~isempty(data_rem_trials_mean3)
+            figure; 
+            imagesc(data_rem_trials_mean3)
+            title(sprintf('mean over trials; %s', title_tag3),  'interpreter', 'none')
+        end
     end
 end
 
-%%
-
-for n_reg = 1:num_reg
-    title_tag3 = sprintf('%s; %s', title_tag2, leg_list{n_reg});
-
-    data_rem_trials_cellmean3 = cat(1, data_rem_trials_cellmean2{:,n_reg});
-    figure; 
-    imagesc(data_rem_trials_cellmean3)
-    title(sprintf('mean over cells; %s', title_tag3),  'interpreter', 'none')
-
-    data_rem_trials_mean3 = cat(1, data_rem_trials_mean2{:,n_reg});
-    figure; 
-    imagesc(data_rem_trials_mean3)
-    title(sprintf('mean over trials; %s', title_tag3),  'interpreter', 'none')
 end
 
+function  if_plot_stim_rect(fig, num_red, ylims1, color1, alpha1)
+
+figure(fig);
+for n_st = 1:num_red
+    r1 = rectangle('Position', [n_st-1, ylims1(1), 0.5, ylims1(2)-ylims1(1)]);
+    r1.FaceColor = [color1 alpha1];
+    r1.EdgeColor = [color1 alpha1];
+end
+
+end
+
+function fit_data = if_get_fit_wrap(data_x, data_y, fit_type)
+
+if strcmpi(fit_type, 'exp')
+    fit_data = f_get_fit(data_x, data_y, 'exp');
+elseif strcmpi(fit_type, 'linear')
+    fit_data = f_get_fit(data_x, data_y, 'linear');
+elseif strcmpi(fit_type, 'best')
+    fit_data_exp = f_get_fit(data_x, data_y, 'exp');
+    fit_data_lin = f_get_fit(data_x, data_y, 'linear');
+    total_fit = [fit_data_exp; fit_data_lin];
+
+    [~, fit_idx] = max([total_fit.r_sq_adj]);
+
+    fit_data = total_fit(fit_idx);
+end
 
 end

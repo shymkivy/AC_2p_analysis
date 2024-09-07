@@ -40,7 +40,7 @@ if ~numel(filename)
         filename2 = cat(2, filename2{:});
     end
     filename2 = regexprep(filename2, ' +', '_');
-    filename2 = regexprep(filename2, '[;=.]+', '');
+    filename2 = regexprep(filename2, '[:;=.]+', '');
 
     filename = sprintf('%s%s_%s_%sh_%sm', filename2, title_tag, datetime('now', 'Format','yy_MM_dd'), datetime('now', 'Format','hh'), datetime('now', 'Format','mm'));
 

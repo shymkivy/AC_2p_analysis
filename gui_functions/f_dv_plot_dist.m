@@ -36,7 +36,7 @@ bin_locs = linspace(plot_lims(1),plot_lims(2),num_bins+1);
 sm_fac = app.kdesmfactorEditField.Value;
 
 figure; hold on; axis tight;
-if ~strcmpi(app.plottypeDropDown.Value, 'ecdf')
+if sum(strcmpi(app.plottypeDropDown.Value, {'kde', 'histogram', 'hist-kde'}))
     if app.PlotstimCheckBox.Value
         plot_times = 0:1:plot_lims(2);
         for n_pl = 1:numel(plot_times)
@@ -67,7 +67,7 @@ if app.MarginalizedistCheckBox.Value
         elseif strcmpi(app.plottypeDropDown.Value, 'ecdf')
             [f, xi] = ecdf(data_feat);
             leg1{1} = plot(xi, f, 'LineWidth', 2, 'color', 'k');
-            ymax = 1;
+            ymax = 1/1.1;
             leg_lab = {'ecdf'};
         elseif strcmpi(app.plottypeDropDown.Value, 'histogram')
             h1 = histogram(data_feat, bin_locs, 'Normalization', 'probability');
@@ -109,7 +109,14 @@ else
             elseif strcmpi(app.plottypeDropDown.Value, 'ecdf')
                 [f, xi] = ecdf(data_feat);
                 leg1{n_tn} = plot(xi, f, 'color', color2, 'LineWidth', 2);
-                ymax = 1;
+                ymax = 1/1.1;
+            elseif strcmpi(app.plottypeDropDown.Value, 'bar')
+                mean1 = mean(data_feat);
+                sem1 = std(data_feat)/sqrt(numel(data_feat)-1);
+                leg1{n_tn} = bar(n_tn, mean1);
+                leg1{n_tn}.FaceColor = color2;
+                errorbar(n_tn, mean1, sem1, 'k');
+                ymax = max([mean1+sem1, ymax]);
             elseif strcmpi(app.plottypeDropDown.Value, 'histogram')
                 h1 = histogram(data_feat, bin_locs, 'Normalization', 'probability');
                 h1.FaceColor = color2;
@@ -133,7 +140,6 @@ if strcmpi(app.plotfeatureDropDown.Value, 'peak loc')
     xlabel('Time, sec');
 else
     xlabel(app.plotfeatureDropDown.Value);
-    ylim([0 1.05])
 end
 title_tag2 = sprintf('%s, %s, %s, %s; smf=%.1f', title_tag, app.plotfeatureDropDown.Value, app.plottypeDropDown.Value, app.ResponsivecellsselectDropDown.Value, sm_fac);
 title(title_tag2, 'interpreter', 'none');
@@ -146,7 +152,7 @@ end
 if ~app.MarginalizedistCheckBox.Value
     [p_all, tbl_all, stats_all]  = anova1(cat(1, feat_pool{:}),cat(1, lab_pool{:}), 'off');
     title_tag4 = sprintf('%s; stats', title_tag2);
-    f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag4);
+    f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag4, app.ops.context_types_labels_trim2(tn1(has_data)));
 end
 end
 

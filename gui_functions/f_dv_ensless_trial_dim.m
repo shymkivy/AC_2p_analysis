@@ -13,7 +13,9 @@ firing_rate = cat(1,cdata.S_sm);
 trial_types = app.ddata.trial_types{1};
 stim_times = app.ddata.stim_frame_index{1};
 trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
-[~, trial_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
+
+vol_per = mean(cat(1, cdata.volume_period));
+[~, trial_frames] = f_dv_compute_window_t(trial_window, vol_per);
 mmn_freq = app.ddata.MMN_freq{1};
 stats1 = app.ddata.stats{n_pl};
 if ~isempty(app.ddata.ensembles{1})

@@ -2,7 +2,7 @@ function f_dv_plot_wf_tuning(app)
 
 im_source = [2 7 9];
 
-norm_within = 0;
+norm_within = app.normpeakwithinCheckBox.Value;
 
 ms_tag = app.ddata.mouse_tag{1};
 reg_data = load(app.regdatapathEditField.Value);

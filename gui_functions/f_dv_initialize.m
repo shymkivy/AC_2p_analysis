@@ -157,6 +157,8 @@ app.DistreferenceDropDown.Items = {'pairwise', 'zero', 'trial ave'};
 
 app.statsbetweenDropDown.Items = {'Combined', 'Mouse', 'Dset', 'Subdset'};
 
+app.winanalyzeDropDown.Items = {'Onset', 'Offset', 'Middle'};
+
 app.NumplotaxesDropDown.Items = {'2', '3'};
 
 app.ColormapDropDown.Items = {'gray', 'parula', 'jet', 'turbo'};
@@ -166,5 +168,9 @@ app.MattridataplotDropDown.Items = {'LTri', 'UTri', 'Full'};
 app.nanhandlemetDropDown.Items = {'randn', 'mean', 'remove'};
 
 app.UseregdatalabelsCheckBox.Value = 1;
+
+app.BarstatstypeDropDown.Items = {'parametric', 'nonparametric'};
+
+app.BarplottypeDropDown.Items = {'bar', 'bar_points', 'violin'};
 
 end

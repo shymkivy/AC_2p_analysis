@@ -125,9 +125,11 @@ else
         else
             title_tag2 = sprintf('%s raster', app.ddata.dset_name_full{1});
         end
+        
+        vol_per = mean(cat(1, cdata.volume_period));
 
         num_frames = size(firing_rate3,2);
-        raster_t = (1:num_frames)/(1000/cdata.volume_period);
+        raster_t = (1:num_frames)/(1000/vol_per);
         
         f_plot_raster_mean(firing_rate3(ord_cell,:), 1, raster_t, tn_seq_plot, app.ops.context_types_all_colors2, app.ColormapDropDown.Value, app.InvertcmapCheckBox.Value);
         sgtitle(title_tag2, 'interpreter', 'none');

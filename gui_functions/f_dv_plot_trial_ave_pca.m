@@ -10,6 +10,8 @@ num_plot_comp = num_pl*num_pl_d;
 
 trs_all = reshape(1:num_plot_comp, num_pl_d, []);
 
+cell_num_lim = 1;
+
 dist_list = [18, 20;
              28, 30;
              19, 20;
@@ -128,6 +130,7 @@ num_gr = numel(gr_all);
 
 top_comp_comb = cell(1, num_reg);
 exp_var_comb = cell(1, num_reg);
+pr_all = zeros(1, num_reg);
 for n_reg = 1:num_reg
     num_cells = sum(cell_counts2(:,n_reg));
     if num_cells
@@ -149,8 +152,10 @@ for n_reg = 1:num_reg
         
         top_comp_comb{1, n_reg} = top_comp2;
         exp_var_comb{1, n_reg} = explained;
+        pr_all(1,n_reg) = (sum(exp_var_comb{1, n_reg}).^2)/sum(exp_var_comb{1, n_reg}.^2);
     end
 end
+
 
 colors_tn = app.ops.context_types_all_colors2;
 %tn1 = tn_all(1, :);
@@ -163,7 +168,7 @@ for n_reg = 1:num_reg
             trs1 = trs_all(:, n_pl);
             if num_comp >= trs1(end)
                 sum_var = sum(exp_var2(trs1(1):trs1(end)));
-                title_tag2 = sprintf('%s; combined; region %s; comp %d-%d; %.2f%% var', title_tag, leg_list{n_reg}, trs1(1), trs1(end), sum_var);
+                title_tag2 = sprintf('%s; combined; region %s; comp %d-%d; %.2f%% var; pr=%.2f', title_tag, leg_list{n_reg}, trs1(1), trs1(end), sum_var, pr_all(1,n_reg));
                 if num_pl_d == 3
                     f_dv_plot3_t_pc(top_comp2(:,:,trs1), tn00, title_tag2, colors_tn, app.shadowon3dCheckBox.Value, shadow_axis_locs, app.FigrenderpaintersCheckBox.Value, app.gridon3dCheckBox.Value, reverse_xyz);
                 elseif num_pl_d == 2
@@ -268,18 +273,17 @@ if app.PCAdistancesCheckBox.Value
     dist_lab2 = dist_lab(has_dist_idx);
     
     
-    %%
-    onset_win = params.stats.onset_resp_win;
-    offset_win = params.stats.offset_resp_win;
-    mid_win = params.stats.middle_resp_win; %mid_win = [.3 .6];
-    
-    win_frames{1} = logical((plot_t >= onset_win(1)) .* (plot_t <= onset_win(2)));
-    win_frames{2} = logical((plot_t >= offset_win(1)) .* (plot_t <= offset_win(2)));
-    win_frames{3} = logical((plot_t >= mid_win(1)) .* (plot_t <= mid_win(2))); 
-    labl1 = [app.ops.context_types_labels(tn00)]; %, [{'Cont comb'; 'Red comb pool'; 'Dev comb'}]];
-    win_labels = {'Onset', 'Offset', 'Middle'};
-    num_win = numel(win_frames);
-    
+    %% 
+    win_label = app.winanalyzeDropDown.Value;
+    if strcmpi(win_label, 'Onset')
+        win1 = params.stats.onset_resp_win;
+    elseif strcmpi(win_label, 'Offset')
+        win1 = params.stats.offset_resp_win;
+    elseif strcmpi(win_label, 'Middle')
+        win1 = params.stats.middle_resp_win;
+    end
+    win_frames = logical((plot_t >= win1(1)) .* (plot_t <= win1(2)));
+
     
     dist_mean_all = cell(num_dist2, num_reg);
     dist_sem_all = cell(num_dist2, num_reg);
@@ -300,24 +304,35 @@ if app.PCAdistancesCheckBox.Value
     
     ylim1 = ([min([dist_mean_allcat - dist_sem_allcat; 0]), max(dist_mean_allcat + dist_sem_allcat)*1.1]);
     
+    labl2 = app.ops.context_types_labels(tn1);
+    colors1 = app.ops.context_types_all_colors2(tn1);
+    transp = app.StimtranspEditField.Value;
+    freq_col = app.stimcolorSpinner.Value;
+
     for n_list = 1:num_dist2
         dist_all4 = dist_all3{n_list};
-        win_vals = cell(num_win,num_reg);
+        win_vals = cell(1,num_reg);
         reg_lab = cell(1,num_reg);
         
         figure; hold on; axis tight
+        if app.PlotstimCheckBox.Value
+            r1 = rectangle('Position', [0 ylim1(1) 0.5 ylim1(2)-ylim1(1)]);
+            r1.FaceColor = [app.ops.context_types_all_colors2{freq_col} transp];
+            r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col} transp];
+        end
+
         sall = cell(num_reg,1);
         for n_reg = 1:num_reg
-            if num_cells_all(n_reg)
+            if num_cells_all(n_reg) >= cell_num_lim
                 dist_all5 = cat(2, dist_all4{:, n_reg});
                 
-                for n_win = 1:num_win
-                    win_vals{n_win, n_reg} = mean(dist_all5(win_frames{n_win},:),1)';
-                end
+                win_vals{n_reg} = mean(dist_all5(win_frames,:),1)';
                 
                 num_groups = size(dist_all5,2);
                 reg_lab{n_reg} = repmat(n_reg,num_groups,1);
                 
+                
+
                 dist_mean = mean(dist_all5,2);
                 dist_sem = std(dist_all5, [], 2)/sqrt(max(num_groups-1, 1));
                 
@@ -333,15 +348,18 @@ if app.PCAdistancesCheckBox.Value
         title(sprintf('distance %s; %s, region %s, %dcomp; %.2f%%var; ', dist_lab2{n_list}, title_tag, reg_tag, num_comp, sum(explained(1:num_comp))), 'Interpreter','none');
         legend([sall{:}], leg_list(logical(sum(num_cells_all,1))));
         
+        title_tag4 = sprintf('%s; %s; %s reg; %s win', title_tag, dist_lab2{n_list}, reg_tag, win_label);
+
+        f_plot_bar(win_vals, leg_list', app.ops.cond_colors, colors1)
+        title(title_tag4, 'interpreter', 'none');
+        ylim(ylim1);
+
         reg_lab2 = cat(1, reg_lab{:});
-        for n_win = 1:num_win
-            win_data = cat(1, win_vals{n_win, :});
-            
-            [p1, tbl1, stats2]  = anova1(win_data, reg_lab2, 'off');
-            title_tag4 = sprintf('%s; %s; %s reg; %s win', title_tag, dist_lab2{n_list}, reg_tag, win_labels{n_win});
-            f_dv_plot_anova1(p1, tbl1, stats2, title_tag4);
-            
-        end
+        win_data = cat(1, win_vals{:});
+        
+        [p1, tbl1, stats2]  = anova1(win_data, reg_lab2, 'off');
+        
+        f_dv_plot_anova1(p1, tbl1, stats2, title_tag4, leg_list);
         
     end
 end

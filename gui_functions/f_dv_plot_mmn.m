@@ -122,28 +122,32 @@ z_ylim_min = 0;
 y_lim_max = 0;
 y_lim_min = 0;
 
-title_tag3 = sprintf('%s; %s; %s', title_tag, app.ResponsivecellsselectDropDown.Value, tt_input);
+win_label = app.winanalyzeDropDown.Value;
+
+title_tag3 = sprintf('%s; %s; reg %s; %s', title_tag, app.ResponsivecellsselectDropDown.Value, reg_tag, tt_input);
 if app.ConverttoZCheckBox.Value
     title_tag3 = sprintf('%s; Z', title_tag3);
 end
+title_tag4 = sprintf('%s win; %s', win_label, title_tag3);
 
-onset_win = params.stats.onset_resp_win;
-offset_win = params.stats.offset_resp_win;
-mid_win = params.stats.middle_resp_win; %mid_win = [.3 .6];
-win_frames{1} = logical((plot_t >= onset_win(1)) .* (plot_t <= onset_win(2)));
-win_frames{2} = logical((plot_t >= offset_win(1)) .* (plot_t <= offset_win(2)));
-win_frames{3} = logical((plot_t >= mid_win(1)) .* (plot_t <= mid_win(2))); 
-win_labels = {'Onset', 'Offset', 'Middle'};
-num_win = numel(win_frames);
+if strcmpi(win_label, 'Onset')
+    win1 = params.stats.onset_resp_win;
+elseif strcmpi(win_label, 'Offset')
+    win1 = params.stats.offset_resp_win;
+elseif strcmpi(win_label, 'Middle')
+    win1 = params.stats.middle_resp_win;
+end
+win_frames = logical((plot_t >= win1(1)) .* (plot_t <= win1(2)));
 
+resp_all3 = cell(num_reg, 1);
 resp_mean = cell(num_reg,1);
 resp_sem = cell(num_reg,1);
 num_cells = zeros(num_reg,1);
-resp_reg_tn_all = cell(num_reg, num_tn, num_win);
+resp_reg_tn_all = cell(num_reg, num_tn);
 reg_lab = cell(num_reg,1);
 for n_reg = 1:num_reg
-    
     temp_resp = cat(1,resp_all2{:, n_reg});
+    resp_all3{n_reg} = temp_resp;
     temp_num_cells = size(temp_resp,1);
     if temp_num_cells
         num_cells(n_reg, 1) = temp_num_cells;
@@ -154,9 +158,7 @@ for n_reg = 1:num_reg
         
         reg_lab{n_reg} = repmat(n_reg, temp_num_cells, 1);
         for n_tn = 1:num_tn
-            for n_win = 1:3
-                resp_reg_tn_all{n_reg, n_tn, n_win} = mean(temp_resp(:,win_frames{n_win},n_tn),2);
-            end
+            resp_reg_tn_all{n_reg, n_tn} = mean(temp_resp(:,win_frames,n_tn),2);
         end
     
         max_vals = temp_mean + temp_sem;
@@ -170,11 +172,10 @@ y_lim_max = max([max([y_lim_max z_ylim_max])*1.05, app.maxYlimEditField.Value]);
 y_lim_min = min([min([y_lim_min z_ylim_min])*1.05, app.minYlimEditField.Value]);
 ylim1 = [y_lim_min, y_lim_max];
 
-
 transp = app.StimtranspEditField.Value;
 freq_col = app.stimcolorSpinner.Value;
 tn1 = tn_all(1,:);
-labl1 = app.ops.context_types_labels(tn1);
+labl1 = app.ops.context_types_labels_trim2(tn1);
 
 for n_reg = 1:num_reg
     leg_all1 = cell(num_tn,1);
@@ -196,125 +197,124 @@ for n_reg = 1:num_reg
         else
             ylabel('response mag');
         end
-        
         xlabel('Time (sec)');
         legend([leg_all1{:}], leg1(tn1))
         title(sprintf('%s; %s; %d cells', leg_list{n_reg}, title_tag3, num_cells(n_reg)), 'Interpreter', 'none');
-        
-        if plot_stats
-            for n_win = 1:num_win
-                [p_all, tbl_all, stats_all]  = anova1(cat(2,resp_reg_tn_all{n_reg,:,n_win}),[], 'off');
-                title_tag4 = sprintf('between ctx; %s; %s win; %s', leg_list{n_reg}, win_labels{n_win}, title_tag3); 
-                f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag4);
-            end
-        end
     end
 end
 
 %% plot differences
-if app.PlotextrabarsCheckBox.Value
+if app.plotsuperdeetsCheckBox.Value
     % cont red dev
     %ylim1 = [-1 9];
-    for n_win = 1:3
-        means_all = zeros(num_reg, 3);
-        sem_all = zeros(num_reg, 3);
-        
-        for n_reg = 1:num_reg
-            if num_cells(n_reg)
-                temp_mean = resp_mean{n_reg, 1};
-                temp_sem = resp_sem{n_reg, 1};
-        
-                means_all(n_reg,:) = mean(temp_mean(win_frames{n_win},:),1);
-                sem_all(n_reg, :) = mean(temp_sem(win_frames{n_win},:),1);
-            end
+
+    resp_all4 = cell(num_reg, num_tn);
+    for n_reg = 1:num_reg
+        for n_tn = 1:num_tn
+            resp_all4{n_reg, n_tn} = mean(resp_all3{n_reg}(:,win_frames,n_tn),2);
         end
-    
-        figure; hold on;
-        bar(categorical(labl1(:,1), labl1(:,1)), [0 0 0]);
-        for n1 = 1:3
-            b1 = bar(n1, means_all(:,n1));
-            num_reg2 = numel(means_all(:,n1));
-            if num_reg2 > 1
-                errorbar(n1 + ((1:4)-2.5)/5.5, means_all(:,n1), sem_all(:,n1), '.k');
-                for n_br = 1:numel(b1)
-                    b1(n_br).FaceColor = app.ops.cond_colors{n_br};
-                end
-            else
-                errorbar(n1, means_all(:,n1), sem_all(:,n1), '.k');
-                b1.FaceColor = app.ops.context_colors{n1};
-            end
-        end
+    end
+    colors1 = app.ops.context_types_all_colors2(tn1);
+    labl2 = app.ops.context_types_labels(tn1);
+
+    if strcmpi(app.BarplottypeDropDown.Value, 'bar')
+        f_plot_bar(resp_all4, labl2, colors1, app.ops.cond_colors)
         ylim(ylim1)
-        title(sprintf('%s resp flip %d', win_labels{n_win}, 1));
+        title(title_tag4, 'interpreter', 'none');
         ylabel('z-score');
-        
-        if plot_stats
+    elseif strcmpi(app.BarplottypeDropDown.Value, 'bar_points')
+        f_plot_bar_points(resp_all4, labl2, app.ops.context_colors, app.ops.cond_colors, 'std', 0)
+        title(title_tag4, 'interpreter', 'none');
+        ylabel('z-score');
+    elseif strcmpi(app.BarplottypeDropDown.Value, 'violin')
+        f_plot_bar_points(resp_all4, labl2, app.ops.context_colors, app.ops.cond_colors, 'std', 1)
+        title(title_tag4, 'interpreter', 'none');
+        ylabel('z-score');
+    end
+
+    if plot_stats
+        if sum(strcmpi(reg_tag, {'all', 'primary vs secondary'}))
+            % between regions
             for n_tn = 1:num_tn
-                [p_all, tbl_all, stats_all]  = anova1(cat(1,resp_reg_tn_all{:,n_tn,n_win}),cat(1,reg_lab{:}), 'off');
-                title_tag4 = sprintf('between reg; %s win; %s; %s', win_labels{n_win}, labl1{n_tn}, title_tag3);
-                f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag4);
+                [p_all, tbl_all, stats_all]  = anova1(cat(1,resp_reg_tn_all{:,n_tn}),cat(1,reg_lab{:}), 'off');
+                title_tag5 = sprintf('between reg; %s; %s', title_tag4, labl1{n_tn});
+                f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag5, leg_list, 1);
+            end
+        else
+            resp_temp = cat(2,resp_reg_tn_all{n_reg,:});
+            % between trial types
+            
+            if strcmpi(app.BarstatstypeDropDown.Value, 'parametric')
+                [p_all, tbl_all, stats_all]  = anova1(resp_temp,[], 'off');
+                title_tag5 = sprintf('between ctx; %s; %s', title_tag4, leg_list{n_reg}); 
+                f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag5, labl1, 1);
+                
+                f_dv_plot_ttest_comb(resp_temp, title_tag4, labl1);
+            elseif strcmpi(app.BarstatstypeDropDown.Value, 'nonparametric')
+                f_dv_plot_signedrank(resp_temp, title_tag4, labl1);
             end
         end
     end
     
     
     %% also differences
-    
     % cont red dev
     categories1 = {'DD - red', 'DD - cont', 'Cont - red'};
     sub_pairs = [3, 2; 3, 1; 1, 2];
-    for n_win = 1:3
-        means_all = zeros(num_reg, 3);
-        sem_all = zeros(num_reg, 3);
-        for n_reg = 1:num_reg
-            if num_cells(n_reg)
-                temp_mean = resp_mean{n_reg, 1};
-                temp_sem = resp_sem{n_reg, 1};
-        
-                for n_pair = 1:3
-                    means_all(n_reg,n_pair) = mean(temp_mean(win_frames{n_win},sub_pairs(n_pair,1)),1) - mean(temp_mean(win_frames{n_win},sub_pairs(n_pair,2)),1);
-                    sem_all(n_reg,n_pair) = mean([mean(temp_sem(win_frames{n_win},sub_pairs(n_pair,1)),1), mean(temp_sem(win_frames{n_win},sub_pairs(n_pair,2)),1)]);
-                end
-            end
-        end
+
+    means_all = zeros(num_reg, 3);
+    sem_all = zeros(num_reg, 3);
+    for n_reg = 1:num_reg
+        if num_cells(n_reg)
+            temp_mean = resp_mean{n_reg, 1};
+            temp_sem = resp_sem{n_reg, 1};
     
-        figure; hold on;
-        bar(categorical(categories1, categories1), [0 0 0]);
-        for n1 = 1:3
-            num_reg2 = numel(means_all(:,n1));
-            b1 = bar(n1, means_all(:,n1));
-            if num_reg2 > 1
-                errorbar(n1 + ((1:4)-2.5)/5.5, means_all(:,n1), sem_all(:,n1), '.k');
-                for n_br = 1:numel(b1)
-                    b1(n_br).FaceColor = app.ops.cond_colors{n_br};
-                end
-            else
-                errorbar(n1, means_all(:,n1), sem_all(:,n1), '.k');
-                b1.FaceColor = app.ops.context_colors{n1};
-            end
-        end
-        ylim(ylim1)
-        title(sprintf('%s resp flip %d', win_labels{n_win}, 1));
-        ylabel('z-score');
-        
-        if plot_stats
             for n_pair = 1:3
-                [p_all, tbl_all, stats_all]  = anova1(cat(1,resp_reg_tn_all{:,sub_pairs(n_pair,1),n_win}) - cat(1,resp_reg_tn_all{:,sub_pairs(n_pair,2),n_win}),cat(1,reg_lab{:}), 'off');
-                title_tag4 = sprintf('between pair; %s win; %s; %s', win_labels{n_win}, categories1{n_pair}, title_tag3);
-                f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag4);
+                means_all(n_reg,n_pair) = mean(temp_mean(win_frames,sub_pairs(n_pair,1)),1) - mean(temp_mean(win_frames,sub_pairs(n_pair,2)),1);
+                sem_all(n_reg,n_pair) = mean([mean(temp_sem(win_frames,sub_pairs(n_pair,1)),1), mean(temp_sem(win_frames,sub_pairs(n_pair,2)),1)]);
             end
         end
-        
+    end
+
+    figure; hold on;
+    bar(categorical(categories1, categories1), [0 0 0]);
+    for n1 = 1:3
+        num_reg2 = numel(means_all(:,n1));
+        b1 = bar(n1, means_all(:,n1));
+        if num_reg2 > 1
+            errorbar(n1 + ((1:4)-2.5)/5.5, means_all(:,n1), sem_all(:,n1), '.k');
+            for n_br = 1:numel(b1)
+                b1(n_br).FaceColor = app.ops.cond_colors{n_br};
+            end
+        else
+            errorbar(n1, means_all(:,n1), sem_all(:,n1), '.k');
+            b1.FaceColor = [.4 .4 .4];
+        end
+    end
+    ylim(ylim1)
+    title(sprintf('ctx diff; %s win; %s', win_label, title_tag3), 'interpreter', 'none');
+    ylabel('z-score');
+    
+    if plot_stats
+        if sum(strcmpi(reg_tag, {'all', 'primary vs secondary'}))
+            for n_pair = 1:3
+                [p_all, tbl_all, stats_all]  = anova1(cat(1,resp_reg_tn_all{:,sub_pairs(n_pair,1)}) - cat(1,resp_reg_tn_all{:,sub_pairs(n_pair,2)}),cat(1,reg_lab{:}), 'off');
+                title_tag5 = sprintf('between pair; %s; %s', title_tag4, categories1{n_pair});
+                f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag5, leg_list);
+            end
+        end
     end
     
     %%
     for n_reg = 1:num_reg
-        
         if num_cells(n_reg)
             temp_data = cat(1,resp_all2{:, n_reg});
-        
-            hc_params.plot_dist_mat = 0;
-            clust_out = f_hcluster_wrap(reshape(temp_data, [], num_t*num_tn), hc_params);
+            temp_data3 = (temp_data - mean(temp_data(:)))/std(temp_data(:));
+            %temp_data3 = temp_data;
+            hc_params.plot_dist_mat = 1;
+            hc_params.distance_metric = 'cosine';
+            hc_params.method = 'average';
+            clust_out = f_hcluster_wrap(reshape(temp_data3, [], num_t*num_tn), hc_params);
         
             %[~, idx1] = sort(mean(temp_data(idx2,:,3),2), 'descend');
             %[~, idx2] = sort(mean(temp_data(:,:,1),2), 'ascend');
@@ -330,7 +330,7 @@ if app.PlotextrabarsCheckBox.Value
             for n_ctx = 1:num_tn
                 subplot(1,num_tn,n_ctx);
                 imagesc(plot_t, [], temp_data2(clust_out.dend_order,:,n_ctx));
-                clim([0 .7])
+                clim([0 0.7])
             end
             colormap(app.ColormapDropDown.Value)
             sgtitle(sprintf('%s; region %s; flip%d', title_tag3, leg_list{n_reg}, n_gr), 'Interpreter', 'none');

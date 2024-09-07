@@ -4,6 +4,9 @@ decoder_type = 'svm'; % tree, svm, bayes
 
 trial_num_selection = 'min'; % all, median, mean, min
 
+sig_plot = [0.001, 0.01, 0.05];
+sig_range = [0.75 0.95];
+
 tn_all = f_dv_get_trial_number(app);
 %tt_all = app.ops.context_types_all(tn_all)';
 [num_gr, num_tn] = size(tn_all);
@@ -12,8 +15,9 @@ tn_all = f_dv_get_trial_number(app);
 num_dsets = size(data,1);
 params = f_dv_gather_params(app);
 
-[region_num, reg_tag] = f_dv_get_region_sel_val(app);
-num_regions = numel(region_num);
+%[region_num, reg_tag] = f_dv_get_region_sel_val(app);
+[region_num, reg_tag, leg_list] = f_dv_get_region_sel_val2(app);
+num_regions = size(region_num,1);
 reg_all = app.ops.regions_to_analyze;
 
 ddata = data(1,:);
@@ -55,18 +59,7 @@ for n_dset = 1:num_dsets
         trial_types_all = trial_types;
     end
 
-    num_cells = sum([stats1.num_cells]);
-
-    if app.UseregdatalabelsCheckBox.Value
-        if ~isempty(ddata.registered_data{1})
-            reg_cell_labels = ddata.registered_data{1}.reg_labels;
-        else
-            reg_cell_labels = zeros(num_cells,1);
-        end
-    else
-        reg_idx = find(strcmpi(reg_all, ddata.area));
-        reg_cell_labels = ones(num_cells,1)*reg_idx;
-    end
+    reg_cell_labels = f_dv_get_area_label(app, ddata);
 
     for n_gr = 1:num_gr
         tn1 = tn_all(n_gr, :);
@@ -76,12 +69,18 @@ for n_dset = 1:num_dsets
         resp_cells = f_dv_get_resp_vals_cells(app, stats1, tn1);
         resp_cells2 = logical(sum(resp_cells,2));
         for n_reg = 1:num_regions
-            reg_idx = reg_cell_labels == region_num(n_reg);
-            resp_reg_cell = and(resp_cells2, reg_idx);
+
+            n_reg2 = region_num(n_reg,:);
             
-            num_cells_avail(n_gr, n_dset, n_reg) = sum(resp_reg_cell);
+            % get resp cells
+            reg_cell_idx = logical(sum(reg_cell_labels == n_reg2,2));
+            resp_reg_cell = and(resp_cells2, reg_cell_idx);
             
-            if num_cells_avail(n_gr, n_dset, n_reg) > 10
+            num_cells2 = sum(resp_reg_cell);
+
+            num_cells_avail(n_gr, n_dset, n_reg) = num_cells2;
+            
+            if num_cells2 > 10
 
                 done_dec(n_gr, n_dset, n_reg) = 1;
     
@@ -183,9 +182,16 @@ for n_gr = 1:num_gr
         
             plot(plot_t, dec_acc_frames2', color=[0 0.4470 0.7410 0.2])
             plot(plot_t, mean(dec_acc_frames2,1), color=[0 0.4470 0.7410], LineWidth=2)
-            title(sprintf('%s; %s decoder, freqs; %s', reg_all{region_num(n_reg)}, decoder_type, title_tag2), 'interpreter', 'none')
+            title(sprintf('%s; %s decoder, freqs; %s', leg_list{n_reg}, decoder_type, title_tag2), 'interpreter', 'none');
+            xlim([-0.5, 2.5]);
         end
     end
+end
+
+if num_regions > 1
+    colors2 = app.ops.cond_colors;
+else
+    colors2 = {[0 0.4470 0.7410]};
 end
 
 for n_gr = 1:num_gr
@@ -202,13 +208,101 @@ for n_gr = 1:num_gr
             has_reg_data(num_regions+1) = 1;
             %plot(plot_t, dec_acc_frames_shuff2', color=[0 0 0 0.2])
             pl_all{num_regions+1} = plot(plot_t, mean(dec_acc_frames_shuff2,1), color=[0 0 0], LineWidth=2);
-            col2 = app.ops.cond_colors{region_num(n_reg)};
+            col2 = colors2{n_reg};
             %plot(plot_t, dec_acc_frames2', color=[0 0.4470 0.7410 0.2])
             pl_all{n_reg} = plot(plot_t, mean(dec_acc_frames2,1), color=col2, LineWidth=2);
         end
     end
-    title(sprintf('%s decoder, freqs; %s', decoder_type, title_tag2), 'interpreter', 'none')
-    legend([pl_all{has_reg_data}], [reg_all(region_num(has_reg_data(1:num_regions))); {'Shuffle'}])
+    title(sprintf('%s decoder, freqs; %s', decoder_type, title_tag2), 'interpreter', 'none');
+    legend([pl_all{has_reg_data}], [leg_list(has_reg_data(1:num_regions)), {'Shuffle'}]);
+    xlim([-0.5, 2.5]);
+end
+
+transp = app.StimtranspEditField.Value;
+freq_col = app.stimcolorSpinner.Value;
+
+sig_space = diff(sig_range)/(numel(sig_plot)+1);
+reg_space = sig_space/num_regions/2;
+
+for n_gr = 1:num_gr
+    figure; hold on; axis tight
+    pl_all = cell(num_regions+1,1);
+    has_reg_data = false(num_regions+1,1);
+
+    if app.PlotstimCheckBox.Value
+        for n_st = 1:3
+            r1 = rectangle('Position', [n_st-1 0 0.5 1]);
+            r1.FaceColor = [app.ops.context_types_all_colors2{freq_col} transp];
+            r1.EdgeColor = [app.ops.context_types_all_colors2{freq_col} transp];
+        end
+    end
+
+    shuff_all = cell(num_regions,1);
+    for n_reg = 1:num_regions
+        done_dec2 = done_dec(n_gr, :, n_reg);
+        dec_acc_frames2 = dec_acc_frames(done_dec2,:,n_gr,n_reg);
+        dec_acc_frames_shuff2 = dec_acc_frames_shuff(done_dec2,:,n_gr,n_reg);
+        shuff_all{n_reg} = dec_acc_frames_shuff2;
+
+        if ~isempty(dec_acc_frames_shuff2)
+            has_reg_data(n_reg) = 1;
+            has_reg_data(num_regions+1) = 1;
+            %plot(plot_t, dec_acc_frames_shuff2', color=[0 0 0 0.2])
+            %pl_all{num_regions+1} = plot(plot_t, mean(dec_acc_frames_shuff2,1), color=[0 0 0], LineWidth=2);
+            col2 = colors2{n_reg};
+            %plot(plot_t, dec_acc_frames2', color=[0 0.4470 0.7410 0.2])
+            num_dec1 = size(dec_acc_frames2,1);
+            if num_dec1 > 1
+                s1 = shadedErrorBar_YS(plot_t, mean(dec_acc_frames2,1), std(dec_acc_frames2,[],1)./sqrt(num_dec1-1), col2);
+                pl_all{n_reg} = s1.mainLine;
+            else
+                pl_all{n_reg} = plot(plot_t, mean(dec_acc_frames2,1), color=col2)
+            end
+            %pl_all{n_reg} = plot(plot_t, mean(dec_acc_frames2,1), color=col2, LineWidth=2);
+        end
+    end
+    shuff_all2 = cat(1, shuff_all{:});
+    num_dec2 = size(shuff_all2,1);
+    s1 = shadedErrorBar_YS(plot_t, mean(shuff_all2,1), std(shuff_all2,[],1)./sqrt(num_dec2-1), [0 0 0]);
+    pl_all{num_regions+1} = s1.mainLine;
+
+    for n_reg = 1:num_regions
+        done_dec2 = done_dec(n_gr, :, n_reg);
+        dec_acc_frames2 = dec_acc_frames(done_dec2,:,n_gr,n_reg);
+        
+        samp11 = dec_acc_frames2;
+        samp22 = shuff_all2;
+
+        %samp1 = dec_acc_frames2(:,1);
+        %samp2 = shuff_all2(:,1);
+        %[h,p,ci,stats] = ttest2(samp1, samp2)
+        
+        n1 = size(samp11,1);
+        n2 = size(samp22,1);
+        
+        t_vals1 = (mean(samp11, 1) - mean(samp22, 1))./sqrt(var(samp11, [] ,1)/n1 + var(samp22, [], 1)/n2);
+        df1 = n1 + n2 - 2;
+        p_vals1 = (1 - tcdf(abs(t_vals1), df1))*2;
+        
+        col2 = colors2{n_reg};
+ 
+        for n_sig = 1:numel(sig_plot)
+            idx1 = p_vals1 < sig_plot(n_sig);
+            sig_trace = nan(numel(plot_t),1);
+            sig_trace(idx1) = 1;
+
+            y_level = max(sig_range) - (n_sig-1)*sig_space - (n_reg-1)*reg_space;
+            plot(plot_t, sig_trace*y_level, '.-', color=col2)
+
+            if n_reg == 1
+                text(-0.5+sig_space, y_level+reg_space, ['p<' num2str(sig_plot(n_sig))]);
+            end
+        end
+
+    end
+    legend([pl_all{has_reg_data}], [leg_list(has_reg_data(1:num_regions)), {'Shuffle'}]);
+    title(sprintf('%s decoder, freqs; %s', decoder_type, title_tag2), 'interpreter', 'none');
+    xlim([-0.5, 2.5]);
 end
 
 for n_gr = 1:num_gr
@@ -229,8 +323,9 @@ for n_gr = 1:num_gr
                 %plot(plot_t, dec_acc_frames_bycl2', color=[0 0.4470 0.7410 0.2])
                 pl_all{n_tt} = plot(plot_t, mean(dec_acc_frames_bycl2(:,:,:,:,n_tt),1), color=col2, LineWidth=2);
             end
-            title(sprintf('%s; %s decoder, freqs; %s', reg_all{region_num(n_reg)}, decoder_type, title_tag2), 'interpreter', 'none');
+            title(sprintf('%s; %s decoder, freqs; %s', leg_list{n_reg}, decoder_type, title_tag2), 'interpreter', 'none');
             legend([pl_all{:}], [app.ops.context_types_labels(tn_all); {'Shuffle'}]);
+            xlim([-0.5, 2.5]);
         end
     end
 end

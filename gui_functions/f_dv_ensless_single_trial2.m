@@ -24,10 +24,12 @@ end
 
 %%
 
+vol_per = mean(cat(1, cdata.volume_period));
+
 trial_types = app.ddata.trial_types{1};
 stim_frame_index = app.ddata.stim_frame_index{1};
 trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
-[~, trial_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
+[~, trial_frames] = f_dv_compute_window_t(trial_window, vol_per);
 
 trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_frames);
 if ~isempty(app.ddata.MMN_freq{1})

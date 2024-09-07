@@ -24,24 +24,26 @@ else
     resp_cell = cat(1,resp_cells_all{:});
 end
 
-resp_ens = logical(sum(app.ddata.ensemble_tuning_stats{1}.peak_resp_cells(:,tn_all),2));
+% resp_ens = logical(sum(app.ddata.ensemble_tuning_stats{1}.peak_resp_cells(:,tn_all),2));
+% 
+% ens_list = app.ddata.ensembles{1}.cells.ens_list(app.ddata.ensemble_stats{1}.accepted_ensembles);
+% resp_ens_list = ens_list(resp_ens);
+% ens_cells = false(num_cells, numel(resp_ens_list));
+% for n_ens = 1:numel(resp_ens_list)
+%     ens_cells(resp_ens_list{n_ens}, n_ens) = 1;
+% end
+% 
+% resp_all = [resp_cell, ens_cells];
 
-ens_list = app.ddata.ensembles{1}.cells.ens_list(app.ddata.ensemble_stats{1}.accepted_ensembles);
-resp_ens_list = ens_list(resp_ens);
-ens_cells = false(num_cells, numel(resp_ens_list));
-for n_ens = 1:numel(resp_ens_list)
-    ens_cells(resp_ens_list{n_ens}, n_ens) = 1;
-end
-
-resp_all = [resp_cell, ens_cells];
-
-
+resp_all = resp_cell;
 %%
 trial_types = app.ddata.trial_types{1};
 stim_frame_index = app.ddata.stim_frame_index{1};
 
+vol_per = mean(cat(1, cdata.volume_period));
+
 trial_window = f_str_to_array(app.analysis_BaserespwinEditField.Value);
-[~, trial_frames] = f_dv_compute_window_t(trial_window, cdata.volume_period);
+[~, trial_frames] = f_dv_compute_window_t(trial_window, vol_per);
 
 trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_frames);
 [trial_data_sort_wctx, trial_types_wctx] =  f_s3_add_ctx_trials(trial_data_sort, trial_types, app.ddata.MMN_freq{1}, app.ops);
@@ -64,7 +66,8 @@ end
 
 hc_params.plot_dist_mat = 1;
 hc_params.plot_clusters = 0;
-
+hc_params.method = 'average';
+hc_params.title_tag = ddata.dset_name{1};
 if sort_trials
     tr_data_2d_tr = reshape(tr_data2, [], num_tr);
     hclust_out_trial = f_hcluster_wrap(tr_data_2d_tr', hc_params);

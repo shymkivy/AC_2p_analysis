@@ -30,9 +30,23 @@ for n_dset = 1:num_dsets
             resp_cell_sel = 'Resp marg';
         end
 
-        [~, resp_vals] = f_dv_get_resp_vals_cells(app, stats1, tn_all2(n_fl,:), [], resp_cell_sel);
+        [selected_cells, resp_vals] = f_dv_get_resp_vals_cells(app, stats1, tn_all2(n_fl,:), [], resp_cell_sel);
         
-        data1{n_fl} = cat(2,resp_vals{:});
+        resp_vals2 = cat(2,resp_vals{:});
+        
+        num_cells = size(resp_vals2,1);
+
+        if app.ConverttoZCheckBox.Value
+            st_mean_mean = stats1.stat_trials_mean_mean(selected_cells(:,1));
+            st_mean_sem = stats1.stat_trials_mean_sem(selected_cells(:,1));
+        else
+            st_mean_mean = zeros(num_cells,1);
+            st_mean_sem = ones(num_cells,1);
+        end
+        
+        resp_vals3 = (resp_vals2 - st_mean_mean)./st_mean_sem;
+
+        data1{n_fl} = resp_vals3;
     end
     data_all{n_dset} = cat(1,data1{:});
 end

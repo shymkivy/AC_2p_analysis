@@ -1,4 +1,4 @@
-function f_plot_cond_decoding(dec_data_out, plot_var, params, ops)
+function f_plot_decoret_types(dec_data_out, plot_var, params, ops, title_tag)
 
 marginalize_params = 0; % 0= plot for the middle param
 
@@ -28,6 +28,7 @@ end
 %% plot
 for n_cond = 1:numel(ops.regions_to_analyze)
     cond_name = ops.regions_to_analyze{n_cond};
+    title_tag2 = sprintf('%s; %s', cond_name, title_tag);
     if numel(params.(plot_var))>1
         figure; 
         s1= subplot(2,1,1); hold on; axis tight;
@@ -58,21 +59,26 @@ for n_cond = 1:numel(ops.regions_to_analyze)
             end
         end
         if numel(params.(plot_var))>1
-            pl{n_dec} = plot(params.(plot_var), nanmean(dec_data_means{n_dec}), 'color', ops.cond_colors{n_dec}, 'LineWidth', 2);
+            pl{n_dec} = plot(params.(plot_var), mean(dec_data_means{n_dec},'omitnan'), 'color', ops.cond_colors{n_dec}, 'LineWidth', 2);
         end
     end
-    title([cond_name ', plot ' plot_var], 'Interpreter', 'none')
+    ylabel('performance')
+    xlabel(strrep(plot_var,'_',' '))
+    title(strrep(title_tag2,'_',' '))
 
     %figure; hold on;
 
     if numel(params.(plot_var))>1
         subplot(2,1,2); hold on; axis tight;
         for n_dec = 1:numel(params.decoder_type)
-            means1 = nanmean(dec_data_means{n_dec});
-            sem1 = nanstd(dec_data_means{n_dec})/sqrt(size(dec_data_means{n_dec},1)-1);
+            means1 = mean(dec_data_means{n_dec}, 'omitnan');
+            sem1 = std(dec_data_means{n_dec},'omitnan')/sqrt(size(dec_data_means{n_dec},1)-1);
             shadedErrorBar_YS(params.(plot_var), means1, sem1, ops.cond_colors{n_dec});
         end
-        legend([pl{:}], params.decoder_type);
+        legend([pl{:}], strrep(params.decoder_type,'_',' '));
+        ylabel('performance')
+        xlabel(strrep(plot_var,'_',' '))
+        title(strrep(title_tag2,'_',' '))
         subplot(s1)
     else
         % need to fix

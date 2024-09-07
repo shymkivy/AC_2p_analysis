@@ -95,7 +95,7 @@ for n_reg = 1:num_reg
             elseif strcmpi(app.plottypeDropDown.Value, 'ecdf')
                 [f, xi] = ecdf(data_feat);
                 leg_pl{n_reg} = plot(xi, f, 'color', color2, 'LineWidth', 2);
-                ymax = 1;
+                ymax = 1/1.1;
             elseif strcmpi(app.plottypeDropDown.Value, 'histogram')
                 h1 = histogram(data_feat, bin_locs, 'Normalization', 'probability');
                 h1.FaceColor = color2;
@@ -129,7 +129,7 @@ for n_reg = 1:num_reg
                 elseif strcmpi(app.plottypeDropDown.Value, 'ecdf')
                     [f, xi] = ecdf(data_feat);
                     leg_pl{n_reg, n_tn} = plot(xi, f, 'color', color2, 'LineWidth', 2, 'LineStyle', linestyles2);
-                    ymax = 1;
+                    ymax = 1/1.1;
                 elseif strcmpi(app.plottypeDropDown.Value, 'histogram')
                     h1 = histogram(data_feat, bin_locs, 'Normalization', 'probability');
                     h1.FaceColor = color2;
@@ -154,16 +154,15 @@ if strcmpi(app.plotfeatureDropDown.Value, 'peak loc')
     xlabel('Time, sec');
 else
     xlabel(app.plotfeatureDropDown.Value);
-    ylim([0 1.05])
 end
-title_tag2 = sprintf('%s, %s, %s, %s; smf=%.1f', app.plotfeatureDropDown.Value, app.plottypeDropDown.Value, app.ResponsivecellsselectDropDown.Value, sm_fac);
+title_tag2 = sprintf('%s, %s, %s; smf=%.1f', app.plotfeatureDropDown.Value, app.plottypeDropDown.Value, app.ResponsivecellsselectDropDown.Value, sm_fac);
 title(title_tag2, 'interpreter', 'none');
 legend([leg_pl2{:}], legend_all);
 
 if ~app.MarginalizedistCheckBox.Value
     [p_all, tbl_all, stats_all]  = anova1(cat(1, feat_pool{:}),cat(1, lab_pool{:}), 'off');
     title_tag4 = sprintf('%s; stats', title_tag2);
-    f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag4);
+    f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag4, legend_all);
 end
 
 end
