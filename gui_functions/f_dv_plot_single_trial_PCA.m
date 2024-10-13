@@ -27,7 +27,7 @@ tn0 = f_dv_get_trial_number(app, ddata.MMN_freq{1});
 params = f_dv_gather_params(app);
 
 %reg_all = app.ops.regions_to_analyze;
-[region_num_all, reg_tag, leg_list] = f_dv_get_region_sel_val2(app);
+[region_num_all, reg_tag, leg_list] = f_dv_get_region_sel_val(app);
 
 num_reg = size(region_num_all,1);
 

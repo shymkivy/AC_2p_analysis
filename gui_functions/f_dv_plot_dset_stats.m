@@ -81,4 +81,5 @@ if sum(strcmpi(data(1,:).paradigm, {'tone_mmn', 'fg_mmn'}))
     fprintf('%s; stim diff mean %.2f %s, std %.2f %s\n', data.paradigm{1}, mean(stim_val_diff), units1, std(stim_val_diff), units1);
 end
 
+
 end 

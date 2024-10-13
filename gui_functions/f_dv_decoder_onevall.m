@@ -16,7 +16,7 @@ num_dsets = size(data,1);
 params = f_dv_gather_params(app);
 
 %[region_num, reg_tag] = f_dv_get_region_sel_val(app);
-[region_num, reg_tag, leg_list] = f_dv_get_region_sel_val2(app);
+[region_num, reg_tag, leg_list] = f_dv_get_region_sel_val(app);
 num_regions = size(region_num,1);
 reg_all = app.ops.regions_to_analyze;
 

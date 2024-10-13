@@ -5,6 +5,8 @@ n_pl = app.mplSpinner.Value;
 % dset_list = 1:3;
 % dset_list = 1:7;
 
+do_mean = 1;
+
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 num_dsets = size(data,1);
 
@@ -20,6 +22,8 @@ num_tn = numel(tn_all);
 corr_vals = nan(num_dsets, num_tn);
 isi_vals = nan(num_dsets,1);
 use_dset = false(num_dsets, 1);
+corr_vals_tr_hcs = nan(num_dsets, num_tn, 3); % hist, chron, shuff
+
 for n_dset = 1:num_dsets
     %dset_idx = dset_list(n_dset);
     ddata = data(n_dset,:);
@@ -42,6 +46,7 @@ for n_dset = 1:num_dsets
         %num_cells = sum([cdata.num_cells]);
         firing_rate = cat(1,cdata.S_sm);
         trial_types = ddata.trial_types{1};
+        trial_types_hist = [0; trial_types(1:end-1)];
         
         stim_frame_index = ddata.stim_frame_index{1};
         
@@ -57,6 +62,7 @@ for n_dset = 1:num_dsets
             
             tr_idx = logical(sum(trial_types == app.ops.context_types_all(tn1)',2));
             tr_data = trial_data_sort(:,:,tr_idx);
+            tr_hist = trial_types_hist(tr_idx);
             
             num_trials = sum(tr_idx);
 
@@ -71,17 +77,48 @@ for n_dset = 1:num_dsets
                 hc_params.plot_dist_mat = 0;
                 hc_params.plot_clusters = 0;
                 hc_params.num_clust = 1;
+                hc_params.distance_metric = 'correlation';
         
-        
-                tr_data_2d_tr = reshape(tr_data2, [], num_trials);
+                if do_mean
+                    tr_data_2d_tr = squeeze(mean(tr_data2,2));
+                else
+                    tr_data_2d_tr = reshape(tr_data2, [], num_trials);
+                end
+
                 hclust_out_trial = f_hcluster_wrap(tr_data_2d_tr', hc_params);
                 %tr_data3 = tr_data2(:,:,hclust_out_trial.dend_order);
         
-                SI = 1-hclust_out_trial.dist;
-                SI_vals = tril(SI,-1);
-                SI_vals(SI_vals==0) = [];
+                SI = 1-hclust_out_trial.dist_no;
+
+                % SI_vals = tril(SI,-1);
+                % SI_vals(SI_vals==0) = [];
+
+                corr_vals(n_dset, n_tn) = if_get_SI_mean(SI);
                 
-                corr_vals(n_dset, n_tn) = mean(SI_vals);
+                SI = 1 - hclust_out_trial.dist_no;
+
+                idx_hcs = cell(3,1);
+                idx_hcs{1} = tr_hist;
+                idx_hcs{2} = sort(tr_hist);
+                idx_hcs{3} = tr_hist(randperm(numel(tr_hist)));
+                for n1 = 1:3
+                    corr_10 = zeros(10,1);
+                    
+                    for n_tr = 1:10
+                        idx2 = idx_hcs{n1} == n_tr;
+    
+                        SI2 = SI(idx2,:);
+                        SI3 = SI2(:,idx2);
+    
+                        corr_10(n_tr) = if_get_SI_mean(SI3);
+                    end
+    
+                    corr_vals_tr_hcs(n_dset, n_tn, n1) = mean(corr_10);
+
+                end
+                %fprintf('%s; ISI %.1f; SI hist sort = %.3f; SI full = %.3f\n', title_tag, isi_vals(n_dset), mean(corr_10), SI_full)
+
+
             end
        
         end
@@ -113,15 +150,27 @@ corr_sem = zeros(num_isi,1);
 indiv_dat = cell(num_isi,1);
 lab_all = cell(num_isi,1);
 lab_all2 = cell(num_isi,1);
+corr_vals_tr_hcs_mean = zeros(num_isi,3);
+corr_vals_tr_hcs_sem = zeros(num_isi,3);
 for n_isi = 1:num_isi
     isi_idx = isi_vals == isi_uq(n_isi);
     temp_data = corr_vals(isi_idx,:);
+    temp_data = temp_data(:);
     temp_data2 = temp_data(~isnan(temp_data));
     indiv_dat{n_isi} = temp_data2;
     corr_mean(n_isi) = mean(temp_data2);
     corr_sem(n_isi) = std(temp_data2)/sqrt(numel(temp_data2)-1);
     lab_all{n_isi} = repmat({num2str(round(isi_uq(n_isi),1))}, [numel(temp_data2), 1]);
     lab_all2{n_isi} = num2str(round(isi_uq(n_isi),1));
+
+    temp_data = corr_vals_tr_hcs(isi_idx,:,:);
+    for n1 = 1:3
+        temp_data2 = temp_data(:,:,n1);
+        temp_data2 = temp_data2(:);
+        temp_data3 = temp_data2(~isnan(temp_data2));
+        corr_vals_tr_hcs_mean(n_isi, n1) = mean(temp_data2(:), 'omitnan');
+        corr_vals_tr_hcs_sem(n_isi, n1) = std(temp_data2(:), 'omitnan')/sqrt(numel(temp_data3)-1);
+    end
 end
 
 figure; hold on
@@ -167,5 +216,20 @@ f_dv_plot_anova1(p_all, tbl_all, stats_all, title_tag5, lab_all2, 1, 0);
 
 
 %figure; imagesc(reshape(color1, [10 1 3]))
+
+figure; hold on
+%pl2 = cell(2,1);
+errorbar(isi_uq, corr_vals_tr_hcs_mean, corr_vals_tr_hcs_sem)
+legend('hist', 'chron', 'shuff')
+
+
+end
+
+function SI_mean = if_get_SI_mean(SI_mat)
+
+SI_vals = tril(SI_mat,-1);
+SI_vals(SI_vals==0) = [];
+
+SI_mean = mean(SI_vals);
 
 end

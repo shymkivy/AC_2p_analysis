@@ -41,7 +41,7 @@ num_t = sum(trial_frames);
 onset_frames = and(plot_t >= onset_window(1), plot_t <= onset_window(2));
 offset_frames = and(plot_t >= offset_window(1), plot_t <= offset_window(2));
 
-[region_num, reg_tag, leg_list] = f_dv_get_region_sel_val2(app);
+[region_num, reg_tag, leg_list] = f_dv_get_region_sel_val(app);
 num_reg = size(region_num,1);
 
 dec_data_out = cell(num_reg,1);

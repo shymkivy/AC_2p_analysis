@@ -8,11 +8,11 @@ bar(categorical(labels(:,1), labels(:,1)), zeros(num_bbar,1));
 means1 = zeros(num_sbar, num_bbar);
 sems1 = zeros(num_sbar, num_bbar);
 for n_bb = 1:num_bbar
-    num_pts = size(means{1,n_bb},1);
+    num_pts = sum(~isnan(means{1,n_bb}));
     for n_sb = 1:num_sbar
         temp_data = means{n_sb,n_bb};
-        means1(n_sb,n_bb) = mean(temp_data,1);
-        sems1(n_sb,n_bb) = std(temp_data,[],1)/sqrt(num_pts-1);
+        means1(n_sb,n_bb) = mean(temp_data,1, 'omitnan');
+        sems1(n_sb,n_bb) = std(temp_data,[],1, 'omitnan')/sqrt(num_pts-1);
     end
 end
     

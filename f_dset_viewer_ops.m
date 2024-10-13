@@ -18,7 +18,7 @@ idx1 = 2;
 ops.experiments(idx1).name = 'echo';
 ops.experiments(idx1).experiment = 'echo';
 ops.experiments(idx1).data_path  = 'F:\AC_data\caiman_data_echo';
-ops.experiments(idx1).save_mat_fname = 'echo_save_10_25_22.mat';
+ops.experiments(idx1).save_mat_fname = 'echo_save_9_11_24.mat';%'echo_save_10_25_22.mat';
 ops.experiments(idx1).save_reg_fname = '';
 ops.experiments(idx1).name_tag = '';
 

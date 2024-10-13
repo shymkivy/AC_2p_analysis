@@ -2,26 +2,16 @@ function f_dv_plot_dist(app)
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 
-if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
-    n_pl = app.mplSpinner.Value;
-else
-    n_pl = 1:max([data.num_planes]);
-end
-
 tn_all = f_dv_get_trial_number(app);
 [num_gr, num_tn] = size(tn_all);
 
 transp = app.StimtranspEditField.Value;
 freq_col = app.stimcolorSpinner.Value;
 
-features2 = cell(2,1);
-sel_cells2 = cell(2,1);
-for n_gr = 1:num_gr
-    [features2{n_gr}, sel_cells2{n_gr}] = f_dv_get_feature(app, app.plotfeatureDropDown.Value, data, tn_all(n_gr,:), n_pl);
-end
+[features2, sel_cells2] = f_dv_get_feature(app, app.plotfeatureDropDown.Value, tn_all);
+features1 = reshape(features2, [], num_tn);
+sel_cells1 = reshape(sel_cells2, [], num_tn);
 
-features1 = cat(1, features2{:});
-sel_cells1 = cat(1, sel_cells2{:});
 tn1 = tn_all(1,:);
 % features1 = cell(1, num_tn);
 % resp_cells1 = cell(1, num_tn);

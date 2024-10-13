@@ -27,7 +27,7 @@ tn_all = f_dv_get_trial_number(app, tt_input);
 
 params = f_dv_gather_params(app);
 
-[region_num, reg_tag, leg_list] = f_dv_get_region_sel_val2(app);
+[region_num, reg_tag, leg_list] = f_dv_get_region_sel_val(app);
 num_reg = size(region_num,1);
 
 mouse_id = cell(num_gr, num_dsets);

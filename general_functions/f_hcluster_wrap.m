@@ -54,6 +54,7 @@ if estimate_clust_num
 end
 
 hclust_out.dist = dist1;
+hclust_out.dist_no = X_clust;
 hclust_out.dend_order = dend_order;
 hclust_out.clust_ident = clust_ident;
 hclust_out.Z = Z;

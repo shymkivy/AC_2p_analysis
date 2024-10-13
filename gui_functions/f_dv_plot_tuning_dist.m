@@ -26,8 +26,9 @@ tn_all = f_dv_get_trial_number(app);
 num_dsets = numel(data.experiment);
 reg_all = app.ops.regions_to_analyze;
 
-[region_num, reg_tag, leg_list] = f_dv_get_region_sel_val2(app);
+[region_num, reg_tag, leg_list] = f_dv_get_region_sel_val(app);
 num_reg = size(region_num,1);
+leg_list2 = leg_list(region_num(:,1));
 
 title_tag2 = sprintf('%s; %s reg', title_tag, reg_tag);
 
@@ -72,13 +73,16 @@ for n_dset = 1:num_dsets
 
     num_cells = sum([stats1.num_cells]);
 
+    data_reg_avial = false;
     if app.UseregdatalabelsCheckBox.Value
         if ~isempty(data1.registered_data{1})
             reg_cell_labels = data1.registered_data{1}.reg_labels;
+            data_reg_avial = true;
         else
-            reg_cell_labels = zeros(num_cells,1);
+            fprintf('dset %s reg data unavailable\n', data1.dset_name{1});
         end
-    else
+    end
+    if ~data_reg_avial
         reg_idx = find(strcmpi(reg_all, data1.area));
         reg_cell_labels = ones(num_cells,1)*reg_idx;
     end
@@ -217,13 +221,13 @@ title(sprintf('%s; resp counts', title_tag3), 'Interpreter', 'none');
 ylabel('Responsive cell fraction');
 max_y = f1.Children.YLim;
 f1.Children.YLim(2) = max([max_y, app.maxYlimEditField.Value]);
-legend(b1, leg_list)
+legend(b1, leg_list2)
 
 if app.plotstatsCheckBox.Value
     for n_tn = 1:num_tn
         [p_tun, tbl_tun, stats_tun]  = anova1(cat(1, tun_data_all{:,n_tn}), cat(1, reg_lab_all{:}), 'off');
         title_tag4 = sprintf('resp counts; %s; %s', title_tag3, categories{n_tn});
-        f_dv_plot_anova1(p_tun, tbl_tun, stats_tun, title_tag4, leg_list);
+        f_dv_plot_anova1(p_tun, tbl_tun, stats_tun, title_tag4, leg_list2);
     end
     if num_reg == 1
         tags = repmat(1:num_tn, [sum(has_cells),1 ]);
@@ -253,13 +257,13 @@ if num_tn == 10
     ylabel('Responsive cell fraction');
     max_y = f1.Children.YLim;
     f1.Children.YLim(2) = max([max_y, app.maxYlimEditField.Value]);
-    legend(b1, leg_list)
+    legend(b1, leg_list2)
     
     if app.plotstatsCheckBox.Value
         for n_tn = 1:3
             [p_tun, tbl_tun, stats_tun]  = anova1(cat(1, tun_lmh_all{:,n_tn}), cat(1, reg_lab_all{:}), 'off');
             title_tag4 = sprintf('multi freq tuning; %s; %s; tuning stats', title_tag3, cat_lmh{n_tn});
-            f_dv_plot_anova1(p_tun, tbl_tun, stats_tun, title_tag4, leg_list);
+            f_dv_plot_anova1(p_tun, tbl_tun, stats_tun, title_tag4, leg_list2);
         end
     end
 
@@ -289,16 +293,16 @@ if app.plotstatsCheckBox.Value
         line_f1{1,n_reg} = plot(x_data, y_data, color=colors2{n_reg});
         errorbar(x_data, y_data, y_sem, '.','LineWidth',1, color=colors2{n_reg});
         line_f1{2,n_reg} = plot(x_fit, y_fit_g, '--', color=colors3{n_reg});
-        leg_f1{1,n_reg} = sprintf('%s data', leg_list{n_reg});
-        leg_f1{2,n_reg} = sprintf('%s fit; R^2=%.2f;\\mu=%.2fkHz; \\sigma=%.2foct', leg_list{n_reg}, fit_data_g.r_sq_adj, ind2freq(fit_data_g.fit_pars(2))/1000, fit_data_g.fit_pars(3)*incf);
+        leg_f1{1,n_reg} = sprintf('%s data', leg_list2{n_reg});
+        leg_f1{2,n_reg} = sprintf('%s fit; R^2=%.2f;\\mu=%.2fkHz; \\sigma=%.2foct', leg_list2{n_reg}, fit_data_g.r_sq_adj, ind2freq(fit_data_g.fit_pars(2))/1000, fit_data_g.fit_pars(3)*incf);
         
         y_fit = fit_data_gl.fit_eq(x_fit, fit_data_gl.fit_pars);
         figure(f2);
         line_f2{1,n_reg} = plot(x_data, y_data, color=colors2{n_reg});
         errorbar(x_data, y_data, y_sem, '.','LineWidth',1, color=colors2{n_reg});
         line_f2{2,n_reg} = plot(x_fit, y_fit, '--', color=colors3{n_reg});
-        leg_f2{1,n_reg} = sprintf('%s data', leg_list{n_reg});
-        leg_f2{2,n_reg} = sprintf('%s fit; R^2=%.2f;\\mu=%.2fkHz; \\sigma=%.2foct', leg_list{n_reg}, fit_data_gl.r_sq_adj, ind2freq(fit_data_gl.fit_pars(2))/1000, fit_data_gl.fit_pars(3)*incf);
+        leg_f2{1,n_reg} = sprintf('%s data', leg_list2{n_reg});
+        leg_f2{2,n_reg} = sprintf('%s fit; R^2=%.2f;\\mu=%.2fkHz; \\sigma=%.2foct', leg_list2{n_reg}, fit_data_gl.r_sq_adj, ind2freq(fit_data_gl.fit_pars(2))/1000, fit_data_gl.fit_pars(3)*incf);
         
     end
 
@@ -384,7 +388,7 @@ for n_reg = 1:num_reg
 end
 
 figure; hold on;
-bar(categorical(leg_list,leg_list), loco_mean, 'EdgeColor',[219, 239, 255]/256,'LineWidth',1.5);
+bar(categorical(leg_list2,leg_list2), loco_mean, 'EdgeColor',[219, 239, 255]/256,'LineWidth',1.5);
 for n_br = 1:num_reg
     br1 = bar(n_br, loco_mean(n_br));
     br1.FaceColor = colors1{n_br};
@@ -408,7 +412,7 @@ num_cells_all4 = sum(num_cells_all3,1);
 
 %if ~app.poolregionsCheckBox.Value
 figure; hold on
-bar(categorical(leg_list,leg_list), num_cells_all4);
+bar(categorical(leg_list2,leg_list2), num_cells_all4);
 title(sprintf('%s %s; cell counts; %d cells total', title_tag, reg_tag, sum(num_cells_all4)), 'Interpreter', 'none');
 ylabel('number of cells');
 for n_br = 1:numel(num_cells_all4)
@@ -436,7 +440,7 @@ for n_reg = 1:num_reg
 end
 
 figure; hold on;
-bar(categorical(leg_list,leg_list), tun_mean, 'EdgeColor',[219, 239, 255]/256,'LineWidth',1.5);
+bar(categorical(leg_list2,leg_list2), tun_mean, 'EdgeColor',[219, 239, 255]/256,'LineWidth',1.5);
 for n_br = 1:num_reg
     br1 = bar(n_br, tun_mean(n_br));
     br1.FaceColor = colors1{n_br};
@@ -450,7 +454,7 @@ ylabel('Resp cells fraction');
 if num_gr > 1
     [p_tun, tbl_tun, stats_tun]  = anova1(cat(1, tun_data_all{:}), cat(1, reg_lab_all{:}), 'off');
     title_tag4 = sprintf('resp cells marg; %s', title_tag3);
-    f_dv_plot_anova1(p_tun, tbl_tun, stats_tun, title_tag4, leg_list);
+    f_dv_plot_anova1(p_tun, tbl_tun, stats_tun, title_tag4, leg_list2);
 end
 
 end

@@ -1,15 +1,14 @@
 function f_dv_plot_anovan(p_val, tbl, stats, data, lab_gr, title_tag)
 % fisher lsd t = (mean1 - mean2) / sqrt(MSE(1/n1 - 1/n2))
 
-
-
-
 if sum(p_val < 0.05)
     
     num_gr = numel(lab_gr);
     means_gr = cell(num_gr,1);
 
     for n_gr = 1:num_gr
+        gr_name = stats.varnames{n_gr};
+
         gr1 = lab_gr{n_gr};
         gr_lab = unique(gr1);
         num_lab = numel(gr_lab);
@@ -19,19 +18,21 @@ if sum(p_val < 0.05)
             means2(n_lab) = mean(data(idx1));
         end
         means_gr{n_gr} = means2;
-    end
 
-    idx1 = strcmpi(tbl(1,:), 'MS');
-    idx2 = strcmpi(tbl(1,:), 'df');
-    idx3 = strcmpi(tbl(1,:), 'F');
-    idx4 = or(strcmpi(tbl(:,1), 'Groups'), strcmpi(tbl(:,1), 'Columns'));
-    idx5 = strcmpi(tbl(:,1), 'Error');
+        idx1 = logical(strcmpi(tbl(1,:), 'MS') + strcmpi(tbl(1,:), 'Mean Sq.'));
+        idx2 = logical(strcmpi(tbl(1,:), 'df') + strcmpi(tbl(1,:), 'd.f.'));
+        idx3 = strcmpi(tbl(1,:), 'F');
+        idx4 = logical(strcmpi(tbl(:,1), 'Groups') + strcmpi(tbl(:,1), 'Columns') + strcmpi(tbl(:,1), gr_name));
+        idx5 = strcmpi(tbl(:,1), 'Error');
+        
+        MSE = tbl{idx5,idx1};
+        dfc = tbl{idx4,idx2};
+        dfe = tbl{idx5,idx2};
+        Fc = tbl{idx4,idx3};
+
+    end
     
-    MSE = tbl{idx5,idx1};
-    dfc = tbl{idx4,idx2};
-    dfe = tbl{idx5,idx2};
-    Fc = tbl{idx4,idx3};
-    
+    % broken, needs fixing
     mean_diff = stats.means - stats.means';
 
     t_vals1 = tril(mean_diff)./sqrt(MSE.*(1./(stats.n-1) + 1./(stats.n-1)'));

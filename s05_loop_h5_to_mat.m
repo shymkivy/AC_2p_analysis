@@ -8,7 +8,7 @@ addpath(genpath('C:\Users\ys2605\Desktop\stuff\caiman_sorter\caiman_sorter_funct
 ops = struct();
 ops = f_cs_collect_ops_loop(ops);
 
-data_type = 2;
+data_type = 3;
 
 if data_type == 1
     data_dir = 'F:\AC_data\caiman_data_dream';

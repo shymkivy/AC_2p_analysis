@@ -2,29 +2,17 @@ function f_dv_plot_dist_by_area(app)
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 
-if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
-    n_pl = app.mplSpinner.Value;
-else
-    n_pl = 1:max([data.num_planes]);
-end
-
 tn_all = f_dv_get_trial_number(app);
 [num_gr, num_tn] = size(tn_all);
-
-features0 = cell(num_gr,1);
-sel_cells0 = cell(num_gr,1);
-area_labels0 = cell(num_gr,1);
 
 transp = app.StimtranspEditField.Value;
 freq_col = app.stimcolorSpinner.Value;
 
-for n_gr = 1:num_gr
-    [features0{n_gr}, sel_cells0{n_gr}, area_labels0{n_gr}] = f_dv_get_feature2(app, app.plotfeatureDropDown.Value, data, tn_all(n_gr,:), n_pl);
-end
+[features0, sel_cells0, area_labels0] = f_dv_get_feature(app, app.plotfeatureDropDown.Value, tn_all);
+features1 = reshape(features0, [], num_tn);
+sel_cells1 = reshape(sel_cells0, [], num_tn);
+area_labels1 = reshape(area_labels0, [], 1);
 
-features1 = cat(1, features0{:});
-sel_cells1 = cat(1, sel_cells0{:});
-area_labels1 = cat(1, area_labels0{:});
 tn1 = tn_all(1,:);
 
 reg_all = app.ops.regions_to_analyze;

@@ -17,7 +17,6 @@ num_trials = numel(tn_all);
 
 num_slice = 1;
 
-
 if strcmpi(feature_type, 'Peaks')
     % get vals and replace what is outside of window with means
     vals1 = cat(1, stats.peak_vals);

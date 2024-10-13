@@ -2,16 +2,10 @@ function f_dv_plot_xy(app)
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 
-if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
-    n_pl = app.mplSpinner.Value;
-else
-    n_pl = 1:max([data.num_planes]);
-end
-
 tn_all = f_dv_get_trial_number(app);
 
-[featuresX, sel_cellsX] = f_dv_get_feature(app, app.xvarDropDown.Value, data, tn_all, n_pl);
-[featuresY, sel_cellsY] = f_dv_get_feature(app, app.yvarDropDown.Value, data, tn_all, n_pl);
+[featuresX, sel_cellsX] = f_dv_get_feature(app, app.xvarDropDown.Value, tn_all);
+[featuresY, sel_cellsY] = f_dv_get_feature(app, app.yvarDropDown.Value, tn_all);
 
 title_tagst = '';
 f1 = figure; hold on; axis square;
@@ -48,9 +42,8 @@ else
 end
 xlim1 = f1.Children.XLim;
 
-x_lab = xlim1(1):0.1:xlim1(2);
-
-plot(x_lab, x_lab, '--r');
+% x_lab = xlim1(1):0.1:xlim1(2);
+% plot(x_lab, x_lab, '--r');
 
 xlabel(app.xvarDropDown.Value, 'interpreter', 'none')
 ylabel(app.yvarDropDown.Value, 'interpreter', 'none')

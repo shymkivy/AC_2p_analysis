@@ -2,37 +2,32 @@ function f_dv_plot_bar_features(app)
 
 [data, title_tag] = f_dv_get_data_by_mouse_selection(app);
 
-if strcmpi(app.SelectdatagroupDropDown.Value, 'plane')
-    n_pl = app.mplSpinner.Value;
-else
-    n_pl = 1:max([data.num_planes]);
-end
-
 tn_all = f_dv_get_trial_number(app);
 [num_gr, num_tn] = size(tn_all);
 
 transp = app.StimtranspEditField.Value;
 freq_col = app.stimcolorSpinner.Value;
 
-[region_num, reg_tag, leg_list] = f_dv_get_region_sel_val2(app);
+[region_num, reg_tag, leg_list] = f_dv_get_region_sel_val(app);
 num_reg = size(region_num,1);
 num_dsets = size(data,1);
 
 title_tag3 = sprintf('%s; %s; reg %s; %s', title_tag, app.ResponsivecellsselectDropDown.Value, reg_tag, app.plotfeatureDropDown.Value);
 
+[features0, sel_cells0, area_labels0] = f_dv_get_feature(app, app.plotfeatureDropDown.Value, tn_all);
+
 features1 = cell(num_dsets, num_gr, num_reg, num_tn);
 num_cells_all = zeros(num_dsets, num_gr, num_reg);
 
 for n_gr = 1:num_gr
-    [features0, sel_cells0, area_labels0] = f_dv_get_feature2(app, app.plotfeatureDropDown.Value, data, tn_all(n_gr,:), n_pl);
     for n_dset = 1:num_dsets
         for n_reg = 1:num_reg
-            reg_idx1 = logical(sum(area_labels0{n_dset} == region_num(n_reg,:),2));
+            reg_idx1 = logical(sum(area_labels0{n_dset, n_gr} == region_num(n_reg,:),2));
             
             if sum(reg_idx1)
                 for n_tn = 1:num_tn
-                    feat1 = features0{n_dset, n_tn};
-                    sel1 = sel_cells0{n_dset, n_tn};
+                    feat1 = features0{n_dset, n_gr, n_tn};
+                    sel1 = sel_cells0{n_dset, n_gr, n_tn};
                     
                     feat2 = feat1(reg_idx1);
                     sel2 = sel1(reg_idx1);
