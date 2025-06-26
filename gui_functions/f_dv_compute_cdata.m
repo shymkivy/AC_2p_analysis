@@ -74,7 +74,6 @@ if params.smooth
     end
 end
 %%
-
 cdata.raw = raw_full;
 cdata.C = C_full;
 cdata.Yra = Yra_full;

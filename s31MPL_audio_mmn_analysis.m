@@ -28,8 +28,8 @@ ops.blah = 1;
 %AC_files_MPL_files_12_11_19
 %AC_files_OA_3_16_20;
 %AC_files_OA_5_23_20_lab;
-
-AC_files_xls_import;
+ops.experiment_type = 'tone_mmn'; % tone_mmn', 'FG_mmn', 'echo'
+ops = f_AC_files_import(ops);
 
 %% preprocessing parameters
 % ------- Load params -----------
@@ -87,10 +87,10 @@ ops.stim.start_freq = 2000;
 ops.stim.increase_factor = 1.5;
 
 %%
-ops = f_mpl_process_ops(ops);
+ops = f_process_ops(ops);
 
 %%
-[data, ops] = f_mpl_load_data(ops);
+[data, ops] = f_load_datasets(ops);
 %%
 data = f_mpl_preprocess_data(data, ops);
 %% compute tunning

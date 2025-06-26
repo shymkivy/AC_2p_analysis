@@ -1,6 +1,9 @@
-function f_dv_initialize(app)
+function f_dv_initialize(app, gui_dir)
 
-app.ExperimentDropDown.Items = {app.gui_ops.ops.experiments.name};
+app.ops = f_dset_ops('F:\AC_data\');
+app.ops.gui_dir = gui_dir;
+
+app.ExperimentDropDown.Items = {app.ops.experiments.name};
 
 app.gui_plots.A_image = imagesc(app.UIAxes, 0);
 app.gui_plots.A_image.ButtonDownFcn = @(~,~) f_dv_button_down(app, app.gui_plots.A_image);
@@ -26,14 +29,24 @@ app.gui_plots.registration_fig = [];
 app.gui_plots.tuning_fig = [];
 
 %%
-gui_defaults = app.gui_ops.gui_defaults;
-ops = app.gui_ops.ops;
-stats = app.gui_ops.stats;
-est_params_pca = app.gui_ops.est_params_pca;
-est_params_cv = app.gui_ops.est_params_cv;
-ens_params = app.gui_ops.ens_params;
+ops = app.ops;
+params = ops.params;
+gui_defaults = params.gui_defaults;
+stats = params.stats;
+est_params_pca = params.est_params_pca;
+est_params_cv = params.est_params_cv;
+ens_params = params.ens_params;
 
 %% gui defaults
+app.RunallDropDown.Items = [ops.save_var_list_pl ops.save_var_list];
+app.anchordsetSpinner.Value = params.anchor_reg_dset;
+
+app.RectifyspikesCheckBox.Value = params.rectify_spikes;
+app.SubtractmeanspikesCheckBox.Value = params.subtract_mean_spikes;
+app.NormalizemaxspikesCheckBox.Value = params.normalize_max_spikes;
+app.SmoothsigmamsEditField.Value = params.smooth_sigma;
+app.SmoothCheckBox.Value = params.smooth;
+
 %% general
 app.plot_BaserespwinEditField.Value = f_array_to_str(ops.plot_window);
 app.analysis_BaserespwinEditField.Value = f_array_to_str(ops.analysis_window);
@@ -135,42 +148,22 @@ app.yvarDropDown.Value = data_variables{2};
 
 app.plottypeDropDown.Items = {'kde', 'ecdf', 'histogram', 'hist-kde'};
 
-app.gui_ops.save_var_list_pl = {'stats', 'stats_within', 'register_roi',...
-                    'register_roi_caiman_load', 'opto_data'};
-app.gui_ops.save_var_list = {'data_dim_pca', 'data_dim_cv',...
-                    'ensembles', 'ensemble_stats', 'ensemble_tuning_stats',...
-                    'ensless_trial_dim_est'};
                 
-app.PlottuningtypeDropDown.Items = {'cell', 'ensemble', 'cell to self'};
-                
-app.RunallDropDown.Items = [app.gui_ops.save_var_list_pl app.gui_ops.save_var_list];
-
+app.PlottuningtypeDropDown.Items = {'cell', 'ensemble', 'cell to self'};         
 app.regiontoplotDropDown.Items = {'All', 'All comb', 'A1', 'A2', 'AAF', 'UF', 'Primary vs secondary'};
-
 app.DeconvolutionmethodDropDown.Items = {'smooth_dfdt'};
-
 app.regdatatouseDropDown.Items = {'gui reg', 'caiman reg'};
-
 app.DimredmethodDropDown.Items = {'isomap', 'pca', 'svd'};
 app.DistmethodDropDown.Items = {'cosine', 'euclidean', 'correlation', 'hamming', 'jaccard'};
 app.DistreferenceDropDown.Items = {'pairwise', 'zero', 'trial ave'};
-
 app.statsbetweenDropDown.Items = {'Combined', 'Mouse', 'Dset', 'Subdset'};
-
 app.winanalyzeDropDown.Items = {'Onset', 'Offset', 'Middle'};
-
 app.NumplotaxesDropDown.Items = {'2', '3'};
-
 app.ColormapDropDown.Items = {'gray', 'parula', 'jet', 'turbo'};
-
 app.MattridataplotDropDown.Items = {'LTri', 'UTri', 'Full'};
-
 app.nanhandlemetDropDown.Items = {'randn', 'mean', 'remove'};
-
 app.UseregdatalabelsCheckBox.Value = 1;
-
 app.BarstatstypeDropDown.Items = {'parametric', 'nonparametric'};
-
 app.BarplottypeDropDown.Items = {'bar', 'bar_points', 'violin'};
 
 end

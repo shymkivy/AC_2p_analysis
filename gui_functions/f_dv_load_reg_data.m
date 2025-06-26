@@ -1,9 +1,9 @@
-function f_dv_load_reg_data(app)
+function [reg_struct, data] = f_dv_load_reg_data(data, ops)
 
 disp('Loading reg data...');
 
-fpath = app.regdatapathEditField.Value;
-
+fpath = ops.fpath_reg_data;
+reg_struct = struct();
 if exist(fpath, 'file') == 2
     data1 = load(fpath);
     reg_data = data1.data_all;
@@ -21,13 +21,10 @@ if exist(fpath, 'file') == 2
         reg_data(n_dset_reg).wf_region_means = region_means;
     end
     
-    app.reg_data = reg_data;
-    
     %%
-    all_mice = unique(app.data.mouse_tag, 'stable');
+    all_mice = unique(data.mouse_tag, 'stable');
     %%
-    anchor_dset = app.anchordsetSpinner.Value;
-    anchor_mouse_tag = all_mice{anchor_dset};
+    anchor_mouse_tag = all_mice{ops.params.anchor_reg_dset};
     %%
     anch_idx = strcmpi({reg_data.mouse_tag}, anchor_mouse_tag);
     anchor_reg = reg_data(:,anch_idx);
@@ -37,7 +34,7 @@ if exist(fpath, 'file') == 2
     
     %%
     borders_dset = 1;
-    borders_reg = app.reg_data(:,borders_dset);
+    borders_reg = reg_data(:,borders_dset);
     borders = borders_reg.region_borders;
     borders_means = region_means_all(:,:,borders_dset);
     
@@ -65,13 +62,13 @@ if exist(fpath, 'file') == 2
         mouse_tforms{n_ms} = current_tform_wf;
     end
     
-    params = f_dv_gather_params(app);
+    params = ops.params;
     
-    num_dsets = size(app.data,1);
+    num_dsets = size(data,1);
     disp('Computing cell locations')
     for n_dset = 1:num_dsets
         params.n_dset = n_dset;
-        mdata = app.data(n_dset,:);
+        mdata = data(n_dset,:);
         
         current_rdata_idx = strcmpi(mdata.mouse_tag,{reg_data.mouse_tag});
         current_rdata = reg_data(current_rdata_idx);
@@ -107,7 +104,7 @@ if exist(fpath, 'file') == 2
                 %% register 
                 coords_tf = (coords*tform.T);
     
-                app.data(n_dset,:).registered_data{1}.coords = coords_tf;
+                data(n_dset,:).registered_data{1}.coords = coords_tf;
             else
                 fprintf('Missing reg data for %s\n', mdata.dset_name_full{1});
             end
@@ -139,13 +136,12 @@ if exist(fpath, 'file') == 2
         y_lin = linspace(pos1(end,2), pos1(1,2), ceil(dist1/max_dist)+1);
         borders_fix{n_reg}.Position = [pos1; [x_lin', y_lin']];
     end
-    app.border_coords = borders_fix;
     
     % sort cells to bordered regions
     cell_labels = cell(num_dsets,1);
     for n_dset = 1:num_dsets
-        if ~isempty(app.data(n_dset,:).registered_data{1})
-            coords_tf = app.data(n_dset,:).registered_data{1}.coords;
+        if ~isempty(data(n_dset,:).registered_data{1})
+            coords_tf = data(n_dset,:).registered_data{1}.coords;
             num_cells = size(coords_tf,1);
             pos_min_dist = zeros(num_cells,4);
             for n_cell = 1:num_cells
@@ -156,7 +152,7 @@ if exist(fpath, 'file') == 2
             end
             [~, reg_idx] = min(pos_min_dist,[],2);
             cell_labels{n_dset} = reg_idx;
-            app.data(n_dset,:).registered_data{1}.reg_labels = reg_idx;
+            data(n_dset,:).registered_data{1}.reg_labels = reg_idx;
         end
     end
     
@@ -166,20 +162,22 @@ if exist(fpath, 'file') == 2
     axis equal tight; hold on;
     for n_reg = 1:4
         pos1 = borders_fix{n_reg}.Position;  
-        plot(pos1(:,1), pos1(:,2), '.', 'Color', app.ops.cond_colors{n_reg}, 'LineWidth', 2);
+        plot(pos1(:,1), pos1(:,2), '.', 'Color', ops.cond_colors{n_reg}, 'LineWidth', 2);
     end
     for n_dset = 1:num_dsets
-        if ~isempty(app.data(n_dset,:).registered_data{1})
-            coords_tf = app.data(n_dset,:).registered_data{1}.coords;
+        if ~isempty(data(n_dset,:).registered_data{1})
+            coords_tf = data(n_dset,:).registered_data{1}.coords;
             for n_reg = 1:4
                 reg_idx = cell_labels{n_dset} == n_reg;
-                plot(coords_tf(reg_idx,1),coords_tf(reg_idx,2), '.', 'color',app.ops.cond_colors{n_reg});
+                plot(coords_tf(reg_idx,1),coords_tf(reg_idx,2), '.', 'color',ops.cond_colors{n_reg});
             end
         end
     end
     f1.Children.YDir = 'reverse';
     
-    f_dv_load_dset_from_data(app);
+    reg_struct.reg_data = reg_data;
+    reg_struct.border_coords = borders_fix;
+    %f_dv_load_dset_from_data(app);
 else
     disp('Reg data file not available')
 end

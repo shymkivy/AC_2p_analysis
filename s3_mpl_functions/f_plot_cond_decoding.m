@@ -81,7 +81,9 @@ for n_dec = 1:numel(params.decoder_type)
         for n_reg = 1:numel(ops.regions_to_analyze)
             means1 = mean(dec_data_means{n_reg},'omitnan');
             sem1 = std(dec_data_means{n_reg},'omitnan')/sqrt(size(dec_data_means{n_reg},1)-1);
-            shadedErrorBar_YS(params.(plot_var), means1, sem1, ops.cond_colors{n_reg});
+            if sum(~isnan(means1))
+                shadedErrorBar_YS(params.(plot_var), means1, sem1, ops.cond_colors{n_reg});
+            end
         end
         legend([pl{:}, pls], [ops.regions_to_analyze; {'Shuff'}]);
         ylabel('performance')
