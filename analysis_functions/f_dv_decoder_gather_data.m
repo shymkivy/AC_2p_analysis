@@ -1,16 +1,16 @@
-function [data_all3, tt_all3, reg_id3, group_id3] = f_dv_decoder_gather_data(data0, params, ops)
+function [firing_rates_all, trial_types_all, plot_t, reg_id3, reg_labels, group_id3] = f_dv_decoder_gather_data(data0, params, ops)
 
 tn_all = f_dv_get_trial_number(params);
 [data, ~] = f_dv_get_data_by_mouse_selection(data0, params);
 [cdata0, ~] = f_dv_get_new_cdata_stats(data(1,:), params);
-[region_num, ~, ~] = f_dv_get_region_sel_val(params, ops);
+[region_num, ~, reg_labels] = f_dv_get_region_sel_val(params, ops);
 
 [num_gr, num_tn] = size(tn_all);
 num_dsets = size(data,1);
 num_regions = size(region_num,1);
 
 trial_window = [-1, 3];
-[~, trial_frames] = f_dv_compute_window_t(trial_window, cdata0(1).volume_period);
+[plot_t, trial_frames] = f_dv_compute_window_t(trial_window, cdata0(1).volume_period);
 
 reg_id = ones(num_dsets, num_gr, num_regions).*reshape((1:num_regions), 1, 1, num_regions);
 group_id = ones(num_dsets, num_gr, num_regions).*reshape((1:num_gr), 1, num_gr, 1);
@@ -48,6 +48,8 @@ for n_dset = 1:num_dsets
             
             num_cells2 = sum(resp_reg_cell);
             
+            %group_id(n_dset, n_gr, n_reg) = n_gr;
+            %reg_id(n_dset, n_gr, n_reg) = n_reg2;
             if num_cells2 > 10
 
                 firing_rate2 = firing_rate(resp_reg_cell,:);
@@ -117,8 +119,8 @@ for n_data = 1:num_dsets2
     end
 end
 
-data_all3 = data_all2(has_data);
-tt_all3 = tt_all2(has_data);
+firing_rates_all = data_all2(has_data);
+trial_types_all = tt_all2(has_data);
 reg_id3 = reg_id2(has_data);
 group_id3 = group_id2(has_data);
 

@@ -81,16 +81,17 @@ ops.context_types_labels_trim2{30} = 'Dev';
 
 
 %% subplots dimensions
-if numel(ops.regions_to_analyze) == 1
+num_regions = numel(ops.regions_to_analyze);
+if num_regions == 1
     sm = 1;
     sn = 1;
-elseif numel(ops.regions_to_analyze) == 2
+elseif num_regions == 2
     sm = 1;
     sn = 2;
-elseif numel(ops.regions_to_analyze) == 3
+elseif num_regions == 3
     sm = 1;
     sn = 3;
-elseif numel(ops.regions_to_analyze) == 4
+elseif num_regions == 4
     sm = 2;
     sn = 2;
 end

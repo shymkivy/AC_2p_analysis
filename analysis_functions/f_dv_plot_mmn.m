@@ -168,7 +168,12 @@ for n_reg = 1:num_reg
         figure; hold on; axis tight; ylim(ylim1);
         if params.plot_stim
             r1 = rectangle('Position', [0 y_lim_min 0.5 y_lim_max-y_lim_min]);
-            r1.FaceColor = [ops.context_types_all_colors2{params.stim_freq_color} params.stim_transparancy];
+            if isprop(r1, "FaceAlpha")
+                r1.FaceColor = [ops.context_types_all_colors2{params.stim_freq_color}];
+                r1.FaceAlpha = params.stim_transparancy;
+            else
+                r1.FaceColor = [ops.context_types_all_colors2{params.stim_freq_color} params.stim_transparancy];
+            end
             r1.EdgeColor = [ops.context_types_all_colors2{params.stim_freq_color} params.stim_transparancy];
         end
         for n_ctx = 1:num_tn

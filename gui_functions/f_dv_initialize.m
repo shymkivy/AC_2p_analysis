@@ -1,6 +1,6 @@
 function f_dv_initialize(app, gui_dir)
 
-app.ops = f_dset_ops('F:\AC_data\');
+app.ops = f_dset_ops();
 app.ops.gui_dir = gui_dir;
 
 app.ExperimentDropDown.Items = {app.ops.experiments.name};

@@ -38,8 +38,9 @@ if exist(fpath, 'file') == 2
     borders = borders_reg.region_borders;
     borders_means = region_means_all(:,:,borders_dset);
     
-    borders_tform_wf = fitgeotrans(borders_means,anchor_means ,'nonreflectivesimilarity');
-    
+    %borders_tform_wf = fitgeotrans(borders_means,anchor_means ,'nonreflectivesimilarity');
+    borders_tform_wf = fitgeotform2d(borders_means,anchor_means ,'similarity');
+
     borders_tf = borders;
     for n_reg = 1:4
         bor_pos = borders_tf{n_reg}.Position(:,1:2);

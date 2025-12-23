@@ -19,4 +19,6 @@ if ops.load_reg_data
     [reg_struct, data] = f_dv_load_reg_data(data, ops);
 end
 
+ops.params.paradigm = data.paradigm{1};
+ops.params.current_dset_idx = data.idx(1);
 end

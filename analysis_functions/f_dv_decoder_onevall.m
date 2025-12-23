@@ -5,7 +5,7 @@ tn_all = f_dv_get_trial_number(params);
 [region_num, reg_tag, leg_list] = f_dv_get_region_sel_val(params, ops);
 
 % rest
-decoder_type = 'svm'; % tree, svm, bayes
+decoder_type = params.decoder_type; % tree, svm, bayes
 trial_num_selection = 'min'; % all, median, mean, min
 
 sig_plot = [0.001, 0.01, 0.05];
@@ -18,7 +18,6 @@ num_dsets = size(data,1);
 %[region_num, reg_tag] = f_dv_get_region_sel_val(app);
 
 num_regions = size(region_num,1);
-reg_all = ops.regions_to_analyze;
 
 ddata = data(1,:);
 [cdata, ~] = f_dv_get_new_cdata_stats(ddata, params);

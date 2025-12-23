@@ -1,5 +1,5 @@
-function ops = f_dset_ops(data_path)
-
+function ops = f_dset_ops()
+data_path = 'F:\AC_data\';
 ops = struct();
 ops.data_dir = data_path;
 ops.gui_save_dir = [data_path, '\dset_viewer_save'];
@@ -18,6 +18,7 @@ ops.experiments(idx1).name_tag = '';
 idx1 = 2;
 ops.experiments(idx1).name = 'echo';
 ops.experiments(idx1).experiment = 'echo';
+%ops.experiments(idx1).paradigm = 'cont';
 ops.experiments(idx1).data_path  = [data_path, '\caiman_data_echo'];
 ops.experiments(idx1).save_mat_fname = 'echo_save_9_11_24.mat';%'echo_save_10_25_22.mat';
 ops.experiments(idx1).save_reg_fname = '';
@@ -26,18 +27,19 @@ ops.experiments(idx1).name_tag = '';
 idx1 = 3;
 ops.experiments(idx1).name = 'tone_mmn';
 ops.experiments(idx1).experiment = 'mmn';
+ops.experiments(idx1).paradigm = 'tone_mmn';
 ops.experiments(idx1).data_path = [data_path, '\caiman_data_missmatch'];
 ops.experiments(idx1).save_mat_fname = 'mat_save_2_21_24.mat';%'mat_save_12_3_22.mat';
 ops.experiments(idx1).save_reg_fname = 'reg_save_11_28_22.mat';
-ops.experiments(idx1).paradigm = 'tone_mmn';
 
 idx1 = 4;
 ops.experiments(idx1).name = 'FG_mmn';
 ops.experiments(idx1).experiment = 'mmn';
+ops.experiments(idx1).paradigm = 'FG_mmn';
 ops.experiments(idx1).data_path = [data_path, '\caiman_data_missmatch'];
 ops.experiments(idx1).save_mat_fname = 'mat_save_fg_3_4_24.mat';%'mat_save_fg_9_19_22.mat';
 ops.experiments(idx1).save_reg_fname = 'reg_save_11_28_22.mat';
-ops.experiments(idx1).paradigm = 'FG_mmn';
+
 
 ops.load_mat_data = 1;       % auto loat data
 ops.load_reg_data = 1;       % auto loat data
@@ -119,8 +121,8 @@ ops.redundent_pool_trials = 2:15;
 params.trial_window = [-0.05, 0.95];
 
 params.deconvolution = 'smooth_dfdt';
-params.smooth = true;
-params.smooth_sigma = 150;
+params.smooth = false;
+params.smooth_sigma = 100;
 params.rectify_spikes = true;
 params.subtract_mean_spikes = true;
 params.normalize_max_spikes = true;
@@ -210,5 +212,27 @@ params.est_params_pca = est_params_pca;
 params.est_params_cv = est_params_cv;
 params.stats = stats;
 params.gui_defaults = gui_defaults;
+
+%%
+params.region = 'All';      % all, all comb, a1, a2, uf, aaf
+params.data_selection = 'All';   % all, mouse, dataset, plane
+params.n_pl = 1;
+%params.current_dset_idx = 1;
+params.trial_window = [-0.05, 0.95];
+params.trial_type = 'Context_both_comb';
+params.convert_to_z = 1;
+params.use_reg_data_labels = 1;
+params.responsive_cells_type = 'peaks';
+params.responsive_cells_select = 'resp marg';
+params.responsive_thresh = 1;
+params.stats_between = 'subdset';
+params.stim_window = 'onset';
+params.max_y_lim = 0;
+params.min_y_lim = 0;
+params.plot_stim = 1;
+params.stim_freq_color = 4;
+params.stim_transparancy = 0.2;
+params.plot_super_deets = 0;
+
 ops.params = params;
 end

@@ -11,6 +11,7 @@ dec_acc_frames_shuff = zeros(num_dsets, num_frames);
 dec_acc_frames_bycl = zeros(num_dsets, num_frames, num_trials);
 dec_acc_frames_bycl_shuff = zeros(num_dsets, num_frames, num_trials);
 
+dec_data = struct();
 for n_dset = 1:num_dsets
     
     fprintf('%d..', n_dset);
@@ -47,12 +48,15 @@ for n_dset = 1:num_dsets
         dec_acc_frames_shuff(n_dset,n_fr) = dec_out_shuff.validationAccuracy;
         dec_acc_frames_bycl_shuff(n_dset,n_fr,:) = dec_out_shuff.acc_by_class;
     end
-
+    dec_data(n_dset).accuracy = dec_acc_frames(n_dset,:);
+    dec_data(n_dset).accuracy_by_class = dec_acc_frames_bycl(n_dset,:,:);
+    dec_data(n_dset).accuracy_shuff = dec_acc_frames_shuff(n_dset,:);
+    dec_data(n_dset).accuracy_by_class_shuff = dec_acc_frames_bycl_shuff(n_dset,:,:);
 end
-dec_data = struct();
-dec_data.accuracy = dec_acc_frames;
-dec_data.accuracy_by_class = dec_acc_frames_bycl;
-dec_data.accuracy_shuff = dec_acc_frames_shuff;
-dec_data.accuracy_by_class_shuff = dec_acc_frames_bycl_shuff;
+
+% dec_data.accuracy = dec_acc_frames;
+% dec_data.accuracy_by_class = dec_acc_frames_bycl;
+% dec_data.accuracy_shuff = dec_acc_frames_shuff;
+% dec_data.accuracy_by_class_shuff = dec_acc_frames_bycl_shuff;
 
 end
