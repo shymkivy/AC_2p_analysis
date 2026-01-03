@@ -146,9 +146,9 @@ offset_vals = nan(num_cells, num_tt);
 trial_ave_trace1 = zeros(num_cells, num_t, num_tt);
 for n_tt = 1:num_tt
     idx1 = logical(sum([trial_types,trial_types_ctx] == ctx_types_all(n_tt),2));
-    %idx1 = trial_types_wctx==ctx_types_all(n_tt);
-    trial_data_sort2 = trial_data_sort(:,:, idx1);
-    if ~isempty(trial_data_sort2)
+    %idx1 = trial_types_wctx==ctx_types_all(n_tt)
+    if sum(idx1)
+        trial_data_sort2 = trial_data_sort(:,:, idx1);
         temp_trial_ave = mean(trial_data_sort2,3);
         [peak_vals(:,n_tt), peak_locs(:,n_tt)] = f_get_trial_peak(temp_trial_ave, peak_bin_size);
         trial_ave_trace1(:,:,n_tt) = temp_trial_ave;
@@ -186,19 +186,18 @@ end
 
 %% get peak resp cell
 
-idx1 = ~isnan(peak_locs);
-peak_locs_t = double(idx1);
-peak_locs_t(idx1) = stat_window_t(peak_locs(idx1));
-peak_in_resp_win = (peak_locs_t >= lim_sig_resp_win(1)) .* (peak_locs_t <= lim_sig_resp_win(2));
-
 if strcmpi(peak_stats, 'shuff_pool')
+    idx1 = ~isnan(peak_locs(1,:));
+    peak_locs_t = nan(num_cells, num_tt);
+    peak_locs_t(:,idx1) = stat_window_t(peak_locs(:,idx1));
+    peak_in_resp_win = (peak_locs_t >= lim_sig_resp_win(1)) .* (peak_locs_t <= lim_sig_resp_win(2));
+
     resp_thresh_peak = prctile(samp_peak_vals', peak_prcntle)';
     resp_thresh_peak_trace = repmat(resp_thresh_peak, [1 num_t]);
-    resp_thresh_peak2 = repmat(resp_thresh_peak, [1, num_tt]);
-    % do this crap to ignore nan if any
-    resp_cells_peak = double(idx1);
-    resp_cells_peak(idx1) = peak_vals(idx1) > resp_thresh_peak2(idx1);
+    resp_cells_peak = nan(num_cells, num_tt);
+    resp_cells_peak(:,idx1) = peak_vals(:,idx1) > resp_thresh_peak;
     resp_cells_peak = resp_cells_peak .* peak_in_resp_win;
+
 elseif strcmpi(peak_stats, 'shuff_locwise')
     resp_thresh_peak_trace = zeros(num_cells, num_t);
     resp_cells_peak = zeros(num_cells, num_tt);

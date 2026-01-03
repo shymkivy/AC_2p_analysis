@@ -44,7 +44,7 @@ ops.plot_details = 1;
 % What to preprocess
 if strcmpi(ops.paradigm, {'behavior'})
     ops.num_exp_phases = 1;
-elseif sum(strcmpi(ops.paradigm, {'ammn', 'mmn', 'vmmn', 'freq_grating', 'ammn_stim'}))
+elseif sum(strcmpi(ops.paradigm, {'ammn', 'mmn', 'vmmn', 'freq_grating', 'ammn_stim', 'tone_mmn'}))
     ops.num_exp_phases = 3;
 elseif sum(strcmpi(ops.paradigm, {'spont', 'rest', 'spont_stim', 'cont'}))
     ops.num_exp_phases = 1;

@@ -43,6 +43,11 @@ end
 
 AC_data = AC_data(AC_data.use_dset ~= 0,:);
 
+if 1 % sort alphabetically
+    [~, idx1] = sort(AC_data.mouse_id);
+    AC_data = AC_data(idx1,:);
+end
+
 %% 
 
 num_dsets = size(AC_data,1);

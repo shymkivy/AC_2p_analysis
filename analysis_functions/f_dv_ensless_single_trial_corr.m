@@ -49,11 +49,8 @@ for n_dset = 1:num_dsets
         trial_types_hist = [0; trial_types(1:end-1)];
         
         stim_frame_index = ddata.stim_frame_index{1};
-        
         [~, trial_frames] = f_dv_compute_window_t(params.trial_window, mean(cat(1,cdata.volume_period)));
-        
         trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_frames);
-
         [selected_cells, ~, ~, ~, resp_cells] = f_dv_get_resp_vals_cells(stats1, tn_all, params);
 
         for n_tn = 1:num_tn
@@ -68,7 +65,7 @@ for n_dset = 1:num_dsets
             selected_cells2 = selected_cells(:,n_tn);
             resp_cells2 = resp_cells(:,n_tn);
             
-            if sum(resp_cells2)>5
+            if sum(resp_cells2)>5       % if threre are responsive cells to those trials   resp_cells2
                 
                 tr_data2 = tr_data(selected_cells2,:,:);
                 %firing_rate2 = firing_rate(resp_cells,:);
@@ -76,25 +73,24 @@ for n_dset = 1:num_dsets
                 hc_params.plot_dist_mat = 0;
                 hc_params.plot_clusters = 0;
                 hc_params.num_clust = 1;
-                hc_params.distance_metric = 'correlation';
+                hc_params.distance_metric = 'correlation';      % correlation cosine
         
                 if do_mean
-                    tr_data_2d_tr = squeeze(mean(tr_data2,2));
+                    tr_data_2d_tr = squeeze(mean(tr_data2,2));      % average across trial duration
                 else
                     tr_data_2d_tr = reshape(tr_data2, [], num_trials);
                 end
 
                 hclust_out_trial = f_hcluster_wrap(tr_data_2d_tr', hc_params);
+                distance1 = hclust_out_trial.dist_no;
+                %distance1 = squareform(pdist(tr_data_2d_tr', hc_params.distance_metric));
                 %tr_data3 = tr_data2(:,:,hclust_out_trial.dend_order);
-        
-                SI = 1-hclust_out_trial.dist_no;
+                SI = 1-distance1;
 
                 % SI_vals = tril(SI,-1);
                 % SI_vals(SI_vals==0) = [];
 
                 corr_vals(n_dset, n_tn) = if_get_SI_mean(SI);
-                
-                SI = 1 - hclust_out_trial.dist_no;
 
                 idx_hcs = cell(3,1);
                 idx_hcs{1} = tr_hist;
@@ -124,6 +120,8 @@ for n_dset = 1:num_dsets
     end
 end
 
+%figure()
+%imagesc(corr_vals)
 
 isi_uq = unique(isi_vals);
 num_isi = numel(isi_uq);

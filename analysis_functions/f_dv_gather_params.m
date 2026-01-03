@@ -23,7 +23,6 @@ params.use_reg_data_labels = app.UseregdatalabelsCheckBox.Value;
 params.pool_regions = app.poolregionsCheckBox.Value;
 params.plot_feature = app.plotfeatureDropDown.Value;
 
-
 params.convert_to_z = app.ConverttoZCheckBox.Value;
 params.stats_between = app.statsbetweenDropDown.Value;
 params.plot_stats = app.plotstatsCheckBox.Value;
@@ -96,8 +95,6 @@ params.shadow_on3d = app.shadowon3dCheckBox.Value;
 params.shadow_axis_locs = [app.FlipshadowXCheckBox.Value, app.FlipshadowYCheckBox.Value, app.FlipshadowZCheckBox.Value] + 1;
 params.reverse_xyz = [app.ReverseXCheckBox.Value, app.ReverseYCheckBox.Value, app.ReverseZCheckBox.Value];
 params.grid_on = app.gridon3dCheckBox.Value;
-
-
 
 % ensless corr
 params.samp_range_min = app.samprangeminEditField.Value;

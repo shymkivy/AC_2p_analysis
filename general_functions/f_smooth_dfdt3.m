@@ -54,6 +54,7 @@ for n_cell=1:num_cells    % size(data,1)
     if rectify
         temp_data = max(temp_data,0);
     end
+    
     smooth_dfdt_data(n_cell,:) = temp_data;
 end
 
