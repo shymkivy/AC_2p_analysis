@@ -49,9 +49,14 @@ for n_dset = 1:num_dsets
         trial_types_hist = [0; trial_types(1:end-1)];
         
         stim_frame_index = ddata.stim_frame_index{1};
-        [~, trial_frames] = f_dv_compute_window_t(params.trial_window, mean(cat(1,cdata.volume_period)));
+        [plot_t, trial_frames] = f_dv_compute_window_t(params.trial_window, mean(cat(1,cdata.volume_period)));
         trial_data_sort = f_get_stim_trig_resp(firing_rate, stim_frame_index, trial_frames);
         [selected_cells, ~, ~, ~, resp_cells] = f_dv_get_resp_vals_cells(stats1, tn_all, params);
+        
+        if 0
+            figure();
+            plot(plot_t, mean(trial_data_sort(93,:,trial_types==5), 3));
+        end
 
         for n_tn = 1:num_tn
             tn1 = tn_all(n_tn);
@@ -140,6 +145,11 @@ end
 xlabel('ISI duration'); ylabel('Pairwise correlation')
 title(sprintf('Mean pairwise correlations; %s', title_tag), 'interpreter', 'none');
 xlim([0, 4.5]);
+
+if 0
+    figure();
+    imagesc(corr_vals)
+end
 
 
 corr_mean = zeros(num_isi,1);
